@@ -1,9 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using TimeDataViewer.Data;
 using System.Collections.Generic;
 using AvaloniaDemo.Markers;
+using AvaloniaDemo.Models;
+using AvaloniaDemo.ViewModels;
 
 namespace AvaloniaDemo.Views
 {

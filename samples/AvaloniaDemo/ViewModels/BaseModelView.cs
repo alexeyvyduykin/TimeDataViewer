@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using AvaloniaDemo.Models;
 
-namespace TimeDataViewer.Data
+namespace AvaloniaDemo.ViewModels
 {
     public class BaseModelView : INotifyPropertyChanged
     {
@@ -45,8 +47,8 @@ namespace TimeDataViewer.Data
                     break;
             }
         }
-        ObservableCollection<IntervalGroup> _strings = new ObservableCollection<IntervalGroup>();
-        public ObservableCollection<IntervalGroup> Strings
+        ObservableCollection<IntervalCollection> _strings = new ObservableCollection<IntervalCollection>();
+        public ObservableCollection<IntervalCollection> Strings
         {
             get
             {
@@ -59,16 +61,16 @@ namespace TimeDataViewer.Data
             }
         }
 
-        ObservableCollection<IntervalCustom> Intervals
+        ObservableCollection<BaseInterval> Intervals
         {
             get
             {
-                return new ObservableCollection<IntervalCustom>(_strings.SelectMany(s => s.Intervals));
+                return new ObservableCollection<BaseInterval>(_strings.SelectMany(s => s.Intervals));
             }
         }
 
-        ObservableCollection<IntervalCustom> _backgroundIntervals = new ObservableCollection<IntervalCustom>();
-        public ObservableCollection<IntervalCustom> BackgroundIntervals
+        ObservableCollection<BaseInterval> _backgroundIntervals = new ObservableCollection<BaseInterval>();
+        public ObservableCollection<BaseInterval> BackgroundIntervals
         {
             get
             {
@@ -115,7 +117,7 @@ namespace TimeDataViewer.Data
 
                 foreach (var item in data.Backs)
                 {
-                    _backgroundIntervals.Add(new IntervalCustom(item.Left, item.Right)
+                    _backgroundIntervals.Add(new BaseInterval(item.Left, item.Right)
                     {
                         Name = string.Format("BackgroundInterval_{0}_{1}", item.Left, item.Right)
                     });
@@ -125,7 +127,7 @@ namespace TimeDataViewer.Data
             {
                 foreach (var item in realData.BackIntervals)
                 {
-                    _backgroundIntervals.Add(new IntervalCustom(item.Left, item.Right)
+                    _backgroundIntervals.Add(new BaseInterval(item.Left, item.Right)
                     {
                         Name = string.Format("BackgroundInterval_{0}_{1}", item.Left, item.Right)
                     });
@@ -159,8 +161,8 @@ namespace TimeDataViewer.Data
                     int i = 1;
                     foreach (var key in data.Pool.Keys)
                     {
-                        var group = new IntervalGroup("String_" + key.ToString());
-                        foreach (var item in data.Pool[key].Select(s => new IntervalCustom(s.Left, s.Right)))
+                        var group = new IntervalCollection("String_" + key.ToString());
+                        foreach (var item in data.Pool[key].Select(s => new BaseInterval(s.Left, s.Right)))
                         {
                             //   str.Map = scheduler;
                             //  str.Position = new SCTimeScheduler.NET.SCSchedulerPoint(0.0, (i * step));
@@ -182,8 +184,8 @@ namespace TimeDataViewer.Data
                     int i = 1;
                     foreach (var key in realData.Intervals.Keys)
                     {
-                        var group = new IntervalGroup("String_" + key.ToString());
-                        foreach (var item in realData.Intervals[key].Select(s => new IntervalCustom(s.Left, s.Right)))
+                        var group = new IntervalCollection("String_" + key.ToString());
+                        foreach (var item in realData.Intervals[key].Select(s => new BaseInterval(s.Left, s.Right)))
                         {
                             group.AddInterval(item);
                         }
@@ -212,68 +214,5 @@ namespace TimeDataViewer.Data
 
         #endregion
 
-    }
-    public class IntervalCustom
-    {
-        public IntervalCustom(double left, double right)
-        {
-            this.Left = left;
-            this.Right = right;
-
-            this.Name = string.Format("Interval_{0:HH:mm:ss}_{1:HH:mm:ss}", left, right);
-            this.Id = Guid.NewGuid().ToString();
-        }
-
-        public IntervalGroup Group { get; set; }
-
-        public double Left { get; private set; }
-        public double Right { get; private set; }
-
-        public string Name { get; set; }
-        public string Id { get; }
-    }
-
-    public class IntervalGroup : IDisposable
-    {
-        static Random r = new Random();
-
-        public IntervalGroup(string name)
-        {
-            this.Name = name;
-
-            Intervals = new ObservableCollection<IntervalCustom>();
-
-            string[] descr = new string[]
-            {
-                "Satellites times vision",
-                "Sunlight satellite subpoint",
-                "Satellites angle rotation",
-                "Satellite received",
-                "Sensor daylight",
-                "GroundStation work",
-                "Satellite orbit correction"
-            };
-
-            var index = r.Next(0, descr.Length - 1);
-
-            Description = descr[index];
-        }
-
-        public void AddInterval(IntervalCustom ival)
-        {
-            ival.Group = this;
-
-            Intervals.Add(ival);
-        }
-
-        public void Dispose()
-        {
-            Intervals.Clear();
-        }
-
-        public ObservableCollection<IntervalCustom> Intervals { get; }
-
-        public string Name { get; set; }
-        public string Description { get; set; }
     }
 }
