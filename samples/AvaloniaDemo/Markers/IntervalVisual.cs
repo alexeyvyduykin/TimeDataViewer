@@ -20,8 +20,8 @@ namespace AvaloniaDemo.Markers
 {
     public class IntervalVisual : Control
     {
-     //   public readonly Popup Popup = new Popup();
-        SchedulerGridControl Map;
+        //   public readonly Popup Popup = new Popup();
+        SchedulerControl Map;
      //   public readonly IntervalTooltip Tooltip;// = new IntervalTooltip();
         public readonly SchedulerInterval Marker;
 
@@ -57,7 +57,7 @@ namespace AvaloniaDemo.Markers
 
         private void IntervalVisual_Initialized(object sender, EventArgs e)
         {
-            Map = Marker.Map as SchedulerGridControl;
+            Map = Marker.Map as SchedulerControl;
 
      //       Map.TopLevelForToolTips.Children.Add(Popup);
 

@@ -19,7 +19,7 @@ namespace AvaloniaDemo.Markers
     public class StringVisual : Control
     {
         public readonly SchedulerString Marker;
-        SchedulerGridControl Map;
+        SchedulerControl Map;
     //    public readonly Popup Popup = new Popup();
     //    public readonly StringTooltip Tooltip = new StringTooltip();
 
@@ -91,7 +91,7 @@ namespace AvaloniaDemo.Markers
 
         private void StringVisual_Initialized(object sender, EventArgs e)
         {
-            Map = Marker.Map as SchedulerGridControl;
+            Map = Marker.Map as SchedulerControl;
 
             Map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
 

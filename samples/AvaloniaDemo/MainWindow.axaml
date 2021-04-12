@@ -8,7 +8,10 @@
         Title="AvaloniaDemo">
 
 
-    <sch:CustomSchedulerControl Grid.Column="2" Grid.Row="3"></sch:CustomSchedulerControl>
-
+    <Grid Margin="5">
+        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="5">
+            <sch:SchedulerControl x:Name="Scheduler"></sch:SchedulerControl>
+        </Border>
+    </Grid>
 
 </Window>

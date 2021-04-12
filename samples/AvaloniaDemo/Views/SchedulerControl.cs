@@ -24,7 +24,7 @@ using AvaloniaDemo.Markers;
 
 namespace AvaloniaDemo.Views
 {
-    public class SchedulerGridControl : BaseSchedulerControl
+    public class SchedulerControl : BaseSchedulerControl
     {
         private enum BackgroundMode { Hour, Day, Week, Month, Year }
         private VisualBrush _gridBrush;
@@ -34,7 +34,7 @@ namespace AvaloniaDemo.Views
         private double _minLeft = Double.MaxValue;
         private double _maxRight = Double.MinValue;
 
-        public SchedulerGridControl() : base()
+        public SchedulerControl() : base()
         {
             _backgrounds = new Dictionary<BackgroundMode, Grid>();
             _markers = new Dictionary<SchedulerString, IList<SchedulerInterval>>();
