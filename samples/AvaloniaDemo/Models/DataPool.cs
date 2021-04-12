@@ -6,85 +6,154 @@ using System.Threading.Tasks;
 
 namespace AvaloniaDemo.Models
 {
+    public enum ETimePeriod { Day, Week, Month, Year }
+
     public class DataPool
-    {
-        public static int MinValue { get; set; } = 0;
-        public static int MaxValue { get; set; } = 86400;
-        public static int MaxLength { get; set; } = 3600;
-
-        static int NumIvalsPerString = 10;
-        static int NumBacks = 3;
-
-        IDictionary<int, bool> IsFull { get; set; } = new Dictionary<int, bool>();
-
-        Random random = new Random();
+    {    
+        private readonly Dictionary<ETimePeriod, Tuple<int, int>> _minSizeIntervals = new()
+        {
+            { ETimePeriod.Day, Tuple.Create(30 * 60/*30min*/, 9 * 60 * 60/*9h*/) },
+            { ETimePeriod.Week, Tuple.Create(2 * 60 * 60/*2h*/, 10 * 60 * 60/*10h*/) },
+            { ETimePeriod.Month, Tuple.Create(6 * 60 * 60/*6h*/, 20 * 60 * 60/*20h*/) },
+            { ETimePeriod.Year, Tuple.Create(12 * 60 * 60/*12h*/, 7 * 24 * 60 * 60/*7day*/) },
+        };
+        private readonly Dictionary<ETimePeriod, Tuple<int, int>> _maxSizeIntervals = new()
+        {
+            { ETimePeriod.Day, Tuple.Create(2 * 60 * 60/*2h*/, 12 * 60 * 60/*12h*/) },
+            { ETimePeriod.Week, Tuple.Create(6 * 60 * 60/*6h*/, 12 * 60 * 60/*12h*/) },
+            { ETimePeriod.Month, Tuple.Create(12 * 60 * 60/*12h*/, 24 * 60 * 60/*24h*/) },
+            { ETimePeriod.Year, Tuple.Create(24 * 60 * 60/*24h*/, 20 * 24 * 60 * 60/*20day*/) },
+        };
+        private readonly Dictionary<ETimePeriod, Tuple<int, int>> _numIntervals = new()
+        {
+            { ETimePeriod.Day, Tuple.Create(10, 2) },
+            { ETimePeriod.Week, Tuple.Create(25, 10) },
+            { ETimePeriod.Month, Tuple.Create(60, 25) },
+            { ETimePeriod.Year, Tuple.Create(200, 25) },
+        };
+        private ETimePeriod _timePeriod;
+        private int _begin, _end;
+        private int _lastValue;       
+        private readonly Dictionary<int, bool> _isFull = new();
+        private readonly Random _random = new();
+        private readonly int _specialDelta = 0;// для тестирования отступа от MinScreenValue=0
+        private DateTime _epoch0;
 
         public DataPool()
         {
-            Pool = new Dictionary<int, IList<Interval>>();
-            Backs = new List<Interval>();
+            TimePeriod = ETimePeriod.Day;
+
+            Intervals = new Dictionary<int, IList<Interval>>();
+            BackIntervals = new List<Interval>();
+
+            NumSatellites = 5;
         }
 
-        public void Generate(int numIval)
-        {
-            Pool.Clear();
+        public IDictionary<int, IList<Interval>> Intervals { get; }
 
-            for (int i = 0; i < numIval; i++)
+        public IList<Interval> BackIntervals { get; }
+
+        public int NumSatellites { get; set; }
+
+        public ETimePeriod TimePeriod
+        {
+            get
             {
-                for (int j = 0; j < NumIvalsPerString; j++)
+                return _timePeriod;
+            }
+            set
+            {
+                _timePeriod = value;
+
+                _epoch0 = DateTime.UtcNow;
+
+                _begin = 0;
+
+                switch (_timePeriod)
                 {
-                    GenerateIvals(i);
+                    case ETimePeriod.Day:
+                        _end = 24 * 60 * 60;
+                        break;
+                    case ETimePeriod.Week:
+                        _end = 7 * 24 * 60 * 60;
+                        break;
+                    case ETimePeriod.Month:
+                        _end = 30 * 24 * 60 * 60;
+                        break;
+                    case ETimePeriod.Year:
+                        _end = 12 * 30 * 24 * 60 * 60;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
 
-        public static int MinBackLength { get; set; } = 3 * 3600;
-        public static int MaxBackLength { get; set; } = 6 * 3600;
+        private int AllSeconds => _end - _begin;
 
-        private int LastValue = 0;
-
-        public void GenerateBacks()
+        public double MinValue
         {
-            Backs.Clear();
-
-            LastValue = MinValue;
-
-            for (int i = 0; i < NumBacks; i++)
+            get
             {
-                CreateBack(i);
+                double min = double.MaxValue;
+                foreach (var item in Intervals.Values)
+                {                                
+                    min = Math.Min(item.Min(s => s.Left), min);                    
+                }
+
+                return min;
             }
         }
 
-        private void CreateBack(int index)
+        public double MaxValue
         {
-            int max = MaxBackLength;
+            get
+            {
+                double max = double.MinValue;
+                foreach (var item in Intervals.Values)
+                {
+                    max = Math.Max(item.Max(s => s.Left), max);
+                }
 
-            int need = NumBacks - (index + 1);
+                return max;
+            }
+        }
 
-            // i = 0
-            var pos = random.Next(LastValue, MaxValue - need * max - MaxBackLength/*current*/);
-            var len = random.Next(MinBackLength, MaxBackLength);
+        public void GenerateIntervals()
+        {
+            Intervals.Clear();
+            BackIntervals.Clear();
 
+            for (int i = 0; i < NumSatellites; i++)
+            {
+                for (int j = 0; j < _numIntervals[TimePeriod].Item1; j++)
+                {
+                    GenerateIvals(i);
+                }
+            }
 
-            Backs.Add(new Interval(pos, pos + len));
-
-            LastValue = pos + len;
+            GenerateBacks();
         }
 
         private void GenerateIvals(int stringIndex)
         {
-            if (IsFull.ContainsKey(stringIndex) == false)
-                IsFull.Add(stringIndex, false);
-
-            while (IsFull[stringIndex] == false)
+            if (_isFull.ContainsKey(stringIndex) == false)
             {
-                var value = random.Next(MinValue, MaxValue);
+                _isFull.Add(stringIndex, false);
+            }
+
+            int MinValue = 0 + _specialDelta;
+            int MaxValue = AllSeconds;
+
+            while (_isFull[stringIndex] == false)
+            {
+                var value = _random.Next(MinValue, MaxValue);
 
                 if (IsValid(stringIndex, value) == true)
                 {
-                    CreateInterval(stringIndex, value, out double left, out double right);
+                    CreateInterval(stringIndex, value, MinValue, MaxValue, out double left, out double right);
 
-                    Pool[stringIndex].Add(new Interval(left, right));
+                    Intervals[stringIndex].Add(new Interval(left, right));
 
                     return;
                 }
@@ -101,11 +170,11 @@ namespace AvaloniaDemo.Models
 
         private bool IsValid(int stringIndex, double value)
         {
-            if (Pool.ContainsKey(stringIndex) == true)
+            if (Intervals.ContainsKey(stringIndex) == true)
             {
                 double temp = 0.0;
 
-                foreach (var ival in Pool[stringIndex])
+                foreach (var ival in Intervals[stringIndex])
                 {
                     temp += (ival.Right - ival.Left);
 
@@ -113,28 +182,28 @@ namespace AvaloniaDemo.Models
                         return false;
                 }
 
-                if (temp >= MaxValue - MinValue)
+                if (temp >= AllSeconds)
                 {
-                    IsFull[stringIndex] = true;
+                    _isFull[stringIndex] = true;
                     return false;
                 }
 
                 return true;
             }
 
-            Pool.Add(stringIndex, new List<Interval>());
+            Intervals.Add(stringIndex, new List<Interval>());
 
             return true;
         }
 
-        private void CreateInterval(int stringIndex, int value, out double left, out double right)
+        private void CreateInterval(int stringIndex, int value, int MinValue, int MaxValue, out double left, out double right)
         {
             // int left;
-            int leftDir = MaxLength / 2;
+            int leftDir = _maxSizeIntervals[TimePeriod].Item1 / 2;
 
             do
             {
-                leftDir = random.Next(0, leftDir);
+                leftDir = _random.Next(0, leftDir);
 
                 left = value - leftDir;
                 if (left < MinValue)
@@ -143,11 +212,11 @@ namespace AvaloniaDemo.Models
             } while (IsValid(stringIndex, left) == false);
 
             // int right;
-            int rightDir = MaxLength / 2;
+            int rightDir = _maxSizeIntervals[TimePeriod].Item1 / 2;
 
             do
             {
-                rightDir = random.Next(0, rightDir);
+                rightDir = _random.Next(0, rightDir);
 
                 right = value + rightDir;
                 if (right > MaxValue)
@@ -158,9 +227,30 @@ namespace AvaloniaDemo.Models
 
         }
 
+        private void GenerateBacks()
+        {
+            _lastValue = 0 + _specialDelta;
 
-        public IDictionary<int, IList<Interval>> Pool { get; private set; }
-        public IList<Interval> Backs { get; private set; }
+            for (int i = 0; i < _numIntervals[TimePeriod].Item2; i++)
+            {
+                CreateBack(i);
+            }
+        }
+
+        private void CreateBack(int index)
+        {
+            int max = _maxSizeIntervals[TimePeriod].Item2;
+
+            int need = _numIntervals[TimePeriod].Item2 - (index + 1);
+
+            // i = 0
+            var pos = _random.Next(_lastValue, AllSeconds - need * max - _maxSizeIntervals[TimePeriod].Item2/*current*/);
+            var len = _random.Next(_minSizeIntervals[TimePeriod].Item2, _maxSizeIntervals[TimePeriod].Item2);
+
+
+            BackIntervals.Add(new Interval(pos, pos + len));
+
+            _lastValue = pos + len;
+        }
     }
-
 }

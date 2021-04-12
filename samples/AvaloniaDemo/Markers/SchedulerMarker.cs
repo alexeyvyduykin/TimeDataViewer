@@ -21,7 +21,7 @@ namespace AvaloniaDemo.Markers
         private int _absolutePositionY;
         private int _zIndex;
         private Point2D _offset;
-        private BaseSchedulerControl _map;
+        private SchedulerControl _map;
         private bool _first = false;
 
         internal SchedulerMarker() { }
@@ -40,19 +40,19 @@ namespace AvaloniaDemo.Markers
         public Point2D LocalPosition { get; protected set; }
        
         // the map of this marker     
-        public BaseSchedulerControl Map
+        public SchedulerControl Map
         {
             get
             {
                 if (Shape != null && _map == null)
                 {
                     IVisual visual = Shape;
-                    while (visual != null && !(visual is BaseSchedulerControl))
+                    while (visual != null && !(visual is SchedulerControl))
                     {
                         visual = visual.VisualParent;// VisualTreeHelper.GetParent(visual);
                     }
 
-                    _map = visual as BaseSchedulerControl;
+                    _map = visual as SchedulerControl;
                 }
 
                 return _map;
@@ -139,7 +139,7 @@ namespace AvaloniaDemo.Markers
         }
 
         // forces to update local marker position dot not call it if you don't really need to ;}
-        internal void ForceUpdateLocalPosition(BaseSchedulerControl m)
+        internal void ForceUpdateLocalPosition(SchedulerControl m)
         {
             if (m != null)
             {

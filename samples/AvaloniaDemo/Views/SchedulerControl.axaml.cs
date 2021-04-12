@@ -1,30 +1,30 @@
 #nullable enable
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Avalonia.Controls.Templates;
-using Avalonia.Media;
-using System.Diagnostics;
-using Avalonia.Interactivity;
-using Avalonia.Input;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
 using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Templates;
 using Avalonia.Data;
-using Avalonia.Controls.Notifications;
-using System.Collections.Specialized;
-using Avalonia.Threading;
-using System;
-using Avalonia.Controls.Shapes;
-using Avalonia.VisualTree;
+using Avalonia.Input;
+using Avalonia.LogicalTree;
+using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Metadata;
 using Avalonia.Styling;
+using Avalonia.VisualTree;
+using AvaloniaDemo.Markers;
+using AvaloniaDemo.Models;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
-using AvaloniaDemo.Markers;
 
 namespace AvaloniaDemo.Views
 {
-    public class BaseSchedulerControl : ItemsControl, IStyleable
+    public partial class SchedulerControl : ItemsControl, IStyleable
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
@@ -61,11 +61,21 @@ namespace AvaloniaDemo.Views
         private readonly Pen CenterCrossPen = new Pen(Brushes.Red, 1);
         public bool ShowMouseCenter { get; set; } = true;
         private readonly Pen MouseCrossPen = new Pen(Brushes.Blue, 1);
-        private readonly ObservableCollection<SchedulerMarker> Markers = new ObservableCollection<SchedulerMarker>();
+        private ObservableCollection<SchedulerMarker> Markers = new ObservableCollection<SchedulerMarker>();
+        internal readonly TranslateTransform SchedulerTranslateTransform = new TranslateTransform();
 
-        public BaseSchedulerControl()
+        public SchedulerControl()
         {
             _core = new Core();
+            _core.AxisX = new TimeAxis() { CoordType = EAxisCoordType.X, TimePeriodMode = TimePeriod.Month };
+            _core.AxisY = new CategoryAxis() { CoordType = EAxisCoordType.Y, IsInversed = true };
+            _core.AxisX.IsDynamicLabelEnable = true;
+            _core.AxisY.IsDynamicLabelEnable = true;
+            _core.OnZoomChanged += new SCZoomChanged(ForceUpdateOverlays);
+            _core.CanDragMap = true;
+            _core.MouseWheelZoomEnabled = true;
+            _core.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
+
             _schedulerCanvas = null;
 
             this.InitializeComponent();
@@ -82,7 +92,7 @@ namespace AvaloniaDemo.Views
 
             FuncTemplate<IPanel> DefaultPanel = new FuncTemplate<IPanel>(() => _schedulerCanvas);
 
-            ItemsPanelProperty.OverrideDefaultValue<BaseSchedulerControl>(DefaultPanel);
+            ItemsPanelProperty.OverrideDefaultValue<SchedulerControl>(DefaultPanel);
 
 
             base.ClipToBounds = true;
@@ -96,61 +106,185 @@ namespace AvaloniaDemo.Views
 
             //  _scheduler.Items = Markers;
 
-            base.Initialized += BaseSchedulerControl_Initialized;
-
             base.LayoutUpdated += BaseSchedulerControl_LayoutUpdated;
+
+            InitBackgrounds();
+
+            Series.CollectionChanged += Series_CollectionChanged;
+        }
+        
+        private void Series_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            foreach (Series series in Series)
+            {
+                series.Map = this;
+            }
+
+            SyncLogicalTree(e);
         }
 
-        public RectD ViewportAreaData { get { return _core.ViewportAreaData; } }
-        public RectD ViewportAreaScreen { get { return _core.ViewportAreaScreen; } }
+        private void SyncLogicalTree(NotifyCollectionChangedEventArgs e)
+        {
+            // In order to get DataContext and binding to work with the series, axes and annotations
+            // we add the items to the logical tree
+            if (e.NewItems != null)
+            {
+                foreach (var item in e.NewItems.OfType<ISetLogicalParent>())
+                {
+                    item.SetParent(this);
+                }
+                LogicalChildren.AddRange(e.NewItems.OfType<ILogical>());
+                VisualChildren.AddRange(e.NewItems.OfType<IVisual>());
+            }
 
-        public RectI AbsoluteWindow { get { return _core.WindowAreaZoom; } }
-        public RectI ScreenWindow { get { return _core.Screen; } }
+            if (e.OldItems != null)
+            {
+                foreach (var item in e.OldItems.OfType<ISetLogicalParent>())
+                {
+                    item.SetParent(null);
+                }
+                foreach (var item in e.OldItems)
+                {
+                    LogicalChildren.Remove((ILogical)item);
+                    VisualChildren.Remove((IVisual)item);
+                }
+            }
+        }
 
-        public Point2I RenderOffsetAbsolute { get { return _core.RenderOffsetAbsolute; } }
 
-        public bool IsStarted { get { return _core.IsStarted; } }
+        private ObservableCollection<Series> _series = new ObservableCollection<Series>();
+
+        public static readonly DirectProperty<SchedulerControl, ObservableCollection<Series>> SeriesProperty =
+            AvaloniaProperty.RegisterDirect<SchedulerControl, ObservableCollection<Series>>(nameof(Series), o => o.Series, (o, v) => o.Series = v);
+
+        [Content]
+        public ObservableCollection<Series> Series
+        {
+            get { return _series; }
+            set { SetAndRaise(SeriesProperty, ref _series, value); }
+        }
+
+        private double _minLeft_ = double.MaxValue;
+        private double _maxRight_ = double.MinValue;
+        private readonly IDictionary<SchedulerString, IList<SchedulerInterval>> _markers_ = new Dictionary<SchedulerString, IList<SchedulerInterval>>();
+
+        public void UpdateData()
+        {
+            Markers.Clear();
+            //IEnumerable<SchedulerMarker> markers = new List<SchedulerMarker>();
+
+            _markers_.Clear();
+
+            foreach (Series series in Series)
+            {
+                if (series.Items is not null)
+                {
+                    var markerStr = new SchedulerString("String");
+                    markerStr.Shape = new StringVisual(markerStr);
+
+                    List<SchedulerInterval> ivalMarkers = new List<SchedulerInterval>();
+
+                    foreach (Interval ival in series.Items)
+                    {
+                        var markerIval = new SchedulerInterval(ival.Left, ival.Right);
+                        markerIval.String = markerStr;
+                        markerIval.Shape = new IntervalVisual(markerIval);
+                        ivalMarkers.Add(markerIval);
+                    }
+                    AddIntervals(ivalMarkers, markerStr);
+                }
+            }
+
+            //Markers = new ObservableCollection<SchedulerMarker>(markers);
+
+            ForceUpdateOverlays(Markers);
+        }
+
+        public void AddIntervals(IEnumerable<SchedulerInterval> ivals, SchedulerString str)
+        {
+            if (str == null)
+                return;
+
+            if (_markers_.ContainsKey(str) == false)
+            {
+                _markers_.Add(str, new List<SchedulerInterval>());
+
+                if (_core.AxisY is CategoryAxis)
+                {
+                    (str as SchedulerTargetMarker).OnTargetMarkerPositionChanged += AxisY.UpdateFollowLabelPosition;
+                }
+
+                AddMarkers(new List<SchedulerString>() { str });
+            }
+
+            if (ivals == null)
+                return;
+
+            foreach (var item in ivals)
+            {
+                str.Intervals.Add(item);
+                item.String = str;
+
+                _minLeft_ = Math.Min(item.Left, _minLeft_);
+                _maxRight_ = Math.Max(item.Right, _maxRight_);
+
+                _markers_[str].Add(item);
+            }
+
+            AutoSetViewportArea();
+
+            AddMarkers(ivals);
+        }
+
+        private void AutoSetViewportArea()
+        {
+            int height0 = 100;
+
+            var count = _markers_.Keys.Count;
+
+            double step = (double)height0 / (double)(count + 1);
+            int i = 0;
+            foreach (var str in _markers_.Keys)
+            {
+                str.SetLocalPosition(_minLeft_, (++i) * step);
+
+                foreach (var ival in str.Intervals)
+                {
+                    ival.SetLocalPosition(ival.LocalPosition.X, str.LocalPosition.Y);
+                }
+            }
+
+            if (_minLeft_ != Double.MaxValue && _maxRight_ != Double.MinValue)
+            {
+                _core.SetViewportArea(new RectD(_minLeft_, 0, _maxRight_ - _minLeft_, height0));
+            }
+        }
+
+
+        public RectD ViewportAreaData => _core.ViewportAreaData;
+
+        public RectD ViewportAreaScreen => _core.ViewportAreaScreen;
+
+        public RectI AbsoluteWindow => _core.WindowAreaZoom;
+
+        public RectI ScreenWindow => _core.Screen;
+
+        public Point2I RenderOffsetAbsolute => _core.RenderOffsetAbsolute;
+
+        public bool IsStarted => _core.IsStarted;
 
         public BaseAxis AxisX
         {
-            get
-            {
-                if (_core.AxisX == null)
-                {
-                    _core.AxisX = new NumericalAxis() { CoordType = EAxisCoordType.X };
-                }
-
-                return _core.AxisX;
-            }
-            protected set
-            {
-                _core.AxisX = value;
-            }
+            get => _core.AxisX;
+            set => _core.AxisX = value;
         }
 
         public BaseAxis AxisY
         {
-            get
-            {
-                if (_core.AxisY == null)
-                {
-                    _core.AxisY = new NumericalAxis() { CoordType = EAxisCoordType.Y, IsInversed = true };
-                }
-
-                return _core.AxisY;
-            }
-            protected set
-            {
-                _core.AxisY = value;
-            }
+            get => _core.AxisY;
+            set => _core.AxisY = value;
         }
 
-        internal readonly TranslateTransform SchedulerTranslateTransform = new TranslateTransform();
- 
-        internal bool ContainsMarker(SchedulerMarker marker)
-        {
-            return Markers.Contains(marker);
-        }
 
         internal void AddMarkers(IEnumerable<SchedulerMarker> markers)
         {
@@ -160,14 +294,6 @@ namespace AvaloniaDemo.Views
             }
 
             ForceUpdateOverlays(markers);
-        }
-
-        internal void RemoveMarker(SchedulerMarker marker)
-        {
-            if (Markers.Contains(marker) == true)
-            {
-                Markers.Remove(marker);
-            }
         }
 
         internal Canvas SchedulerCanvas
@@ -242,22 +368,6 @@ namespace AvaloniaDemo.Views
             }
         }
 
-        private void BaseSchedulerControl_Initialized(object sender, EventArgs e)
-        {
-            _core.OnZoomChanged += new SCZoomChanged(ForceUpdateOverlays);
-
-            _core.CanDragMap = true;
-
-            _core.MouseWheelZoomEnabled = true;
-
-            // _core.MouseWheelZoomType = MouseWheelZoomType.ViewCenter;
-
-            _core.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(BaseSchedulerControl)));// DefaultMetadata.DefaultValue);
-
-            _core.AxisX.IsDynamicLabelEnable = true;
-            _core.AxisY.IsDynamicLabelEnable = true;
-        }
-
         protected override void ItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             base.ItemsCollectionChanged(sender, e);
@@ -316,7 +426,7 @@ namespace AvaloniaDemo.Views
 
         private static double OnCoerceZoom(AvaloniaObject o, double value)
         {
-            BaseSchedulerControl scheduler = o as BaseSchedulerControl;
+            SchedulerControl scheduler = o as SchedulerControl;
             if (scheduler != null)
             {
                 if (value > scheduler.MaxZoom)
@@ -337,13 +447,13 @@ namespace AvaloniaDemo.Views
         }
 
         public static readonly StyledProperty<double> ZoomProperty =
-    AvaloniaProperty.Register<BaseSchedulerControl, double>(
+    AvaloniaProperty.Register<SchedulerControl, double>(
         nameof(Zoom),
         defaultValue: 0.0,
         inherits: true,
         defaultBindingMode: BindingMode.TwoWay/*,
         validate: OnCoerceZoom*/);
-     
+
         public double Zoom
         {
             get { return _zoom; }
@@ -401,7 +511,7 @@ namespace AvaloniaDemo.Views
                 _core.MinZoom = value;
             }
         }
-    
+
         // updates markers overlay offset     
         private void UpdateMarkersOffset()
         {
@@ -754,7 +864,7 @@ namespace AvaloniaDemo.Views
                 _borderPen = new Pen(_areaBorderBrush, _areaBorderThickness);
             }
         }
- 
+
         Pen BorderPen
         {
             get
@@ -776,6 +886,9 @@ namespace AvaloniaDemo.Views
         {
             if (IsStarted == false)
                 return;
+
+            SchedulerBase_OnMapZoomChanged();
+
 
             // control
             drawingContext.FillRectangle(EmptySchedulerBackground, new Rect(_core.RenderSize.X, _core.RenderSize.Y, _core.RenderSize.Width, _core.RenderSize.Height));
@@ -892,7 +1005,6 @@ namespace AvaloniaDemo.Views
             //{
             _core.OnZoomChanged -= new SCZoomChanged(ForceUpdateOverlays);
 
-            base.Initialized -= BaseSchedulerControl_Initialized;
             base.LayoutUpdated -= BaseSchedulerControl_LayoutUpdated;
 
             //_core.OnMapClose();
