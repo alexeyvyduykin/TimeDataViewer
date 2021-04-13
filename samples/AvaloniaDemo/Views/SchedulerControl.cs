@@ -95,8 +95,6 @@ namespace AvaloniaDemo.Views
                 RenderTransform = _schedulerTranslateTransform
             };
 
-            IntervalTemplate = new IntervalVisual();
-
             var style = new Style(x => x.OfType<ItemsControl>().Child().OfType<ContentPresenter>());
             style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("AbsolutePositionX")));
             style.Setters.Add(new Setter(Canvas.TopProperty, new Binding("AbsolutePositionY")));
@@ -135,17 +133,6 @@ namespace AvaloniaDemo.Views
             get { return _series; }
             set { SetAndRaise(SeriesProperty, ref _series, value); }
         }
-
-
-        public static readonly StyledProperty<BaseInterval> IntervalTemplateProperty =   
-            AvaloniaProperty.Register<SchedulerControl, BaseInterval>(nameof(IntervalTemplate));
-
-        public BaseInterval IntervalTemplate
-        {
-            get { return GetValue(IntervalTemplateProperty); }
-            set { SetValue(IntervalTemplateProperty, value); }
-        }
-
 
         private void Series_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
@@ -196,7 +183,7 @@ namespace AvaloniaDemo.Views
                 if (series.Items is not null)
                 {
                     var strng = _factory.CreateString();                     
-                    var ivals = ((IList<Interval>)series.Items).Select(s => _factory.CreateInterval(s, strng, IntervalTemplate));
+                    var ivals = ((IList<Interval>)series.Items).Select(s => _factory.CreateInterval(s, strng, series.IntervalTemplate));
 
                     _markerPool.Add(strng, ivals);
 

@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Styling;
 using Avalonia.LogicalTree;
+using AvaloniaDemo.Markers;
 
 namespace AvaloniaDemo.Views
 {
@@ -18,8 +19,17 @@ namespace AvaloniaDemo.Views
         public SchedulerControl? Map { get; set; }
 
         public Series()
-        {
+        {          
             PropertyChanged += Series_PropertyChanged;
+        }
+
+        public static readonly StyledProperty<BaseInterval> IntervalTemplateProperty =    
+            AvaloniaProperty.Register<Series, BaseInterval>(nameof(IntervalTemplate), new IntervalVisual());
+
+        public BaseInterval IntervalTemplate
+        {
+            get { return GetValue(IntervalTemplateProperty); }
+            set { SetValue(IntervalTemplateProperty, value); }
         }
 
         private void Series_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
