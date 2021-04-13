@@ -44,7 +44,7 @@ namespace AvaloniaDemo.Markers
         {
             get
             {
-                if (Shape != null && _map == null)
+                if (Shape is not null && _map is null)
                 {
                     IVisual visual = Shape;
                     while (visual != null && !(visual is SchedulerControl))
@@ -120,7 +120,7 @@ namespace AvaloniaDemo.Markers
                 if (IsFreeze == true && _first == true)
                     return;
 
-                Point2I p = Map.FromLocalToAbsolute(LocalPosition);
+                var p = Map.FromLocalToAbsolute(LocalPosition);
 
                 AbsolutePositionX = p.X + (int)Offset.X;
                 AbsolutePositionY = p.Y + (int)Offset.Y;
@@ -135,16 +135,17 @@ namespace AvaloniaDemo.Markers
 
             //  SCSchedulerPoint pos = Map.FromLocalToSchedulerPoint(LocalPositionX, LocalPositionY);
 
-            this._offset = new Point2D(0, 0);
+            _offset = new Point2D(0, 0);
         }
 
         // forces to update local marker position dot not call it if you don't really need to ;}
         internal void ForceUpdateLocalPosition(SchedulerControl m)
         {
-            if (m != null)
+            if (m is not null)
             {
                 _map = m;
             }
+
             UpdateAbsolutePosition();
         }
     }

@@ -18,89 +18,128 @@ using AvaloniaDemo.Views;
 
 namespace AvaloniaDemo.Markers
 {
-    public class IntervalVisual : Control
+
+    public abstract class BaseInterval : Control
     {
+        public abstract BaseInterval Clone(SchedulerInterval marker);
+    }
+
+
+    public class IntervalVisual : BaseInterval
+    {
+        private double _widthX = 0.0;
+        private double _heightY = 0.0; 
+        //public bool IsChanged = true;       
+        private readonly Brush _foreground; 
+        private readonly Pen _stroke;
+        private readonly ScaleTransform _scale;
+        private SchedulerControl? _map;
+        private SchedulerInterval? _marker;
         //   public readonly Popup Popup = new Popup();
-        SchedulerControl Map;
-     //   public readonly IntervalTooltip Tooltip;// = new IntervalTooltip();
-        public readonly SchedulerInterval Marker;
+        //   public readonly IntervalTooltip Tooltip;// = new IntervalTooltip();
 
-        public IntervalVisual(SchedulerInterval m)
+        public IntervalVisual()
         {
-            Marker = m;
-            Marker.ZIndex = 100;
-
             //Tooltip = new IntervalTooltip()
             //{
             //    DataContext = new IntervalTooltipViewModel(m),
             //};
 
-
             // Popup.AllowsTransparency = true;
-      //      Popup.PlacementTarget = this;
-      //      Popup.PlacementMode = PlacementMode.Pointer;
-      //      Popup.Child = Tooltip;
-      //      Popup.Child.Opacity = 0.777;
+            //      Popup.PlacementTarget = this;
+            //      Popup.PlacementMode = PlacementMode.Pointer;
+            //      Popup.Child = Tooltip;
+            //      Popup.Child.Opacity = 0.777;
 
+            PointerEnter += IntervalVisual_PointerEnter;
+            PointerLeave += IntervalVisual_PointerLeave;
 
+            LayoutUpdated += IntervalVisual_LayoutUpdated;
+            Initialized += IntervalVisual_Initialized;
 
-            base.PointerEnter += IntervalVisual_PointerEnter;
-            base.PointerLeave += IntervalVisual_PointerLeave;
-
-            base.LayoutUpdated += IntervalVisual_LayoutUpdated;
-            base.Initialized += IntervalVisual_Initialized;
+            DataContextProperty.Changed.AddClassHandler<IntervalVisual>(MarkerChanged);
 
             //    RenderTransform = scale;
-
-            HeightY = 20;
+            
+            _scale = new ScaleTransform(1, 1);
+            _stroke = new Pen(Brushes.Black, 1.0);
+            _foreground = new SolidColorBrush() { Color = Colors.White };
+         
+            _heightY = 20;
         }
 
-        private void IntervalVisual_Initialized(object sender, EventArgs e)
+        public static readonly StyledProperty<Color> BackgroundProperty =    
+            AvaloniaProperty.Register<IntervalVisual, Color>(nameof(Background), Colors.LightGray);
+
+        public Color Background
         {
-            Map = Marker.Map as SchedulerControl;
+            get { return GetValue(BackgroundProperty); }
+            set { SetValue(BackgroundProperty, value); }
+        }
 
-     //       Map.TopLevelForToolTips.Children.Add(Popup);
+        private void MarkerChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is SchedulerInterval marker)
+            {
+                //if(e.OldValue is not null && e.OldValue is SchedulerInterval oldMarker)
+                //{
+                //    _map.OnSchedulerZoomChanged -= Map_OnMapZoomChanged;
+                //    _map.LayoutUpdated -= Map_LayoutUpdated;
+                //}
+                
+                _marker = marker;
+                _marker.ZIndex = 100;
 
-            Map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
-            Map.LayoutUpdated += Map_LayoutUpdated;
+                //_map = _marker.Map;
+                //_map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
+                //_map.LayoutUpdated += Map_LayoutUpdated;
+            }
+        }
+
+        private void IntervalVisual_Initialized(object? sender, EventArgs e)
+        {
+            _map = _marker.Map;
+            _map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
+            _map.LayoutUpdated += Map_LayoutUpdated;
+
+
             UpdateInterval();
-
             InvalidateVisual();
-            // UpdateVisual(true);
         }
 
-        private void Map_LayoutUpdated(object sender, EventArgs e)
+        private void Map_LayoutUpdated(object? sender, EventArgs e)
         {
             UpdateInterval();
-            InvalidateVisual();
-            // UpdateVisual(true);
+            InvalidateVisual();          
         }
 
-        private void IntervalVisual_LayoutUpdated(object sender, EventArgs e)
+        private void IntervalVisual_LayoutUpdated(object? sender, EventArgs e)
         {
-
-            Marker.Offset = new Point2D(-base.DesiredSize.Width / 2, -base.DesiredSize.Height / 2);
-            //   scale.CenterX = -Marker.Offset.X;
-            //   scale.CenterY = -Marker.Offset.Y;
+            if (_marker is not null)
+            {
+                _marker.Offset = new Point2D(-DesiredSize.Width / 2, -DesiredSize.Height / 2);
+            }
         }
 
-        private void IntervalVisual_PointerLeave(object sender, PointerEventArgs e)
+        private void IntervalVisual_PointerLeave(object? sender, PointerEventArgs e)
         {
             //if (Popup.IsOpen)
             //{
             //    Popup.IsOpen = false;
             //}
 
-            Marker.ZIndex -= 10000;
-            Cursor = new Cursor(StandardCursorType.Arrow);// Cursors.Arrow;
+            if (_marker is not null)
+            {
+                _marker.ZIndex -= 10000;
+            }
 
-            //this.Effect = null;
+            Cursor = new Cursor(StandardCursorType.Arrow);
 
-            scale.ScaleY = 1;
+            _scale.ScaleY = 1;
             //  scale.ScaleX = 1;
         }
 
-        private void IntervalVisual_PointerEnter(object sender, PointerEventArgs e)
+        private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
         {
             //if (Popup.IsOpen == false)
             //{
@@ -109,17 +148,18 @@ namespace AvaloniaDemo.Markers
             //    // Popup.InvalidateVisual();
             //}
 
-            Marker.ZIndex += 10000;
-            Cursor = new Cursor(StandardCursorType.Hand);// Cursors.Hand;
+            if (_marker is not null)
+            {
+                _marker.ZIndex += 10000;
+            }
+            
+            Cursor = new Cursor(StandardCursorType.Hand);
 
-            // this.Effect = ShadowEffect;
-
-            scale.ScaleY = 1.5;
+            _scale.ScaleY = 1.5;
+   
             // scale.ScaleX = 1;
         }
 
-        double WidthX = 0.0;
-        double HeightY = 0.0;
         private void Map_OnMapZoomChanged()
         {
             UpdateInterval();
@@ -133,107 +173,49 @@ namespace AvaloniaDemo.Markers
         {
             //   var d1 = Map.FromLocalValueToPixelX(Marker.Left);
             //   var d2 = Map.FromLocalValueToPixelX(Marker.Right);
-
-
-            var d1 = Map.FromLocalToAbsolute(new Point2D(Marker.Left, Marker.LocalPosition.Y)).X;
-            var d2 = Map.FromLocalToAbsolute(new Point2D(Marker.Right, Marker.LocalPosition.Y)).X;
-
-            //    var d1 = Map.FromSchedulerPointToLocal(new SCSchedulerPoint(Marker.Left, Marker.Position.Y)).X;
-            //    var d2 = Map.FromSchedulerPointToLocal(new SCSchedulerPoint(Marker.Right, Marker.Position.Y)).X;
-
-            WidthX = d2 - d1;
-        }
-
-        readonly ScaleTransform scale = new ScaleTransform(1, 1);
-
-        //  public DropShadowEffect ShadowEffect;
-
-        private Brush background = new SolidColorBrush() { Color = Colors.LightGray };
-        public Brush Background
-        {
-            get
+            if (_map is not null && _marker is not null)
             {
-                return background;
-            }
-            set
-            {
-                if (background != value)
-                {
-                    background = value;
-                    IsChanged = true;
-                }
+                var d1 = _map.FromLocalToAbsolute(new Point2D(_marker.Left, _marker.LocalPosition.Y)).X;
+                var d2 = _map.FromLocalToAbsolute(new Point2D(_marker.Right, _marker.LocalPosition.Y)).X;
+
+                //    var d1 = Map.FromSchedulerPointToLocal(new SCSchedulerPoint(Marker.Left, Marker.Position.Y)).X;
+                //    var d2 = Map.FromSchedulerPointToLocal(new SCSchedulerPoint(Marker.Right, Marker.Position.Y)).X;
+
+                _widthX = d2 - d1;
             }
         }
-
-        private Brush foreground = new SolidColorBrush() { Color = Colors.White };
-        public Brush Foreground
-        {
-            get
-            {
-                return foreground;
-            }
-            set
-            {
-                if (foreground != value)
-                {
-                    foreground = value;
-                    IsChanged = true;
-                }
-            }
-        }
-
-        private Pen stroke = new Pen(Brushes.Black, 1.0);
-        public Pen Stroke
-        {
-            get
-            {
-                return stroke;
-            }
-            set
-            {
-                if (stroke != value)
-                {
-                    stroke = value;
-                    IsChanged = true;
-                }
-            }
-        }
-
-        public bool IsChanged = true;
-
+        
         public override void Render(DrawingContext drawingContext)
         {
             //  base.Render(drawingContext);
 
-            if (WidthX == 0.0)
+            if (_widthX == 0.0)
                 return;
 
+            double thick_half = _stroke.Thickness / 2.0;
 
-            double thick_half = Stroke.Thickness / 2.0;
+            var p0 = new Point(-_widthX / 2.0, -_heightY / 2.0);
+            var p1 = new Point(_widthX / 2.0, _heightY / 2.0);
 
-            Point p0 = new Point(-WidthX / 2.0, -HeightY / 2.0);
-            Point p1 = new Point(WidthX / 2.0, HeightY / 2.0);
+            var RectBorder = new Rect(
+                      new Point(-_widthX / 2.0 + thick_half, -_heightY / 2.0 + thick_half),
+                      new Point(_widthX / 2.0 - thick_half, _heightY / 2.0 - thick_half));
 
-            Rect RectBorder = new Rect(
-                      new Point(-WidthX / 2.0 + thick_half, -HeightY / 2.0 + thick_half),
-                      new Point(WidthX / 2.0 - thick_half, HeightY / 2.0 - thick_half));
+            var RectSolid = new Rect(p0, p1);
+                        
+            var brush = new SolidColorBrush() { Color = Background };
 
-            Rect RectSolid = new Rect(p0, p1);
-
-            //   using (drawingContext.PushPreTransform /*PushTransform*/(scale))
-            {
-                RectangleGeometry rectangle1 = new RectangleGeometry(RectSolid); //new RectangleGeometry(RectSolid, 5, 5);
-                RectangleGeometry rectangle2 = new RectangleGeometry(RectBorder);//, 5, 5);
-                drawingContext.DrawGeometry(Background, null, rectangle1);
-                //  drawingContext.DrawRectangle(Background, null, RectSolid);
-                drawingContext.DrawGeometry(null, Stroke, rectangle2);
-                // drawingContext.DrawRectangle(null, Stroke, RectBorder);
-            }
-
-            //  drawingContext.Pop();
-
-            //         drawingContext.DrawEllipse(Brushes.Black, null, new Point(0, 0), 5, 5);                  
+            drawingContext.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));                      
+            drawingContext.DrawGeometry(null, _stroke, new RectangleGeometry(RectBorder));                            
         }
 
+        public override BaseInterval Clone(SchedulerInterval marker)
+        {
+            return new IntervalVisual() 
+            {
+                DataContext = marker,
+                Background = Background,
+            };
+        }
     }
 }

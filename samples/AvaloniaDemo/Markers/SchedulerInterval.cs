@@ -8,17 +8,19 @@ namespace AvaloniaDemo.Markers
 {
     public class SchedulerInterval : SchedulerMarker
     {
+        private SchedulerString _string;
+        private Guid _id;
+
         public SchedulerInterval(double left, double right) : base()
         {
-            this.Left = left;
-            this.Right = right;
+            Left = left;
+            Right = right;
 
             Name = string.Format("Interval_{0}_{1}", (int)left, (int)right);
 
             _id = Guid.NewGuid();
         }
-
-        SchedulerString _string;
+        
         public SchedulerString String
         {
             get
@@ -49,20 +51,16 @@ namespace AvaloniaDemo.Markers
                 return new Point2I(x, y);
             }
         }
+     
+        public string Id => _id.ToString();
 
-        Guid _id;
-        public string Id { get { return _id.ToString(); } }
-
-        public string Line { get { return Id; } }
-
-        public string Name { get; set; }
+        public string Line => Id;
 
         public double Left { get; set; }
 
         public double Right { get; set; }
 
-        public double Length { get { return Right - Left; } }
-
+        public double Length => Right - Left;
     }
 
 }

@@ -18,213 +18,53 @@ namespace AvaloniaDemo.Markers
 {
     public class StringVisual : Control
     {
-        public readonly SchedulerString Marker;
-        SchedulerControl Map;
-    //    public readonly Popup Popup = new Popup();
-    //    public readonly StringTooltip Tooltip = new StringTooltip();
+        private readonly SchedulerString _marker;
+        private SchedulerControl? _map;      
+        private double _widthX = 0.0;
+        private double _heightY = 0.0;
 
-        public StringVisual(SchedulerString m)
+        public StringVisual(SchedulerString marker)
         {
-            Marker = m;
-            Marker.ZIndex = 30;
+            _marker = marker;
+            _marker.ZIndex = 30;
 
-            // Popup.AllowsTransparency = true;
-            //Popup.PlacementTarget = this;
-            //Popup.PlacementMode = PlacementMode.Pointer;
-            //Popup.Child = Tooltip;
-            //Popup.Child.Opacity = 0.777;
-
-            base.LayoutUpdated += StringVisual_LayoutUpdated;
-            base.PointerEnter += StringVisual_PointerEnter;
-            base.PointerLeave += StringVisual_PointerLeave;
-            base.PointerMoved += StringVisual_PointerMoved;
-            base.Initialized += StringVisual_Initialized;
-
-            base.PointerPressed += StringVisual_PointerPressed;
-            base.PointerReleased += StringVisual_PointerReleased;
-
-            //Height = 4;
-            HeightY = 5;
-            RenderTransform = scale;
+            LayoutUpdated += StringVisual_LayoutUpdated;
+            Initialized += StringVisual_Initialized;
+            
+            _heightY = 5;
+            RenderTransform = new ScaleTransform(1, 1);
         }
 
-        private void StringVisual_PointerReleased(object sender, PointerReleasedEventArgs e)
+        private void StringVisual_Initialized(object? sender, EventArgs e)
         {
-            if (e.GetCurrentPoint(this).Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased)
-            {
-                if (e.Pointer.Captured == this/*IsMouseCaptured*/)
-                {
-         //           Popup.IsOpen = true;
+            _map = _marker.Map;
 
-                    e.Pointer.Capture(null);
-                    //Mouse.Capture(null);
-                    base.Cursor = saveCursor;
-
-                    Marker.ResetOffset();
-
-                    Marker.Intervals.ToList().ForEach(s => s.ResetOffset());
-                }
-            }
-        }
-
-        private void StringVisual_PointerPressed(object sender, PointerPressedEventArgs e)
-        {
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed == true)
-            {
-                //   if(e.Pointer.Captured != this/*IsMouseCaptured == false*/)          
-                {
-                    //if (Popup.IsOpen == true)
-                    //{
-                    //    Popup.IsOpen = false;
-                    //}
-
-                    //Mouse.Capture(this);
-                    e.Pointer.Capture(this);
-                    StartDrag = e.GetPosition(Map);
-                    saveCursor = base.Cursor;
-                    base.Cursor = new Cursor(StandardCursorType.SizeNorthSouth);// Cursors.SizeNS;
-                    //  pLeftSave = pLeft;
-                    //  pRightSave = pRight;
-                }
-            }
-        }
-
-        private void StringVisual_Initialized(object sender, EventArgs e)
-        {
-            Map = Marker.Map as SchedulerControl;
-
-            Map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
-
-    //        Map.TopLevelForToolTips.Children.Add(Popup);
-
-
-            //    Map.SizeChanged += StringVisual_SizeChanged;
-
-            //       List<SCSchedulerString__> strings = Map.Markers.ToList().Select(s => s.Tag).OfType<SCSchedulerString__>().ToList();
-            //       int count = strings.Count();
-            //       var index = strings.FindIndex(s => s.Equals(String));
-
-            Map.LayoutUpdated += Map_LayoutUpdated;
+            _map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
+            _map.LayoutUpdated += Map_LayoutUpdated;
 
             UpdateWidthString();
 
-            base.InvalidateVisual();
-            //UpdateVisual(true);
+            base.InvalidateVisual();     
         }
 
-        private void Map_LayoutUpdated(object sender, EventArgs e)
+        private void Map_LayoutUpdated(object? sender, EventArgs e)
         {
             UpdateWidthString();
 
             base.InvalidateVisual();
-
-            // UpdateVisual(true);
         }
 
-        private void StringVisual_PointerMoved(object sender, PointerEventArgs e)
+        private void StringVisual_LayoutUpdated(object? sender, EventArgs e)
         {
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed == true && e.Pointer.Captured == this /*&& IsMouseCaptured*/)
-            {
-                Point pt = e.GetPosition(Map);
-
-                offset = new Point2D(offset.X, pt.Y - StartDrag.Y);
-
-                //  Debug.WriteLine("Dragging String: pLeftY=" + pLeft.Y + " pRightY=" + pRight.Y);
-
-                var min0 = Map.FromLocalToAbsolute(Map.ViewportAreaScreen.TopLeft/*P0*/).Y;
-                var max0 = Map.FromLocalToAbsolute(Map.ViewportAreaScreen.BottomRight/*P1*/).Y;
-
-                int min = Math.Min(min0, max0);
-                int max = Math.Max(min0, max0);
-
-                var value = pt.Y;
-
-                Debug.WriteLine("min_Y=" + min + " max_Y=" + max + " MouseY=" + pt.Y + " offsetY=" + offset.Y);
-
-                if (min < value && max > value)
-                {
-                    Marker.Offset = offset;
-                }
-
-                //   Marker.Position = Map.FromLocalToSchedulerPoint((int)(0), (int)(pt.Y));
-                //    Debug.WriteLine("Mouse: X=" + pt.X + " Y=" + pt.Y);
-                //   Debug.WriteLine("Dragging String: locX=" + Marker.LocalPositionX + " locY=" + Marker.LocalPositionY);
-
-                // UpdateVisual(true);
-            }
+            _marker.Offset = new Point2D(-Bounds.Width / 2, -Bounds.Height / 2);
         }
 
-        private void StringVisual_PointerLeave(object sender, PointerEventArgs e)
-        {
-            //if (Popup.IsOpen == true)
-            //{
-            //    Popup.IsOpen = false;
-            //}
-            //   Marker.ZIndex -= 10000;
-            Cursor = tempCursor;
-            // scale.ScaleY = 1.0;
-            // Stroke = new Pen(Brushes.Yellow, 4.0);
-            HeightY = 5;
-
-            base.InvalidateVisual();
-
-            // UpdateVisual(true);
-        }
-
-        private void StringVisual_PointerEnter(object sender, PointerEventArgs e)
-        {
-            //if (Popup.IsOpen == false)
-            //{
-            //    Popup.IsOpen = true;
-            //}
-            //  Marker.ZIndex += 10000;
-            tempCursor = Cursor;
-            Cursor = new Cursor(StandardCursorType.Hand);// Cursors.Hand;
-
-            //  scale.ScaleY = 2.0;
-            HeightY = 8;
-            //  Stroke = new Pen(Brushes.Orange, 8.0);
-
-            base.InvalidateVisual();
-            // UpdateVisual(true);
-        }
-
-        private void StringVisual_LayoutUpdated(object sender, EventArgs e)
-        {
-            Marker.Offset = new Point2D(-base.Bounds.Width / 2, -base.Bounds.Height / 2);
-            //   scale.CenterX = -Marker.Offset.X;
-            //   scale.CenterY = -Marker.Offset.Y;
-        }
-
-        #region Dragging
-
-        Point StartDrag;
-        Cursor saveCursor;
-        Point2D offset = new Point2D();
-
-
-        double Clamp(double value, double min, double max)
-        {
-            return (value < min) ? min : (value > max) ? max : value;
-        }
-
-        #endregion
-
-        readonly ScaleTransform scale = new ScaleTransform(1, 1);
-
-        double WidthX = 0.0;
-        double HeightY = 0.0;
         private void UpdateWidthString()
         {
-            //  var p0 = Map.FromLocalToAbsolute(Map.ViewportAreaScreen.P0);
-            //  var p1 = Map.FromLocalToAbsolute(Map.ViewportAreaScreen.P1);
-            //  WidthX = (p1.X - p0.X);
+            var left = _map.AbsoluteWindow.Left;
+            var right = _map.AbsoluteWindow.Right;
 
-
-            var left = Map.AbsoluteWindow.Left;
-            var right = Map.AbsoluteWindow.Right;
-
-            WidthX = right - left;
+            _widthX = right - left;
         }
 
         private void Map_OnMapZoomChanged()
@@ -232,16 +72,12 @@ namespace AvaloniaDemo.Markers
             UpdateWidthString();
 
             base.InvalidateVisual();
-
-            // UpdateVisual(true);
         }
-
-        Cursor tempCursor;
 
         public override void Render(DrawingContext drawingContext)
         {
             drawingContext.FillRectangle(Brushes.Black,
-                new Rect(new Point(0, -HeightY / 2.4), new Point(WidthX, HeightY / 2.4)));
+                new Rect(new Point(0, -_heightY / 2.4), new Point(_widthX, _heightY / 2.4)));
         }
 
     }

@@ -15,7 +15,10 @@ namespace AvaloniaDemo.Markers
 {
     public class SchedulerString : SchedulerTargetMarker
     {
-        static Random r = new Random();
+        private double _timeBegin = double.NaN;
+        private double _timeEnd = double.NaN;
+        private Random _r = new Random();
+
         public SchedulerString(string name) : base()
         {
             base.Name = name;
@@ -31,37 +34,34 @@ namespace AvaloniaDemo.Markers
                 "Satellite orbit correction"
             };
 
-            var index = r.Next(0, descr.Length - 1);
+            var index = _r.Next(0, descr.Length - 1);
 
             Description = descr[index];
         }
-
-        private double timeBegin = double.NaN;
-        private double timeEnd = double.NaN;
 
         public double TimeBegin
         {
             get
             {
-                if (double.IsNaN(timeBegin) == true)
+                if (double.IsNaN(_timeBegin) == true)
                 {
-                    timeBegin = MinTime();
+                    _timeBegin = MinTime();
                 }
 
-                return timeBegin;
+                return _timeBegin;
             }
             set
             {
-                if (double.IsNaN(timeEnd) == false)
+                if (double.IsNaN(_timeEnd) == false)
                 {
-                    if (timeBegin <= timeEnd)
+                    if (_timeBegin <= _timeEnd)
                     {
-                        timeBegin = value;
+                        _timeBegin = value;
                     }
                 }
                 else
                 {
-                    timeBegin = value;
+                    _timeBegin = value;
                 }
             }
         }
@@ -70,25 +70,25 @@ namespace AvaloniaDemo.Markers
         {
             get
             {
-                if (double.IsNaN(timeEnd) == true)
+                if (double.IsNaN(_timeEnd) == true)
                 {
-                    timeEnd = MaxTime();
+                    _timeEnd = MaxTime();
                 }
 
-                return timeEnd;
+                return _timeEnd;
             }
             set
             {
-                if (double.IsNaN(timeBegin) == false)
+                if (double.IsNaN(_timeBegin) == false)
                 {
-                    if (timeEnd >= timeBegin)
+                    if (_timeEnd >= _timeBegin)
                     {
-                        timeEnd = value;
+                        _timeEnd = value;
                     }
                 }
                 else
                 {
-                    timeEnd = value;
+                    _timeEnd = value;
                 }
             }
         }
@@ -125,14 +125,9 @@ namespace AvaloniaDemo.Markers
             }
         }
 
-        private double MinTime()
-        {
-            return Intervals.Min(s => s.Left);
-        }
-        private double MaxTime()
-        {
-            return Intervals.Max(s => s.Right);
-        }
+        public double MinTime() => Intervals.Min(s => s.Left);
+
+        public double MaxTime() => Intervals.Max(s => s.Right);        
 
         public string Description { get; set; }
     }

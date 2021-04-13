@@ -26,7 +26,7 @@ namespace AvaloniaDemo.Views
         {        
             if (e.Property.Name == nameof(Items))
             {
-
+                
             }
         }
 

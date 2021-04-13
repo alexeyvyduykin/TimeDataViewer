@@ -12,9 +12,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\TimeDataViewer\TimeDataViewer.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views\SchedulerControl.axaml.cs">
-      <DependentUpon>SchedulerControl.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
 </Project>

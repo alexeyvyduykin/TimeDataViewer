@@ -15,17 +15,17 @@ namespace AvaloniaDemo.ViewModels
         private ObservableCollection<Interval> _interval1;
         private ObservableCollection<Interval> _interval2;
         private ObservableCollection<Interval> _interval3;        
-        private ObservableCollection<BaseInterval> _backgroundIntervals;
+        //private ObservableCollection<BaseInterval> _backgroundIntervals;
 
         public BaseModelView()
         {
             _interval1 = new();
             _interval2 = new();
             _interval3 = new();
-            _backgroundIntervals = new();
+           // _backgroundIntervals = new();
         }
                      
-        public ObservableCollection<BaseInterval> BackgroundIntervals => _backgroundIntervals;
+        //public ObservableCollection<BaseInterval> BackgroundIntervals => _backgroundIntervals;
 
         public DateTime Origin { get; } = DateTime.Now;
 

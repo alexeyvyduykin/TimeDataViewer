@@ -13,8 +13,8 @@ namespace AvaloniaDemo.ViewModels
 
         public static void InitializeContext()
         {
-            var begin = DateTime.Now;
-            var duration = TimeSpan.FromDays(1);
+            //var begin = DateTime.Now;
+            //var duration = TimeSpan.FromDays(1);
         
             BaseModelView = new BaseModelView() 
             {             

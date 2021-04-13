@@ -16,18 +16,7 @@ namespace AvaloniaDemo.Views
         private readonly Dictionary<BackgroundMode, Grid> _backgrounds = new();
         private BackgroundMode _currentBackgroundMode;
 
-        private VisualBrush GridBrush
-        {
-            get
-            {
-                if (_gridBrush == null)
-                {
-                    _gridBrush = CreateGridBrush0();
-                }
-
-                return _gridBrush;
-            }
-        }
+        private VisualBrush GridBrush => _gridBrush;
 
         private VisualBrush CreateBrush____()
         {
@@ -116,6 +105,8 @@ namespace AvaloniaDemo.Views
             _backgrounds.Add(BackgroundMode.Month, CreateGrid(12));
 
             _backgrounds.Add(BackgroundMode.Year, CreateGrid(12));
+
+            _gridBrush = CreateGridBrush0();
         }
 
         private Grid CreateGrid(int count)
@@ -148,70 +139,17 @@ namespace AvaloniaDemo.Views
 
         private VisualBrush CreateBrush()
         {
-            //Grid grid = new Grid();
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.ColumnDefinitions.Add(new ColumnDefinition());
-            //grid.RowDefinitions.Add(new RowDefinition());
-
-            //  Rectangle rect_silver = new Rectangle() { Height = 600.0, Width = 800.0 / 7.0,  Fill = Brushes.Silver };
-            //  Rectangle rect_white = new Rectangle() { Height = 600.0, Width = 800.0 / 7.0, Fill = Brushes.White };
-
-            /*
-             
-     <Border Height="200" Width="800" BorderBrush="Black" BorderThickness="2">
-      <Grid>
-        <Rectangle Grid.Column="0" Fill="Silver"></Rectangle>
-        <Rectangle Grid.Column="1" Fill="WhiteSmoke"></Rectangle>
-        <Rectangle Grid.Column="2" Fill="Silver"></Rectangle>
-        <Rectangle Grid.Column="3" Fill="WhiteSmoke"></Rectangle>
-        <Rectangle Grid.Column="4" Fill="Silver"></Rectangle>
-        <Rectangle Grid.Column="5" Fill="WhiteSmoke"></Rectangle>
-        <Rectangle Grid.Column="6" Fill="Silver"></Rectangle>     
-      </Grid>
-    </Border>
-             */
-
-
-
-            // week
-
-            //for (int i = 0; i < 7; i++)
-            //{
-            //    if(i % 2 == 0)
-            //    {
-            //        var rect = new Rectangle() { Fill = Brushes.Silver };
-            //        Grid.SetColumn(rect, i);
-            //        grid.Children.Add(rect);
-            //    }
-            //    else
-            //    {
-            //        var rect = new Rectangle() { Fill = Brushes.WhiteSmoke };
-            //        Grid.SetColumn(rect, i);
-            //        grid.Children.Add(rect);
-            //    }
-            //}
-
             var grid = _backgrounds[_currentBackgroundMode];
-
-            // grid.RenderTransform = new ScaleTransform(800, 600);
+       
             grid.Width = AbsoluteWindow.Width;
             grid.Height = AbsoluteWindow.Height;
-            // grid.Margin = new Thickness(-base.RenderOffsetAbsolute.X, 0, 0, 0);
 
-            var brush = new VisualBrush()
+            return new VisualBrush()
             {
                 Visual = grid,
                 DestinationRect = new RelativeRect(
-                RenderOffsetAbsolute.X, 0,
-                AbsoluteWindow.Width, AbsoluteWindow.Height, RelativeUnit.Absolute)
+                    RenderOffsetAbsolute.X, 0, AbsoluteWindow.Width, AbsoluteWindow.Height, RelativeUnit.Absolute)
             };
-
-            return brush;
         }
 
         private VisualBrush CreateGridBrush0()
@@ -291,7 +229,8 @@ namespace AvaloniaDemo.Views
                 _currentBackgroundMode = BackgroundMode.Year;
                 throw new Exception();
             }
-            AreaBackground = CreateBrush();
+            
+            _areaBackground = CreateBrush();
         }
 
         private bool IsRange(double value, double min, double max) => value >= min && value <= max;
