@@ -3,12 +3,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:AvaloniaDemo.ViewModels"
-        xmlns:sch="clr-namespace:AvaloniaDemo.Views"             
+        xmlns:sch="clr-namespace:TimeDataViewer;assembly=TimeDataViewer"   
+        xmlns:shapes="clr-namespace:TimeDataViewer.Shapes;assembly=TimeDataViewer"     
         xmlns:models="clr-namespace:AvaloniaDemo.Models"
         xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"   
         xmlns:sys="clr-namespace:System;assembly=netstandard"
-        xmlns:Designer="clr-namespace:AvaloniaDemo.ViewModels"       
-        xmlns:Markers="clr-namespace:AvaloniaDemo.Markers"       
+        xmlns:Designer="clr-namespace:AvaloniaDemo.ViewModels"               
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"        
         d:DataContext="{x:Static Designer:DesignerContext.BaseModelView}" 
         x:DataType="vm:BaseModelView" x:CompileBindings="False"
@@ -21,17 +21,17 @@
                 <sch:SchedulerControl.Series>
                     <sch:Series Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">
                         <sch:Series.IntervalTemplate>
-                            <Markers:IntervalVisual Background="Red"/>
+                            <shapes:IntervalVisual Background="Red"/>
                         </sch:Series.IntervalTemplate>
                     </sch:Series>
                     <sch:Series Items="{Binding Interval2}" LeftBindingPath="Begin" RightBindingPath="End">
                         <sch:Series.IntervalTemplate>
-                            <Markers:IntervalVisual Background="Green"/>
+                            <shapes:IntervalVisual Background="Green"/>
                         </sch:Series.IntervalTemplate>
                     </sch:Series>
                     <sch:Series Items="{Binding Interval3}" LeftBindingPath="Begin" RightBindingPath="End">
                         <sch:Series.IntervalTemplate>
-                            <Markers:IntervalVisual Background="Blue"/>
+                            <shapes:IntervalVisual Background="Blue"/>
                         </sch:Series.IntervalTemplate>
                     </sch:Series>
                 </sch:SchedulerControl.Series>

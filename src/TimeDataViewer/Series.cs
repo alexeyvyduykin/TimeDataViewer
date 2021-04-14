@@ -6,7 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Styling;
 using Avalonia.LogicalTree;
-using AvaloniaDemo.Markers;
+using TimeDataViewer.Markers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -18,8 +18,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.VisualTree;
-using AvaloniaDemo.Models;
-using TimeDataViewer;
+using TimeDataViewer.Shapes;
 using TimeDataViewer.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
@@ -27,12 +26,12 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
-using AvaloniaDemo.ViewModels;
 using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
 
-namespace AvaloniaDemo.Views
+namespace TimeDataViewer
 {
+    public record Interval(double Left, double Right);
 
     public class Series : ItemsControl, IStyleable // TemplatedControl
     {
@@ -66,10 +65,10 @@ namespace AvaloniaDemo.Views
             }
         }
 
-        public static readonly StyledProperty<BaseInterval> IntervalTemplateProperty =    
-            AvaloniaProperty.Register<Series, BaseInterval>(nameof(IntervalTemplate), new IntervalVisual());
+        public static readonly StyledProperty<BaseIntervalVisual> IntervalTemplateProperty =    
+            AvaloniaProperty.Register<Series, BaseIntervalVisual>(nameof(IntervalTemplate), new IntervalVisual());
 
-        public BaseInterval IntervalTemplate
+        public BaseIntervalVisual IntervalTemplate
         {
             get { return GetValue(IntervalTemplateProperty); }
             set { SetValue(IntervalTemplateProperty, value); }

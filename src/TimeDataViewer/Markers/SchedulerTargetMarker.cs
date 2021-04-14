@@ -9,7 +9,7 @@ using System;
 using TimeDataViewer.Spatial;
 using TimeDataViewer;
 
-namespace AvaloniaDemo.Markers
+namespace TimeDataViewer.Markers
 {
     public class SchedulerTargetMarker : SchedulerMarker, ITargetMarker
     {

@@ -17,8 +17,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using AvaloniaDemo.Markers;
-using AvaloniaDemo.Models;
+using TimeDataViewer.Markers;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;
@@ -27,9 +26,8 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
-using AvaloniaDemo.ViewModels;
 
-namespace AvaloniaDemo.Views
+namespace TimeDataViewer
 {
     public partial class SchedulerControl : ItemsControl, IStyleable
     {

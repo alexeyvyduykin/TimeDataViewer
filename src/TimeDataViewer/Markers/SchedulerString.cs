@@ -11,7 +11,7 @@ using Avalonia.Media;
 using System.Windows;
 using TimeDataViewer.Spatial;
 
-namespace AvaloniaDemo.Markers
+namespace TimeDataViewer.Markers
 {
     public class SchedulerString : SchedulerTargetMarker
     {

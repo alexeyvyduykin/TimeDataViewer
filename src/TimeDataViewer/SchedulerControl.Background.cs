@@ -7,7 +7,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using TimeDataViewer;
 
-namespace AvaloniaDemo.Views
+namespace TimeDataViewer
 {
     public partial class SchedulerControl
     {

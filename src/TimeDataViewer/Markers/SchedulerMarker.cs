@@ -11,9 +11,8 @@ using Avalonia.VisualTree;
 using Avalonia;
 using TimeDataViewer.Spatial;
 using TimeDataViewer;
-using AvaloniaDemo.Views;
 
-namespace AvaloniaDemo.Markers
+namespace TimeDataViewer.Markers
 {
     public class SchedulerMarker : ViewModelBase
     {

@@ -22,15 +22,14 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using AvaloniaDemo.Markers;
-using AvaloniaDemo.Models;
+using TimeDataViewer.Markers;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Input.TextInput;
 
-namespace AvaloniaDemo.Views
+namespace TimeDataViewer
 {
     public partial class SchedulerControl
     {

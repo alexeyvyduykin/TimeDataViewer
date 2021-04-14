@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
 
-namespace AvaloniaDemo.Markers
+namespace TimeDataViewer.Markers
 {
     public class SchedulerInterval : SchedulerMarker
     {

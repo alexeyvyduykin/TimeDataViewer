@@ -16,8 +16,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using AvaloniaDemo.Markers;
-using AvaloniaDemo.Models;
+using TimeDataViewer.Markers;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;
@@ -26,9 +25,9 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
-using AvaloniaDemo.ViewModels;
+using TimeDataViewer.Shapes;
 
-namespace AvaloniaDemo
+namespace TimeDataViewer
 {
     public class Factory
     {
@@ -41,7 +40,7 @@ namespace AvaloniaDemo
             return marker;
         }
 
-        public SchedulerInterval CreateInterval(Interval ival, SchedulerString parent, BaseInterval template)
+        public SchedulerInterval CreateInterval(Interval ival, SchedulerString parent, BaseIntervalVisual template)
         {
             var marker = new SchedulerInterval(ival.Left, ival.Right);
             
