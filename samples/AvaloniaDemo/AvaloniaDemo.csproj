@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\TimeDataViewer\TimeDataViewer.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Markers\" />
     <Folder Include="Views\" />
   </ItemGroup>
 </Project>

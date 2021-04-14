@@ -21,55 +21,50 @@ namespace TimeDataViewer.Shapes
         private readonly SchedulerString _marker;
         private SchedulerControl? _map;      
         private double _widthX = 0.0;
-        private double _heightY = 0.0;
-
+      
         public StringVisual(SchedulerString marker)
         {
             _marker = marker;
             _marker.ZIndex = 30;
-
-            LayoutUpdated += StringVisual_LayoutUpdated;
+      
             Initialized += StringVisual_Initialized;
-            
-            _heightY = 5;
+      
             RenderTransform = new ScaleTransform(1, 1);
         }
 
-        private void StringVisual_Initialized(object? sender, EventArgs e)
+        public static readonly StyledProperty<double> HeightYProperty =    
+            AvaloniaProperty.Register<IntervalVisual, double>(nameof(HeightY), 2.0);
+
+        public double HeightY
         {
+            get { return GetValue(HeightYProperty); }
+            set { SetValue(HeightYProperty, value); }
+        }
+
+        private void StringVisual_Initialized(object? sender, EventArgs e)
+        {     
             _map = _marker.Map;
 
-            _map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
-            _map.LayoutUpdated += Map_LayoutUpdated;
-
-            UpdateWidthString();
-
+            _map.OnZoomChanged += (s, e) => Update(s, e);
+            _map.LayoutUpdated += (s, e) => Update(s, e);
+       
             base.InvalidateVisual();     
         }
 
-        private void Map_LayoutUpdated(object? sender, EventArgs e)
+        protected void Update(object? sender, EventArgs e)
         {
-            UpdateWidthString();
+            if (_map is not null)
+            {
+                var left = _map.AbsoluteWindow.Left;
+                var right = _map.AbsoluteWindow.Right;
 
-            base.InvalidateVisual();
-        }
+                _widthX = right - left;
+            }
 
-        private void StringVisual_LayoutUpdated(object? sender, EventArgs e)
-        {
-            _marker.Offset = new Point2D(-Bounds.Width / 2, -Bounds.Height / 2);
-        }
-
-        private void UpdateWidthString()
-        {
-            var left = _map.AbsoluteWindow.Left;
-            var right = _map.AbsoluteWindow.Right;
-
-            _widthX = right - left;
-        }
-
-        private void Map_OnMapZoomChanged()
-        {
-            UpdateWidthString();
+            if (_marker is not null)
+            {
+                _marker.Offset = new Point2D(-Bounds.Width / 2.0, -Bounds.Height / 2.0);
+            }
 
             base.InvalidateVisual();
         }
@@ -77,7 +72,7 @@ namespace TimeDataViewer.Shapes
         public override void Render(DrawingContext drawingContext)
         {
             drawingContext.FillRectangle(Brushes.Black,
-                new Rect(new Point(0, -_heightY / 2.4), new Point(_widthX, _heightY / 2.4)));
+                new Rect(new Point(0, -HeightY / 2.0), new Point(_widthX, HeightY / 2.0)));
         }
 
     }

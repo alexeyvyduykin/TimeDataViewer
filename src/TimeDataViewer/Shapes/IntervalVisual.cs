@@ -21,10 +21,7 @@ namespace TimeDataViewer.Shapes
     public class IntervalVisual : BaseIntervalVisual
     {
         private double _widthX = 0.0;
-        private double _heightY = 0.0; 
-        //public bool IsChanged = true;       
-        private readonly Brush _foreground; 
-        private readonly Pen _stroke;
+        //public bool IsChanged = true;           
         private readonly ScaleTransform _scale;
         private SchedulerControl? _map;
         private SchedulerInterval? _marker;
@@ -46,19 +43,14 @@ namespace TimeDataViewer.Shapes
 
             PointerEnter += IntervalVisual_PointerEnter;
             PointerLeave += IntervalVisual_PointerLeave;
-
-            LayoutUpdated += IntervalVisual_LayoutUpdated;
+         
             Initialized += IntervalVisual_Initialized;
 
             DataContextProperty.Changed.AddClassHandler<IntervalVisual>(MarkerChanged);
 
             //    RenderTransform = scale;
             
-            _scale = new ScaleTransform(1, 1);
-            _stroke = new Pen(Brushes.Black, 1.0);
-            _foreground = new SolidColorBrush() { Color = Colors.White };
-         
-            _heightY = 20;
+            _scale = new ScaleTransform(1, 1);                
         }
 
         public static readonly StyledProperty<Color> BackgroundProperty =    
@@ -68,6 +60,33 @@ namespace TimeDataViewer.Shapes
         {
             get { return GetValue(BackgroundProperty); }
             set { SetValue(BackgroundProperty, value); }
+        }
+
+        public static readonly StyledProperty<double> HeightYProperty =    
+            AvaloniaProperty.Register<IntervalVisual, double>(nameof(HeightY), 20.0);
+
+        public double HeightY
+        {
+            get { return GetValue(HeightYProperty); }
+            set { SetValue(HeightYProperty, value); }
+        }
+
+        public static readonly StyledProperty<Color> StrokeColorProperty =   
+            AvaloniaProperty.Register<IntervalVisual, Color>(nameof(StrokeColor), Colors.Black);
+
+        public Color StrokeColor
+        {
+            get { return GetValue(StrokeColorProperty); }
+            set { SetValue(StrokeColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<double> StrokeThicknessProperty =    
+            AvaloniaProperty.Register<IntervalVisual, double>(nameof(StrokeThickness), 1.0);
+
+        public double StrokeThickness
+        {
+            get { return GetValue(StrokeThicknessProperty); }
+            set { SetValue(StrokeThicknessProperty, value); }
         }
 
         private void MarkerChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
@@ -92,26 +111,11 @@ namespace TimeDataViewer.Shapes
         private void IntervalVisual_Initialized(object? sender, EventArgs e)
         {
             _map = _marker.Map;
-            _map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
-            _map.LayoutUpdated += Map_LayoutUpdated;
 
-
-            UpdateInterval();
+            _map.OnZoomChanged += (s, e) => Update();
+            _map.LayoutUpdated += (s, e) => Update();
+           
             InvalidateVisual();
-        }
-
-        private void Map_LayoutUpdated(object? sender, EventArgs e)
-        {
-            UpdateInterval();
-            InvalidateVisual();          
-        }
-
-        private void IntervalVisual_LayoutUpdated(object? sender, EventArgs e)
-        {
-            if (_marker is not null)
-            {
-                _marker.Offset = new Point2D(-DesiredSize.Width / 2, -DesiredSize.Height / 2);
-            }
         }
 
         private void IntervalVisual_PointerLeave(object? sender, PointerEventArgs e)
@@ -128,8 +132,7 @@ namespace TimeDataViewer.Shapes
 
             Cursor = new Cursor(StandardCursorType.Arrow);
 
-            _scale.ScaleY = 1;
-            //  scale.ScaleX = 1;
+            _scale.ScaleY = 1;         
         }
 
         private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
@@ -153,29 +156,22 @@ namespace TimeDataViewer.Shapes
             // scale.ScaleX = 1;
         }
 
-        private void Map_OnMapZoomChanged()
-        {
-            UpdateInterval();
-
-
-            InvalidateVisual();
-            //  UpdateVisual(true);
-        }
-
-        private void UpdateInterval()
-        {
-            //   var d1 = Map.FromLocalValueToPixelX(Marker.Left);
-            //   var d2 = Map.FromLocalValueToPixelX(Marker.Right);
+        private void Update()
+        {        
             if (_map is not null && _marker is not null)
             {
                 var d1 = _map.FromLocalToAbsolute(new Point2D(_marker.Left, _marker.LocalPosition.Y)).X;
                 var d2 = _map.FromLocalToAbsolute(new Point2D(_marker.Right, _marker.LocalPosition.Y)).X;
 
-                //    var d1 = Map.FromSchedulerPointToLocal(new SCSchedulerPoint(Marker.Left, Marker.Position.Y)).X;
-                //    var d2 = Map.FromSchedulerPointToLocal(new SCSchedulerPoint(Marker.Right, Marker.Position.Y)).X;
-
                 _widthX = d2 - d1;
             }
+
+            if (_marker is not null)
+            {
+                _marker.Offset = new Point2D(-DesiredSize.Width / 2.0, -DesiredSize.Height / 2.0);
+            }
+
+            InvalidateVisual();        
         }
         
         public override void Render(DrawingContext drawingContext)
@@ -185,21 +181,22 @@ namespace TimeDataViewer.Shapes
             if (_widthX == 0.0)
                 return;
 
-            double thick_half = _stroke.Thickness / 2.0;
+            double thick_half = StrokeThickness / 2.0;
 
-            var p0 = new Point(-_widthX / 2.0, -_heightY / 2.0);
-            var p1 = new Point(_widthX / 2.0, _heightY / 2.0);
+            var p0 = new Point(-_widthX / 2.0, -HeightY / 2.0);
+            var p1 = new Point(_widthX / 2.0, HeightY / 2.0);
 
             var RectBorder = new Rect(
-                      new Point(-_widthX / 2.0 + thick_half, -_heightY / 2.0 + thick_half),
-                      new Point(_widthX / 2.0 - thick_half, _heightY / 2.0 - thick_half));
+                      new Point(-_widthX / 2.0 + thick_half, -HeightY / 2.0 + thick_half),
+                      new Point(_widthX / 2.0 - thick_half, HeightY / 2.0 - thick_half));
 
             var RectSolid = new Rect(p0, p1);
                         
             var brush = new SolidColorBrush() { Color = Background };
+            var pen = new Pen(new SolidColorBrush() { Color = StrokeColor }, StrokeThickness);
 
             drawingContext.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));                      
-            drawingContext.DrawGeometry(null, _stroke, new RectangleGeometry(RectBorder));                            
+            drawingContext.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));                            
         }
 
         public override BaseIntervalVisual Clone(SchedulerInterval marker)
@@ -207,7 +204,8 @@ namespace TimeDataViewer.Shapes
             return new IntervalVisual() 
             {
                 DataContext = marker,
-                Background = Background,
+                Background = this.Background,
+                HeightY = this.HeightY,
             };
         }
     }

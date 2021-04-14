@@ -63,7 +63,7 @@ namespace TimeDataViewer
             _core.AxisY = new CategoryAxis() { CoordType = EAxisCoordType.Y, IsInversed = true };
             _core.AxisX.IsDynamicLabelEnable = true;
             _core.AxisY.IsDynamicLabelEnable = true;
-            _core.OnZoomChanged += new SCZoomChanged(ForceUpdateOverlays);
+            _core.OnZoomChanged += (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
             _core.CanDragMap = true;
             _core.MouseWheelZoomEnabled = true;
             _core.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
@@ -604,7 +604,7 @@ namespace TimeDataViewer
         {
             //if (_core.IsStarted == true)
             //{
-            _core.OnZoomChanged -= new SCZoomChanged(ForceUpdateOverlays);
+            _core.OnZoomChanged -= (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
 
             base.LayoutUpdated -= BaseSchedulerControl_LayoutUpdated;
 

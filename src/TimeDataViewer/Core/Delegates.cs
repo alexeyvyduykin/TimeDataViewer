@@ -7,7 +7,7 @@ using TimeDataViewer.Spatial;
 namespace TimeDataViewer
 {
     public delegate void SCDragChanged();
-    public delegate void SCZoomChanged();
+    //public delegate void SCZoomChanged();
     public delegate void SCSizeChanged(int width, int height);
 
     public delegate void SCTargetMarkerPositionChanged(ITargetMarker marker);

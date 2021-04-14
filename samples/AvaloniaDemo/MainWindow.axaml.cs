@@ -1,10 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-//using AvaloniaDemo.Views;
 using AvaloniaDemo.ViewModels;
 using System.Collections.Generic;
-using AvaloniaDemo.Markers;
 using AvaloniaDemo.Models;
 
 namespace AvaloniaDemo

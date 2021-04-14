@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace AvaloniaDemo.Models
 {
+    public record TimeInterval(double Begin, double End);
+
     public enum ETimePeriod { Day, Week, Month, Year }
 
     public class DataPool

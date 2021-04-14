@@ -55,7 +55,7 @@ namespace TimeDataViewer
                 _core.OnDragChanged -= value;
             }
         }
-        public event SCZoomChanged OnSchedulerZoomChanged
+        public event EventHandler OnZoomChanged
         {
             add
             {

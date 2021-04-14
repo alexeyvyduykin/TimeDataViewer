@@ -32,7 +32,7 @@ namespace TimeDataViewer
         private double _scaleY = 0.0;
 
         public event SCDragChanged OnDragChanged;
-        public event SCZoomChanged OnZoomChanged;
+        public event EventHandler OnZoomChanged;
         public event SCSizeChanged OnSizeChanged;
 
         public Core() { }
@@ -432,10 +432,7 @@ namespace TimeDataViewer
 
                     if (Zooming(_zoom) == true)
                     {
-                        if (OnZoomChanged != null)
-                        {
-                            OnZoomChanged();
-                        }
+                        OnZoomChanged?.Invoke(this, null);
                     }
                 }
             }
