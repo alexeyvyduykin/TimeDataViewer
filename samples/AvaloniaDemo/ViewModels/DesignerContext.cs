@@ -27,31 +27,31 @@ namespace AvaloniaDemo.ViewModels
 
     static class DesignerData
     {
-        public static ObservableCollection<Interval> Interval1 = new() 
+        public static ObservableCollection<TimeInterval> Interval1 = new() 
         {         
-            new Interval(10, 30),
-            new Interval(45, 89),
-            new Interval(103, 243),
-            new Interval(300, 310),
-            new Interval(312, 320),
+            new TimeInterval(10, 30),
+            new TimeInterval(45, 89),
+            new TimeInterval(103, 243),
+            new TimeInterval(300, 310),
+            new TimeInterval(312, 320),
         };
 
-        public static ObservableCollection<Interval> Interval2 = new()
+        public static ObservableCollection<TimeInterval> Interval2 = new()
         {
-            new Interval(10, 30),
-            new Interval(45, 89),
-            new Interval(103, 243),
-            new Interval(300, 310),
-            new Interval(312, 320),
+            new TimeInterval(10, 30),
+            new TimeInterval(45, 89),
+            new TimeInterval(103, 243),
+            new TimeInterval(300, 310),
+            new TimeInterval(312, 320),
         };
 
-        public static ObservableCollection<Interval> Interval3 = new()
+        public static ObservableCollection<TimeInterval> Interval3 = new()
         {
-            new Interval(10, 30),
-            new Interval(45, 89),
-            new Interval(103, 243),
-            new Interval(300, 310),
-            new Interval(312, 320),
+            new TimeInterval(10, 30),
+            new TimeInterval(45, 89),
+            new TimeInterval(103, 243),
+            new TimeInterval(300, 310),
+            new TimeInterval(312, 320),
         };
     }
 }

@@ -12,9 +12,9 @@ namespace AvaloniaDemo.ViewModels
 {
     public class BaseModelView : ViewModelBase
     {     
-        private ObservableCollection<Interval> _interval1;
-        private ObservableCollection<Interval> _interval2;
-        private ObservableCollection<Interval> _interval3;        
+        private ObservableCollection<TimeInterval> _interval1;
+        private ObservableCollection<TimeInterval> _interval2;
+        private ObservableCollection<TimeInterval> _interval3;        
         //private ObservableCollection<BaseInterval> _backgroundIntervals;
 
         public BaseModelView()
@@ -29,19 +29,19 @@ namespace AvaloniaDemo.ViewModels
 
         public DateTime Origin { get; } = DateTime.Now;
 
-        public ObservableCollection<Interval> Interval1
+        public ObservableCollection<TimeInterval> Interval1
         {
             get => _interval1;
             set => RaiseAndSetIfChanged(ref _interval1, value);
         }
 
-        public ObservableCollection<Interval> Interval2
+        public ObservableCollection<TimeInterval> Interval2
         {
             get => _interval2;
             set => RaiseAndSetIfChanged(ref _interval2, value);
         }
 
-        public ObservableCollection<Interval> Interval3
+        public ObservableCollection<TimeInterval> Interval3
         {
             get => _interval3;
             set => RaiseAndSetIfChanged(ref _interval3, value);

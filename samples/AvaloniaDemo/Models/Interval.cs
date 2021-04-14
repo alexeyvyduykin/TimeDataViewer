@@ -6,5 +6,7 @@ using System.Threading.Tasks;
 
 namespace AvaloniaDemo.Models
 {
+    public record TimeInterval(double Begin, double End);
+
     public record Interval(double Left, double Right);
 }

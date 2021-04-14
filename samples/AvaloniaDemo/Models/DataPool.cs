@@ -43,15 +43,15 @@ namespace AvaloniaDemo.Models
         {
             TimePeriod = ETimePeriod.Day;
 
-            Intervals = new Dictionary<int, IList<Interval>>();
-            BackIntervals = new List<Interval>();
+            Intervals = new Dictionary<int, IList<TimeInterval>>();
+            BackIntervals = new List<TimeInterval>();
 
             NumSatellites = 5;
         }
 
-        public IDictionary<int, IList<Interval>> Intervals { get; }
+        public IDictionary<int, IList<TimeInterval>> Intervals { get; }
 
-        public IList<Interval> BackIntervals { get; }
+        public IList<TimeInterval> BackIntervals { get; }
 
         public int NumSatellites { get; set; }
 
@@ -98,7 +98,7 @@ namespace AvaloniaDemo.Models
                 double min = double.MaxValue;
                 foreach (var item in Intervals.Values)
                 {                                
-                    min = Math.Min(item.Min(s => s.Left), min);                    
+                    min = Math.Min(item.Min(s => s.Begin), min);                    
                 }
 
                 return min;
@@ -112,7 +112,7 @@ namespace AvaloniaDemo.Models
                 double max = double.MinValue;
                 foreach (var item in Intervals.Values)
                 {
-                    max = Math.Max(item.Max(s => s.Left), max);
+                    max = Math.Max(item.Max(s => s.End), max);
                 }
 
                 return max;
@@ -153,16 +153,16 @@ namespace AvaloniaDemo.Models
                 {
                     CreateInterval(stringIndex, value, MinValue, MaxValue, out double left, out double right);
 
-                    Intervals[stringIndex].Add(new Interval(left, right));
+                    Intervals[stringIndex].Add(new TimeInterval(left, right));
 
                     return;
                 }
             }
         }
 
-        private bool IsInner(Interval ival, double value)
+        private bool IsInner(TimeInterval ival, double value)
         {
-            if (value <= ival.Right && value >= ival.Left)
+            if (value <= ival.End && value >= ival.Begin)
                 return true;
 
             return false;
@@ -176,7 +176,7 @@ namespace AvaloniaDemo.Models
 
                 foreach (var ival in Intervals[stringIndex])
                 {
-                    temp += (ival.Right - ival.Left);
+                    temp += (ival.End - ival.Begin);
 
                     if (IsInner(ival, value) == true)
                         return false;
@@ -191,7 +191,7 @@ namespace AvaloniaDemo.Models
                 return true;
             }
 
-            Intervals.Add(stringIndex, new List<Interval>());
+            Intervals.Add(stringIndex, new List<TimeInterval>());
 
             return true;
         }
@@ -248,7 +248,7 @@ namespace AvaloniaDemo.Models
             var len = _random.Next(_minSizeIntervals[TimePeriod].Item2, _maxSizeIntervals[TimePeriod].Item2);
 
 
-            BackIntervals.Add(new Interval(pos, pos + len));
+            BackIntervals.Add(new TimeInterval(pos, pos + len));
 
             _lastValue = pos + len;
         }

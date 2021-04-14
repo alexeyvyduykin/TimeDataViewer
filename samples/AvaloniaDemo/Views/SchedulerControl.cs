@@ -136,15 +136,10 @@ namespace AvaloniaDemo.Views
 
         private void Series_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            foreach (Series series in Series)
-            {
-                series.Map = this;
-            }
-
-            SyncLogicalTree(e);
+            PassingLogicalTree(e);
         }
 
-        private void SyncLogicalTree(NotifyCollectionChangedEventArgs e)
+        private void PassingLogicalTree(NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems is not null)
             {
