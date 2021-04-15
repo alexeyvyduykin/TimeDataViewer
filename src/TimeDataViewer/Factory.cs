@@ -31,9 +31,9 @@ namespace TimeDataViewer
 {
     public class Factory
     {
-        public SchedulerString CreateString()
+        public SchedulerString CreateString(string category)
         {
-            var marker = new SchedulerString("String");
+            var marker = new SchedulerString(category);
 
             marker.Shape = new StringVisual(marker);
 
@@ -46,7 +46,11 @@ namespace TimeDataViewer
             
             marker.String = parent;
 
-            marker.Shape = template.Clone(marker);
+            var visual = template.Clone();
+
+            visual.DataContext = marker;
+
+            marker.Shape = visual;
 
             parent.Intervals.Add(marker);
 

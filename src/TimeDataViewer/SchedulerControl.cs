@@ -26,6 +26,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
+using Avalonia.Controls.Primitives;
 
 namespace TimeDataViewer
 {
@@ -55,7 +56,9 @@ namespace TimeDataViewer
         private readonly Pen CenterCrossPen = new Pen(Brushes.Red, 1);
         public bool ShowMouseCenter { get; set; } = true;
         private readonly Pen MouseCrossPen = new Pen(Brushes.Blue, 1);
-     
+
+        private Popup _popup;
+
         public SchedulerControl()
         {
             _core = new Core();
@@ -92,6 +95,16 @@ namespace TimeDataViewer
             {
                 RenderTransform = _schedulerTranslateTransform
             };
+
+            _popup = new Popup()
+            {
+                //AllowsTransparency = true,
+                //PlacementTarget = this,
+                PlacementMode = PlacementMode.Pointer,
+                IsOpen = false,
+            };
+
+            TopLevelForToolTips?.Children.Add(_popup);
 
             var style = new Style(x => x.OfType<ItemsControl>().Child().OfType<ContentPresenter>());
             style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("AbsolutePositionX")));
@@ -164,6 +177,23 @@ namespace TimeDataViewer
         }
 
 
+        public void ShowTooltip(Control placementTarget, Control tooltip)
+        {
+            if (TopLevelForToolTips?.Children.Contains(_popup) == false)
+            {
+                TopLevelForToolTips?.Children.Add(_popup);
+            }
+
+            _popup.PlacementTarget = placementTarget;
+            _popup.Child = tooltip;
+            _popup.IsOpen = true;
+        }
+
+        public void HideTooltip()
+        {
+            _popup.IsOpen = false;
+        }
+
         public void UpdateData()
         {
             _markers.Clear();
@@ -175,7 +205,7 @@ namespace TimeDataViewer
             {
                 if (series.Items is not null)
                 {
-                    var strng = _factory.CreateString();                     
+                    var strng = _factory.CreateString(series.Category);                     
                     var ivals = ((IList<Interval>)series.Items).Select(s => _factory.CreateInterval(s, strng, series.IntervalTemplate));
 
                     _markerPool.Add(strng, ivals);

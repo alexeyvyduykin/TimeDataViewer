@@ -15,6 +15,8 @@ using System.Collections.Specialized;
 using Avalonia.Controls.Shapes;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.Markers;
+using TimeDataViewer.Views;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer.Shapes
 {
@@ -25,31 +27,21 @@ namespace TimeDataViewer.Shapes
         private readonly ScaleTransform _scale;
         private SchedulerControl? _map;
         private SchedulerInterval? _marker;
-        //   public readonly Popup Popup = new Popup();
-        //   public readonly IntervalTooltip Tooltip;// = new IntervalTooltip();
+        private bool _popupIsOpen;
 
         public IntervalVisual()
-        {
-            //Tooltip = new IntervalTooltip()
-            //{
-            //    DataContext = new IntervalTooltipViewModel(m),
-            //};
-
-            // Popup.AllowsTransparency = true;
-            //      Popup.PlacementTarget = this;
-            //      Popup.PlacementMode = PlacementMode.Pointer;
-            //      Popup.Child = Tooltip;
-            //      Popup.Child.Opacity = 0.777;
-
+        {                               
             PointerEnter += IntervalVisual_PointerEnter;
             PointerLeave += IntervalVisual_PointerLeave;
          
             Initialized += IntervalVisual_Initialized;
 
-            DataContextProperty.Changed.AddClassHandler<IntervalVisual>(MarkerChanged);
+            DataContextProperty.Changed.AddClassHandler<IntervalVisual>((d, e) => d.MarkerChanged(e));
+
+            _popupIsOpen = false;
 
             //    RenderTransform = scale;
-            
+
             _scale = new ScaleTransform(1, 1);                
         }
 
@@ -89,7 +81,7 @@ namespace TimeDataViewer.Shapes
             set { SetValue(StrokeThicknessProperty, value); }
         }
 
-        private void MarkerChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
+        private void MarkerChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.NewValue is SchedulerInterval marker)
             {
@@ -98,10 +90,10 @@ namespace TimeDataViewer.Shapes
                 //    _map.OnSchedulerZoomChanged -= Map_OnMapZoomChanged;
                 //    _map.LayoutUpdated -= Map_LayoutUpdated;
                 //}
-                
+
                 _marker = marker;
                 _marker.ZIndex = 100;
-
+                   
                 //_map = _marker.Map;
                 //_map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
                 //_map.LayoutUpdated += Map_LayoutUpdated;
@@ -109,9 +101,9 @@ namespace TimeDataViewer.Shapes
         }
 
         private void IntervalVisual_Initialized(object? sender, EventArgs e)
-        {
+        {                       
             _map = _marker.Map;
-
+    
             _map.OnZoomChanged += (s, e) => Update();
             _map.LayoutUpdated += (s, e) => Update();
            
@@ -120,10 +112,11 @@ namespace TimeDataViewer.Shapes
 
         private void IntervalVisual_PointerLeave(object? sender, PointerEventArgs e)
         {
-            //if (Popup.IsOpen)
-            //{
-            //    Popup.IsOpen = false;
-            //}
+            if (_popupIsOpen == true)
+            {
+                _map?.HideTooltip();
+                _popupIsOpen = false;
+            }
 
             if (_marker is not null)
             {
@@ -137,12 +130,13 @@ namespace TimeDataViewer.Shapes
 
         private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
         {
-            //if (Popup.IsOpen == false)
-            //{
-            //    Popup.IsOpen = true;
-
-            //    // Popup.InvalidateVisual();
-            //}
+            if (_popupIsOpen == false)
+            {
+                var tooltip = Series.Tooltip;
+                tooltip.DataContext = new IntervalTooltipViewModel(_marker);
+                _map?.ShowTooltip(this, tooltip);
+                _popupIsOpen = true;
+            }
 
             if (_marker is not null)
             {
@@ -199,13 +193,13 @@ namespace TimeDataViewer.Shapes
             drawingContext.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));                            
         }
 
-        public override BaseIntervalVisual Clone(SchedulerInterval marker)
-        {
+        public override BaseIntervalVisual Clone()
+        {   
             return new IntervalVisual() 
-            {
-                DataContext = marker,
+            {              
                 Background = this.Background,
                 HeightY = this.HeightY,
+                Series = this.Series,
             };
         }
     }

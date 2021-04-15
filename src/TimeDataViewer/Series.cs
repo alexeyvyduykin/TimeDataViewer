@@ -28,6 +28,7 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
+using TimeDataViewer.Views;
 
 namespace TimeDataViewer
 {
@@ -43,6 +44,8 @@ namespace TimeDataViewer
         {
             _itemsSource = new ObservableCollection<object>();
 
+            IntervalTemplate = new IntervalVisual() { Series = this };
+
             //ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
 
             //PropertyChanged += Series_PropertyChanged;
@@ -52,6 +55,16 @@ namespace TimeDataViewer
             //ItemsSourceProperty.Changed.AddClassHandler<Series>((d, e) => d.UpdateItems());
             //LeftBindingPathProperty.Changed.AddClassHandler<Series>((d, e) => d.UpdateItems());
             //RightBindingPathProperty.Changed.AddClassHandler<Series>((d, e) => d.UpdateItems());
+
+            IntervalTemplateProperty.Changed.AddClassHandler<Series>((d, e) => d.IntervalTemplateChanged(e));
+        }
+
+        private void IntervalTemplateChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            if(e.NewValue is not null && e.NewValue is BaseIntervalVisual ival)
+            {
+                ival.Series = this;
+            }
         }
 
         private void Series_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
@@ -66,12 +79,21 @@ namespace TimeDataViewer
         }
 
         public static readonly StyledProperty<BaseIntervalVisual> IntervalTemplateProperty =    
-            AvaloniaProperty.Register<Series, BaseIntervalVisual>(nameof(IntervalTemplate), new IntervalVisual());
+            AvaloniaProperty.Register<Series, BaseIntervalVisual>(nameof(IntervalTemplate));
 
         public BaseIntervalVisual IntervalTemplate
         {
             get { return GetValue(IntervalTemplateProperty); }
             set { SetValue(IntervalTemplateProperty, value); }
+        }
+
+        public static readonly StyledProperty<Control> TooltipProperty =    
+            AvaloniaProperty.Register<Series, Control>(nameof(Tooltip), new IntervalTooltip());
+
+        public Control Tooltip
+        {
+            get { return GetValue(TooltipProperty); }
+            set { SetValue(TooltipProperty, value); }
         }
 
         public static readonly DirectProperty<Series, ObservableCollection<object>> ItemsSourceProperty =            
@@ -100,6 +122,15 @@ namespace TimeDataViewer
         {
             get { return GetValue(RightBindingPathProperty); }
             set { SetValue(RightBindingPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> CategoryProperty =    
+            AvaloniaProperty.Register<Series, string>(nameof(Category), string.Empty);
+
+        public string Category
+        {
+            get { return GetValue(CategoryProperty); }
+            set { SetValue(CategoryProperty, value); }
         }
 
         private void ItemsSource_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

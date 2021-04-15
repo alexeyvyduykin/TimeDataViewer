@@ -17,26 +17,10 @@ namespace TimeDataViewer.Markers
     {
         private double _timeBegin = double.NaN;
         private double _timeEnd = double.NaN;
-        private Random _r = new Random();
-
+ 
         public SchedulerString(string name) : base()
         {
             base.Name = name;
-
-            string[] descr = new string[]
-            {
-                "Satellites times vision",
-                "Sunlight satellite subpoint",
-                "Satellites angle rotation",
-                "Satellite received",
-                "Sensor daylight",
-                "GroundStation work",
-                "Satellite orbit correction"
-            };
-
-            var index = _r.Next(0, descr.Length - 1);
-
-            Description = descr[index];
         }
 
         public double TimeBegin
@@ -128,8 +112,6 @@ namespace TimeDataViewer.Markers
         public double MinTime() => Intervals.Min(s => s.Left);
 
         public double MaxTime() => Intervals.Max(s => s.Right);        
-
-        public string Description { get; set; }
     }
 
 
