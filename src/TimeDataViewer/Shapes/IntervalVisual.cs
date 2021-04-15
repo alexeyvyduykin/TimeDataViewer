@@ -133,7 +133,7 @@ namespace TimeDataViewer.Shapes
             if (_popupIsOpen == false)
             {
                 var tooltip = Series.Tooltip;
-                tooltip.DataContext = new IntervalTooltipViewModel(_marker);
+                tooltip.DataContext = Series.CreateTooltip(_marker);//  new IntervalTooltipViewModel(_marker);
                 _map?.ShowTooltip(this, tooltip);
                 _popupIsOpen = true;
             }

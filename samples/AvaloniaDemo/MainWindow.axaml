@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:AvaloniaDemo.ViewModels"
+        xmlns:views="clr-namespace:AvaloniaDemo.Views"
         xmlns:sch="clr-namespace:TimeDataViewer;assembly=TimeDataViewer"   
         xmlns:shapes="clr-namespace:TimeDataViewer.Shapes;assembly=TimeDataViewer"     
         xmlns:models="clr-namespace:AvaloniaDemo.Models"
@@ -18,22 +19,36 @@
     <Grid Margin="5">
         <Border BorderThickness="3" BorderBrush="Black">
             <sch:SchedulerControl>
-                <sch:SchedulerControl.Series>
-                    <sch:Series Category="Rotation" Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">
+                <sch:SchedulerControl.Series>                    
+                    <sch:Series Category="Rotation" Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">                        
                         <sch:Series.IntervalTemplate>
                             <shapes:IntervalVisual Background="Yellow"/>
-                        </sch:Series.IntervalTemplate>
+                        </sch:Series.IntervalTemplate>                        
                     </sch:Series>
+                                        
                     <sch:Series Category="Observation" Items="{Binding Interval2}" LeftBindingPath="Begin" RightBindingPath="End">
+                        
                         <sch:Series.IntervalTemplate>
                             <shapes:IntervalVisual Background="Blue"/>
                         </sch:Series.IntervalTemplate>
+
+                        <sch:Series.Tooltip>
+                            <views:IntervalTooltip1/>
+                        </sch:Series.Tooltip>
+                        
                     </sch:Series>
-                    <sch:Series Category="Transmission" Items="{Binding Interval3}" LeftBindingPath="Begin" RightBindingPath="End">
-                        <sch:Series.IntervalTemplate>
+
+                    <views:MySeries2 Category="Transmission" Items="{Binding Interval3}" LeftBindingPath="Begin" RightBindingPath="End">
+
+                        <views:MySeries2.IntervalTemplate>
                             <shapes:IntervalVisual Background="Green"/>
-                        </sch:Series.IntervalTemplate>
-                    </sch:Series>
+                        </views:MySeries2.IntervalTemplate>
+
+                        <views:MySeries2.Tooltip>
+                            <views:IntervalTooltip2/>
+                        </views:MySeries2.Tooltip>
+
+                    </views:MySeries2>
                 </sch:SchedulerControl.Series>
             </sch:SchedulerControl>
         </Border>

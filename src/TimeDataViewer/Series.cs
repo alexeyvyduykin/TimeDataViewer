@@ -29,6 +29,7 @@ using Avalonia.Interactivity;
 using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
 using TimeDataViewer.Views;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer
 {
@@ -206,6 +207,11 @@ namespace TimeDataViewer
         }
 
         public SchedulerControl? Map => (((ILogical)this).LogicalParent is SchedulerControl map) ? map : null;
+
+        public virtual IntervalTooltipViewModel CreateTooltip(SchedulerInterval marker)
+        {
+            return new IntervalTooltipViewModel(marker);
+        }
     }
 
 }

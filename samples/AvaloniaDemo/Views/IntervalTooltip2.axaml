@@ -1,0 +1,62 @@
+<UserControl x:Class="AvaloniaDemo.Views.IntervalTooltip2"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AvaloniaDemo.ViewModels"
+             xmlns:sch="clr-namespace:TimeDataViewer;assembly=TimeDataViewer"
+             xmlns:shapes="clr-namespace:TimeDataViewer.Shapes;assembly=TimeDataViewer"
+             xmlns:models="clr-namespace:AvaloniaDemo.Models"
+             xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
+             xmlns:Designer="clr-namespace:AvaloniaDemo.ViewModels"
+             mc:Ignorable="d"
+             d:DataContext="{x:Static Designer:DesignerContext.IntervalTooltip2}"
+             x:DataType="vm:IntervalTooltipViewModel2" x:CompileBindings="False"
+             Background="Transparent"
+             >
+    
+    <UserControl.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="White"></Setter>
+        </Style>
+        <Style Selector="TextBlock.date">
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+        <Style Selector="TextBlock.time">
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+    </UserControl.Styles>
+
+    <UserControl.DataTemplates>
+
+        <DataTemplate DataType="{x:Type vm:IntervalTooltipViewModel2}">
+            <Border Background="Black" CornerRadius="0">
+                <Grid ColumnDefinitions="80,Auto" RowDefinitions="24,24,24,24,24,24" Margin="5" ShowGridLines="False">
+                    <TextBlock Grid.Column="0" Grid.Row="0" Text="Category:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Category}"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Date:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Date}" Classes="date"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Begin:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding Begin}" Classes="time"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="End:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding End}" Classes="time"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="AbsX:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding AbsX}"/>
+
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="AbsY:"/>
+                    <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding AbsY}"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.DataTemplates>
+
+    <ContentControl Content="{Binding}"/>
+</UserControl>

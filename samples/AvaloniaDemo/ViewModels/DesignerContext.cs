@@ -15,6 +15,8 @@ namespace AvaloniaDemo.ViewModels
 
         public static IntervalTooltipViewModel IntervalTooltip { get; set; }
 
+        public static IntervalTooltipViewModel2 IntervalTooltip2 { get; set; }
+
         public static void InitializeContext()
         {
             //var begin = DateTime.Now;
@@ -32,6 +34,8 @@ namespace AvaloniaDemo.ViewModels
             marker.String = strng;
 
             IntervalTooltip = new IntervalTooltipViewModel(marker);
+
+            IntervalTooltip2 = new IntervalTooltipViewModel2(marker);
         }
     }
 
