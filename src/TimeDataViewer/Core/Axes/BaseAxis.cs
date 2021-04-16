@@ -54,10 +54,7 @@ namespace TimeDataViewer
             //        break;
             //}
 
-            if (OnAxisChanged != null)
-            {
-                OnAxisChanged();
-            }
+            OnAxisChanged?.Invoke(this, EventArgs.Empty);
         }
        
         public bool IsInversed
@@ -102,11 +99,8 @@ namespace TimeDataViewer
         public int Length => _length;
 
         public void UpdateAxis()
-        {
-            if (OnAxisChanged != null)
-            {
-                OnAxisChanged();
-            }
+        {                
+            OnAxisChanged?.Invoke(this, EventArgs.Empty);            
         }
 
         public string Header 
@@ -116,8 +110,9 @@ namespace TimeDataViewer
         }
 
         public EAxisCoordType CoordType { get; set; }
+        
+        public event EventHandler OnAxisChanged;
 
-        public event AxisChanged OnAxisChanged;
         //     public event SCAxisLengthChanged OnLengthChanged;
 
         protected static double Clip(double n, double minValue, double maxValue)

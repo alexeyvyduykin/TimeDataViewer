@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
+using System.Globalization;
 
 namespace TimeDataViewer
 {
@@ -162,12 +163,12 @@ namespace TimeDataViewer
 
             if (value < MinScreenValue)
                 value += delta;
-
+            
             while (value <= MaxScreenValue)
             {
                 labs.Add(new AxisLabelPosition()
                 {
-                    Label = string.Format(_labelFormatPool[TimePeriodMode], Epoch0.AddSeconds(value)),
+                    Label = string.Format(CultureInfo.InvariantCulture, _labelFormatPool[TimePeriodMode], Epoch0.AddSeconds(value)),
                     Value = value
                 });
                 value += delta;
@@ -181,7 +182,7 @@ namespace TimeDataViewer
             if ((MaxScreenValue - MinScreenValue) == 0.0)
                 return string.Empty;
 
-            return Epoch0.AddSeconds(value).ToString(@"dd/MMM/yyyy");
+            return Epoch0.AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
         }
 
         //List<SCAxisLabelPosition> CreateLabels()

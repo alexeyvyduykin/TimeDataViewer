@@ -432,7 +432,7 @@ namespace TimeDataViewer
 
                     if (Zooming(_zoom) == true)
                     {
-                        OnZoomChanged?.Invoke(this, null);
+                        OnZoomChanged?.Invoke(this, EventArgs.Empty);
                     }
                 }
             }

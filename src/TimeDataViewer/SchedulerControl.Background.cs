@@ -13,7 +13,7 @@ namespace TimeDataViewer
     {
         private enum BackgroundMode { Hour, Day, Week, Month, Year }
         private VisualBrush _gridBrush;
-        private readonly Dictionary<BackgroundMode, Grid> _backgrounds = new();
+        private Dictionary<BackgroundMode, Grid> _backgroundPool;
         private BackgroundMode _currentBackgroundMode;
 
         private VisualBrush GridBrush => _gridBrush;
@@ -96,15 +96,14 @@ namespace TimeDataViewer
 
         private void InitBackgrounds()
         {
-            _backgrounds.Add(BackgroundMode.Hour, CreateGrid(60));
-
-            _backgrounds.Add(BackgroundMode.Day, CreateGrid(24));
-
-            _backgrounds.Add(BackgroundMode.Week, CreateGrid(7));
-
-            _backgrounds.Add(BackgroundMode.Month, CreateGrid(12));
-
-            _backgrounds.Add(BackgroundMode.Year, CreateGrid(12));
+            _backgroundPool = new Dictionary<BackgroundMode, Grid>() 
+            {
+                { BackgroundMode.Hour, CreateGrid(60) },
+                { BackgroundMode.Day, CreateGrid(24) },
+                { BackgroundMode.Week, CreateGrid(7) },
+                { BackgroundMode.Month, CreateGrid(12) },
+                { BackgroundMode.Year, CreateGrid(12) },
+            };
 
             _gridBrush = CreateGridBrush0();
         }
@@ -139,7 +138,7 @@ namespace TimeDataViewer
 
         private VisualBrush CreateBrush()
         {
-            var grid = _backgrounds[_currentBackgroundMode];
+            var grid = _backgroundPool[_currentBackgroundMode];
        
             grid.Width = AbsoluteWindow.Width;
             grid.Height = AbsoluteWindow.Height;

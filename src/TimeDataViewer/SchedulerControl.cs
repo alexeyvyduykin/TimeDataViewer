@@ -133,6 +133,8 @@ namespace TimeDataViewer
             Series.CollectionChanged += Series_CollectionChanged;
 
             ZoomProperty.Changed.AddClassHandler<SchedulerControl>(ZoomChanged);
+
+            OnMousePositionChanged += ((BaseRangeAxis)AxisX).UpdateDynamicLabelPosition;
         }
               
         public static readonly DirectProperty<SchedulerControl, ObservableCollection<Series>> SeriesProperty =
@@ -349,7 +351,7 @@ namespace TimeDataViewer
             InvalidateVisual();
         }
 
-        private static double OnCoerceZoom(AvaloniaObject o, double value)
+        private static double OnCoerceZoom(IAvaloniaObject o, double value)
         {
             SchedulerControl scheduler = o as SchedulerControl;
             if (scheduler != null)
@@ -372,40 +374,7 @@ namespace TimeDataViewer
         }
 
         public static readonly StyledProperty<double> ZoomProperty =    
-            AvaloniaProperty.Register<SchedulerControl, double>(nameof(Zoom), defaultValue: 0.0, inherits: true, defaultBindingMode: BindingMode.TwoWay/*,validate: OnCoerceZoom*/);
-
-        //public double Zoom
-        //{
-        //    get { return _zoom; }
-        //    set
-        //    {
-        //        if (value > MaxZoom)
-        //        {
-        //            value = MaxZoom;
-        //        }
-        //        if (value < MinZoom)
-        //        {
-        //            value = MinZoom;
-        //        }
-
-        //        if (_zoom != value)
-        //        {
-        //            var old = _zoom;
-               
-        //            _core.Zoom = (int)Math.Floor(value);
-
-        //            if (IsInitialized == true)
-        //            {
-        //                ForceUpdateOverlays();
-        //                InvalidateVisual();
-        //            }
-
-        //            _zoom = value;
-
-        //            RaisePropertyChanged(ZoomProperty, old, value);
-        //        }
-        //    }
-        //}
+            AvaloniaProperty.Register<SchedulerControl, double>(nameof(Zoom), defaultValue: 0.0, inherits: true, defaultBindingMode: BindingMode.TwoWay, coerce: OnCoerceZoom);
 
         public double Zoom
         {

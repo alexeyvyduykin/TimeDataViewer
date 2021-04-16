@@ -15,7 +15,7 @@ namespace TimeDataViewer
     public delegate void SCPositionChanged(Point2D point);
 
     public delegate void SCAxisLengthChanged(int length);
-    public delegate void AxisChanged();
+    //public delegate void AxisChanged();
     public delegate void AxisRect3Changed(int w, int h);
 
 

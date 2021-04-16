@@ -16,18 +16,18 @@
         x:Class="AvaloniaDemo.MainWindow"
         Title="AvaloniaDemo">
 
-    <Grid Margin="5">
-        <Border BorderThickness="3" BorderBrush="Black">
-            <sch:SchedulerControl>
-                <sch:SchedulerControl.Series>                    
-                    <sch:Series Category="Rotation" Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">                        
+    <Border Margin="5" BorderThickness="1" BorderBrush="Red">
+        <Grid RowDefinitions="*, 60" ColumnDefinitions="*" ShowGridLines="True">
+            <sch:SchedulerControl x:Name="scheduler" Grid.Row="0">
+                <sch:SchedulerControl.Series>
+                    <sch:Series Category="Rotation" Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">
                         <sch:Series.IntervalTemplate>
                             <shapes:IntervalVisual Background="Yellow"/>
-                        </sch:Series.IntervalTemplate>                        
+                        </sch:Series.IntervalTemplate>
                     </sch:Series>
-                                        
+
                     <sch:Series Category="Observation" Items="{Binding Interval2}" LeftBindingPath="Begin" RightBindingPath="End">
-                        
+
                         <sch:Series.IntervalTemplate>
                             <shapes:IntervalVisual Background="Blue"/>
                         </sch:Series.IntervalTemplate>
@@ -35,7 +35,7 @@
                         <sch:Series.Tooltip>
                             <views:IntervalTooltip1/>
                         </sch:Series.Tooltip>
-                        
+
                     </sch:Series>
 
                     <views:MySeries2 Category="Transmission" Items="{Binding Interval3}" LeftBindingPath="Begin" RightBindingPath="End">
@@ -51,7 +51,14 @@
                     </views:MySeries2>
                 </sch:SchedulerControl.Series>
             </sch:SchedulerControl>
-        </Border>
-    </Grid>
+        
+        
+            <sch:SchedulerAxisXControl DataContext="{Binding ElementName=scheduler}" 
+                                       Grid.Row="1">
+                
+            </sch:SchedulerAxisXControl>
+        
+        </Grid>
+    </Border>
 
 </Window>
