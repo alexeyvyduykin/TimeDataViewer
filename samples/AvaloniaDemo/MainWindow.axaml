@@ -16,9 +16,11 @@
         x:Class="AvaloniaDemo.MainWindow"
         Title="AvaloniaDemo">
 
-    <Border Margin="5" BorderThickness="1" BorderBrush="Red">
-        <Grid RowDefinitions="*, 60" ColumnDefinitions="*" ShowGridLines="True">
-            <sch:SchedulerControl x:Name="scheduler" Grid.Row="0">
+    <Border Margin="5" BorderThickness="3" BorderBrush="Black">
+        <Grid RowDefinitions="*, 60" ColumnDefinitions="*" ShowGridLines="False">
+            <sch:SchedulerControl x:Name="scheduler" 
+                                  Grid.Row="0"
+                                  Epoch="{Binding Epoch}">
                 <sch:SchedulerControl.Series>
                     <sch:Series Category="Rotation" Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">
                         <sch:Series.IntervalTemplate>

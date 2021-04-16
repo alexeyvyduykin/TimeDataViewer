@@ -38,7 +38,7 @@ namespace TimeDataViewer
         
         public TimeAxis() { }
 
-        public DateTime Epoch0 { get; set; } = new DateTime(2000, 1, 1);
+        public DateTime Epoch { get; set; }
 
         public override double FromAbsoluteToLocal(int pixel)
         {
@@ -168,7 +168,7 @@ namespace TimeDataViewer
             {
                 labs.Add(new AxisLabelPosition()
                 {
-                    Label = string.Format(CultureInfo.InvariantCulture, _labelFormatPool[TimePeriodMode], Epoch0.AddSeconds(value)),
+                    Label = string.Format(CultureInfo.InvariantCulture, _labelFormatPool[TimePeriodMode], Epoch.AddSeconds(value)),
                     Value = value
                 });
                 value += delta;
@@ -182,7 +182,7 @@ namespace TimeDataViewer
             if ((MaxScreenValue - MinScreenValue) == 0.0)
                 return string.Empty;
 
-            return Epoch0.AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
+            return Epoch.AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
         }
 
         //List<SCAxisLabelPosition> CreateLabels()
@@ -287,7 +287,7 @@ namespace TimeDataViewer
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
-                    Label = string.Format("{0:HH:mm:ss}", Epoch0.AddSeconds(point.Y)),
+                    Label = string.Format("{0:HH:mm:ss}", Epoch.AddSeconds(point.Y)),
                     Value = point.Y
                 };
             }
@@ -295,7 +295,7 @@ namespace TimeDataViewer
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
-                    Label = string.Format("{0:HH:mm:ss}", Epoch0.AddSeconds(point.X)),
+                    Label = string.Format("{0:HH:mm:ss}", Epoch.AddSeconds(point.X)),
                     Value = point.X
                 };
             }

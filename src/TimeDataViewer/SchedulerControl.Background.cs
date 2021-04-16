@@ -12,11 +12,13 @@ namespace TimeDataViewer
     public partial class SchedulerControl
     {
         private enum BackgroundMode { Hour, Day, Week, Month, Year }
-        private VisualBrush _gridBrush;
+        //private VisualBrush _gridBrush;
         private Dictionary<BackgroundMode, Grid> _backgroundPool;
         private BackgroundMode _currentBackgroundMode;
+        private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Colors.Silver };
+        private readonly IBrush _brushSecond = new SolidColorBrush() { Color = Colors.WhiteSmoke };
 
-        private VisualBrush GridBrush => _gridBrush;
+        //private VisualBrush GridBrush => _gridBrush;
 
         private VisualBrush CreateBrush____()
         {
@@ -105,7 +107,7 @@ namespace TimeDataViewer
                 { BackgroundMode.Year, CreateGrid(12) },
             };
 
-            _gridBrush = CreateGridBrush0();
+  //          _gridBrush = CreateGridBrush0();
         }
 
         private Grid CreateGrid(int count)
@@ -121,13 +123,13 @@ namespace TimeDataViewer
             {
                 if (i % 2 == 0)
                 {
-                    var rect = new Rectangle() { Fill = Brushes.Silver };
+                    var rect = new Rectangle() { Fill = _brushFirst };
                     Grid.SetColumn(rect, i);
                     grid.Children.Add(rect);
                 }
                 else
                 {
-                    var rect = new Rectangle() { Fill = Brushes.WhiteSmoke };
+                    var rect = new Rectangle() { Fill = _brushSecond };
                     Grid.SetColumn(rect, i);
                     grid.Children.Add(rect);
                 }
@@ -136,28 +138,54 @@ namespace TimeDataViewer
             return grid;
         }
 
-        private VisualBrush CreateBrush()
+        private Grid CreateGrid__(int count, double x0, double width)
         {
-            var grid = _backgroundPool[_currentBackgroundMode];
-       
-            grid.Width = AbsoluteWindow.Width;
-            grid.Height = AbsoluteWindow.Height;
-
-            return new VisualBrush()
+            Grid grid = new Grid();
+            grid.RowDefinitions.Add(new RowDefinition());
+            for (int i = 0; i < count; i++)
+            {                    
+                grid.ColumnDefinitions.Add(new ColumnDefinition());                
+            }
+           
+            for (int i = 0; i < count; i++)
             {
-                Visual = grid,
-                DestinationRect = new RelativeRect(
-                    RenderOffsetAbsolute.X, 0, AbsoluteWindow.Width, AbsoluteWindow.Height, RelativeUnit.Absolute)
-            };
+                if(i == 0)
+                {
+                    var rect = new Rectangle() { Fill = _brushFirst, Width = x0 };
+                    Grid.SetColumn(rect, i);
+                    grid.Children.Add(rect);
+                }
+                else if ( i == count - 1)
+                {
+                    var rect = new Rectangle() { Fill = _brushFirst, Width = width - x0 };
+                    Grid.SetColumn(rect, i);
+                    grid.Children.Add(rect);
+                }
+                else if (i % 2 == 0)
+                {
+                    var rect = new Rectangle() { Fill = _brushFirst, Width = width };
+                    Grid.SetColumn(rect, i);
+                    grid.Children.Add(rect);
+                }
+                else
+                {
+                    var rect = new Rectangle() { Fill = _brushSecond, Width = width };
+                    Grid.SetColumn(rect, i);
+                    grid.Children.Add(rect);
+                }
+            }
+
+            return grid;
         }
+
 
         private VisualBrush CreateGridBrush0()
         {
             // Create a DrawingBrush  
-            VisualBrush blackBrush = new VisualBrush();
+            var blackBrush = new VisualBrush();
 
             // Create a Geometry with white background  
-            GeometryDrawing backgroundSquare = new GeometryDrawing()
+            var backgroundSquare = new GeometryDrawing()
             {
                 Brush = Brushes.DarkGray,
                 Geometry = new RectangleGeometry(new Rect(0, 0, 1, 1))
@@ -168,12 +196,13 @@ namespace TimeDataViewer
             // gGroup.Children.Add(new RectangleGeometry(new Rect(0, 0, 0.5, 1)));
 
             // Create a GeomertyDrawing  
-            GeometryDrawing checkers = new GeometryDrawing()
+            var checkers = new GeometryDrawing()
             {
                 Brush = new SolidColorBrush(Colors.GhostWhite),
                 Geometry = new RectangleGeometry(new Rect(0, 0, 0.5, 1))//gGroup 
             };
-            DrawingGroup checkersDrawingGroup = new DrawingGroup();
+
+            var checkersDrawingGroup = new DrawingGroup();
             checkersDrawingGroup.Children.Add(backgroundSquare);
             checkersDrawingGroup.Children.Add(checkers);
 
@@ -181,13 +210,13 @@ namespace TimeDataViewer
             blackBrush.Visual = new Rectangle() { Width = 800, Height = 600, Fill = Brushes.Silver };
 
             // Set Viewport and TimeMode  
-            blackBrush.DestinationRect = new RelativeRect(0, 0, 1.0, 1.0, RelativeUnit.Relative);//Viewport = new Rect(0, 0, 1.0, 1.0);
+            blackBrush.DestinationRect = new RelativeRect(0, 0, 1.0, 1.0, RelativeUnit.Relative);
             blackBrush.TileMode = TileMode.Tile;
 
             return blackBrush;
         }
 
-        private void SchedulerBase_OnMapZoomChanged()
+        private void UpdateBackgroundBrush()
         {
             var w = ViewportAreaScreen.Width;
             var w0 = ViewportAreaData.Width;
@@ -198,29 +227,29 @@ namespace TimeDataViewer
             if (IsRange(w, 0.0, 3600.0) == true) // Hour
             {
                 _currentBackgroundMode = BackgroundMode.Hour;
-                var ww = 1.0 / (12.0 * 12.0 * w0 / 86400.0);
-                GridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);// Viewport = new Rect(0, 0, ww, 1.0);
+    //            var ww = 1.0 / (12.0 * 12.0 * w0 / 86400.0);
+    //            _gridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);
                 (AxisX as TimeAxis).TimePeriodMode = TimePeriod.Hour;
             }
             else if (IsRange(w, 0.0, 86400.0) == true) // Day
             {
                 _currentBackgroundMode = BackgroundMode.Day;
-                var ww = 1.0 / (12.0 * w0 / 86400.0);
-                GridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);//Viewport = new Rectangle(0, 0, ww, 1.0);
+   //             var ww = 1.0 / (12.0 * w0 / 86400.0);
+   //             _gridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);
                 (AxisX as TimeAxis).TimePeriodMode = TimePeriod.Day;
             }
             else if (IsRange(w, 0.0, 7 * 86400.0) == true) // Week
             {
                 _currentBackgroundMode = BackgroundMode.Week;
-                var ww = 1.0 / (w0 / 86400.0);
-                GridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);//Viewport = new Rect(0, 0, ww, 1.0);
+     //           var ww = 1.0 / (w0 / 86400.0);
+     //           _gridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);
                 (AxisX as TimeAxis).TimePeriodMode = TimePeriod.Week;
             }
             else if (IsRange(w, 0.0, 30 * 86400.0) == true) // Month
             {
                 _currentBackgroundMode = BackgroundMode.Month;
-                var ww = 1.0 / (w0 / 86400.0);
-                GridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);//Viewport = new Rect(0, 0, ww, 1.0);
+    //            var ww = 1.0 / (w0 / 86400.0);
+    //            _gridBrush.DestinationRect = new RelativeRect(0, 0, ww, 1.0, RelativeUnit.Relative);
                 (AxisX as TimeAxis).TimePeriodMode = TimePeriod.Month;
             }
             else if (IsRange(w, 0.0, 12 * 30 * 86400.0) == true) // Year
@@ -228,8 +257,18 @@ namespace TimeDataViewer
                 _currentBackgroundMode = BackgroundMode.Year;
                 throw new Exception();
             }
-            
-            _areaBackground = CreateBrush();
+
+            var grid = _backgroundPool[_currentBackgroundMode];
+
+            grid.Width = AbsoluteWindow.Width;
+            grid.Height = AbsoluteWindow.Height;
+
+            _areaBackground = new VisualBrush()
+            {
+                Visual = grid,
+                DestinationRect = new RelativeRect(
+                     RenderOffsetAbsolute.X, 0, AbsoluteWindow.Width, AbsoluteWindow.Height, RelativeUnit.Absolute)
+            };
         }
 
         private bool IsRange(double value, double min, double max) => value >= min && value <= max;

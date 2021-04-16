@@ -39,7 +39,7 @@ namespace AvaloniaDemo.Models
         private readonly Dictionary<int, bool> _isFull = new();
         private readonly Random _random = new();
         private readonly int _specialDelta = 0;// для тестирования отступа от MinScreenValue=0
-        private DateTime _epoch0;
+        private DateTime _epoch;
 
         public DataPool()
         {
@@ -67,8 +67,6 @@ namespace AvaloniaDemo.Models
             {
                 _timePeriod = value;
 
-                _epoch0 = DateTime.UtcNow;
-
                 _begin = 0;
 
                 switch (_timePeriod)
@@ -90,6 +88,8 @@ namespace AvaloniaDemo.Models
                 }
             }
         }
+
+        public DateTime Epoch => _epoch;
 
         private int AllSeconds => _end - _begin;
 
@@ -123,6 +123,8 @@ namespace AvaloniaDemo.Models
 
         public void GenerateIntervals()
         {
+            GenerateEpoch();
+
             Intervals.Clear();
             BackIntervals.Clear();
 
@@ -135,6 +137,19 @@ namespace AvaloniaDemo.Models
             }
 
             GenerateBacks();
+        }
+
+        private void GenerateEpoch()
+        {
+            DateTime epoch = new DateTime(1990, 1, 1);
+            
+            epoch = epoch.AddYears(_random.Next(0, 20));
+
+            epoch = epoch.AddMonths(_random.Next(0, 11));
+
+            epoch = epoch.AddDays(_random.Next(0, 30));
+
+            _epoch = epoch.AddSeconds(_random.Next(0, 86400));
         }
 
         private void GenerateIvals(int stringIndex)

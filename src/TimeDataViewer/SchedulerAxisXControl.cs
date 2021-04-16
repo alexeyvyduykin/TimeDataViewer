@@ -229,6 +229,7 @@ namespace TimeDataViewer
                         new Rect(new Point(-_labelMargin, -_labelMargin),
                         new Point(w + _labelMargin, h + _labelMargin)));
                 }
+
                 context.DrawText(_foreground, new Point(0, 0), formattedText);
             }
         }

@@ -38,9 +38,10 @@ namespace AvaloniaDemo
 
                 var baseModelView = new BaseModelView()
                 {
+                    Epoch = data.Epoch,
                     Interval1 = new ObservableCollection<TimeInterval>(data.Intervals[0].ToArray()),
                     Interval2 = new ObservableCollection<TimeInterval>(data.Intervals[1].ToArray()),
-                    Interval3 = new ObservableCollection<TimeInterval>(data.Intervals[2].ToArray()),
+                    Interval3 = new ObservableCollection<TimeInterval>(data.Intervals[2].ToArray()),                    
                 };
 
                 desktop.MainWindow = new MainWindow()

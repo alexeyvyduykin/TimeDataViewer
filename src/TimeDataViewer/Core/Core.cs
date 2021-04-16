@@ -118,11 +118,9 @@ namespace TimeDataViewer
                // {
                     _viewportAreaScreen = value;
 
-
-                    if (AxisX is TimeAxis)
-                    {
-                        var axis = AxisX as TimeAxis;
-                        string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch0.AddSeconds(value.X));
+                    if (AxisX is TimeAxis axis)
+                    {                       
+                        string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch.AddSeconds(value.X));
                         string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
                         Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
                     }
@@ -158,7 +156,7 @@ namespace TimeDataViewer
                 if (AxisX is TimeAxis)
                 {
                     var axis = AxisX as TimeAxis;
-                    string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch0.AddSeconds(value.X));
+                    string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch.AddSeconds(value.X));
                     string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
                     Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
                 }
