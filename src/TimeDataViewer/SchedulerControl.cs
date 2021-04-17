@@ -30,6 +30,8 @@ using Avalonia.Controls.Primitives;
 
 namespace TimeDataViewer
 {
+    public delegate void SelectionChange(RectD Selection, bool ZoomToFit);
+
     public partial class SchedulerControl : ItemsControl, IStyleable
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
@@ -42,22 +44,13 @@ namespace TimeDataViewer
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform = new TranslateTransform();
         private ObservableCollection<Series> _series = new ObservableCollection<Series>();
-        //private readonly ScaleTransform _lastScaleTransform = new ScaleTransform();     
-        private RectD _selectedArea;                  
-        private readonly Brush _emptySchedulerBackground;
-        private Brush _areaBackground;     
-        private readonly Brush _areaBorderBrush;
-        private readonly Pen _borderPen;
-        private readonly double _areaBorderThickness;      
-        private readonly Pen _selectionPen;
-        private readonly Brush _selectedAreaFill;
-        // center 
-        public bool ShowCenter { get; set; } = true;
-        private readonly Pen CenterCrossPen = new Pen(Brushes.Red, 1);
-        public bool ShowMouseCenter { get; set; } = true;
-        private readonly Pen MouseCrossPen = new Pen(Brushes.Blue, 1);
-
         private Popup _popup;
+        // center 
+        private readonly bool _showCenter = true;
+        private readonly Pen _centerCrossPen = new Pen(Brushes.Red, 1);
+        // mouse center
+        private readonly bool _showMouseCenter = true;
+        private readonly Pen _mouseCrossPen = new Pen(Brushes.Blue, 1);     
 
         public SchedulerControl()
         {
@@ -66,7 +59,7 @@ namespace TimeDataViewer
             _core.AxisY = new CategoryAxis() { CoordType = EAxisCoordType.Y, IsInversed = true };
             _core.AxisX.IsDynamicLabelEnable = true;
             _core.AxisY.IsDynamicLabelEnable = true;
-            _core.OnZoomChanged += (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
+            _core.OnZoomChanged += (s, e) => ForceUpdateOverlays();
             _core.CanDragMap = true;
             _core.MouseWheelZoomEnabled = true;
             _core.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
@@ -80,17 +73,7 @@ namespace TimeDataViewer
             PointerPressed += SchedulerControl_PointerPressed;
             PointerReleased += SchedulerControl_PointerReleased;
             PointerMoved += SchedulerControl_PointerMoved;
-
-            _emptySchedulerBackground = new SolidColorBrush(Colors.Transparent);
-            _areaBackground = new SolidColorBrush(Colors.Transparent);
-            _areaBorderBrush = new SolidColorBrush(Colors.Transparent);
-            _borderPen = new Pen(_areaBorderBrush, _areaBorderThickness);        
-            _areaBorderThickness = 1.0;
-            _selectionPen = new Pen(Brushes.Blue, 2.0);
-            _selectedAreaFill = new SolidColorBrush(Color.FromArgb(33, Colors.RoyalBlue.R, Colors.RoyalBlue.G, Colors.RoyalBlue.B));
-        
-            InitBackgrounds();
-    
+            
             _canvas = new Canvas()
             {
                 RenderTransform = _schedulerTranslateTransform
@@ -130,68 +113,15 @@ namespace TimeDataViewer
      
             LayoutUpdated += BaseSchedulerControl_LayoutUpdated;
          
-            Series.CollectionChanged += Series_CollectionChanged;
+            Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
 
             ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
             EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
 
-            OnMousePositionChanged += ((BaseRangeAxis)AxisX).UpdateDynamicLabelPosition;
-        }
-              
-        public static readonly DirectProperty<SchedulerControl, ObservableCollection<Series>> SeriesProperty =
-            AvaloniaProperty.RegisterDirect<SchedulerControl, ObservableCollection<Series>>(nameof(Series), o => o.Series, (o, v) => o.Series = v);
-
-        [Content]
-        public ObservableCollection<Series> Series
-        {
-            get { return _series; }
-            set { SetAndRaise(SeriesProperty, ref _series, value); }
+            OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
         }
 
-        public static readonly StyledProperty<double> ZoomProperty =    
-            AvaloniaProperty.Register<SchedulerControl, double>(nameof(Zoom), defaultValue: 0.0, inherits: true, defaultBindingMode: BindingMode.TwoWay, coerce: OnCoerceZoom);
-
-        public double Zoom
-        {
-            get => GetValue(ZoomProperty);
-            set => SetValue(ZoomProperty, value);
-        }
-
-        private static double OnCoerceZoom(IAvaloniaObject o, double value)
-        {
-            SchedulerControl scheduler = o as SchedulerControl;
-            if (scheduler != null)
-            {
-                if (value > scheduler.MaxZoom)
-                {
-                    value = scheduler.MaxZoom;
-                }
-                if (value < scheduler.MinZoom)
-                {
-                    value = scheduler.MinZoom;
-                }
-
-                return value;
-            }
-            else
-            {
-                return value;
-            }
-        }
-
-        public static readonly StyledProperty<DateTime> EpochProperty =    
-            AvaloniaProperty.Register<SchedulerControl, DateTime>(nameof(Epoch), DateTime.Now);
-
-        public DateTime Epoch
-        {
-            get => GetValue(EpochProperty);
-            set => SetValue(EpochProperty, value);
-        }
-
-        private void Series_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            PassingLogicalTree(e);
-        }
+        public DateTime Epoch0 => Epoch.Date;
 
         private void PassingLogicalTree(NotifyCollectionChangedEventArgs e)
         {
@@ -259,25 +189,19 @@ namespace TimeDataViewer
                     maxRight = Math.Max(strng.MaxTime(), maxRight);                   
                 }
             }
-
-            var leftDate = Epoch.Date;
+          
             var rightDate = Epoch.AddSeconds(maxRight).Date.AddDays(1);
-
-            var d0 = (Epoch - leftDate).TotalSeconds;
-            var len = (rightDate - leftDate).TotalSeconds;
-
-            _d0 = d0;
-
-            //AutoSetViewportArea(minLeft, maxRight);
-            AutoSetViewportArea__(d0, len);
+          
+            var len = (rightDate - Epoch0).TotalSeconds;
+                        
+            AutoSetViewportArea(len);
 
             ForceUpdateOverlays();
         }
-
-        private double _d0;
-
-        private void AutoSetViewportArea__(double d0, double len)
+      
+        private void AutoSetViewportArea(double len)
         {
+            var d0 = (Epoch - Epoch0).TotalSeconds;
             int height0 = 100;
             var count = _markerPool.Keys.Count;
 
@@ -297,30 +221,6 @@ namespace TimeDataViewer
             _core.SetViewportArea(new RectD(0.0, 0.0, len, height0));            
         }
 
-        private void AutoSetViewportArea(double min, double max)
-        {
-            int height0 = 100;
-            var count = _markerPool.Keys.Count;
-
-            double step = (double)height0 / (double)(count + 1);
-
-            int i = 0;
-            foreach (var str in _markerPool.Keys)
-            {              
-                str.SetLocalPosition(min, (++i) * step);
-
-                foreach (var ival in str.Intervals)
-                {
-                    ival.SetLocalPosition(ival.LocalPosition.X, str.LocalPosition.Y);
-                }
-            }
-
-            if (min != double.MaxValue && max != double.MinValue)
-            {
-                _core.SetViewportArea(new RectD(min, 0, max - min, height0));
-            }
-        }
-
         public RectD ViewportAreaData => _core.ViewportAreaData;
 
         public RectD ViewportAreaScreen => _core.ViewportAreaScreen;
@@ -333,9 +233,9 @@ namespace TimeDataViewer
 
         public bool IsStarted => _core.IsStarted;
 
-        public BaseAxis AxisX
+        public TimeAxis AxisX
         {
-            get => _core.AxisX;
+            get => (TimeAxis)_core.AxisX;
             set => _core.AxisX = value;
         }
 
@@ -406,10 +306,7 @@ namespace TimeDataViewer
             }
         }
 
-        private void ForceUpdateOverlays()
-        {
-            ForceUpdateOverlays(_markers);
-        }
+        private void ForceUpdateOverlays() => ForceUpdateOverlays(_markers);        
 
         private void ForceUpdateOverlays(System.Collections.IEnumerable items)
         {
@@ -451,9 +348,9 @@ namespace TimeDataViewer
 
         private void EpochChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            if (e.NewValue is DateTime epoch)
-            {
-                (AxisX as TimeAxis).Epoch = epoch;
+            if (e.NewValue is DateTime)
+            {              
+                AxisX.Epoch0 = Epoch0;
             }
         }
 
@@ -468,8 +365,7 @@ namespace TimeDataViewer
             get => _core.MinZoom;            
             set => _core.MinZoom = value;            
         }
-
-        // updates markers overlay offset     
+  
         private void UpdateMarkersOffset()
         {
             if (Canvas != null)
@@ -518,24 +414,6 @@ namespace TimeDataViewer
         
         public int TrueHeight => _core.TrueHeight;
 
-        public RectD SelectedArea
-        {
-            get
-            {
-                return _selectedArea;
-            }
-            set
-            {
-                _selectedArea = value;
-                InvalidateVisual();
-            }
-        }
-
-#if DEBUG
-        Pen RenderOffsetPen = new Pen(Brushes.Blue, 1.0) { DashStyle = new DashStyle(new double[] { 25, 10 }, 0) };
-        Pen GlobalFramePen = new Pen(Brushes.Blue, 5.0);
-        Pen LocalFramePen = new Pen(Brushes.Green, 5.0);
-#endif
         public bool IsTestBrush { get; set; } = false;
 
         public override void Render(DrawingContext context)
@@ -544,117 +422,38 @@ namespace TimeDataViewer
                 return;
 
             UpdateBackgroundBrush();
-
-            // control
-            context.FillRectangle(_emptySchedulerBackground, _core.RenderSize.ToAvaloniaRect());
-
-            //     var p0 = new Point(WindowArea.Left, WindowArea.Top);// /*_core.*/FromSchedulerPointToLocal(ViewportArea.P0).ToPoint();
-            //     var p1 = new Point(WindowArea.Right, WindowArea.Bottom);///*_core.*/FromSchedulerPointToLocal(ViewportArea.P1).ToPoint();
-
-            // scheduler background grid
+      
             context.FillRectangle(_areaBackground, _core.RenderSize.ToAvaloniaRect());
 
             DrawEpoch(context);
-
-#if DEBUG
-            if (IsTestBrush == true)
+              
+            if (_showCenter == true)
             {
-
-                // origin window => top left scheduler point
-                var renderOffset = _core.RenderSize.TopLeft;// p0;// new Point(WindowArea.Left, WindowArea.Top);///*_core.*/FromSchedulerPointToLocal(ViewportArea.P0).ToPoint();
-                context.DrawLine(RenderOffsetPen, new Point(0, 0), new Point(renderOffset.X, renderOffset.Y));
-
-                // global(window) axises
-                context.DrawLine(GlobalFramePen, new Point(0, 0), new Point(0, 50));
-                context.DrawLine(GlobalFramePen, new Point(0, 0), new Point(50, 0));
-
-                //drawingContext.PushTransform(_core.ToViewportInPixels);
-                //{
-                //    // local axises
-                //    drawingContext.DrawLine(LocalFramePen, new Point(), new Point(_core.ZoomingWindowArea.Height / 8.0, 0.0));
-                //    drawingContext.DrawLine(LocalFramePen, new Point(), new Point(0, _core.ZoomingWindowArea.Height / 8.0));
-                //}
-                //drawingContext.Pop();
-            }
-#endif
-
-            // selection
-            if (SelectedArea.IsEmpty() == false)
-            {
-                Point2I p00 = FromLocalToScreen(SelectedArea.TopLeft/*P0*/);
-                Point2I p11 = FromLocalToScreen(SelectedArea.BottomRight/*P1*/);
-
-                int x0 = Math.Min(p00.X, p11.X);
-                int y0 = Math.Min(p00.Y, p11.Y);
-                int x1 = Math.Max(p00.X, p11.X);
-                int y1 = Math.Max(p00.Y, p11.Y);
-
-                //  int x1 = p00.X;
-                //   int y1 = p00.Y;
-                //  int x2 = p11.X;
-                //  int y2 = p11.Y;
-                context.FillRectangle(_selectedAreaFill, new Rect(x0, y0, x1 - x0, y1 - y0), 5);
-                context.DrawRectangle(_selectionPen, new Rect(x0, y0, x1 - x0, y1 - y0), 5);
+                context.DrawLine(_centerCrossPen, new Point((Bounds.Width / 2) - 5, Bounds.Height / 2), new Point((Bounds.Width / 2) + 5, Bounds.Height / 2));
+                context.DrawLine(_centerCrossPen, new Point(Bounds.Width / 2, (Bounds.Height / 2) - 5), new Point(Bounds.Width / 2, (Bounds.Height / 2) + 5));
             }
 
-            // center
-            if (ShowCenter == true)
+            if (_showMouseCenter == true)
             {
-                context.DrawLine(CenterCrossPen, new Point((base.Bounds.Width/*ActualWidth*/ / 2) - 5, base.Bounds.Height/*ActualHeight*/ / 2), new Point((base.Bounds.Width/*ActualWidth*/ / 2) + 5, base.Bounds.Height/*ActualHeight*/ / 2));
-                context.DrawLine(CenterCrossPen, new Point(base.Bounds.Width/*ActualWidth*/ / 2, (base.Bounds.Height/*ActualHeight*/ / 2) - 5), new Point(base.Bounds.Width/*ActualWidth*/ / 2, (base.Bounds.Height/*ActualHeight*/ / 2) + 5));
-            }
-
-            if (ShowMouseCenter == true)
-            {
-                context.DrawLine(MouseCrossPen,
+                context.DrawLine(_mouseCrossPen,
                     new Point(_core.ZoomScreenPosition.X - 5, _core.ZoomScreenPosition.Y),
                     new Point(_core.ZoomScreenPosition.X + 5, _core.ZoomScreenPosition.Y));
-                context.DrawLine(MouseCrossPen,
+                context.DrawLine(_mouseCrossPen,
                     new Point(_core.ZoomScreenPosition.X, _core.ZoomScreenPosition.Y - 5),
                     new Point(_core.ZoomScreenPosition.X, _core.ZoomScreenPosition.Y + 5));
-
-                Debug.WriteLine(string.Format("MouseScreenPosition: x={0}, y={1}", _core.ZoomScreenPosition.X, _core.ZoomScreenPosition.Y));
             }
 
-            // border
-            context.DrawRectangle(_borderPen, new Rect(_core.RenderSize.X, _core.RenderSize.Y, _core.RenderSize.Width, _core.RenderSize.Height));
-
-#if DEBUG  
-            if (IsTestBrush == true)
-            {
-                double mark = 10.0;
-                Pen borderPen = new Pen(Brushes.Black, 2.0);
-                context.DrawRectangle(borderPen, base.Bounds/*RenderSize*/);
-                context.DrawLine(borderPen, new Point(0, 0), new Point(mark, mark));
-                context.DrawLine(borderPen, new Point(base.Bounds/*RenderSize*/.Width, 0), new Point(base.Bounds/*RenderSize*/.Width - mark, mark));
-                context.DrawLine(borderPen, new Point(base.Bounds/*RenderSize*/.Width, base.Bounds/*RenderSize*/.Height), new Point(base.Bounds/*RenderSize*/.Width - mark, base.Bounds/*RenderSize*/.Height - mark));
-                context.DrawLine(borderPen, new Point(0, base.Bounds/*RenderSize*/.Height), new Point(mark, base.Bounds/*RenderSize*/.Height - mark));
-            }
-#endif
-
-            //var _p0 = _core.FromLocalToAbsolute(_core.ViewportAreaScreen.P0);
-            //var _p1 = _core.FromLocalToAbsolute(_core.ViewportAreaScreen.P1);
-            //drawingContext.DrawRectangle(null, new Pen(Brushes.Orange, 10.0),
-            //    new Rect(new Point(_p0.X, _p0.Y), new Point(_p1.X, _p1.Y)));
-
-
-            //   drawingContext.DrawRectangle(null, new Pen(Brushes.Orange, 10.0), _core.RenderVisibleWindow);
-
-            //drawingContext.PushTransform(SchedulerTranslateTransform);
             using (context.PushPreTransform(_schedulerTranslateTransform.Value))
             {
                 base.Render(context);
-            }
-            //drawingContext.Pop();
+            }          
         }
 
         private void DrawEpoch(DrawingContext context)
         {
-            var p = _core.FromLocalToAbsolute(new Point2D(_d0, 0));    
+            var d0 = (Epoch - Epoch0).TotalSeconds;
+            var p = _core.FromLocalToAbsolute(new Point2D(d0, 0));    
             Pen pen = new Pen(Brushes.Yellow, 2.0);
-            
-            
-
             context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _core.RenderSize.Height));
         }
 
@@ -670,8 +469,6 @@ namespace TimeDataViewer
             //}
         }
     }
-
-    public delegate void SelectionChange(RectD Selection, bool ZoomToFit);
 
     internal class Stuff
     {

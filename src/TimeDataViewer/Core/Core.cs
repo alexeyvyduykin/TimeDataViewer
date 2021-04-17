@@ -120,13 +120,13 @@ namespace TimeDataViewer
 
                     if (AxisX is TimeAxis axis)
                     {                       
-                        string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch.AddSeconds(value.X));
-                        string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
-                        Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
+                  //      string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch0.AddSeconds(value.X));
+                  //      string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
+                  //      Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
                     }
                     else
                     {
-                        Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", value.X, value.Y, value.Width, value.Height);
+                  //      Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", value.X, value.Y, value.Width, value.Height);
                     }
 
                     AxisX.UpdateScreen(_viewportAreaScreen);
@@ -155,14 +155,14 @@ namespace TimeDataViewer
 
                 if (AxisX is TimeAxis)
                 {
-                    var axis = AxisX as TimeAxis;
-                    string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch.AddSeconds(value.X));
-                    string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
-                    Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
+                   // var axis = AxisX as TimeAxis;
+                   // string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch0.AddSeconds(value.X));
+                  //  string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
+                  //  Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
                 }
                 else
                 {
-                    Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", value.X, value.Y, value.Width, value.Height);
+                   // Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", value.X, value.Y, value.Width, value.Height);
                 }
 
                 AxisX.UpdateViewport(_viewportAreaData);

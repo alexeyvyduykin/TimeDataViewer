@@ -42,8 +42,7 @@ namespace TimeDataViewer
         private bool _disableAltForSelection = false;
         private bool _isDragging = false;
 
-        public event SCPositionChanged? OnMousePositionChanged;
-        public event SelectionChange? OnSchedulerSelectionChanged;
+        public event SCPositionChanged? OnMousePositionChanged;  
         public event SCDragChanged OnSchedulerDragChanged
         {
             add
@@ -107,8 +106,7 @@ namespace TimeDataViewer
                 if (_isSelected == false)
                 {
                     var p = e.GetPosition(this);
-                    _isSelected = true;
-                    SelectedArea = default;// RectD.Empty;
+                    _isSelected = true;                  
                     _selectionEnd = default;//Point2D.Empty;
                     _selectionStart = FromScreenToLocal((int)p.X, (int)p.Y);
                 }
@@ -141,23 +139,8 @@ namespace TimeDataViewer
                 }
 
                 if (_selectionEnd.IsEmpty() == false && _selectionStart.IsEmpty() == false)
-                {
-                    bool zoomtofit = false;
-
-                    if (SelectedArea.IsEmpty() == false && e.KeyModifiers == KeyModifiers.Shift /* Keyboard.Modifiers == ModifierKeys.Shift*/)
-                    {
-                        zoomtofit = SetZoomToFitRect(SelectedArea);
-                    }
-
-                    if (OnSchedulerSelectionChanged != null)
-                    {
-                        OnSchedulerSelectionChanged(SelectedArea, true/*zoomtofit*/);
-                    }
-
-                    SelectedArea = default;// RectD.Empty;
-                    _selectionEnd = default;// Point2D.Empty;
-
-                    //   _core.UpdateBounds__();
+                {                                 
+                    _selectionEnd = default;// Point2D.Empty;               
                 }
                 else
                 {
@@ -226,25 +209,6 @@ namespace TimeDataViewer
                     _disableAltForSelection))
                 {
                     _selectionEnd = _core.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
-                    {
-                        var p1 = _selectionStart;
-                        var p2 = _selectionEnd;
-
-                        //double x1 = Math.Min(p1.X, p2.X);
-                        //double y1 = Math.Max(p1.Y, p2.Y);
-                        //double x2 = Math.Max(p1.X, p2.X);
-                        //double y2 = Math.Min(p1.Y, p2.Y);
-
-                        //SelectedArea = new SCSchedulerRect(x1, y1, x2 - x1, y1 - y2);
-
-
-                        double x0 = Math.Min(p1.X, p2.X);
-                        double y0 = Math.Min(p1.Y, p2.Y);
-                        double x1 = Math.Max(p1.X, p2.X);
-                        double y1 = Math.Max(p1.Y, p2.Y);
-
-                        SelectedArea = new RectD(x0, y0, x1 - x0, y1 - y0);
-                    }
                 }
             }
         }
