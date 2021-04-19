@@ -27,6 +27,8 @@ using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media.Imaging;
 
 namespace TimeDataViewer
 {
@@ -107,8 +109,8 @@ namespace TimeDataViewer
             ItemsPanelProperty.OverrideDefaultValue<SchedulerControl>(defaultPanel);
 
             ClipToBounds = true;
-            //SnapsToDevicePixels = true;
-
+     //       SnapsToDevicePixels = true;
+     
             Items = _markers;
      
             LayoutUpdated += BaseSchedulerControl_LayoutUpdated;
@@ -421,9 +423,7 @@ namespace TimeDataViewer
             if (IsStarted == false)
                 return;
 
-            UpdateBackgroundBrush();
-      
-            context.FillRectangle(_areaBackground, _core.RenderSize.ToAvaloniaRect());
+            DrawBackground(context);
 
             DrawEpoch(context);
               

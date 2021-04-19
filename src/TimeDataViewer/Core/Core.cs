@@ -190,12 +190,9 @@ namespace TimeDataViewer
             _width = width;
             _height = height;
 
-            if (OnSizeChanged != null)
-            {
-                OnSizeChanged(width, height);
-            }
+            OnSizeChanged?.Invoke(width, height);
 
-            Debug.WriteLine("OnSizeChanged : Core, w: " + width + ", h: " + height);
+            //Debug.WriteLine("OnSizeChanged : Core, w: " + width + ", h: " + height);
             //========================================
 
             WindowAreaZoom = CreateWindowAreaZoom(_zoom, _scaleX, _scaleY);
@@ -215,7 +212,7 @@ namespace TimeDataViewer
 
         public bool IsWindowArea(Point2D point)
         {
-            Point2I sc0 = RenderOffsetAbsolute;
+            var sc0 = RenderOffsetAbsolute;
 
             int x0 = Math.Max(sc0.X, 0);
             int y0 = Math.Max(sc0.Y, 0);
@@ -230,7 +227,7 @@ namespace TimeDataViewer
         {
             get
             {
-                Point2I sc0 = RenderOffsetAbsolute;
+                var sc0 = RenderOffsetAbsolute;
 
                 var result = RectI.Intersect(
                     new RectI(0, 0, _width, _height),
@@ -249,14 +246,8 @@ namespace TimeDataViewer
       
         public Point2I RenderOffsetAbsolute
         {
-            get
-            {
-                return _renderOffset;
-            }
-            set
-            {
-                _renderOffset = RenderOffsetValidate(value);
-            }
+            get => _renderOffset;            
+            set => _renderOffset = RenderOffsetValidate(value);            
         }
 
         private Point2I RenderOffsetValidate(Point2I offset)
@@ -275,13 +266,7 @@ namespace TimeDataViewer
 
         public Point2I ZoomScreenPosition { get; set; }
         
-        public Point2D ZoomPositionLocal
-        {
-            get
-            {
-                return FromScreenToLocal(ZoomScreenPosition/*ZoomPositionAbsolute*/.X, ZoomScreenPosition/*ZoomPositionAbsolute*/.Y);
-            }
-        }
+        public Point2D ZoomPositionLocal => FromScreenToLocal(ZoomScreenPosition/*ZoomPositionAbsolute*/.X, ZoomScreenPosition/*ZoomPositionAbsolute*/.Y);
 
         public int MaxZoom 
         {
@@ -295,15 +280,9 @@ namespace TimeDataViewer
             set => _minZoom = value;
         }
 
-        bool IsViewportInit { get; set; } = false;
+        private bool IsViewportInit { get; set; } = false;
 
-        public RectI RenderWindowArea
-        {
-            get
-            {
-                return new RectI(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
-            }
-        }
+        public RectI RenderWindowArea => new RectI(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
 
         private bool Zooming(int zm)
         {
