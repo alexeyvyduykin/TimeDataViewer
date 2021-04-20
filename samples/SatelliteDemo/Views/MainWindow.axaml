@@ -1,0 +1,72 @@
+<Window x:Class="SatelliteDemo.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SatelliteDemo.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:SatelliteDemo.Views"
+        xmlns:sch="clr-namespace:TimeDataViewer;assembly=TimeDataViewer"
+        xmlns:shapes="clr-namespace:TimeDataViewer.Shapes;assembly=TimeDataViewer"
+        xmlns:models="clr-namespace:SatelliteDemo.Models"
+        xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
+        xmlns:sys="clr-namespace:System;assembly=netstandard" 
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"        
+        Icon="/Assets/avalonia-logo.ico"
+        Title="SatelliteDemo">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Border Margin="5" BorderThickness="3" BorderBrush="Black">
+        <Grid RowDefinitions="Auto, *, 60" ColumnDefinitions="*" ShowGridLines="False">
+
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*">
+                <Border Margin="5" BorderThickness="3" BorderBrush="Black">
+                    <ListBox Items="{Binding Satellites}" SelectedItem="{Binding Selected}">
+                        <ListBox.DataTemplates>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"></TextBlock>
+                            </DataTemplate>
+                        </ListBox.DataTemplates>
+                    </ListBox>
+                </Border>
+            </Grid>
+
+            <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
+                <sch:SchedulerControl x:Name="scheduler"                                      
+                                      Epoch="{Binding $parent[TopLevel].DataContext.Epoch}">
+
+                    <sch:SchedulerControl.Series>
+                        <sch:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
+                            <sch:Series.IntervalTemplate>
+                                <shapes:IntervalVisual Background="Yellow"/>
+                            </sch:Series.IntervalTemplate>
+                        </sch:Series>
+
+                        <sch:Series Category="Observation" Items="{Binding Observations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
+
+                            <sch:Series.IntervalTemplate>
+                                <shapes:IntervalVisual Background="Blue"/>
+                            </sch:Series.IntervalTemplate>
+
+                        </sch:Series>
+
+                        <sch:Series Category="Transmission" Items="{Binding Transmissions}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
+
+                            <sch:Series.IntervalTemplate>
+                                <shapes:IntervalVisual Background="Green"/>
+                            </sch:Series.IntervalTemplate>
+
+                        </sch:Series>
+                    </sch:SchedulerControl.Series>
+
+                </sch:SchedulerControl>
+            </ContentControl>
+            
+            <sch:SchedulerAxisXControl DataContext="{Binding ElementName=scheduler}" Grid.Row="2"/>
+
+        </Grid>
+    </Border>
+   
+</Window>
