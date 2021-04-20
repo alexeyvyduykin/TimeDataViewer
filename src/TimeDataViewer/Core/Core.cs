@@ -30,6 +30,7 @@ namespace TimeDataViewer
         public bool MouseWheelZoomEnabled = true;
         private double _scaleX = 1.0; // 30 %        
         private double _scaleY = 0.0;
+        private bool _isViewportInit = false;
 
         public event SCDragChanged OnDragChanged;
         public event EventHandler OnZoomChanged;
@@ -41,20 +42,17 @@ namespace TimeDataViewer
     
         public BaseAxis AxisX
         {
-            get
-            {
-                return _axisX;
-            }
+            get => _axisX;            
             set
             {
                 if (_axisX != null)
                 {
-                    this.OnSizeChanged -= _axisX.UpdateAreaSize;
+                    OnSizeChanged -= _axisX.UpdateAreaSize;
                 }
 
                 if (value != null)
                 {
-                    this.OnSizeChanged += value.UpdateAreaSize;
+                    OnSizeChanged += value.UpdateAreaSize;
                 }
 
                 _axisX = value;
@@ -63,22 +61,17 @@ namespace TimeDataViewer
 
         public BaseAxis AxisY
         {
-            get
-            {
-
-
-                return _axisY;
-            }
+            get => _axisY;            
             set
             {
                 if (_axisY != null)
                 {
-                    this.OnSizeChanged -= _axisY.UpdateAreaSize;
+                    OnSizeChanged -= _axisY.UpdateAreaSize;
                 }
 
                 if (value != null)
                 {
-                    this.OnSizeChanged += value.UpdateAreaSize;
+                    OnSizeChanged += value.UpdateAreaSize;
                 }
 
                 _axisY = value;
@@ -144,7 +137,7 @@ namespace TimeDataViewer
             {
                 //if (_viewportAreaData.IsEmpty == true)
                 //{
-                //    //      _viewportAreaData = new SCViewport(0.0, 0.0, 1.0, 1.0);
+                //    //      _viewportAreaData = new RectD(0.0, 0.0, 1.0, 1.0);
                 //}
 
                 return _viewportAreaData;
@@ -171,7 +164,7 @@ namespace TimeDataViewer
                 //  if (OnSchedulerViewportChanged != null)
                 //      OnSchedulerViewportChanged(value);
 
-                IsViewportInit = true;
+                _isViewportInit = true;
             }
         }
    
@@ -181,7 +174,6 @@ namespace TimeDataViewer
             ViewportAreaScreen = viewport;
         }
 
-        // size
         public void UpdateSize(int width, int height)
         {
             var temp_pos = FromScreenToLocal(_width / 2, _height / 2);
@@ -208,7 +200,7 @@ namespace TimeDataViewer
             //    ViewportAreaScreen = CreateViewportAreaScreen();
         }
 
-        public bool IsStarted => IsViewportInit == true;
+        public bool IsStarted => _isViewportInit == true;
 
         public bool IsWindowArea(Point2D point)
         {
@@ -280,9 +272,9 @@ namespace TimeDataViewer
             set => _minZoom = value;
         }
 
-        private bool IsViewportInit { get; set; } = false;
+  
 
-        public RectI RenderWindowArea => new RectI(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
+        public RectI RenderWindowArea => new(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
 
         private bool Zooming(int zm)
         {
@@ -439,16 +431,13 @@ namespace TimeDataViewer
             {
                 ViewportAreaScreen = CreateViewportAreaScreen();
 
-                if (OnDragChanged != null)
-                {
-                    OnDragChanged();
-                }
+                OnDragChanged?.Invoke();
             }
         }
 
-        public RectD RenderSize => new RectD(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
+        public RectD RenderSize => new(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
 
-        public RectI Screen => new RectI(0, 0, _width, _height);
+        public RectI Screen => new(0, 0, _width, _height);
 
         protected static double Clipp(double n, double minValue, double maxValue)
         {
@@ -497,43 +486,42 @@ namespace TimeDataViewer
 
             return new Point2I(pLocal.X, pLocal.Y);
         }
+         
+        //public int GetMaxZoomToFitRect(RectD rect)
+        //{
+        //    int zoom = _minZoom;
 
-        // gets max zoom level to fit rectangle        
-        public int GetMaxZoomToFitRect(RectD rect)
-        {
-            int zoom = _minZoom;
+        //    if (rect.Height == 0.0 || rect.Width == 0.0)
+        //    {
+        //        zoom = _maxZoom / 2;
+        //    }
+        //    else
+        //    {
+        //        for (int i = (int)zoom; i <= _maxZoom; i++)
+        //        {
+        //            WindowAreaZoom = CreateWindowAreaZoom(i, _scaleX, _scaleY);
 
-            if (rect.Height == 0.0 || rect.Width == 0.0)
-            {
-                zoom = _maxZoom / 2;
-            }
-            else
-            {
-                for (int i = (int)zoom; i <= _maxZoom; i++)
-                {
-                    WindowAreaZoom = CreateWindowAreaZoom(i, _scaleX, _scaleY);
+        //            var p0 = new Point2I(
+        //                AxisX.FromLocalToAbsolute(rect.Left),
+        //                AxisY.FromLocalToAbsolute(rect.Bottom)
+        //                );
+        //            var p1 = new Point2I(
+        //                AxisX.FromLocalToAbsolute(rect.Right),
+        //                AxisY.FromLocalToAbsolute(rect.Top)
+        //                );
 
-                    var p0 = new Point2I(
-                        AxisX.FromLocalToAbsolute(rect.Left),
-                        AxisY.FromLocalToAbsolute(rect.Bottom)
-                        );
-                    var p1 = new Point2I(
-                        AxisX.FromLocalToAbsolute(rect.Right),
-                        AxisY.FromLocalToAbsolute(rect.Top)
-                        );
+        //            if (((p1.X - p0.X) <= _width + 10) && (p1.Y - p0.Y) <= _height + 10)
+        //            {
+        //                zoom = i;
+        //            }
+        //            else
+        //            {
+        //                break;
+        //            }
+        //        }
+        //    }
 
-                    if (((p1.X - p0.X) <= _width + 10) && (p1.Y - p0.Y) <= _height + 10)
-                    {
-                        zoom = i;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return zoom;
-        }
+        //    return zoom;
+        //}
     }
 }

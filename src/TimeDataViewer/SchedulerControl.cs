@@ -377,34 +377,34 @@ namespace TimeDataViewer
             }
         }
 
-        public bool SetZoomToFitRect(RectD rect)
-        {
-            int maxZoom = _core.GetMaxZoomToFitRect(rect);
-            if (maxZoom >= 0)
-            {
-                // Position___ = GetCenter(rect);
+        //public bool SetZoomToFitRect(RectD rect)
+        //{
+        //    int maxZoom = _core.GetMaxZoomToFitRect(rect);
+        //    if (maxZoom >= 0)
+        //    {
+        //        // Position___ = GetCenter(rect);
 
-                _core.ZoomScreenPosition = _core.FromLocalToScreen(rect.GetCenter()/*Position___*/);
+        //        _core.ZoomScreenPosition = _core.FromLocalToScreen(rect.GetCenter()/*Position___*/);
 
-                if (maxZoom > MaxZoom)
-                {
-                    maxZoom = MaxZoom;
-                }
+        //        if (maxZoom > MaxZoom)
+        //        {
+        //            maxZoom = MaxZoom;
+        //        }
 
-                if (_core.Zoom != maxZoom)
-                {
-                    Zoom = maxZoom;
-                }
-                else if (maxZoom != MaxZoom)
-                {
-                    Zoom += 1;
-                }
+        //        if (_core.Zoom != maxZoom)
+        //        {
+        //            Zoom = maxZoom;
+        //        }
+        //        else if (maxZoom != MaxZoom)
+        //        {
+        //            Zoom += 1;
+        //        }
 
-                return true;
-            }
+        //        return true;
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public Point2D FromScreenToLocal(int x, int y) => _core.FromScreenToLocal(x, y);        
 
