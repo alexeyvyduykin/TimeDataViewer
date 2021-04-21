@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using SatelliteDemo.Models;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SatelliteDemo.ViewModels
 {
@@ -31,6 +32,11 @@ namespace SatelliteDemo.ViewModels
             var sat2 = serializer.Deserialize<Satellite>(json2);
             var sat3 = serializer.Deserialize<Satellite>(json3);
             var sat4 = serializer.Deserialize<Satellite>(json4);
+
+            InvalidateIntervals(sat1);
+            InvalidateIntervals(sat2);
+            InvalidateIntervals(sat3);
+            InvalidateIntervals(sat4);
 
             Satellites = new ObservableCollection<Satellite>(new(){ sat1, sat2, sat3, sat4 });
 
@@ -62,6 +68,50 @@ namespace SatelliteDemo.ViewModels
             using var fs = File.OpenRead(path);
             using var sr = new StreamReader(fs, Encoding.UTF8);
             return sr.ReadToEnd();
+        }
+
+        private void InvalidateIntervals(Satellite sat)
+        {
+            List<Rotation> rotations = new List<Rotation>();
+            List<Observation> observations = new List<Observation>();
+            List<Transmission> transmissions = new List<Transmission>();
+
+            double temp = 0.0;
+
+            foreach (var item in sat.Rotations.ToList().OrderBy(s => s.BeginTime))
+            {
+                if(temp <= item.BeginTime)
+                {
+                    rotations.Add(item);
+                    temp = item.EndTime;
+                }              
+            }
+
+            temp = 0.0;
+
+            foreach (var item in sat.Observations.ToList().OrderBy(s => s.BeginTime))
+            {
+                if (temp <= item.BeginTime)
+                {
+                    observations.Add(item);
+                    temp = item.EndTime;
+                }
+            }
+
+            temp = 0.0;
+
+            foreach (var item in sat.Transmissions.ToList().OrderBy(s => s.BeginTime))
+            {
+                if (temp <= item.BeginTime)
+                {
+                    transmissions.Add(item);
+                    temp = item.EndTime;
+                }
+            }
+
+            sat.Rotations = new ObservableCollection<Rotation>(rotations);
+            sat.Observations = new ObservableCollection<Observation>(observations);
+            sat.Transmissions = new ObservableCollection<Transmission>(transmissions);
         }
     }
 }
