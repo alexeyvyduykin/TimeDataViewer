@@ -22,7 +22,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.Markers;
+using TimeDataViewer.ViewModels;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;

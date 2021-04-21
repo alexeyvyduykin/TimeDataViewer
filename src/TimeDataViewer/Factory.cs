@@ -16,7 +16,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.Markers;
+using TimeDataViewer.ViewModels;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;
@@ -31,20 +31,20 @@ namespace TimeDataViewer
 {
     public class Factory
     {
-        public SchedulerString CreateString(string category)
+        public SeriesViewModel CreateSeries(string category)
         {
-            var marker = new SchedulerString(category);
+            var marker = new SeriesViewModel(category);
 
             marker.Shape = new StringVisual(marker);
 
             return marker;
         }
 
-        public SchedulerInterval CreateInterval(Interval ival, SchedulerString parent, BaseIntervalVisual template)
+        public IntervalViewModel CreateInterval(Interval ival, SeriesViewModel parent, BaseIntervalVisual template)
         {
-            var marker = new SchedulerInterval(ival.Left, ival.Right);
+            var marker = new IntervalViewModel(ival.Left, ival.Right);
             
-            marker.String = parent;
+            marker.Series = parent;
 
             var visual = template.Clone();
 

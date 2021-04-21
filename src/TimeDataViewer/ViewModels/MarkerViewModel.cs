@@ -12,9 +12,9 @@ using Avalonia;
 using TimeDataViewer.Spatial;
 using TimeDataViewer;
 
-namespace TimeDataViewer.Markers
+namespace TimeDataViewer.ViewModels
 {
-    public class SchedulerMarker : ViewModelBase
+    public class MarkerViewModel : ViewModelBase
     {
         private int _absolutePositionX;
         private int _absolutePositionY;
@@ -23,7 +23,7 @@ namespace TimeDataViewer.Markers
         private SchedulerControl _map;
         private bool _first = false;
 
-        internal SchedulerMarker() { }
+        internal MarkerViewModel() { }
 
         public bool IsFreeze { get; set; } = false;
 
@@ -37,8 +37,7 @@ namespace TimeDataViewer.Markers
         }
 
         public Point2D LocalPosition { get; protected set; }
-       
-        // the map of this marker     
+         
         public SchedulerControl Map
         {
             get
@@ -62,7 +61,6 @@ namespace TimeDataViewer.Markers
             }
         }
 
-        // offset of marker     
         public virtual Point2D Offset
         {
             get
@@ -79,28 +77,24 @@ namespace TimeDataViewer.Markers
             }
         }
       
-        // local X position of marker      
         public virtual int AbsolutePositionX
         {
             get => _absolutePositionX;
             set => RaiseAndSetIfChanged(ref _absolutePositionX, value);
         }
-
-        // local Y position of marker        
+  
         public virtual int AbsolutePositionY
         {
             get => _absolutePositionY;            
             set => RaiseAndSetIfChanged(ref _absolutePositionY, value);
         }
        
-        // the index of Z, render order     
         public int ZIndex
         {
             get => _zIndex;
             set => RaiseAndSetIfChanged(ref _zIndex, value);
         }
 
-        // calls Dispose on shape if it implements IDisposable, sets shape to null and clears route    
         public virtual void Clear()
         {
             var s = (Shape as IDisposable);
@@ -137,7 +131,6 @@ namespace TimeDataViewer.Markers
             _offset = new Point2D(0, 0);
         }
 
-        // forces to update local marker position dot not call it if you don't really need to ;}
         internal void ForceUpdateLocalPosition(SchedulerControl m)
         {
             if (m is not null)

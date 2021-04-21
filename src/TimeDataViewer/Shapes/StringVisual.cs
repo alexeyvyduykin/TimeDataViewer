@@ -12,17 +12,17 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using TimeDataViewer.Spatial;
-using TimeDataViewer.Markers;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer.Shapes
 {
     public class StringVisual : Control
     {
-        private readonly SchedulerString _marker;
+        private readonly SeriesViewModel _marker;
         private SchedulerControl? _map;      
         private double _widthX = 0.0;
       
-        public StringVisual(SchedulerString marker)
+        public StringVisual(SeriesViewModel marker)
         {
             _marker = marker;
             _marker.ZIndex = 30;

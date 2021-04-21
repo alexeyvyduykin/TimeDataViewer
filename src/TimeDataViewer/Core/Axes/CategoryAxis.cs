@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer
 {
@@ -108,7 +109,7 @@ namespace TimeDataViewer
             base.UpdateAxis();
         }
 
-        public override void UpdateFollowLabelPosition(ITargetMarker marker)
+        public override void UpdateFollowLabelPosition(MarkerViewModel marker)
         {
             if (_targetMarkers.ContainsKey(marker.Name) == false)
             {

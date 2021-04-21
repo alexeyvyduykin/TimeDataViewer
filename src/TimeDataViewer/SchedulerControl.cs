@@ -17,7 +17,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.Markers;
+using TimeDataViewer.ViewModels;
 using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;
@@ -40,8 +40,8 @@ namespace TimeDataViewer
 
         private Core _core;
         private readonly Factory _factory;
-        private readonly Dictionary<SchedulerString, IEnumerable<SchedulerInterval>> _markerPool;
-        private readonly ObservableCollection<SchedulerMarker> _markers;
+        private readonly Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>> _markerPool;
+        private readonly ObservableCollection<MarkerViewModel> _markers;
         private Canvas _canvas;
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform = new TranslateTransform();
@@ -68,8 +68,8 @@ namespace TimeDataViewer
 
             _factory = new Factory();
 
-            _markers = new ObservableCollection<SchedulerMarker>();
-            _markerPool = new Dictionary<SchedulerString, IEnumerable<SchedulerInterval>>();
+            _markers = new ObservableCollection<MarkerViewModel>();
+            _markerPool = new Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>>();
 
             PointerWheelChanged += SchedulerControl_PointerWheelChanged;
             PointerPressed += SchedulerControl_PointerPressed;
@@ -97,7 +97,7 @@ namespace TimeDataViewer
             style.Setters.Add(new Setter(Canvas.ZIndexProperty, new Binding("ZIndex")));
             Styles.Add(style);
 
-            var template = new FuncDataTemplate<SchedulerMarker>((m, s) => new ContentPresenter
+            var template = new FuncDataTemplate<MarkerViewModel>((m, s) => new ContentPresenter
             {
                 [!ContentPresenter.ContentProperty] = new Binding("Shape"),
             });
@@ -179,7 +179,7 @@ namespace TimeDataViewer
             {
                 if (series.Items is not null)
                 {
-                    var strng = _factory.CreateString(series.Category);                     
+                    var strng = _factory.CreateSeries(series.Category);                     
                     var ivals = ((IList<Interval>)series.Items).Select(s => _factory.CreateInterval(s, strng, series.IntervalTemplate));
 
                     _markerPool.Add(strng, ivals);
@@ -294,7 +294,7 @@ namespace TimeDataViewer
             {
                 foreach (var item in e.NewItems)
                 {
-                    if (item is SchedulerMarker == false)
+                    if (item is MarkerViewModel == false)
                     {
                         return;
                     }
@@ -314,7 +314,7 @@ namespace TimeDataViewer
         {
             UpdateMarkersOffset();
 
-            foreach (SchedulerMarker item in items)
+            foreach (MarkerViewModel item in items)
             {                    
                 item?.ForceUpdateLocalPosition(this);                
             }

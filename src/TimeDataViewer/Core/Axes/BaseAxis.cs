@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer
 {
@@ -137,6 +138,6 @@ namespace TimeDataViewer
 
         public abstract void UpdateScreen(RectD screen);
 
-        public abstract void UpdateFollowLabelPosition(ITargetMarker marker);
+        public abstract void UpdateFollowLabelPosition(MarkerViewModel marker);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer
 {
@@ -10,7 +11,7 @@ namespace TimeDataViewer
     //public delegate void SCZoomChanged();
     public delegate void SCSizeChanged(int width, int height);
 
-    public delegate void SCTargetMarkerPositionChanged(ITargetMarker marker);
+    public delegate void SCTargetMarkerPositionChanged(MarkerViewModel marker);
     public delegate void SchedulerTypeChanged(BaseTimeSchedulerProvider type);
     public delegate void SCPositionChanged(Point2D point);
 

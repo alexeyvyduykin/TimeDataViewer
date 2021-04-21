@@ -14,9 +14,8 @@ using Avalonia.Input;
 using System.Collections.Specialized;
 using Avalonia.Controls.Shapes;
 using TimeDataViewer.Spatial;
-using TimeDataViewer.Markers;
-using TimeDataViewer.Views;
 using TimeDataViewer.ViewModels;
+using TimeDataViewer.Views;
 
 namespace TimeDataViewer.Shapes
 {
@@ -26,7 +25,7 @@ namespace TimeDataViewer.Shapes
         //public bool IsChanged = true;           
         private readonly ScaleTransform _scale;
         private SchedulerControl? _map;
-        private SchedulerInterval? _marker;
+        private IntervalViewModel? _marker;
         private bool _popupIsOpen;
 
         public IntervalVisual()
@@ -83,7 +82,7 @@ namespace TimeDataViewer.Shapes
 
         private void MarkerChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            if (e.NewValue is SchedulerInterval marker)
+            if (e.NewValue is IntervalViewModel marker)
             {
                 //if(e.OldValue is not null && e.OldValue is SchedulerInterval oldMarker)
                 //{

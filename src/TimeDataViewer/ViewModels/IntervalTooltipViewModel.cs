@@ -3,29 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TimeDataViewer.Markers;
 
 namespace TimeDataViewer.ViewModels
 {
     public class IntervalTooltipViewModel : ViewModelBase
     {
-        private readonly SchedulerInterval _marker;
+        private readonly IntervalViewModel _marker;
         private string _category;
         private string _date;
         private string _begin;
         private string _end;
 
-        public IntervalTooltipViewModel(SchedulerInterval marker)
+        public IntervalTooltipViewModel(IntervalViewModel marker)
         {
             _marker = marker;
 
             var left = marker.Left;
             var right = marker.Right;
 
-            var strng = marker.String;
+            var strng = marker.Series;
             // var epoch = DateTime.Now.Date;
 
-            var epoch = marker.String.Map.Epoch;
+            var epoch = marker.Series.Map.Epoch;
 
             _category = strng.Name;
             _date = epoch.AddSeconds(left).ToShortDateString();
