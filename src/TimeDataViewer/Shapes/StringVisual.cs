@@ -13,13 +13,14 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
+using TimeDataViewer.Models;
 
 namespace TimeDataViewer.Shapes
 {
     public class StringVisual : Control
     {
         private readonly SeriesViewModel _marker;
-        private SchedulerControl? _map;      
+        private IScheduler? _map;      
         private double _widthX = 0.0;
       
         public StringVisual(SeriesViewModel marker)
@@ -46,7 +47,7 @@ namespace TimeDataViewer.Shapes
             _map = _marker.Map;
 
             _map.OnZoomChanged += (s, e) => Update(s, e);
-            _map.LayoutUpdated += (s, e) => Update(s, e);
+            _map.OnLayoutUpdated += (s, e) => Update(s, e);
        
             base.InvalidateVisual();     
         }

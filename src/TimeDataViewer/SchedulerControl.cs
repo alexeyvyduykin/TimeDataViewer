@@ -29,12 +29,13 @@ using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media.Imaging;
+using TimeDataViewer.Models;
 
 namespace TimeDataViewer
 {
     public delegate void SelectionChange(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, IStyleable
+    public partial class SchedulerControl : ItemsControl, IScheduler, IStyleable
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
@@ -52,7 +53,19 @@ namespace TimeDataViewer
         private readonly Pen _centerCrossPen = new Pen(Brushes.Red, 1);
         // mouse center
         private readonly bool _showMouseCenter = true;
-        private readonly Pen _mouseCrossPen = new Pen(Brushes.Blue, 1);     
+        private readonly Pen _mouseCrossPen = new Pen(Brushes.Blue, 1);
+
+        public event EventHandler OnLayoutUpdated
+        {
+            add
+            {
+                base.LayoutUpdated += value;
+            }
+            remove
+            {
+                base.LayoutUpdated -= value;
+            }
+        }
 
         public SchedulerControl()
         {

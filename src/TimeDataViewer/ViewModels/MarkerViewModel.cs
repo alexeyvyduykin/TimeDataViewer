@@ -11,6 +11,7 @@ using Avalonia.VisualTree;
 using Avalonia;
 using TimeDataViewer.Spatial;
 using TimeDataViewer;
+using TimeDataViewer.Models;
 
 namespace TimeDataViewer.ViewModels
 {
@@ -20,7 +21,7 @@ namespace TimeDataViewer.ViewModels
         private int _absolutePositionY;
         private int _zIndex;
         private Point2D _offset;
-        private SchedulerControl _map;
+        private IScheduler _map;
         private bool _first = false;
 
         internal MarkerViewModel() { }
@@ -38,19 +39,19 @@ namespace TimeDataViewer.ViewModels
 
         public Point2D LocalPosition { get; protected set; }
          
-        public SchedulerControl Map
+        public IScheduler Map
         {
             get
             {
                 if (Shape is not null && _map is null)
                 {
                     IVisual visual = Shape;
-                    while (visual != null && !(visual is SchedulerControl))
+                    while (visual != null && !(visual is IScheduler))
                     {
                         visual = visual.VisualParent;// VisualTreeHelper.GetParent(visual);
                     }
 
-                    _map = visual as SchedulerControl;
+                    _map = visual as IScheduler;
                 }
 
                 return _map;
@@ -131,7 +132,7 @@ namespace TimeDataViewer.ViewModels
             _offset = new Point2D(0, 0);
         }
 
-        internal void ForceUpdateLocalPosition(SchedulerControl m)
+        internal void ForceUpdateLocalPosition(IScheduler m)
         {
             if (m is not null)
             {

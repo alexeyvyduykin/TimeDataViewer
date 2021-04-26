@@ -5,6 +5,8 @@ using System.IO;
 using SatelliteDemo.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
+using TimeDataViewer.ViewModels;
+using System.ComponentModel;
 
 namespace SatelliteDemo.ViewModels
 {
@@ -13,6 +15,10 @@ namespace SatelliteDemo.ViewModels
         private DateTime _epoch;
         private ObservableCollection<Satellite> _satellites;
         private Satellite _selected;
+        private ObservableCollection<object> _newIntervals;
+        private int _absolutePositionX;
+        private int _absolutePositionY;
+        private int _zIndex;
 
         public MainWindowViewModel()
         {          
@@ -43,6 +49,68 @@ namespace SatelliteDemo.ViewModels
             Selected = sat1;
 
             Epoch = DateTime.Now;
+
+            PropertyChanged += MainWindowViewModel_PropertyChanged;
+            
+            NewInit();
+        }
+
+        private void MainWindowViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == nameof(Selected))
+            {
+                NewInit();
+            }
+        }
+
+        private void NewInit()
+        {
+            var ivals = new List<object>();
+
+            var series1 = new SeriesViewModel("Rotations");
+
+            ivals.Add(series1);
+
+            foreach (var item in Selected.Rotations)
+            {
+                var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
+                series1.Intervals.Add(ival);
+                ival.Series = series1;
+                ivals.Add(ival);
+            }
+
+            var series2 = new SeriesViewModel("Observations");
+
+            ivals.Add(series2);
+
+            foreach (var item in Selected.Observations)
+            {
+                var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
+                series2.Intervals.Add(ival);
+                ival.Series = series2;
+                ivals.Add(ival);
+            }
+
+            var series3 = new SeriesViewModel("Transmissions");
+
+            ivals.Add(series3);
+
+            foreach (var item in Selected.Transmissions)
+            {
+                var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
+                series3.Intervals.Add(ival);
+                ival.Series = series3;
+                ivals.Add(ival);
+            }
+
+            NewIntervals = new ObservableCollection<object>(ivals);
+        }
+
+
+        public ObservableCollection<object> NewIntervals
+        {
+            get => _newIntervals;
+            set => RaiseAndSetIfChanged(ref _newIntervals, value);
         }
 
         public DateTime Epoch
@@ -68,6 +136,24 @@ namespace SatelliteDemo.ViewModels
             using var fs = File.OpenRead(path);
             using var sr = new StreamReader(fs, Encoding.UTF8);
             return sr.ReadToEnd();
+        }
+
+        public virtual int AbsolutePositionX
+        {
+            get => _absolutePositionX;
+            set => RaiseAndSetIfChanged(ref _absolutePositionX, value);
+        }
+
+        public virtual int AbsolutePositionY
+        {
+            get => _absolutePositionY;
+            set => RaiseAndSetIfChanged(ref _absolutePositionY, value);
+        }
+
+        public int ZIndex
+        {
+            get => _zIndex;
+            set => RaiseAndSetIfChanged(ref _zIndex, value);
         }
 
         private void InvalidateIntervals(Satellite sat)

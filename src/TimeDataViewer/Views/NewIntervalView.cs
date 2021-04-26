@@ -16,10 +16,11 @@ using Avalonia.Controls.Shapes;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
 using TimeDataViewer.Models;
+using Avalonia.VisualTree;
 
-namespace TimeDataViewer.Shapes
+namespace TimeDataViewer.Views
 {
-    public class IntervalVisual : BaseIntervalVisual
+    public class NewIntervalView : Control
     {
         private double _widthX = 0.0;
         //public bool IsChanged = true;           
@@ -28,24 +29,24 @@ namespace TimeDataViewer.Shapes
         private IntervalViewModel? _marker;
         private bool _popupIsOpen;
 
-        public IntervalVisual()
-        {                               
-            PointerEnter += IntervalVisual_PointerEnter;
-            PointerLeave += IntervalVisual_PointerLeave;
-         
+        public NewIntervalView()
+        {
+          //  PointerEnter += IntervalVisual_PointerEnter;
+          //  PointerLeave += IntervalVisual_PointerLeave;
+
             Initialized += IntervalVisual_Initialized;
 
-            DataContextProperty.Changed.AddClassHandler<IntervalVisual>((d, e) => d.MarkerChanged(e));
+            DataContextProperty.Changed.AddClassHandler<NewIntervalView>((d, e) => d.MarkerChanged(e));
 
             _popupIsOpen = false;
 
             //    RenderTransform = scale;
 
-            _scale = new ScaleTransform(1, 1);                
+            _scale = new ScaleTransform(1, 1);
         }
 
-        public static readonly StyledProperty<Color> BackgroundProperty =    
-            AvaloniaProperty.Register<IntervalVisual, Color>(nameof(Background), Colors.LightGray);
+        public static readonly StyledProperty<Color> BackgroundProperty =
+            AvaloniaProperty.Register<NewIntervalView, Color>(nameof(Background), Colors.LightGray);
 
         public Color Background
         {
@@ -53,8 +54,8 @@ namespace TimeDataViewer.Shapes
             set { SetValue(BackgroundProperty, value); }
         }
 
-        public static readonly StyledProperty<double> HeightYProperty =    
-            AvaloniaProperty.Register<IntervalVisual, double>(nameof(HeightY), 20.0);
+        public static readonly StyledProperty<double> HeightYProperty =
+            AvaloniaProperty.Register<NewIntervalView, double>(nameof(HeightY), 20.0);
 
         public double HeightY
         {
@@ -62,8 +63,8 @@ namespace TimeDataViewer.Shapes
             set { SetValue(HeightYProperty, value); }
         }
 
-        public static readonly StyledProperty<Color> StrokeColorProperty =   
-            AvaloniaProperty.Register<IntervalVisual, Color>(nameof(StrokeColor), Colors.Black);
+        public static readonly StyledProperty<Color> StrokeColorProperty =
+            AvaloniaProperty.Register<NewIntervalView, Color>(nameof(StrokeColor), Colors.Black);
 
         public Color StrokeColor
         {
@@ -71,8 +72,8 @@ namespace TimeDataViewer.Shapes
             set { SetValue(StrokeColorProperty, value); }
         }
 
-        public static readonly StyledProperty<double> StrokeThicknessProperty =    
-            AvaloniaProperty.Register<IntervalVisual, double>(nameof(StrokeThickness), 1.0);
+        public static readonly StyledProperty<double> StrokeThicknessProperty =
+            AvaloniaProperty.Register<NewIntervalView, double>(nameof(StrokeThickness), 1.0);
 
         public double StrokeThickness
         {
@@ -92,65 +93,85 @@ namespace TimeDataViewer.Shapes
 
                 _marker = marker;
                 _marker.ZIndex = 100;
-                   
+
                 //_map = _marker.Map;
                 //_map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
                 //_map.LayoutUpdated += Map_LayoutUpdated;
             }
         }
 
+        private IScheduler Map
+        {
+            get
+            {
+                if (_map is null)
+                {
+                    IVisual visual = this;
+                    while (visual != null && !(visual is IScheduler))
+                    {
+                        visual = visual.VisualParent;
+                    }
+
+                    _map = visual as IScheduler;
+                }
+
+                return _map;
+            }
+        }
+
+
         private void IntervalVisual_Initialized(object? sender, EventArgs e)
-        {                       
-            _map = _marker.Map;
-    
+        {
+            _map = Map;// _marker.Map;
+
             _map.OnZoomChanged += (s, e) => Update();
             _map.OnLayoutUpdated += (s, e) => Update();
-           
+
             InvalidateVisual();
         }
 
-        private void IntervalVisual_PointerLeave(object? sender, PointerEventArgs e)
-        {
-            if (_popupIsOpen == true)
-            {
-                _map?.HideTooltip();
-                _popupIsOpen = false;
-            }
+        //private void IntervalVisual_PointerLeave(object? sender, PointerEventArgs e)
+        //{
+        //    if (_popupIsOpen == true)
+        //    {
+        //        _map?.HideTooltip();
+        //        _popupIsOpen = false;
+        //    }
 
-            if (_marker is not null)
-            {
-                _marker.ZIndex -= 10000;
-            }
+        //    if (_marker is not null)
+        //    {
+        //        _marker.ZIndex -= 10000;
+        //    }
 
-            Cursor = new Cursor(StandardCursorType.Arrow);
+        //    Cursor = new Cursor(StandardCursorType.Arrow);
 
-            _scale.ScaleY = 1;         
-        }
+        //    _scale.ScaleY = 1;
+        //}
 
-        private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
-        {
-            if (_popupIsOpen == false)
-            {
-                var tooltip = Series.Tooltip;
-                tooltip.DataContext = Series.CreateTooltip(_marker);//  new IntervalTooltipViewModel(_marker);
-                _map?.ShowTooltip(this, tooltip);
-                _popupIsOpen = true;
-            }
+        //private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
+        //{
+        //    if (_popupIsOpen == false)
+        //    {
+        //        var tooltip = Series.Tooltip;
+        //        tooltip.DataContext = Series.CreateTooltip(_marker);//  new IntervalTooltipViewModel(_marker);
+        //        _map?.ShowTooltip(this, tooltip);
+        //        _popupIsOpen = true;
+        //    }
 
-            if (_marker is not null)
-            {
-                _marker.ZIndex += 10000;
-            }
-            
-            Cursor = new Cursor(StandardCursorType.Hand);
+        //    if (_marker is not null)
+        //    {
+        //        _marker.ZIndex += 10000;
+        //    }
 
-            _scale.ScaleY = 1.5;
-   
-            // scale.ScaleX = 1;
-        }
+        //    Cursor = new Cursor(StandardCursorType.Hand);
+
+        //    _scale.ScaleY = 1.5;
+
+        //    // scale.ScaleX = 1;
+        //}
 
         private void Update()
-        {        
+        {
             if (_map is not null && _marker is not null)
             {
                 var d1 = _map.FromLocalToAbsolute(new Point2D(_marker.Left, _marker.LocalPosition.Y)).X;
@@ -164,9 +185,9 @@ namespace TimeDataViewer.Shapes
                 _marker.Offset = new Point2D(-DesiredSize.Width / 2.0, -DesiredSize.Height / 2.0);
             }
 
-            InvalidateVisual();        
+            InvalidateVisual();
         }
-        
+
         public override void Render(DrawingContext drawingContext)
         {
             //  base.Render(drawingContext);
@@ -184,22 +205,12 @@ namespace TimeDataViewer.Shapes
                       new Point(_widthX / 2.0 - thick_half, HeightY / 2.0 - thick_half));
 
             var RectSolid = new Rect(p0, p1);
-                        
+
             var brush = new SolidColorBrush() { Color = Background };
             var pen = new Pen(new SolidColorBrush() { Color = StrokeColor }, StrokeThickness);
 
-            drawingContext.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));                      
-            drawingContext.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));                            
-        }
-
-        public override BaseIntervalVisual Clone()
-        {   
-            return new IntervalVisual() 
-            {              
-                Background = this.Background,
-                HeightY = this.HeightY,
-                Series = this.Series,
-            };
+            drawingContext.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));
+            drawingContext.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));
         }
     }
 }
