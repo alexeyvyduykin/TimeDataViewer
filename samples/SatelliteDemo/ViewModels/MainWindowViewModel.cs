@@ -19,6 +19,7 @@ namespace SatelliteDemo.ViewModels
         private int _absolutePositionX;
         private int _absolutePositionY;
         private int _zIndex;
+        private IDictionary<Satellite, IEnumerable<object>> _dict;
 
         public MainWindowViewModel()
         {          
@@ -51,19 +52,26 @@ namespace SatelliteDemo.ViewModels
             Epoch = DateTime.Now;
 
             PropertyChanged += MainWindowViewModel_PropertyChanged;
-            
-            NewInit();
+
+            _dict = new Dictionary<Satellite, IEnumerable<object>>();
+
+            foreach (var sat in Satellites)
+            {
+                _dict.Add(sat, NewInit(sat));
+            }
+
+            NewIntervals = new ObservableCollection<object>(_dict[Selected]);  
         }
 
         private void MainWindowViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if(e.PropertyName == nameof(Selected))
             {
-                NewInit();
+                NewIntervals = new ObservableCollection<object>(_dict[Selected]);
             }
         }
 
-        private void NewInit()
+        private IEnumerable<object> NewInit(Satellite satellite)
         {
             var ivals = new List<object>();
 
@@ -71,7 +79,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series1);
 
-            foreach (var item in Selected.Rotations)
+            foreach (var item in satellite.Rotations)
             {
                 var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
                 series1.Intervals.Add(ival);
@@ -83,7 +91,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series2);
 
-            foreach (var item in Selected.Observations)
+            foreach (var item in satellite.Observations)
             {
                 var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
                 series2.Intervals.Add(ival);
@@ -95,7 +103,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series3);
 
-            foreach (var item in Selected.Transmissions)
+            foreach (var item in satellite.Transmissions)
             {
                 var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
                 series3.Intervals.Add(ival);
@@ -103,7 +111,7 @@ namespace SatelliteDemo.ViewModels
                 ivals.Add(ival);
             }
 
-            NewIntervals = new ObservableCollection<object>(ivals);
+            return ivals;
         }
 
 
