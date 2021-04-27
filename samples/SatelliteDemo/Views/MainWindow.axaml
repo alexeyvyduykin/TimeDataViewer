@@ -37,12 +37,12 @@
                 </Border>
             </Grid>
 
-
+            <!--
             <sch:NewSchedulerControl Grid.Row="1"
                       Items="{Binding NewIntervals}">
             </sch:NewSchedulerControl>
-            
-            <!--
+            -->
+           
             <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
                 <sch:SchedulerControl x:Name="scheduler"                                      
                                       Epoch="{Binding $parent[Window].DataContext.Epoch}">
@@ -75,7 +75,7 @@
             </ContentControl>
            
             <sch:SchedulerAxisXControl DataContext="{Binding ElementName=scheduler}" Grid.Row="2"/>
--->
+
         </Grid>
     </Border>
    

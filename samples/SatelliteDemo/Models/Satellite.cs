@@ -15,5 +15,11 @@ namespace SatelliteDemo.Models
         public ObservableCollection<Observation> Observations { get; set; } = new ObservableCollection<Observation>();
 
         public ObservableCollection<Transmission> Transmissions { get; set; } = new ObservableCollection<Transmission>();
+
+        public int AbsolutePositionX { get; set; }
+
+        public int AbsolutePositionY { get; set; }
+
+        public int ZIndex { get; set; }
     }
 }
