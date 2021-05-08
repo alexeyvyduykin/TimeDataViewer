@@ -42,6 +42,8 @@ namespace TimeDataViewer
 
         public Series()
         {
+            AvaloniaXamlLoader.Load(this);
+
             _itemsSource = new ObservableCollection<object>();
 
             IntervalTemplate = new IntervalVisual() { Series = this };
