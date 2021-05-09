@@ -204,7 +204,7 @@ namespace TimeDataViewer.Core
             Invalidate();
         }
 
-        public override void UpdateFollowLabelPosition(MarkerViewModel marker) { }
+       // public override void UpdateFollowLabelPosition(MarkerViewModel marker) { }
   
         public override AxisInfo AxisInfo
         {
@@ -217,9 +217,8 @@ namespace TimeDataViewer.Core
                     MinValue = MinScreenValue,
                     MaxValue = MaxScreenValue,
                     MinLabel = CreateMinMaxLabel(MinScreenValue),
-                    MaxLabel = CreateMinMaxLabel(MaxScreenValue),
-                    IsDynamicLabelEnable = (IsDynamicLabelEnable == true),
-                    DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : default,
+                    MaxLabel = CreateMinMaxLabel(MaxScreenValue),               
+                    DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : null,
                 };
 
                 return axisInfo;

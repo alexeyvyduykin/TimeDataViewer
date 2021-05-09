@@ -10,17 +10,11 @@ namespace TimeDataViewer.Core
     {
         public IList<AxisLabelPosition>? Labels { get; init; }
 
-        public IList<AxisLabelPosition>? FollowLabels { get; init; }
-
         public string? MinLabel { get; init; }
 
         public string? MaxLabel { get; init; }
 
         public AxisLabelPosition? DynamicLabel { get; init; }
-
-        public bool IsDynamicLabelEnable { get; init; }
-
-        public bool IsFollowLabelsMode { get; init; }
 
         public AxisType Type { get; init; }
 

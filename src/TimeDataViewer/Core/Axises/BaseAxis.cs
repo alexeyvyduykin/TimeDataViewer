@@ -22,8 +22,6 @@ namespace TimeDataViewer.Core
 
     public abstract class BaseAxis : IAxis
     { 
-        private int _length = 0;
-
         public bool HasInversion { get; set; }
 
         public bool IsDynamicLabelEnable { get; set; }
@@ -47,26 +45,6 @@ namespace TimeDataViewer.Core
         public abstract AxisInfo AxisInfo { get; }
 
         public event EventHandler? OnAxisChanged;
-
-        public void UpdateAreaSize(int width, int height)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    _length = width;
-                    break;
-                case AxisType.Y:
-                    _length = height;
-                    break;
-                default:
-                    _length = 0;
-                    break;
-            }
-
-            OnAxisChanged?.Invoke(this, EventArgs.Empty);
-        }
-      
-        public int Length => _length;
                     
         public abstract double FromAbsoluteToLocal(int pixel);
 
@@ -82,7 +60,5 @@ namespace TimeDataViewer.Core
         public abstract void UpdateViewport(RectD viewport);
 
         public abstract void UpdateScreen(RectD screen);
-
-        public abstract void UpdateFollowLabelPosition(MarkerViewModel marker);
     }
 }

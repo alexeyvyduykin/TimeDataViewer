@@ -30,7 +30,6 @@ namespace TimeDataViewer.Core
 
         int MaxPixel { get; }
 
-        void UpdateAreaSize(int width, int height);
         void UpdateViewport(RectD viewport);
         void UpdateScreen(RectD screen);
         void UpdateWindow(RectI window);

@@ -11,13 +11,13 @@ namespace TimeDataViewer.UnitTests.Core.Axises
 {
     public class TimeAxisTests
     {
-        private TimeAxis CreateTimeAxis()
+        private TimeAxis CreateTimeAxis(bool hasInversion)
         {
             return new TimeAxis()
             {
                 Header = "X",
                 Type = AxisType.X,
-                HasInversion = false,
+                HasInversion = hasInversion,
                 IsDynamicLabelEnable = true,
                 TimePeriodMode = TimePeriod.Month,
                 LabelFormatPool = new Dictionary<TimePeriod, string>()
@@ -42,7 +42,7 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         [Fact]
         public void UpdateWindow_WithWindow_MinMaxPixelsCorrect()
         {
-            var axis = CreateTimeAxis();
+            var axis = CreateTimeAxis(false);
             var window = new RectI(0, 0, 800, 600);
 
             axis.UpdateWindow(window);
@@ -54,7 +54,7 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         [Fact]
         public void UpdateViewport_WithViewport_MinMaxValuesCorrect()
         {
-            var axis = CreateTimeAxis();
+            var axis = CreateTimeAxis(false);
             var viewport = new RectD(10.0, 20.0, 86400.0, 100.0);
 
             axis.UpdateViewport(viewport);
@@ -66,7 +66,7 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         [Fact]
         public void UpdateScreen_WithScreen_MinMaxScreenValuesCorrect()
         {
-            var axis = CreateTimeAxis();
+            var axis = CreateTimeAxis(false);
             var screen = new RectD(10.0, 20.0, 800.0, 600.0);
 
             axis.UpdateScreen(screen);
@@ -78,7 +78,7 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         [Fact]
         public void UpdateWindow_AddAxisChangedEvent_Raising()
         {
-            var axis = CreateTimeAxis();
+            var axis = CreateTimeAxis(false);
             bool raise = false;
 
             axis.OnAxisChanged += (w, h) => raise = true;
@@ -90,7 +90,7 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         [Fact]
         public void UpdateViewport_AddAxisChangedEvent_Raising()
         {
-            var axis = CreateTimeAxis();
+            var axis = CreateTimeAxis(false);
             bool raise = false;
 
             axis.OnAxisChanged += (w, h) => raise = true;
@@ -103,7 +103,7 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         [Fact]
         public void UpdateScreen_AddAxisChangedEvent_Raising()
         {
-            var axis = CreateTimeAxis();
+            var axis = CreateTimeAxis(false);
             bool raise = false;
 
             axis.OnAxisChanged += (w, h) => raise = true;
@@ -111,6 +111,38 @@ namespace TimeDataViewer.UnitTests.Core.Axises
             axis.UpdateScreen(new RectD());
 
             Assert.True(raise);
+        }
+
+        [Theory]
+        [InlineData(false, 10010.0)]
+        [InlineData(true, 70010.0)]
+        public void FromAbsoluteToLocal_WithAbsoluteValue_LocalValueCorrect(bool hasInversion, double expectedValue)
+        {
+            var axis = CreateTimeAxis(hasInversion);
+            var window = new RectI(0, 0, 800, 600);
+            var viewport = new RectD(10.0, 20.0, 80000.0, 60.0);
+            axis.UpdateWindow(window);
+            axis.UpdateViewport(viewport);
+
+            var local = axis.FromAbsoluteToLocal(100);
+
+            Assert.Equal(expectedValue, local);
+        }
+
+        [Theory]
+        [InlineData(false, 100)]
+        [InlineData(true, 700)]
+        public void FromLocalToAbsolute_WithLocalValue_AbsoluteValueCorrect(bool hasInversion, int expectedValue)
+        {
+            var axis = CreateTimeAxis(hasInversion);
+            var window = new RectI(0, 0, 800, 600);
+            var viewport = new RectD(10.0, 20.0, 80000.0, 60.0);
+            axis.UpdateWindow(window);
+            axis.UpdateViewport(viewport);
+
+            var pixel = axis.FromLocalToAbsolute(10010.0);
+
+            Assert.Equal(expectedValue, pixel);
         }
     }
 }

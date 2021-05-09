@@ -124,7 +124,7 @@ namespace TimeDataViewer
                     _labels.Add(new Label(pend, item.Label));
                 }
 
-                if (axisInfo.IsDynamicLabelEnable == true && axisInfo.DynamicLabel is AxisLabelPosition dynLab && dynLab != null)
+                if (axisInfo.DynamicLabel != null && axisInfo.DynamicLabel is AxisLabelPosition dynLab)
                 {                  
                     double W = _width;
                     double width = axisInfo.MaxValue - axisInfo.MinValue;

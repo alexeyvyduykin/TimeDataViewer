@@ -44,12 +44,12 @@ namespace TimeDataViewer.Core
             _axisX = _coreFactory.CreateTimeAxis();
             _axisY = _coreFactory.CreateCategoryAxis();
 
-            OnSizeChanged += _axisX.UpdateAreaSize;
+            OnSizeChanged += (w, h) => _axisX.UpdateWindow(new RectI(0, 0, w, h));
             OnWindowAreaChanged += (e) => _axisX.UpdateWindow(e);
             OnViewportScreenChanged += (e) => _axisX.UpdateScreen(e);
             OnViewportDataChanged += (e) => _axisX.UpdateViewport(e);
 
-            OnSizeChanged += _axisY.UpdateAreaSize;
+            OnSizeChanged += (w, h) => _axisY.UpdateWindow(new RectI(0, 0, w, h));
             OnWindowAreaChanged += (e) => _axisY.UpdateWindow(e);
             OnViewportScreenChanged += (e) => _axisY.UpdateScreen(e);
             OnViewportDataChanged += (e) => _axisY.UpdateViewport(e);

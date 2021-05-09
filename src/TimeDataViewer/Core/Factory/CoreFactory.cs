@@ -49,7 +49,7 @@ namespace TimeDataViewer.Core
             {
                 Header = "Y",
                 Type = AxisType.Y,
-                HasInversion = true,
+                HasInversion = false,
                 IsDynamicLabelEnable = true,
             };
         }

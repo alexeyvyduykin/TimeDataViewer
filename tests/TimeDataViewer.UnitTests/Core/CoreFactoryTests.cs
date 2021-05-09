@@ -36,7 +36,7 @@ namespace TimeDataViewer.UnitTests.Core
 
             Assert.Equal(AxisType.Y, axis.Type);
             Assert.Equal("Y", axis.Header);
-            Assert.True(axis.HasInversion);
+            Assert.False(axis.HasInversion);
             Assert.True(axis.IsDynamicLabelEnable);
         }
     }

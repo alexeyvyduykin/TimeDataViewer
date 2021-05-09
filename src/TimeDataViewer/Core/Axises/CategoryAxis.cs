@@ -23,7 +23,7 @@ namespace TimeDataViewer.Core
             double value = (MaxValue - MinValue) * pixel / (MaxPixel - MinPixel);
 
             if (HasInversion == true)
-            {
+            {                
                 value = (MaxValue - MinValue) - value;
             }
 
@@ -109,21 +109,7 @@ namespace TimeDataViewer.Core
             Invalidate();
         }
 
-        public override void UpdateFollowLabelPosition(MarkerViewModel marker)
-        {
-            if (_targetMarkers.ContainsKey(marker.Name) == false)
-            {
-                _targetMarkers.Add(marker.Name, new Point2D());
-            }
-
-            _targetMarkers[marker.Name] = marker.LocalPosition;
-
-            _dirty = true;
-
-            Invalidate();
-        }
-
-        private AxisInfo CreateAxisInfo()
+        private IList<AxisLabelPosition> CreateLabels()
         {
             var list = new List<AxisLabelPosition>();
 
@@ -136,15 +122,31 @@ namespace TimeDataViewer.Core
                 });
             }
 
+            return list;
+        }
+
+        //public override void UpdateFollowLabelPosition(MarkerViewModel marker)
+        //{
+        //    if (_targetMarkers.ContainsKey(marker.Name) == false)
+        //    {
+        //        _targetMarkers.Add(marker.Name, new Point2D());
+        //    }
+
+        //    _targetMarkers[marker.Name] = marker.LocalPosition;
+
+        //    _dirty = true;
+
+        //    Invalidate();
+        //}
+
+        private AxisInfo CreateAxisInfo()
+        {
             return new AxisInfo()
             {
-                Labels = null,
+                Labels = CreateLabels(),
                 Type = Type,
                 MinValue = MinScreenValue,
-                MaxValue = MaxScreenValue,
-                FollowLabels = list,
-                IsDynamicLabelEnable = false,
-                IsFollowLabelsMode = true,
+                MaxValue = MaxScreenValue,                                 
             };
         }
 
