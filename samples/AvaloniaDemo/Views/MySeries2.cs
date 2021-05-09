@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using TimeDataViewer.ViewModels;
 using TimeDataViewer;
-using TimeDataViewer.Markers;
+using TimeDataViewer.Shapes;
 using AvaloniaDemo.ViewModels;
 
 namespace AvaloniaDemo.Views
 {
     public class MySeries2 : Series
     {
-        public override IntervalTooltipViewModel CreateTooltip(SchedulerInterval marker)
+        public override IntervalTooltipViewModel CreateTooltip(IntervalViewModel marker)
         {
             return new IntervalTooltipViewModel2(marker);
         }

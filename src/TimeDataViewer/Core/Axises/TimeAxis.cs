@@ -22,7 +22,10 @@ namespace TimeDataViewer.Core
         private AxisLabelPosition? _dynamicLabel;
         private DateTime _epoch0 = DateTime.MinValue;
         
-        public TimeAxis() { }
+        public TimeAxis() 
+        {
+            
+        }
 
         public IDictionary<TimePeriod, string>? LabelFormatPool { get; init; }
 
