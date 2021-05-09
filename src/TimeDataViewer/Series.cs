@@ -42,7 +42,7 @@ namespace TimeDataViewer
 
         public Series()
         {
-            AvaloniaXamlLoader.Load(this);
+          //  AvaloniaXamlLoader.Load(this);
 
             _itemsSource = new ObservableCollection<object>();
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
     public abstract class BaseProjection
     {
@@ -43,16 +43,5 @@ namespace TimeDataViewer
         //{
         //    return (Math.Cos(latitude * (Math.PI / 180)) * 2 * Math.PI * Axis) / GetTileMatrixSizePixel(zoom).Width;
         //}
-
-        // Clips a number to the specified minimum and maximum values.
-        protected static double Clip(double n, double minValue, double maxValue)
-        {
-            return Math.Min(Math.Max(n, minValue), maxValue);
-        }
-
-        protected static int Clip(int n, int minValue, int maxValue)
-        {
-            return Math.Min(Math.Max(n, minValue), maxValue);
-        }
     }
 }

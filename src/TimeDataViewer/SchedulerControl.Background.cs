@@ -5,7 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using TimeDataViewer;
+using TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {

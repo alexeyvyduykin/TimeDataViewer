@@ -23,7 +23,7 @@ using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
 using TimeDataViewer.ViewModels;
-using TimeDataViewer;
+using TimeDataViewer.Core;
 using TimeDataViewer.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
@@ -43,7 +43,7 @@ namespace TimeDataViewer
         private bool _isDragging = false;
 
         public event SCPositionChanged? OnMousePositionChanged;  
-        public event SCDragChanged OnSchedulerDragChanged
+        public event EventHandler OnSchedulerDragChanged
         {
             add
             {

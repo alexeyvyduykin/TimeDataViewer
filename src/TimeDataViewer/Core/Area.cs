@@ -5,17 +5,18 @@ using System.Text;
 using System.Diagnostics;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
-    public class Core
+    public class Area
     {
         private int _width;
         private int _height;
-        private BaseAxis _axisX;
-        private BaseAxis _axisY;
+        private readonly ITimeAxis _axisX;
+        private readonly ICategoryAxis _axisY;
         private RectI _windowAreaZoom;
         private RectD _viewportAreaScreen;
         private RectD _viewportAreaData = new RectD();
+        private CoreFactory _coreFactory = new CoreFactory();
         private Point2I _renderOffset;
         public Point2I MouseDown;
         public Point2I MouseCurrent;
@@ -30,54 +31,36 @@ namespace TimeDataViewer
         public bool MouseWheelZoomEnabled = true;
         private double _scaleX = 1.0; // 30 %        
         private double _scaleY = 0.0;
-        private bool _isViewportInit = false;
-
-        public event SCDragChanged OnDragChanged;
+     
+        public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
-        public event SCSizeChanged OnSizeChanged;
+        public event SizeChangedEventHandler OnSizeChanged;
+        public event WindowAreaChangedEventHandler OnWindowAreaChanged;
+        public event ViewportScreenChangedEventHandler OnViewportScreenChanged;
+        public event ViewportDataChangedEventHandler OnViewportDataChanged;
 
-        public Core() { }
+        public Area() 
+        {
+            _axisX = _coreFactory.CreateTimeAxis();
+            _axisY = _coreFactory.CreateCategoryAxis();
+
+            OnSizeChanged += _axisX.UpdateAreaSize;
+            OnWindowAreaChanged += (e) => _axisX.UpdateWindow(e);
+            OnViewportScreenChanged += (e) => _axisX.UpdateScreen(e);
+            OnViewportDataChanged += (e) => _axisX.UpdateViewport(e);
+
+            OnSizeChanged += _axisY.UpdateAreaSize;
+            OnWindowAreaChanged += (e) => _axisY.UpdateWindow(e);
+            OnViewportScreenChanged += (e) => _axisY.UpdateScreen(e);
+            OnViewportDataChanged += (e) => _axisY.UpdateViewport(e);
+        }
 
         public int TrueHeight => _height;
     
-        public BaseAxis AxisX
-        {
-            get => _axisX;            
-            set
-            {
-                if (_axisX != null)
-                {
-                    OnSizeChanged -= _axisX.UpdateAreaSize;
-                }
-
-                if (value != null)
-                {
-                    OnSizeChanged += value.UpdateAreaSize;
-                }
-
-                _axisX = value;
-            }
-        }
-
-        public BaseAxis AxisY
-        {
-            get => _axisY;            
-            set
-            {
-                if (_axisY != null)
-                {
-                    OnSizeChanged -= _axisY.UpdateAreaSize;
-                }
-
-                if (value != null)
-                {
-                    OnSizeChanged += value.UpdateAreaSize;
-                }
-
-                _axisY = value;
-            }
-        }
-    
+        public ITimeAxis AxisX => _axisX;            
+        
+        public ICategoryAxis AxisY => _axisY;            
+            
         public RectI WindowAreaZoom
         {
             get
@@ -86,16 +69,9 @@ namespace TimeDataViewer
             }
             private set
             {
-                if (_windowAreaZoom != value)
-                {
-                    _windowAreaZoom = value;
+                _windowAreaZoom = value;
 
-                    AxisX.UpdateWindow(_windowAreaZoom);
-                    AxisY.UpdateWindow(_windowAreaZoom);
-
-                    //   if (OnSchedulerWindowChanged != null)
-                    //       OnSchedulerWindowChanged(_zoomingWindowArea);
-                }
+                OnWindowAreaChanged?.Invoke(_windowAreaZoom);
             }
         }
      
@@ -106,28 +82,10 @@ namespace TimeDataViewer
                 return _viewportAreaScreen;
             }
             private set
-            {
-               // if (_viewportAreaScreen != value)
-               // {
-                    _viewportAreaScreen = value;
+            {                    
+                _viewportAreaScreen = value;
 
-                    if (AxisX is TimeAxis axis)
-                    {                       
-                  //      string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch0.AddSeconds(value.X));
-                  //      string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
-                  //      Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
-                    }
-                    else
-                    {
-                  //      Debug.WriteLine("Core: ViewportAreaScreen -> X = {0}; Y = {1}; W = {2}; H = {3}", value.X, value.Y, value.Width, value.Height);
-                    }
-
-                    AxisX.UpdateScreen(_viewportAreaScreen);
-                    AxisY.UpdateScreen(_viewportAreaScreen);
-
-                    //  if (OnSchedulerViewportChanged != null)
-                    //      OnSchedulerViewportChanged(_currentViewportArea);
-               // }
+                OnViewportScreenChanged?.Invoke(_viewportAreaScreen);
             }
         }
    
@@ -135,36 +93,13 @@ namespace TimeDataViewer
         {
             get
             {
-                //if (_viewportAreaData.IsEmpty == true)
-                //{
-                //    //      _viewportAreaData = new RectD(0.0, 0.0, 1.0, 1.0);
-                //}
-
                 return _viewportAreaData;
             }
             private set
             {
                 _viewportAreaData = value;
 
-                if (AxisX is TimeAxis)
-                {
-                   // var axis = AxisX as TimeAxis;
-                   // string x = string.Format("{0:dd/MMM/yyyy HH:mm}", axis.Epoch0.AddSeconds(value.X));
-                  //  string w = TimeSpan.FromSeconds(value.Width).ToString(@"dd\.hh\:mm\:ss");
-                  //  Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", x, value.Y, w, value.Height);
-                }
-                else
-                {
-                   // Debug.WriteLine("Core: ViewportAreaData -> X = {0}; Y = {1}; W = {2}; H = {3}", value.X, value.Y, value.Width, value.Height);
-                }
-
-                AxisX.UpdateViewport(_viewportAreaData);
-                AxisY.UpdateViewport(_viewportAreaData);
-
-                //  if (OnSchedulerViewportChanged != null)
-                //      OnSchedulerViewportChanged(value);
-
-                _isViewportInit = true;
+                OnViewportDataChanged?.Invoke(_viewportAreaData);
             }
         }
    
@@ -177,15 +112,11 @@ namespace TimeDataViewer
         public void UpdateSize(int width, int height)
         {
             var temp_pos = FromScreenToLocal(_width / 2, _height / 2);
-
-            //========================================
+    
             _width = width;
             _height = height;
 
             OnSizeChanged?.Invoke(width, height);
-
-            //Debug.WriteLine("OnSizeChanged : Core, w: " + width + ", h: " + height);
-            //========================================
 
             WindowAreaZoom = CreateWindowAreaZoom(_zoom, _scaleX, _scaleY);
 
@@ -194,13 +125,7 @@ namespace TimeDataViewer
             ViewportAreaScreen = CreateViewportAreaScreen();
 
             ZoomScreenPosition = FromLocalToScreen(temp_pos);
-
-
-            //    WindowAreaZoom = CreateWindowAreaZoom(_zoom, scaleX, scaleY);
-            //    ViewportAreaScreen = CreateViewportAreaScreen();
         }
-
-        public bool IsStarted => _isViewportInit == true;
 
         public bool IsWindowArea(Point2D point)
         {
@@ -274,11 +199,11 @@ namespace TimeDataViewer
 
   
 
-        public RectI RenderWindowArea => new(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
+        public RectI RenderWindowArea => new RectI(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
 
         private bool Zooming(int zm)
         {
-            if (IsStarted == true)
+            //if (IsStarted == true)
             {
                 var posLoc = ZoomPositionLocal;
 
@@ -431,23 +356,13 @@ namespace TimeDataViewer
             {
                 ViewportAreaScreen = CreateViewportAreaScreen();
 
-                OnDragChanged?.Invoke();
+                OnDragChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
         public RectD RenderSize => new(RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y, WindowAreaZoom.Width, WindowAreaZoom.Height);
 
         public RectI Screen => new(0, 0, _width, _height);
-
-        protected static double Clipp(double n, double minValue, double maxValue)
-        {
-            return Math.Min(Math.Max(n, minValue), maxValue);
-        }
-
-        protected static int Clipp(int n, int minValue, int maxValue)
-        {
-            return Math.Min(Math.Max(n, minValue), maxValue);
-        }
 
         public Point2D FromScreenToLocal(int x, int y)
         {

@@ -29,6 +29,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media.Imaging;
 using TimeDataViewer.Models;
+using TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
@@ -36,7 +37,7 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private Core _core;
+        private Area _core;
         private readonly Factory _factory;
       //  private readonly Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>> _markerPool;
       //  private readonly ObservableCollection<MarkerViewModel> _markers;
@@ -70,9 +71,9 @@ namespace TimeDataViewer
         {
             AvaloniaXamlLoader.Load(this);
 
-            _core = new Core();
-            _core.AxisX = new TimeAxis() { CoordType = EAxisCoordType.X, TimePeriodMode = TimePeriod.Month };
-            _core.AxisY = new CategoryAxis() { CoordType = EAxisCoordType.Y, IsInversed = true };
+            Core.CoreFactory factory = new Core.CoreFactory();
+
+            _core = new Area();
             _core.AxisX.IsDynamicLabelEnable = true;
             _core.AxisY.IsDynamicLabelEnable = true;
             _core.OnZoomChanged += (s, e) => ForceUpdateOverlays();
@@ -179,27 +180,19 @@ namespace TimeDataViewer
 
         public Point2I RenderOffsetAbsolute => _core.RenderOffsetAbsolute;
 
-        public bool IsStarted => _core.IsStarted;
+        //public bool IsStarted => _core.IsStarted;
 
-        public TimeAxis AxisX
-        {
-            get => (TimeAxis)_core.AxisX;
-            set => _core.AxisX = value;
-        }
-
-        public BaseAxis AxisY
-        {
-            get => _core.AxisY;
-            set => _core.AxisY = value;
-        }
-
+        public ITimeAxis AxisX => (ITimeAxis)_core.AxisX;
+                  
+        public IAxis AxisY => _core.AxisY;
+                  
         internal Canvas Canvas => _canvas;
 
         private void BaseSchedulerControl_LayoutUpdated(object? sender, EventArgs e)
         {
             _core.UpdateSize((int)base.Bounds/*finalRect*/.Width, (int)base.Bounds/*finalRect*/.Height);
 
-            if (_core.IsStarted == true)
+            //if (_core.IsStarted == true)
             {
                 ForceUpdateOverlays();
             }
@@ -310,8 +303,8 @@ namespace TimeDataViewer
 
         public override void Render(DrawingContext context)
         {
-            if (IsStarted == false)
-                return;
+            //if (IsStarted == false)
+            //    return;
 
       //      DrawBackground(context);
 

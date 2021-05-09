@@ -4,28 +4,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
-    public struct AxisInfo
+    public record AxisInfo
     {
-        public List<AxisLabelPosition> Labels { get; set; }
+        public IList<AxisLabelPosition>? Labels { get; init; }
 
-        public List<AxisLabelPosition> FollowLabels { get; set; }
+        public IList<AxisLabelPosition>? FollowLabels { get; init; }
 
-        public string MinLabel { get; set; }
+        public string? MinLabel { get; init; }
 
-        public string MaxLabel { get; set; }
+        public string? MaxLabel { get; init; }
 
-        public AxisLabelPosition DynamicLabel { get; set; }
+        public AxisLabelPosition? DynamicLabel { get; init; }
 
-        public bool IsDynamicLabelEnable { get; set; }
+        public bool IsDynamicLabelEnable { get; init; }
 
-        public bool IsFollowLabelsMode { get; set; }
+        public bool IsFollowLabelsMode { get; init; }
 
-        public EAxisCoordType CoordType { get; set; }
+        public AxisType Type { get; init; }
 
-        public double MinValue { get; set; }
+        public double MinValue { get; init; }
 
-        public double MaxValue { get; set; }
+        public double MaxValue { get; init; }
     }
 }

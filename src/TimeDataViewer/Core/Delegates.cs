@@ -5,11 +5,14 @@ using System.Text;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
-    public delegate void SCDragChanged();
+    //public delegate void DragChangedEventHandler();
     //public delegate void SCZoomChanged();
-    public delegate void SCSizeChanged(int width, int height);
+    public delegate void SizeChangedEventHandler(int width, int height);
+    public delegate void WindowAreaChangedEventHandler(RectI window);
+    public delegate void ViewportScreenChangedEventHandler(RectD viewport);
+    public delegate void ViewportDataChangedEventHandler(RectD viewport);
 
     public delegate void SCTargetMarkerPositionChanged(MarkerViewModel marker);
     public delegate void SchedulerTypeChanged(BaseTimeSchedulerProvider type);

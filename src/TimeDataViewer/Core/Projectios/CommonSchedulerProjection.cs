@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
     // the base projection
     public class CommonSchedulerProjection : BaseProjection
@@ -41,8 +41,8 @@ namespace TimeDataViewer
 
         public override Point2I FromSchedulerPointToPixel(double px, double py, double zoom)
         {
-            px = Clip(px, Level0.Left, Level0.Right);
-            py = Clip(py, Level0.Bottom, Level0.Top);
+            px = MathHelper.MathHelper.Clip(px, Level0.Left, Level0.Right);
+            py = MathHelper.MathHelper.Clip(py, Level0.Bottom, Level0.Top);
 
             int x = (int)(/*Level0.Left +*/ Bounds.Width * px * (zoom + 1.0) / Level0.Width);
             int y = (int)(Level0.Height/*Bounds.Height*/ - py);
@@ -52,8 +52,8 @@ namespace TimeDataViewer
 
         public override Point2D FromPixelToSchedulerPoint(int x, int y, double zoom)
         {
-            x = Clip(x, 0, (int)(Bounds.Width * (zoom + 1.0)));
-            y = Clip(y, 0, (int)Level0.Height/*Bounds.Height*/);
+            x = MathHelper.MathHelper.Clip(x, 0, (int)(Bounds.Width * (zoom + 1.0)));
+            y = MathHelper.MathHelper.Clip(y, 0, (int)Level0.Height/*Bounds.Height*/);
 
             double px = Level0.Left + Level0.Width * x / ((Bounds.Width) * (zoom + 1.0));
             double py = Level0.Height /*Bounds.Height*/ - y;

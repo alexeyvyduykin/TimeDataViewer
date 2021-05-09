@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
     public abstract class BaseTimeSchedulerProvider
     {

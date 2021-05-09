@@ -6,33 +6,56 @@ using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
-    public enum EAxisCoordType
+    public enum AxisType
     {
         X,
         Y
     }
-    public struct AxisLabelPosition
+
+    public record AxisLabelPosition
     {
-        public string Label { get; set; }
-        public double Value { get; set; }
+        public string? Label { get; init; }
+        public double Value { get; init; }
     }
 
-    public abstract class BaseAxis
-    {
-        private bool _isInversed = false;
-        private int _length;
-        private string _header = "Default Header";
+    public abstract class BaseAxis : IAxis
+    { 
+        private int _length = 0;
+
+        public bool HasInversion { get; set; }
+
+        public bool IsDynamicLabelEnable { get; set; }
+
+        public string Header { get; set; } = "Header";
+
+        public AxisType Type { get; set; }
+
+        public double MinValue { get; protected set; }
+
+        public double MaxValue { get; protected set; }
+
+        public double MinScreenValue { get; protected set; }
+
+        public double MaxScreenValue { get; protected set; }
+
+        public int MinPixel { get; protected set; }
+
+        public int MaxPixel { get; protected set; }
+
+        public abstract AxisInfo AxisInfo { get; }
+
+        public event EventHandler? OnAxisChanged;
 
         public void UpdateAreaSize(int width, int height)
         {
-            switch (CoordType)
+            switch (Type)
             {
-                case EAxisCoordType.X:
+                case AxisType.X:
                     _length = width;
                     break;
-                case EAxisCoordType.Y:
+                case AxisType.Y:
                     _length = height;
                     break;
                 default:
@@ -40,97 +63,19 @@ namespace TimeDataViewer
                     break;
             }
 
-            //switch (Type)
-            //{
-            //    case AxisPosition.Bottom:
-            //    case AxisPosition.Top:
-            //        _length = width;
-            //        break;
-            //    case AxisPosition.Left:
-            //    case AxisPosition.Right:
-            //        _length = height; 
-            //        break;
-            //    default:
-            //        _length = 0; 
-            //        break;
-            //}
-
             OnAxisChanged?.Invoke(this, EventArgs.Empty);
         }
-       
-        public bool IsInversed
-        {
-            get => _isInversed;            
-            set => _isInversed = value;            
-        }
-
-        public bool IsDynamicLabelEnable { get; set; } = false;
-
-        //public Transform Transform
-        //{
-        //    get
-        //    {
-        //        switch (CoordType)
-        //        {
-        //            case EAxisCoordType.X:
-        //                return new MatrixTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-        //            case EAxisCoordType.Y:
-        //                return new MatrixTransform(0.0, -1.0, -1.0, 0.0, 0.0, 0.0);
-        //            default:
-        //                return Transform.Identity;
-        //        }
-
-
-        //        //switch (Type)
-        //        //{
-        //        //    case AxisPosition.Bottom:
-        //        //        return new MatrixTransform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-        //        //    case AxisPosition.Left:
-        //        //        return new MatrixTransform(0.0, -1.0, -1.0, 0.0, 0.0, 0.0);
-        //        //    case AxisPosition.Top:
-        //        //        return new MatrixTransform(1.0, 0.0, 0.0, -1.0, 0.0, -Length);
-        //        //    case AxisPosition.Right:
-        //        //        return new MatrixTransform(0.0, -1.0, 1.0, 0.0, Length, 0.0);
-        //        //    default:
-        //        //        return Transform.Identity;
-        //        //}
-        //    }
-        //}
       
         public int Length => _length;
-
-        public void UpdateAxis()
-        {                
-            OnAxisChanged?.Invoke(this, EventArgs.Empty);            
-        }
-
-        public string Header 
-        {
-            get => _header; 
-            set => _header = value;
-        }
-
-        public EAxisCoordType CoordType { get; set; }
-        
-        public event EventHandler OnAxisChanged;
-
-        //     public event SCAxisLengthChanged OnLengthChanged;
-
-        protected static double Clip(double n, double minValue, double maxValue)
-        {
-            return Math.Min(Math.Max(n, minValue), maxValue);
-        }
-
-        protected static int Clip(int n, int minValue, int maxValue)
-        {
-            return Math.Min(Math.Max(n, minValue), maxValue);
-        }
-
+                    
         public abstract double FromAbsoluteToLocal(int pixel);
 
         public abstract int FromLocalToAbsolute(double value);
-
-        public abstract AxisInfo AxisInfo { get; }
+      
+        protected virtual void Invalidate()
+        {
+            OnAxisChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         public abstract void UpdateWindow(RectI window);
 

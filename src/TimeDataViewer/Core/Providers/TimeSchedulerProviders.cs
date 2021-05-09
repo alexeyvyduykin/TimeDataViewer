@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
     public class TimeSchedulerProviders
     {

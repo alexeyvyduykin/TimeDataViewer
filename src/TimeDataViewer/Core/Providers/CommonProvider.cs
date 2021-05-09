@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
     public abstract class TimeSchedulerProviderBase : BaseTimeSchedulerProvider
     {

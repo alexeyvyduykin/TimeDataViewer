@@ -17,7 +17,7 @@ using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
 using TimeDataViewer.ViewModels;
-using TimeDataViewer;
+using TimeDataViewer.Core;
 using TimeDataViewer.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
@@ -110,10 +110,8 @@ namespace TimeDataViewer
 
         private void OnAxisChanged(object? s, EventArgs e)
         {
-            if (s is BaseAxis axis)
+            if (s is IAxis axis && axis?.AxisInfo is AxisInfo axisInfo)
             {
-                var axisInfo = axis.AxisInfo;
-
                 _labels.Clear();
 
                 double wth = axisInfo.MaxValue - axisInfo.MinValue;
@@ -126,10 +124,8 @@ namespace TimeDataViewer
                     _labels.Add(new Label(pend, item.Label));
                 }
 
-                if (axisInfo.IsDynamicLabelEnable == true)
-                {
-                    var dynLab = axisInfo.DynamicLabel;
-
+                if (axisInfo.IsDynamicLabelEnable == true && axisInfo.DynamicLabel is AxisLabelPosition dynLab && dynLab != null)
+                {                  
                     double W = _width;
                     double width = axisInfo.MaxValue - axisInfo.MinValue;
 

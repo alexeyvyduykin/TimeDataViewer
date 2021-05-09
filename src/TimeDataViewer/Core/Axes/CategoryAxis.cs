@@ -5,33 +5,31 @@ using System.Text;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
 
-namespace TimeDataViewer
+namespace TimeDataViewer.Core
 {
-    public class CategoryAxis : BaseAxis
+    public class CategoryAxis : BaseAxis, ICategoryAxis
     {
-        private AxisInfo _axisInfo;
-        private bool _dirty = true;
-        //  List<SCAxisLabelPosition> FollowLabels = new List<SCAxisLabelPosition>();
+        private AxisInfo? _axisInfo;
+        private bool _dirty = true; 
         private readonly Dictionary<string, Point2D> _targetMarkers;
 
         public CategoryAxis()
         {
-            _targetMarkers = new Dictionary<string, Point2D>();
-            IsDynamicLabelEnable = false;
+            _targetMarkers = new Dictionary<string, Point2D>();          
         }
 
         public override double FromAbsoluteToLocal(int pixel)
         {
             double value = (MaxValue - MinValue) * pixel / (MaxPixel - MinPixel);
 
-            if (IsInversed == true)
+            if (HasInversion == true)
             {
                 value = (MaxValue - MinValue) - value;
             }
 
             var res = MinValue + value;
 
-            res = Clip(res, MinValue, MaxValue);
+            res = MathHelper.MathHelper.Clip(res, MinValue, MaxValue);
 
             return res;
         }
@@ -40,46 +38,46 @@ namespace TimeDataViewer
         {
             int pixel = (int)((value - MinValue) * (MaxPixel - MinPixel) / (MaxValue - MinValue));
 
-            if (IsInversed == true)
+            if (HasInversion == true)
             {
                 pixel = (MaxPixel - MinPixel) - pixel;
             }
 
             var res = /*MinPixel +*/ pixel;
 
-            res = Clip(res, MinPixel, MaxPixel);
+            res = MathHelper.MathHelper.Clip(res, MinPixel, MaxPixel);
 
             return res;
         }
 
         public override void UpdateWindow(RectI window)
         {
-            switch (base.CoordType)
+            switch (Type)
             {
-                case EAxisCoordType.X:
-                    MinPixel = 0;// window.Left;
-                    MaxPixel = window.Width;// window.Right;
+                case AxisType.X:
+                    MinPixel = 0;
+                    MaxPixel = window.Width;
                     break;
-                case EAxisCoordType.Y:
-                    MinPixel = 0;// window.Bottom;
-                    MaxPixel = window.Height;// window.Top;
+                case AxisType.Y:
+                    MinPixel = 0;
+                    MaxPixel = window.Height;
                     break;
                 default:
                     break;
             }
 
-            //      base.AreaMap = window;
+            Invalidate();
         }
 
         public override void UpdateViewport(RectD viewport)
         {
-            switch (base.CoordType)
+            switch (Type)
             {
-                case EAxisCoordType.X:
+                case AxisType.X:
                     MinValue = viewport.Left;
                     MaxValue = viewport.Right;
                     break;
-                case EAxisCoordType.Y:
+                case AxisType.Y:
                     MinValue = viewport.Bottom;
                     MaxValue = viewport.Top;
                     break;
@@ -87,26 +85,28 @@ namespace TimeDataViewer
                     break;
             }
 
-            base.UpdateAxis();
+            Invalidate();
         }
 
         public override void UpdateScreen(RectD screen)
         {
-            switch (base.CoordType)
+            switch (Type)
             {
-                case EAxisCoordType.X:
+                case AxisType.X:
                     MinScreenValue = screen.Left;
                     MaxScreenValue = screen.Right;
                     break;
-                case EAxisCoordType.Y:
+                case AxisType.Y:
                     MinScreenValue = screen.Bottom;
                     MaxScreenValue = screen.Top;
                     break;
                 default:
                     break;
             }
+
             _dirty = true;
-            base.UpdateAxis();
+
+            Invalidate();
         }
 
         public override void UpdateFollowLabelPosition(MarkerViewModel marker)
@@ -120,62 +120,41 @@ namespace TimeDataViewer
 
             _dirty = true;
 
-            base.UpdateAxis();
+            Invalidate();
         }
 
-        public double MinValue { get; protected set; }
-
-        public double MaxValue { get; protected set; }
-
-        public double MinScreenValue { get; protected set; }
-
-        public double MaxScreenValue { get; protected set; }
-
-        public int MinPixel { get; protected set; }
-
-        public int MaxPixel { get; protected set; }
-
-        private void UpdateAxisInfo()
+        private AxisInfo CreateAxisInfo()
         {
-            _axisInfo = new AxisInfo()
-            {
-                Labels = null,
-                CoordType = base.CoordType,
-                MinValue = MinScreenValue,
-                MaxValue = MaxScreenValue,
-                FollowLabels = new List<AxisLabelPosition>(),
-                IsDynamicLabelEnable = false,
-                IsFollowLabelsMode = true,
-            };
+            var list = new List<AxisLabelPosition>();
 
             foreach (var item in _targetMarkers)
             {
-                if (base.CoordType == EAxisCoordType.X)
+                list.Add(new AxisLabelPosition()
                 {
-                    _axisInfo.FollowLabels.Add(new AxisLabelPosition()
-                    {
-                        Value = item.Value.X,
-                        Label = item.Key,
-                    });
-                }
-                else if (base.CoordType == EAxisCoordType.Y)
-                {
-                    _axisInfo.FollowLabels.Add(new AxisLabelPosition()
-                    {
-                        Value = item.Value.Y,
-                        Label = item.Key,
-                    });
-                }
+                    Value = (Type == AxisType.X) ? item.Value.X : item.Value.Y,
+                    Label = item.Key,
+                });
             }
+
+            return new AxisInfo()
+            {
+                Labels = null,
+                Type = Type,
+                MinValue = MinScreenValue,
+                MaxValue = MaxScreenValue,
+                FollowLabels = list,
+                IsDynamicLabelEnable = false,
+                IsFollowLabelsMode = true,
+            };
         }
 
         public override AxisInfo AxisInfo
         {
             get
             {
-                if (_dirty == true)
+                if (_dirty == true || _axisInfo == null)
                 {
-                    UpdateAxisInfo();
+                    _axisInfo = CreateAxisInfo();
                     _dirty = false;
                 }
 
