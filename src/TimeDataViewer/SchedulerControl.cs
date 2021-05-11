@@ -94,14 +94,14 @@ namespace TimeDataViewer
             TopLevelForToolTips?.Children.Add(_popup);
 
             var style = new Style(x => x.OfType<ItemsControl>().Child().OfType<ContentPresenter>());
-            style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("AbsolutePositionX")));
-            style.Setters.Add(new Setter(Canvas.TopProperty, new Binding("AbsolutePositionY")));
-            style.Setters.Add(new Setter(Canvas.ZIndexProperty, new Binding("ZIndex")));
+            style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding(nameof(MarkerViewModel.AbsolutePositionX))));
+            style.Setters.Add(new Setter(Canvas.TopProperty, new Binding(nameof(MarkerViewModel.AbsolutePositionY))));
+            style.Setters.Add(new Setter(Canvas.ZIndexProperty, new Binding(nameof(MarkerViewModel.ZIndex))));
             Styles.Add(style);
 
             var template = new FuncDataTemplate<MarkerViewModel>((m, s) => new ContentPresenter
             {
-                [!ContentPresenter.ContentProperty] = new Binding("Shape"),
+                [!ContentPresenter.ContentProperty] = new Binding(nameof(MarkerViewModel.Shape)),
             });
             
             ItemTemplateProperty.OverrideDefaultValue<SchedulerControl>(template);
