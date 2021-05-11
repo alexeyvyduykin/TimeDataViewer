@@ -40,7 +40,7 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private Area _area;
+        private readonly Area _area;
         private readonly Factory _factory;
         private readonly Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>> _markerPool;
         private readonly ObservableCollection<MarkerViewModel> _markers;
@@ -56,26 +56,17 @@ namespace TimeDataViewer
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new Pen(Brushes.Blue, 1);
 
-        public event EventHandler OnLayoutUpdated
-        {
-            add
-            {
-                base.LayoutUpdated += value;
-            }
-            remove
-            {
-                base.LayoutUpdated -= value;
-            }
-        }
+        public event EventHandler? OnSizeChanged;
+        public event MousePositionChangedEventHandler? OnMousePositionChanged;
+        public event EventHandler? OnZoomChanged;
 
         public SchedulerControl()
         {
-            CoreFactory factory = new Core.CoreFactory();
+            CoreFactory factory = new CoreFactory();
 
             _area = factory.CreateArea();
-
-            _area.OnZoomChanged += (s, e) => ForceUpdateOverlays();
-            _area.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
+          
+            _area.OnZoomChanged += _area_OnZoomChanged;
 
             _factory = new Factory();
 
@@ -124,14 +115,22 @@ namespace TimeDataViewer
      
             Items = _markers;
      
-            LayoutUpdated += BaseSchedulerControl_LayoutUpdated;
+            LayoutUpdated += SchedulerControl_LayoutUpdated;
          
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
 
             ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
             EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
+            CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
+        }
+
+        private void _area_OnZoomChanged(object? sender, EventArgs e)
+        {
+            OnZoomChanged?.Invoke(this, EventArgs.Empty);
+
+            ForceUpdateOverlays();
         }
 
         public DateTime Epoch0 => Epoch.Date;
@@ -244,8 +243,6 @@ namespace TimeDataViewer
 
         public Point2I RenderOffsetAbsolute => _area.RenderOffsetAbsolute;
 
-        //public bool IsStarted => _core.IsStarted;
-
         public ITimeAxis AxisX => _area.AxisX;
 
         public IAxis AxisY => _area.AxisY;
@@ -279,21 +276,20 @@ namespace TimeDataViewer
             }
         }
 
-        private void BaseSchedulerControl_LayoutUpdated(object? sender, EventArgs e)
+        private void SchedulerControl_LayoutUpdated(object? sender, EventArgs e)
         {
-            _area.UpdateSize((int)base.Bounds/*finalRect*/.Width, (int)base.Bounds/*finalRect*/.Height);
+            _area.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
-            //if (_core.IsStarted == true)
-            {
-                ForceUpdateOverlays();
-            }
+            OnSizeChanged?.Invoke(this, EventArgs.Empty);
+                
+            ForceUpdateOverlays();            
         }
 
         protected override void ItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             base.ItemsCollectionChanged(sender, e);
 
-            if (e.Action == NotifyCollectionChangedAction.Add)
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
             {
                 foreach (var item in e.NewItems)
                 {
@@ -327,27 +323,25 @@ namespace TimeDataViewer
 
         private void ZoomChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            var newValue = (double)e.NewValue;
-            //var oldValue = (double)e.OldValue;
+            if (e.NewValue is not null && e.NewValue is double value)
+            {                           
+                value = Math.Min(value, MaxZoom);
+                value = Math.Max(value, MinZoom);
 
-            var value = newValue;
-
-            value = Math.Min(value, MaxZoom);
-            value = Math.Max(value, MinZoom);
-
-            if (_zoom != value)
-            {
-                _area.Zoom = (int)Math.Floor(value);
-
-                if (IsInitialized == true)
+                if (_zoom != value)
                 {
-                    ForceUpdateOverlays();
-                    InvalidateVisual();
+                    _area.Zoom = (int)Math.Floor(value);
+
+                    if (IsInitialized == true)
+                    {
+                        ForceUpdateOverlays();
+                        InvalidateVisual();
+                    }
+
+                    _zoom = value;
+
+                    //RaisePropertyChanged(ZoomProperty, old, value);
                 }
-
-                _zoom = value;
-
-                //RaisePropertyChanged(ZoomProperty, old, value);
             }
         }
 
@@ -355,6 +349,14 @@ namespace TimeDataViewer
         {
             if (e.NewValue is DateTime)
             {              
+                AxisX.Epoch0 = Epoch0;
+            }
+        }
+        
+        private void CurrentTimeChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is double)
+            {
                 AxisX.Epoch0 = Epoch0;
             }
         }
@@ -441,7 +443,9 @@ namespace TimeDataViewer
             using (context.PushPreTransform(_schedulerTranslateTransform.Value))
             {
                 base.Render(context);
-            }          
+            }
+
+            DrawCurrentTime(context);
         }
 
         private void DrawEpoch(DrawingContext context)
@@ -452,17 +456,13 @@ namespace TimeDataViewer
             context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _area.RenderSize.Height));
         }
 
-        public virtual void Dispose()
-        {
-            //if (_core.IsStarted == true)
-            //{
-            _area.OnZoomChanged -= (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
-
-            base.LayoutUpdated -= BaseSchedulerControl_LayoutUpdated;
-
-            //_core.OnMapClose();
-            //}
-        }
+        private void DrawCurrentTime(DrawingContext context)
+        {            
+            var d0 = (Epoch - Epoch0).TotalSeconds;
+            var p = _area.FromLocalToAbsolute(new Point2D(d0 + CurrentTime, 0));
+            Pen pen = new Pen(Brushes.Red, 2.0);
+            context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _area.RenderSize.Height));
+        }        
     }
 
     internal class Stuff

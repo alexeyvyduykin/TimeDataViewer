@@ -47,7 +47,7 @@ namespace TimeDataViewer.Shapes
             _map = _marker.Map;
 
             _map.OnZoomChanged += (s, e) => Update(s, e);
-            _map.OnLayoutUpdated += (s, e) => Update(s, e);
+            _map.OnSizeChanged += (s, e) => Update(s, e);
        
             base.InvalidateVisual();     
         }

@@ -24,6 +24,6 @@ namespace TimeDataViewer.Models
 
         event EventHandler OnZoomChanged;
 
-        event EventHandler OnLayoutUpdated;
+        event EventHandler OnSizeChanged;
     }
 }

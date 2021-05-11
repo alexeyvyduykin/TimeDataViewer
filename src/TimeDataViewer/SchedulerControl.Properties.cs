@@ -80,5 +80,14 @@ namespace TimeDataViewer
             get => GetValue(EpochProperty);
             set => SetValue(EpochProperty, value);
         }
+
+        public static readonly StyledProperty<double> CurrentTimeProperty =    
+            AvaloniaProperty.Register<SchedulerControl, double>(nameof(CurrentTime), 0.0);
+
+        public double CurrentTime
+        {
+            get => GetValue(CurrentTimeProperty);
+            set => SetValue(CurrentTimeProperty, value);
+        }
     }
 }

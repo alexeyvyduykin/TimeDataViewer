@@ -125,7 +125,7 @@ namespace TimeDataViewer.Views
             _map = Map;// _marker.Map;
 
             _map.OnZoomChanged += (s, e) => Update();
-            _map.OnLayoutUpdated += (s, e) => Update();
+            _map.OnSizeChanged += (s, e) => Update();
 
             InvalidateVisual();
         }

@@ -54,18 +54,7 @@ namespace TimeDataViewer
         private DateTime _epoch;
 
         public event EventHandler OnZoomChanged;
-   
-        public event EventHandler OnLayoutUpdated
-        {
-            add
-            {
-                base.LayoutUpdated += value;
-            }
-            remove
-            {
-                base.LayoutUpdated -= value;
-            }
-        }
+        public event EventHandler OnSizeChanged;
 
         public NewSchedulerControl()
         {
@@ -74,8 +63,7 @@ namespace TimeDataViewer
             CoreFactory factory = new Core.CoreFactory();
 
             _area = factory.CreateArea();
-            _area.OnZoomChanged += (s, e) => ForceUpdateOverlays();
-            //_core.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
+            _area.OnZoomChanged += _area_OnZoomChanged;       
 
             _factory = new Factory();
 
@@ -92,7 +80,7 @@ namespace TimeDataViewer
 
           //  Items = _markers;
 
-            LayoutUpdated += BaseSchedulerControl_LayoutUpdated;
+            LayoutUpdated += SchedulerControl_LayoutUpdated;
 
         //    ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
         //    EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
@@ -100,6 +88,12 @@ namespace TimeDataViewer
         //    OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
 
             _epoch = DateTime.Now;
+        }
+
+        private void _area_OnZoomChanged(object? sender, EventArgs e)
+        {
+            OnZoomChanged?.Invoke(this, EventArgs.Empty);
+            ForceUpdateOverlays();
         }
 
         public DateTime Epoch0 => _epoch.Date;
@@ -184,14 +178,13 @@ namespace TimeDataViewer
                   
         internal Canvas Canvas => _canvas;
 
-        private void BaseSchedulerControl_LayoutUpdated(object? sender, EventArgs e)
+        private void SchedulerControl_LayoutUpdated(object? sender, EventArgs e)
         {
-            _area.UpdateSize((int)base.Bounds/*finalRect*/.Width, (int)base.Bounds/*finalRect*/.Height);
+            _area.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
-            //if (_core.IsStarted == true)
-            {
-                ForceUpdateOverlays();
-            }
+            OnSizeChanged?.Invoke(this, EventArgs.Empty);
+                
+            ForceUpdateOverlays();            
         }
 
         protected override void ItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -326,18 +319,6 @@ namespace TimeDataViewer
             var p = _area.FromLocalToAbsolute(new Point2D(d0, 0));
             Pen pen = new Pen(Brushes.Yellow, 2.0);
             context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _area.RenderSize.Height));
-        }
-
-        public virtual void Dispose()
-        {
-            //if (_core.IsStarted == true)
-            //{
-            _area.OnZoomChanged -= (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
-
-            base.LayoutUpdated -= BaseSchedulerControl_LayoutUpdated;
-
-            //_core.OnMapClose();
-            //}
         }
 
         public void ShowTooltip(Control placementTarget, Control tooltip)

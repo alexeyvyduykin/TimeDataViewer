@@ -54,7 +54,8 @@
            
             <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
                 <sch:SchedulerControl x:Name="scheduler"                                      
-                                      Epoch="{Binding $parent[Window].DataContext.Epoch}">
+                                      Epoch="{Binding $parent[Window].DataContext.Epoch}"
+                                      CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
                     <sch:SchedulerControl.Series>
                         <sch:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">

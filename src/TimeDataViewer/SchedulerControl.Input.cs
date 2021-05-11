@@ -44,30 +44,6 @@ namespace TimeDataViewer
         private bool _disableAltForSelection = false;
         private bool _isDragging = false;
 
-        public event MousePositionChangedEventHandler? OnMousePositionChanged;  
-        public event EventHandler OnSchedulerDragChanged
-        {
-            add
-            {
-                _area.OnDragChanged += value;
-            }
-            remove
-            {
-                _area.OnDragChanged -= value;
-            }
-        }
-        public event EventHandler OnZoomChanged
-        {
-            add
-            {
-                _area.OnZoomChanged += value;
-            }
-            remove
-            {
-                _area.OnZoomChanged -= value;
-            }
-        }
-
         public bool IgnoreMarkerOnMouseWheel { get; set; } = true;
 
         public Point2D MousePosition
