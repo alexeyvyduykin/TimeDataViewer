@@ -25,7 +25,7 @@
     <Border Margin="5" BorderThickness="3" BorderBrush="Black">
         <Grid RowDefinitions="Auto, *, 60" ColumnDefinitions="*" ShowGridLines="False">
 
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto">
                 <Border Margin="5" BorderThickness="3" BorderBrush="Black">
                     <ListBox Items="{Binding Satellites}" SelectedItem="{Binding Selected}">
                         <ListBox.DataTemplates>
@@ -35,6 +35,15 @@
                         </ListBox.DataTemplates>
                     </ListBox>
                 </Border>
+
+                <Grid Margin="5" Grid.Column="1" ColumnDefinitions="70,70,70,70,70,Auto" VerticalAlignment="Top">
+                    <Button Grid.Column="0" HorizontalAlignment="Stretch" Command="{Binding OnReset}">Reset</Button>
+                    <Button Grid.Column="1" HorizontalAlignment="Stretch" Command="{Binding OnPlay}">Play</Button>
+                    <Button Grid.Column="2" HorizontalAlignment="Stretch" Command="{Binding OnPause}">Pause</Button>
+                    <Button Grid.Column="3" HorizontalAlignment="Stretch" Command="{Binding OnSlower}">Slower</Button>
+                    <Button Grid.Column="4" HorizontalAlignment="Stretch" Command="{Binding OnFaster}">Faster</Button>
+                    <TextBlock Grid.Column="5" VerticalAlignment="Center" Text="{Binding CurrentTimeString}"/>
+                </Grid>
             </Grid>
 
             <!--

@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using TimeDataViewer.ViewModels;
 using System.ComponentModel;
+using SatelliteDemo.SceneTimer;
 
 namespace SatelliteDemo.ViewModels
 {
@@ -20,6 +21,10 @@ namespace SatelliteDemo.ViewModels
         private int _absolutePositionY;
         private int _zIndex;
         private IDictionary<Satellite, IEnumerable<object>> _dict;
+        private readonly AcceleratedTimer _timer;
+        private readonly System.Timers.Timer _timerThread;
+        private string _currentTimeString;
+        private double _currentTime;
 
         public MainWindowViewModel()
         {          
@@ -60,7 +65,23 @@ namespace SatelliteDemo.ViewModels
                 _dict.Add(sat, NewInit(sat));
             }
 
-            NewIntervals = new ObservableCollection<object>(_dict[Selected]);  
+            NewIntervals = new ObservableCollection<object>(_dict[Selected]);
+
+            _timer = new AcceleratedTimer();
+
+            _timerThread = new System.Timers.Timer(1000.0 / 60.0);
+
+            _timerThread.Elapsed += TimerThreadElapsed;
+
+            _timerThread.AutoReset = true;
+            _timerThread.Enabled = true;
+        }
+
+        private void TimerThreadElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            CurrentTime = _timer.CurrentTime;
+            var dt = Epoch.AddSeconds(CurrentTime);
+            CurrentTimeString = dt.ToLongDateString() + " " + dt.ToLongTimeString();
         }
 
         private void MainWindowViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -114,7 +135,6 @@ namespace SatelliteDemo.ViewModels
             return ivals;
         }
 
-
         public ObservableCollection<object> NewIntervals
         {
             get => _newIntervals;
@@ -125,6 +145,18 @@ namespace SatelliteDemo.ViewModels
         {
             get => _epoch;
             set => RaiseAndSetIfChanged(ref _epoch, value);
+        }
+
+        public string CurrentTimeString
+        {
+            get => _currentTimeString;
+            set => RaiseAndSetIfChanged(ref _currentTimeString, value);
+        }
+
+        public double CurrentTime
+        {
+            get => _currentTime;
+            set => RaiseAndSetIfChanged(ref _currentTime, value);
         }
 
         public ObservableCollection<Satellite> Satellites
@@ -206,6 +238,31 @@ namespace SatelliteDemo.ViewModels
             sat.Rotations = new ObservableCollection<Rotation>(rotations);
             sat.Observations = new ObservableCollection<Observation>(observations);
             sat.Transmissions = new ObservableCollection<Transmission>(transmissions);
+        }
+
+        public void OnReset()
+        {
+            _timer.Reset();
+        }
+
+        public void OnPlay()
+        {
+            _timer.Start();
+        }
+
+        public void OnPause()
+        {
+            _timer.Pause();
+        }
+
+        public void OnSlower()
+        {
+            _timer.Slower();
+        }
+
+        public void OnFaster()
+        {
+            _timer.Faster();
         }
     }
 }
