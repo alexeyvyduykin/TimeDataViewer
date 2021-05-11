@@ -29,7 +29,7 @@ namespace TimeDataViewer.Core
 
             var res = MinValue + value;
 
-            res = MathHelper.MathHelper.Clip(res, MinValue, MaxValue);
+            res = Math.Clamp(res, MinValue, MaxValue);
 
             return res;
         }
@@ -45,7 +45,7 @@ namespace TimeDataViewer.Core
 
             var res = /*MinPixel +*/ pixel;
 
-            res = MathHelper.MathHelper.Clip(res, MinPixel, MaxPixel);
+            res = Math.Clamp(res, MinPixel, MaxPixel);
 
             return res;
         }
