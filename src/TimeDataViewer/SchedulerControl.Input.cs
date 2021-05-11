@@ -31,6 +31,8 @@ using Avalonia.Input.TextInput;
 
 namespace TimeDataViewer
 {
+    public delegate void MousePositionChangedEventHandler(Point2D point);
+
     public partial class SchedulerControl
     {
         private bool _isSelected = false;
@@ -42,7 +44,7 @@ namespace TimeDataViewer
         private bool _disableAltForSelection = false;
         private bool _isDragging = false;
 
-        public event SCPositionChanged? OnMousePositionChanged;  
+        public event MousePositionChangedEventHandler? OnMousePositionChanged;  
         public event EventHandler OnSchedulerDragChanged
         {
             add

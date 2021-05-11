@@ -34,7 +34,7 @@ using TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
-    public delegate void SelectionChange(RectD Selection, bool ZoomToFit);
+    public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
     public partial class SchedulerControl : ItemsControl, IScheduler, IStyleable
     {

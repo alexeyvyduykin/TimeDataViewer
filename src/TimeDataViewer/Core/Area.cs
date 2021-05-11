@@ -7,6 +7,11 @@ using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
+    public delegate void SizeChangedEventHandler(int width, int height);
+    public delegate void WindowAreaChangedEventHandler(RectI window);
+    public delegate void ViewportScreenChangedEventHandler(RectD viewport);
+    public delegate void ViewportDataChangedEventHandler(RectD viewport);
+
     public class Area
     {
         private int _width;
