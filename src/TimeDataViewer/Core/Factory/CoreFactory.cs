@@ -10,7 +10,10 @@ namespace TimeDataViewer.Core
     public interface ICoreFactory
     {
         ITimeAxis CreateTimeAxis();
-        ICategoryAxis CreateCategoryAxis();
+
+        ICategoryAxis CreateCategoryAxis(); 
+
+        Area CreateArea();
     }
 
     public class CoreFactory : ICoreFactory
@@ -51,6 +54,19 @@ namespace TimeDataViewer.Core
                 Type = AxisType.Y,
                 HasInversion = false,
                 IsDynamicLabelEnable = true,
+            };
+        }
+
+        public Area CreateArea()
+        {
+            return new Area()
+            {
+                MinZoom = 0,
+                MaxZoom = 100,
+                ZoomScaleX = 1.0, // 30 %        
+                ZoomScaleY = 0.0,
+                CanDragMap = true,
+                MouseWheelZoomEnabled = true,       
             };
         }
     }

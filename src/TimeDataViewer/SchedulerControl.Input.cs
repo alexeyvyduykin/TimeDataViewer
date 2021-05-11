@@ -47,22 +47,22 @@ namespace TimeDataViewer
         {
             add
             {
-                _core.OnDragChanged += value;
+                _area.OnDragChanged += value;
             }
             remove
             {
-                _core.OnDragChanged -= value;
+                _area.OnDragChanged -= value;
             }
         }
         public event EventHandler OnZoomChanged
         {
             add
             {
-                _core.OnZoomChanged += value;
+                _area.OnZoomChanged += value;
             }
             remove
             {
-                _core.OnZoomChanged -= value;
+                _area.OnZoomChanged -= value;
             }
         }
 
@@ -80,11 +80,11 @@ namespace TimeDataViewer
 
         private void SchedulerControl_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
-            if (IgnoreMarkerOnMouseWheel == true && _core.IsDragging == false)
+            if (IgnoreMarkerOnMouseWheel == true && _area.IsDragging == false)
             {
                 Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;
                 
-                var ps = (this as Visual).PointToScreen(new Point(_core.ZoomScreenPosition.X, _core.ZoomScreenPosition.Y));
+                var ps = (this as Visual).PointToScreen(new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y));
 
                 Stuff.SetCursorPos((int)ps.X, (int)ps.Y);
             }
@@ -96,9 +96,8 @@ namespace TimeDataViewer
             {
                 var p = e.GetPosition(this);
 
-                _core.MouseDown.X = (int)p.X;
-                _core.MouseDown.Y = (int)p.Y;
-
+                _area.MouseDown = new Point2I((int)p.X, (int)p.Y);
+            
                 base.InvalidateVisual();
             }
             else if (e.GetCurrentPoint(this).Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed)
@@ -120,7 +119,7 @@ namespace TimeDataViewer
                 _isSelected = false;
             }
 
-            if (_core.IsDragging == true)
+            if (_area.IsDragging == true)
             {
                 if (_isDragging == true)
                 {
@@ -129,13 +128,13 @@ namespace TimeDataViewer
                     base.Cursor = _cursorBefore;               
                     e.Pointer.Capture(null);
                 }
-                _core.EndDrag();
+                _area.EndDrag();
             }
             else
             {
                 if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true/*ChangedButton == MouseButton.Right*/)
                 {
-                    _core.MouseDown = default;//Point2I.Empty;
+                    _area.MouseDown = default;//Point2I.Empty;
                 }
 
                 if (_selectionEnd.IsEmpty() == false && _selectionStart.IsEmpty() == false)
@@ -153,13 +152,13 @@ namespace TimeDataViewer
         {
             var MouseScreenPosition = e.GetPosition(this);
 
-            //if (_core.IsWindowArea(MouseAbsolutePosition) == true)
+            //if (_area.IsWindowArea(MouseAbsolutePosition) == true)
             {
-                _core.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+                _area.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
                 //  base.InvalidateVisual();
             }
 
-            MousePosition = _core.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+            MousePosition = _area.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
 
             // wpf generates to many events if mouse is over some visual and OnMouseUp is fired, wtf, anyway...         
             if (((int)e.Timestamp & int.MaxValue) - _onMouseUpTimestamp < 55)
@@ -167,21 +166,21 @@ namespace TimeDataViewer
                 return;
             }
 
-            if (_core.IsDragging == false && _core.MouseDown.IsEmpty == false)
+            if (_area.IsDragging == false && _area.MouseDown.IsEmpty == false)
             {
                 // cursor has moved beyond drag tolerance
                 if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true)
                 {
-                    if (Math.Abs(MouseScreenPosition.X - _core.MouseDown.X) * 2 >= 2/*SystemParameters.MinimumHorizontalDragDistance*/ ||
-                        Math.Abs(MouseScreenPosition.Y - _core.MouseDown.Y) * 2 >= 2/*SystemParameters.MinimumVerticalDragDistance*/)
+                    if (Math.Abs(MouseScreenPosition.X - _area.MouseDown.X) * 2 >= 2/*SystemParameters.MinimumHorizontalDragDistance*/ ||
+                        Math.Abs(MouseScreenPosition.Y - _area.MouseDown.Y) * 2 >= 2/*SystemParameters.MinimumVerticalDragDistance*/)
                     {
-                        _core.BeginDrag(_core.MouseDown);
+                        _area.BeginDrag(_area.MouseDown);
                     }
                 }
 
             }
 
-            if (_core.IsDragging == true)
+            if (_area.IsDragging == true)
             {
                 if (_isDragging == false)
                 {
@@ -192,10 +191,9 @@ namespace TimeDataViewer
                     //Mouse.Capture(this);
                 }
 
-                _core.MouseCurrent.X = (int)MouseScreenPosition.X;
-                _core.MouseCurrent.Y = (int)MouseScreenPosition.Y;
-
-                _core.Drag(_core.MouseCurrent);
+                _area.MouseCurrent = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+               
+                _area.Drag(_area.MouseCurrent);
 
                 UpdateMarkersOffset();
 
@@ -208,7 +206,7 @@ namespace TimeDataViewer
                     e.KeyModifiers == KeyModifiers.Alt /*Keyboard.Modifiers == ModifierKeys.Alt*/ ||
                     _disableAltForSelection))
                 {
-                    _selectionEnd = _core.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+                    _selectionEnd = _area.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
                 }
             }
         }

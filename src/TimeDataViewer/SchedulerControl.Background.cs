@@ -185,8 +185,8 @@ namespace TimeDataViewer
                 throw new Exception();
             }
 
-            var height = _core.RenderSize.Height;
-            var width = _core.RenderSize.Width;
+            var height = _area.RenderSize.Height;
+            var width = _area.RenderSize.Width;
 
             for (int i = 0; i < count; i++)
             {

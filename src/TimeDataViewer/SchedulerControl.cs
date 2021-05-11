@@ -40,7 +40,7 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private Area _core;
+        private Area _area;
         private readonly Factory _factory;
         private readonly Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>> _markerPool;
         private readonly ObservableCollection<MarkerViewModel> _markers;
@@ -70,14 +70,12 @@ namespace TimeDataViewer
 
         public SchedulerControl()
         {
-            Core.CoreFactory factory = new Core.CoreFactory();
+            CoreFactory factory = new Core.CoreFactory();
 
-            _core = new Area();
+            _area = factory.CreateArea();
 
-            _core.OnZoomChanged += (s, e) => ForceUpdateOverlays();
-            _core.CanDragMap = true;
-            _core.MouseWheelZoomEnabled = true;
-            _core.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
+            _area.OnZoomChanged += (s, e) => ForceUpdateOverlays();
+            _area.Zoom = (int)(ZoomProperty.GetDefaultValue(typeof(SchedulerControl)));
 
             _factory = new Factory();
 
@@ -232,25 +230,25 @@ namespace TimeDataViewer
                     ival.SetLocalPosition(d0 + ival.LocalPosition.X, str.LocalPosition.Y);
                 }
             }
-                
-            _core.SetViewportArea(new RectD(0.0, 0.0, len, height0));            
+
+            _area.UpdateViewport(0.0, 0.0, len, height0);            
         }
 
-        public RectD ViewportAreaData => _core.ViewportAreaData;
+        public RectD ViewportAreaData => _area.ViewportData;
 
-        public RectD ViewportAreaScreen => _core.ViewportAreaScreen;
+        public RectD ViewportAreaScreen => _area.ViewportScreen;
 
-        public RectI AbsoluteWindow => _core.WindowAreaZoom;
+        public RectI AbsoluteWindow => _area.WindowZoom;
 
-        public RectI ScreenWindow => _core.Screen;
+        public RectI ScreenWindow => _area.Screen;
 
-        public Point2I RenderOffsetAbsolute => _core.RenderOffsetAbsolute;
+        public Point2I RenderOffsetAbsolute => _area.RenderOffsetAbsolute;
 
         //public bool IsStarted => _core.IsStarted;
 
-        public ITimeAxis AxisX => (ITimeAxis)_core.AxisX;
+        public ITimeAxis AxisX => _area.AxisX;
 
-        public IAxis AxisY => _core.AxisY;
+        public IAxis AxisY => _area.AxisY;
             
         internal Canvas Canvas => _canvas;
 
@@ -283,7 +281,7 @@ namespace TimeDataViewer
 
         private void BaseSchedulerControl_LayoutUpdated(object? sender, EventArgs e)
         {
-            _core.UpdateSize((int)base.Bounds/*finalRect*/.Width, (int)base.Bounds/*finalRect*/.Height);
+            _area.UpdateSize((int)base.Bounds/*finalRect*/.Width, (int)base.Bounds/*finalRect*/.Height);
 
             //if (_core.IsStarted == true)
             {
@@ -338,8 +336,8 @@ namespace TimeDataViewer
             value = Math.Max(value, MinZoom);
 
             if (_zoom != value)
-            {           
-                _core.Zoom = (int)Math.Floor(value);
+            {
+                _area.Zoom = (int)Math.Floor(value);
 
                 if (IsInitialized == true)
                 {
@@ -361,24 +359,16 @@ namespace TimeDataViewer
             }
         }
 
-        public int MaxZoom
-        {
-            get => _core.MaxZoom;            
-            set => _core.MaxZoom = value;            
-        }
+        public int MaxZoom => _area.MaxZoom;  
 
-        public int MinZoom
-        {
-            get => _core.MinZoom;            
-            set => _core.MinZoom = value;            
-        }
+        public int MinZoom => _area.MinZoom;   
   
         private void UpdateMarkersOffset()
         {
             if (Canvas != null)
             {
-                _schedulerTranslateTransform.X = _core.RenderOffsetAbsolute.X;
-                _schedulerTranslateTransform.Y = _core.RenderOffsetAbsolute.Y;
+                _schedulerTranslateTransform.X = _area.RenderOffsetAbsolute.X;
+                _schedulerTranslateTransform.Y = _area.RenderOffsetAbsolute.Y;
             }
         }
 
@@ -411,15 +401,15 @@ namespace TimeDataViewer
         //    return false;
         //}
 
-        public Point2D FromScreenToLocal(int x, int y) => _core.FromScreenToLocal(x, y);        
+        public Point2D FromScreenToLocal(int x, int y) => _area.FromScreenToLocal(x, y);        
 
-        public Point2I FromLocalToScreen(Point2D point) => _core.FromLocalToScreen(point);        
+        public Point2I FromLocalToScreen(Point2D point) => _area.FromLocalToScreen(point);        
 
-        public Point2D FromAbsoluteToLocal(int x, int y) => _core.FromAbsoluteToLocal(x, y);        
+        public Point2D FromAbsoluteToLocal(int x, int y) => _area.FromAbsoluteToLocal(x, y);        
 
-        public Point2I FromLocalToAbsolute(Point2D point) => _core.FromLocalToAbsolute(point);
+        public Point2I FromLocalToAbsolute(Point2D point) => _area.FromLocalToAbsolute(point);
         
-        public int TrueHeight => _core.TrueHeight;
+        public int TrueHeight => _area.Height;
 
         public bool IsTestBrush { get; set; } = false;
 
@@ -441,11 +431,11 @@ namespace TimeDataViewer
             if (_showMouseCenter == true)
             {
                 context.DrawLine(_mouseCrossPen,
-                    new Point(_core.ZoomScreenPosition.X - 5, _core.ZoomScreenPosition.Y),
-                    new Point(_core.ZoomScreenPosition.X + 5, _core.ZoomScreenPosition.Y));
+                    new Point(_area.ZoomScreenPosition.X - 5, _area.ZoomScreenPosition.Y),
+                    new Point(_area.ZoomScreenPosition.X + 5, _area.ZoomScreenPosition.Y));
                 context.DrawLine(_mouseCrossPen,
-                    new Point(_core.ZoomScreenPosition.X, _core.ZoomScreenPosition.Y - 5),
-                    new Point(_core.ZoomScreenPosition.X, _core.ZoomScreenPosition.Y + 5));
+                    new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y - 5),
+                    new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y + 5));
             }
 
             using (context.PushPreTransform(_schedulerTranslateTransform.Value))
@@ -457,16 +447,16 @@ namespace TimeDataViewer
         private void DrawEpoch(DrawingContext context)
         {
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _core.FromLocalToAbsolute(new Point2D(d0, 0));    
+            var p = _area.FromLocalToAbsolute(new Point2D(d0, 0));    
             Pen pen = new Pen(Brushes.Yellow, 2.0);
-            context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _core.RenderSize.Height));
+            context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _area.RenderSize.Height));
         }
 
         public virtual void Dispose()
         {
             //if (_core.IsStarted == true)
             //{
-            _core.OnZoomChanged -= (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
+            _area.OnZoomChanged -= (s, e) => ForceUpdateOverlays();// new SCZoomChanged(ForceUpdateOverlays);
 
             base.LayoutUpdated -= BaseSchedulerControl_LayoutUpdated;
 

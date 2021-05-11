@@ -55,6 +55,6 @@ namespace TimeDataViewer
             parent.Intervals.Add(marker);
 
             return marker;
-        }
+        }        
     }
 }
