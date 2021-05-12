@@ -366,6 +366,8 @@ namespace TimeDataViewer
             if (e.NewValue is double)
             {
                 AxisX.Epoch0 = Epoch0;
+
+                _area.TimeAsCenter(CurrentTime);
             }
         }
 
@@ -451,6 +453,8 @@ namespace TimeDataViewer
             }
 
             DrawCurrentTime(context);
+            
+            Debug.WriteLine(string.Format("CenterTime: {0}", Epoch0.AddSeconds(_area.GetTimeCenter())));
         }
 
         private void DrawEpoch(DrawingContext context)

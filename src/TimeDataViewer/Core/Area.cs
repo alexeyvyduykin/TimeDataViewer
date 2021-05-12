@@ -372,6 +372,24 @@ namespace TimeDataViewer.Core
             return new Point2I(pLocal.X, pLocal.Y);
         }
          
+        public double GetTimeCenter()
+        {
+            var local = FromScreenToLocal(Width / 2, Height / 2);
+            return local.X;
+        }
+
+        public void TimeAsCenter(double xValue)
+        {
+            var xAbs = AxisX.FromLocalToAbsolute(xValue);
+            var offsetX = _width / 2 - xAbs;
+            
+            RenderOffsetAbsolute = GetRenderOffset(new Point2D(offsetX + RenderOffsetAbsolute.X, RenderOffsetAbsolute.Y));
+            
+            ViewportScreen = CreateViewportScreen();
+
+            OnDragChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         //public int GetMaxZoomToFitRect(RectD rect)
         //{
         //    int zoom = _minZoom;
