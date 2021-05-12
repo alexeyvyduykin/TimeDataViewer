@@ -124,7 +124,9 @@ namespace TimeDataViewer.Shapes
 
             Cursor = new Cursor(StandardCursorType.Arrow);
 
-            _scale.ScaleY = 1;         
+            _scale.ScaleY = 1;
+
+            InvalidateVisual();
         }
 
         private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
@@ -145,8 +147,9 @@ namespace TimeDataViewer.Shapes
             Cursor = new Cursor(StandardCursorType.Hand);
 
             _scale.ScaleY = 1.5;
-   
+
             // scale.ScaleX = 1;
+            InvalidateVisual();
         }
 
         private void Update()
@@ -167,10 +170,8 @@ namespace TimeDataViewer.Shapes
             InvalidateVisual();        
         }
         
-        public override void Render(DrawingContext drawingContext)
-        {
-            //  base.Render(drawingContext);
-
+        public override void Render(DrawingContext context)
+        {  
             if (_widthX == 0.0)
                 return;
 
@@ -188,8 +189,11 @@ namespace TimeDataViewer.Shapes
             var brush = new SolidColorBrush() { Color = Background };
             var pen = new Pen(new SolidColorBrush() { Color = StrokeColor }, StrokeThickness);
 
-            drawingContext.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));                      
-            drawingContext.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));                            
+            using (context.PushPreTransform(_scale.Value))
+            {
+                context.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));
+                context.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));
+            }
         }
 
         public override BaseIntervalVisual Clone()
