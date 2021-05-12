@@ -38,45 +38,27 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private ObservableCollection<object> _itemsSource;
+        private readonly Factory _factory;
 
         public Series()
         {
-          //  AvaloniaXamlLoader.Load(this);
-
-            _itemsSource = new ObservableCollection<object>();
-
+            _factory = new Factory();
             IntervalTemplate = new IntervalVisual() { Series = this };
-
-            //ItemsSource.CollectionChanged += ItemsSource_CollectionChanged;
-
-            //PropertyChanged += Series_PropertyChanged;
-
-            //Initialized += (s, e) => UpdateItems();
-
-            //ItemsSourceProperty.Changed.AddClassHandler<Series>((d, e) => d.UpdateItems());
-            //LeftBindingPathProperty.Changed.AddClassHandler<Series>((d, e) => d.UpdateItems());
-            //RightBindingPathProperty.Changed.AddClassHandler<Series>((d, e) => d.UpdateItems());
 
             IntervalTemplateProperty.Changed.AddClassHandler<Series>((d, e) => d.IntervalTemplateChanged(e));
         }
+
+        public SeriesViewModel? String { get; set; }
+
+        public IEnumerable<IntervalViewModel>? Ivals { get; set; }
+
+        public bool DirtyItems { get; set; } = false;
 
         private void IntervalTemplateChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if(e.NewValue is not null && e.NewValue is BaseIntervalVisual ival)
             {
                 ival.Series = this;
-            }
-        }
-
-        private void Series_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.Property.Name == nameof(ItemsSource))
-            {
-                if (e.NewValue is not null)
-                {
-                    int dfdf = 0;
-                }
             }
         }
 
@@ -96,16 +78,6 @@ namespace TimeDataViewer
         {
             get { return GetValue(TooltipProperty); }
             set { SetValue(TooltipProperty, value); }
-        }
-
-        public static readonly DirectProperty<Series, ObservableCollection<object>> ItemsSourceProperty =            
-            AvaloniaProperty.RegisterDirect<Series, ObservableCollection<object>>(nameof(ItemsSource), o => o.ItemsSource, (o, v) => o.ItemsSource = v);
-
-        [Content]
-        public ObservableCollection<object> ItemsSource
-        {
-            get { return _itemsSource; }
-            set { SetAndRaise(ItemsSourceProperty, ref _itemsSource, value); }
         }
 
         public static readonly StyledProperty<string> LeftBindingPathProperty =    
@@ -174,7 +146,10 @@ namespace TimeDataViewer
             {
                 if (items is IEnumerable<Interval>)
                 {
-                    Map?.UpdateData();
+                    String = _factory.CreateSeries(Category);
+                    Ivals = ((IList<Interval>)Items).Select(s => _factory.CreateInterval(s, String, IntervalTemplate));
+
+                    DirtyItems = true;
                 }
                 else
                 {
@@ -214,5 +189,4 @@ namespace TimeDataViewer
             return new IntervalTooltipViewModel(marker);
         }
     }
-
 }

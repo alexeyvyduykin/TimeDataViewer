@@ -27,10 +27,10 @@ using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
 using Avalonia.Media.Imaging;
 using TimeDataViewer.Models;
 using TimeDataViewer.Core;
+using Avalonia.Controls.Generators;
 
 namespace TimeDataViewer
 {
@@ -40,21 +40,18 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private readonly Area _area;
-        private readonly Factory _factory;
-        private readonly Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>> _markerPool;
-        private readonly ObservableCollection<MarkerViewModel> _markers;
-        private Canvas _canvas;
+        private readonly Area _area;        
+        private readonly Canvas _canvas;
         private double _zoom;
-        private readonly TranslateTransform _schedulerTranslateTransform = new TranslateTransform();
-        private ObservableCollection<Series> _series = new ObservableCollection<Series>();
-        private Popup _popup;
+        private readonly TranslateTransform _schedulerTranslateTransform;
+        private ObservableCollection<Series> _series;
+        private readonly Popup _popup;
         // center 
         private readonly bool _showCenter = true;
-        private readonly Pen _centerCrossPen = new Pen(Brushes.Red, 1);
+        private readonly Pen _centerCrossPen = new(Brushes.Red, 1);
         // mouse center
         private readonly bool _showMouseCenter = true;
-        private readonly Pen _mouseCrossPen = new Pen(Brushes.Blue, 1);
+        private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
         public event EventHandler? OnSizeChanged;
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
@@ -67,11 +64,9 @@ namespace TimeDataViewer
             _area = factory.CreateArea();
           
             _area.OnZoomChanged += _area_OnZoomChanged;
-
-            _factory = new Factory();
-
-            _markers = new ObservableCollection<MarkerViewModel>();
-            _markerPool = new Dictionary<SeriesViewModel, IEnumerable<IntervalViewModel>>();
+           
+            _series = new ObservableCollection<Series>();
+            _schedulerTranslateTransform = new TranslateTransform();
 
             PointerWheelChanged += SchedulerControl_PointerWheelChanged;
             PointerPressed += SchedulerControl_PointerPressed;
@@ -99,22 +94,16 @@ namespace TimeDataViewer
             style.Setters.Add(new Setter(Canvas.ZIndexProperty, new Binding(nameof(MarkerViewModel.ZIndex))));
             Styles.Add(style);
 
-            var template = new FuncDataTemplate<MarkerViewModel>((m, s) => new ContentPresenter
+            ItemTemplate = new FuncDataTemplate<MarkerViewModel>((m, s) => new ContentPresenter
             {
                 [!ContentPresenter.ContentProperty] = new Binding(nameof(MarkerViewModel.Shape)),
             });
             
-            ItemTemplateProperty.OverrideDefaultValue<SchedulerControl>(template);
-     
-            var defaultPanel = new FuncTemplate<IPanel>(() => _canvas);
+            ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
             
-            ItemsPanelProperty.OverrideDefaultValue<SchedulerControl>(defaultPanel);
-
             ClipToBounds = true;
      //       SnapsToDevicePixels = true;
-     
-            Items = _markers;
-     
+            
             LayoutUpdated += SchedulerControl_LayoutUpdated;
          
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
@@ -124,6 +113,16 @@ namespace TimeDataViewer
             CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
+
+            PropertyChanged += SchedulerControl_PropertyChanged;
+        }
+
+        private void SchedulerControl_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            if(e.Property.Name == nameof(SchedulerControl.Series))
+            {
+                SeriesValidate();
+            }
         }
 
         private void _area_OnZoomChanged(object? sender, EventArgs e)
@@ -178,55 +177,64 @@ namespace TimeDataViewer
             _popup.IsOpen = false;
         }
 
-        public void UpdateData()
+        public void SeriesValidate()
         {
-            _markers.Clear();
-            _markerPool.Clear();
-            var minLeft = double.MaxValue;
-            var maxRight = double.MinValue;
-
-            foreach (var series in Series)
+            if (Series.Any(s => s.DirtyItems) == true)
             {
-                if (series.Items is not null)
+                var markers = new ObservableCollection<MarkerViewModel>();
+                //var minLeft = double.MaxValue;
+                var maxRight = double.MinValue;
+
+                foreach (var series in Series)
                 {
-                    var strng = _factory.CreateSeries(series.Category);                     
-                    var ivals = ((IList<Interval>)series.Items).Select(s => _factory.CreateInterval(s, strng, series.IntervalTemplate));
+                    if (series.String is not null && series.Ivals is not null)
+                    {
+                        markers.Add(series.String);
+                        markers.AddRange(series.Ivals);
 
-                    _markerPool.Add(strng, ivals);
-
-                    _markers.Add(strng);
-                    _markers.AddRange(ivals);
-
-                    minLeft = Math.Min(strng.MinTime(), minLeft);
-                    maxRight = Math.Max(strng.MaxTime(), maxRight);                   
+                        //minLeft = Math.Min(series.String.MinTime(), minLeft);
+                        maxRight = Math.Max(series.String.MaxTime(), maxRight);
+                    }
+                    series.DirtyItems = false;
                 }
-            }
-          
-            var rightDate = Epoch.AddSeconds(maxRight).Date.AddDays(1);
-          
-            var len = (rightDate - Epoch0).TotalSeconds;
-                        
-            AutoSetViewportArea(len);
+            
+                var rightDate = Epoch.AddSeconds(maxRight).Date.AddDays(1);
 
-            ForceUpdateOverlays();
+                var len = (rightDate - Epoch0).TotalSeconds;
+
+                AutoSetViewportArea(len);
+
+                UpdateMarkersOffset();
+
+                foreach (var item in markers)
+                {
+                    item?.ForceUpdateLocalPosition(this);
+                }
+
+                Items = markers;
+            }
         }
       
         private void AutoSetViewportArea(double len)
         {
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            int height0 = 100;
-            var count = _markerPool.Keys.Count;
-
-            double step = (double)height0 / (double)(count + 1);
+            double height0 = 100.0;
+            var count = Series.Count;
+            double step = height0 / (count + 1);
 
             int i = 0;
-            foreach (var str in _markerPool.Keys)
+            foreach (var item in Series)
             {
-                str.SetLocalPosition(0.0, (++i) * step);
-
-                foreach (var ival in str.Intervals)
+                if (item.String is not null)
                 {
-                    ival.SetLocalPosition(d0 + ival.LocalPosition.X, str.LocalPosition.Y);
+                    var str = item.String;
+
+                    str.SetLocalPosition(0.0, (++i) * step);
+
+                    foreach (var ival in str.Intervals)
+                    {
+                        ival.SetLocalPosition(d0 + ival.LocalPosition.X, str.LocalPosition.Y);
+                    }
                 }
             }
 
@@ -245,7 +253,7 @@ namespace TimeDataViewer
 
         public ITimeAxis AxisX => _area.AxisX;
 
-        public IAxis AxisY => _area.AxisY;
+        public ICategoryAxis AxisY => _area.AxisY;
             
         internal Canvas Canvas => _canvas;
 
@@ -307,7 +315,7 @@ namespace TimeDataViewer
             }
         }
 
-        private void ForceUpdateOverlays() => ForceUpdateOverlays(_markers);        
+        private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        
 
         private void ForceUpdateOverlays(System.Collections.IEnumerable items)
         {
@@ -411,14 +419,11 @@ namespace TimeDataViewer
 
         public Point2I FromLocalToAbsolute(Point2D point) => _area.FromLocalToAbsolute(point);
         
-        public int TrueHeight => _area.Height;
-
         public bool IsTestBrush { get; set; } = false;
 
         public override void Render(DrawingContext context)
         {
-            //if (IsStarted == false)
-            //    return;
+            SeriesValidate();
 
             DrawBackground(context);
 

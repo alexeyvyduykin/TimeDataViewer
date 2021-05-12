@@ -39,8 +39,8 @@ namespace TimeDataViewer.ViewModels
             }
         }
 
-        public double MinTime() => _intervals.Min(s => s.Left);
+        public double MinTime() => (_intervals.Count == 0) ? 0.0 : _intervals.Min(s => s.Left);
 
-        public double MaxTime() => _intervals.Max(s => s.Right);        
+        public double MaxTime() => (_intervals.Count == 0) ? 0.0 : _intervals.Max(s => s.Right);        
     }
 }

@@ -38,7 +38,7 @@ namespace TimeDataViewer
         private bool _isSelected = false;
         private Point2D _selectionStart;
         private Point2D _selectionEnd;
-        private Cursor? _cursorBefore = new(StandardCursorType.Arrow);
+        private Cursor? _cursorBefore;
         private int _onMouseUpTimestamp = 0;
         private Point2D _mousePosition = new();
         private bool _disableAltForSelection = false;
@@ -102,7 +102,13 @@ namespace TimeDataViewer
                 if (_isDragging == true)
                 {
                     _onMouseUpTimestamp = (int)e.Timestamp & int.MaxValue;
-                    _isDragging = false;            
+                    _isDragging = false; 
+                    
+                    if(_cursorBefore == null)
+                    {
+                        _cursorBefore = new(StandardCursorType.Arrow);
+                    }
+
                     base.Cursor = _cursorBefore;               
                     e.Pointer.Capture(null);
                 }
