@@ -32,12 +32,6 @@ using TimeDataViewer.Core;
 using Avalonia.Controls.Generators;
 using AreaBorderDemo.ViewModels;
 using Avalonia.Visuals.Platform;
-using Avalonia.Interactivity;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Media;
 
 namespace AreaBorderDemo.Views
 {
@@ -49,6 +43,8 @@ namespace AreaBorderDemo.Views
         private TranslateTransform _transform;
         private FrameControl _rect; 
         private readonly Canvas _canvas;
+        private Point2D _mouseDown;
+
         public ContentPresenter()
         {
             InitializeComponent();
@@ -124,9 +120,7 @@ namespace AreaBorderDemo.Views
             {
                 var p = e.GetPosition(this);
 
-                _area.MouseDown = new Point2I((int)p.X, (int)p.Y);
-
-                base.InvalidateVisual();
+                _mouseDown = new Point2D(p.X, p.Y);
             }
         }
 
@@ -153,7 +147,7 @@ namespace AreaBorderDemo.Views
             {
                 if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true)
                 {
-                    _area.MouseDown = default;//Point2I.Empty;
+                    _mouseDown = Point2D.Empty;
                 }
                     
                 InvalidateVisual();                
@@ -174,15 +168,15 @@ namespace AreaBorderDemo.Views
                 return;
             }
 
-            if (_area.IsDragging == false && _area.MouseDown.IsEmpty == false)
+            if (_area.IsDragging == false && _mouseDown.IsEmpty == false)
             {
                 // cursor has moved beyond drag tolerance
                 if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true)
                 {
-                    if (Math.Abs(MouseScreenPosition.X - _area.MouseDown.X) * 2 >= 2/*SystemParameters.MinimumHorizontalDragDistance*/ ||
-                        Math.Abs(MouseScreenPosition.Y - _area.MouseDown.Y) * 2 >= 2/*SystemParameters.MinimumVerticalDragDistance*/)
+                    if (Math.Abs(MouseScreenPosition.X - _mouseDown.X) * 2 >= 2/*SystemParameters.MinimumHorizontalDragDistance*/ ||
+                        Math.Abs(MouseScreenPosition.Y - _mouseDown.Y) * 2 >= 2/*SystemParameters.MinimumVerticalDragDistance*/)
                     {
-                        _area.BeginDrag(_area.MouseDown);
+                        _area.BeginDrag(_mouseDown);
                     }
                 }
 
@@ -198,9 +192,9 @@ namespace AreaBorderDemo.Views
                     e.Pointer.Capture(this);                    
                 }
 
-                _area.MouseCurrent = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+                var mouseCurrent = new Point2D(MouseScreenPosition.X, MouseScreenPosition.Y);
 
-                _area.Drag(_area.MouseCurrent);
+                _area.Drag(mouseCurrent);
 
                 base.InvalidateVisual();
             }

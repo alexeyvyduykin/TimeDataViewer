@@ -24,7 +24,7 @@ namespace TimeDataViewer.Core
         private readonly CoreFactory _coreFactory;
         private Point2I _windowOffset;        
         private int _zoom = 0;
-        private Point2I _dragPoint;
+        private Point2D _dragPoint;
      
         public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
@@ -66,10 +66,6 @@ namespace TimeDataViewer.Core
        
         public int MaxZoom { get; init; }
 
-        public Point2I MouseDown { get; set; }
-
-        public Point2I MouseCurrent { get; set; }
-
         public bool IsDragging { get; set; } = false;
 
         public bool CanDragMap { get; set; }
@@ -80,7 +76,7 @@ namespace TimeDataViewer.Core
 
         public RectI Screen => new(0, 0, _width, _height);
 
-        public Point2D ZoomPositionLocal => FromScreenToLocal(ZoomScreenPosition.X, ZoomScreenPosition.Y);
+        public Point2D ZoomPositionLocal => FromScreenToLocal(ZoomScreenPosition);
 
         public RectI Window
         {
@@ -177,29 +173,37 @@ namespace TimeDataViewer.Core
             ZoomScreenPosition = FromLocalToScreen(center);
         }
 
-        public void BeginDrag(Point2I pt)
+        public void BeginDrag(Point2D pt)
         {
-            _dragPoint.X = pt.X - WindowOffset.X;
-            _dragPoint.Y = pt.Y - WindowOffset.Y;
+            _dragPoint = new Point2D(pt.X - WindowOffset.X, pt.Y - WindowOffset.Y);
             IsDragging = true;
         }
 
         public void EndDrag()
         {
-            IsDragging = false;
-            MouseDown = Point2I.Empty;
+            IsDragging = false;     
         }
 
-        public void Drag(Point2I pt)
+        public void Drag(Point2D point)
         {            
             if (IsDragging == true)
             {
-                WindowOffset = new Point2I(pt.X - _dragPoint.X, pt.Y - _dragPoint.Y);
+                WindowOffset = new Point2I((int)(point.X - _dragPoint.X), (int)(point.Y - _dragPoint.Y));
 
                 ClientViewport = CreateClientViewport();
 
                 OnDragChanged?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        public Point2D FromScreenToLocal(Point2I point)
+        {
+            return FromScreenToLocal(point.X, point.Y);
+        }
+
+        public Point2D FromAbsoluteToLocal(Point2I point)
+        {       
+            return FromAbsoluteToLocal(point.X, point.Y);
         }
 
         public Point2D FromScreenToLocal(int x, int y)
@@ -209,8 +213,6 @@ namespace TimeDataViewer.Core
             pLocal.OffsetNegative(WindowOffset);
 
             return new Point2D(AxisX.FromAbsoluteToLocal(pLocal.X), AxisY.FromAbsoluteToLocal(pLocal.Y));
-
-            //   return Provider.Projection.FromPixelToSchedulerPoint(pLocal, Zoom);
         }
 
         public Point2D FromAbsoluteToLocal(int x, int y)
@@ -220,39 +222,35 @@ namespace TimeDataViewer.Core
             return new Point2D(AxisX.FromAbsoluteToLocal(pLocal.X), AxisY.FromAbsoluteToLocal(pLocal.Y));
         }
 
-        public Point2I FromLocalToScreen(Point2D shedulerPoint)
+        public Point2I FromLocalToScreen(Point2D point)
         {
-            // Point2I pLocal = Provider.Projection.FromSchedulerPointToPixel(shedulerPoint, Zoom);
+            return FromLocalToScreen(point.X, point.Y);
+        }
 
-            var pLocal = new Point2I(AxisX.FromLocalToAbsolute(shedulerPoint.X), AxisY.FromLocalToAbsolute(shedulerPoint.Y));
+        public Point2I FromLocalToAbsolute(Point2D point)
+        {
+            return FromLocalToAbsolute(point.X, point.Y);
+        }
+
+        public Point2I FromLocalToScreen(double x, double y)
+        {
+            var pLocal = new Point2I(AxisX.FromLocalToAbsolute(x), AxisY.FromLocalToAbsolute(y));
 
             pLocal.Offset(WindowOffset);
 
             return new Point2I(pLocal.X, pLocal.Y);
         }
 
-        public Point2I FromLocalToAbsolute(Point2D shedulerPoint)
+        public Point2I FromLocalToAbsolute(double x, double y)
         {
-            // Point2I pLocal = Provider.Projection.FromSchedulerPointToPixel(shedulerPoint, Zoom);
-
-            var pLocal = new Point2I(AxisX.FromLocalToAbsolute(shedulerPoint.X), AxisY.FromLocalToAbsolute(shedulerPoint.Y));
+            var pLocal = new Point2I(AxisX.FromLocalToAbsolute(x), AxisY.FromLocalToAbsolute(y));
 
             return new Point2I(pLocal.X, pLocal.Y);
         }
-         
-        public double GetTimeCenter()
-        {
-            var local = FromScreenToLocal(Width / 2, Height / 2);
-            return local.X;
-        }
 
         public void DragToTime(double xValue)
-        {
-            //var xAbs = AxisX.FromLocalToAbsolute(xValue);
-            //var offsetX = _width / 2 - xAbs;
-            
+        {            
             WindowOffset = CreateWindowOffset(new Point2D(xValue, 0.0));
-          //  WindowOffset = new Point2I(WindowOffset.X + _width / 2, WindowOffset.Y);
             
             ClientViewport = CreateClientViewport();
 

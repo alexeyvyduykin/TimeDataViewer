@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -317,7 +318,7 @@ namespace TimeDataViewer
 
         private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        
 
-        private void ForceUpdateOverlays(System.Collections.IEnumerable items)
+        private void ForceUpdateOverlays(IEnumerable items)
         {
             UpdateMarkersOffset();
 
@@ -333,22 +334,17 @@ namespace TimeDataViewer
         {
             if (e.NewValue is not null && e.NewValue is double value)
             {                           
-                value = Math.Min(value, MaxZoom);
-                value = Math.Max(value, MinZoom);
-
-                if (_zoom != value)
+                var zoom = Math.Clamp(value, MinZoom, MaxZoom);
+                
+                if (_zoom != zoom)
                 {
-                    _area.Zoom = (int)Math.Floor(value);
-
+                    _zoom = zoom;
+                    _area.Zoom = (int)Math.Floor(zoom);
+                    
                     if (IsInitialized == true)
                     {
-                        ForceUpdateOverlays();
-                        InvalidateVisual();
-                    }
-
-                    _zoom = value;
-
-                    //RaisePropertyChanged(ZoomProperty, old, value);
+                        ForceUpdateOverlays();                   
+                    }                   
                 }
             }
         }
@@ -365,7 +361,7 @@ namespace TimeDataViewer
         {
             if (e.NewValue is double)
             {
-                AxisX.Epoch0 = Epoch0;
+                //AxisX.Epoch0 = Epoch0;
 
                 var xValue = (Epoch - Epoch0).TotalSeconds + CurrentTime;
                
@@ -385,35 +381,6 @@ namespace TimeDataViewer
                 _schedulerTranslateTransform.Y = _area.WindowOffset.Y;
             }
         }
-
-        //public bool SetZoomToFitRect(RectD rect)
-        //{
-        //    int maxZoom = _core.GetMaxZoomToFitRect(rect);
-        //    if (maxZoom >= 0)
-        //    {
-        //        // Position___ = GetCenter(rect);
-
-        //        _core.ZoomScreenPosition = _core.FromLocalToScreen(rect.GetCenter()/*Position___*/);
-
-        //        if (maxZoom > MaxZoom)
-        //        {
-        //            maxZoom = MaxZoom;
-        //        }
-
-        //        if (_core.Zoom != maxZoom)
-        //        {
-        //            Zoom = maxZoom;
-        //        }
-        //        else if (maxZoom != MaxZoom)
-        //        {
-        //            Zoom += 1;
-        //        }
-
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
 
         public Point2D FromScreenToLocal(int x, int y) => _area.FromScreenToLocal(x, y);        
 
@@ -455,14 +422,12 @@ namespace TimeDataViewer
             }
 
             DrawCurrentTime(context);
-            
-            Debug.WriteLine(string.Format("CenterTime: {0}", Epoch0.AddSeconds(_area.GetTimeCenter())));
         }
 
         private void DrawEpoch(DrawingContext context)
         {
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _area.FromLocalToAbsolute(new Point2D(d0, 0));    
+            var p = _area.FromLocalToAbsolute(d0, 0.0);    
             Pen pen = new Pen(Brushes.Yellow, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
         }
@@ -470,7 +435,7 @@ namespace TimeDataViewer
         private void DrawCurrentTime(DrawingContext context)
         {            
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _area.FromLocalToAbsolute(new Point2D(d0 + CurrentTime, 0));
+            var p = _area.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
             Pen pen = new Pen(Brushes.Red, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
         }        
@@ -481,36 +446,5 @@ namespace TimeDataViewer
         [System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
         [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
         public static extern bool SetCursorPos(int X, int Y);
-    }
-
-    internal static class Extensions
-    {
-        public static bool IsEmpty(this RectD rect)
-        {
-            return rect.Left == 0.0 && rect.Right == 0.0 && rect.Width == 0.0 && rect.Height == 0.0;
-        }
-
-        public static bool IsEmpty(this Point2D point)
-        {
-            return point.X == 0.0 && point.Y == 0.0;
-        }
-
-        public static Point2D GetCenter(this RectD rect)
-        {
-            return new(rect.X + rect.Width / 2, rect.Y - rect.Height / 2);
-        }
-
-        public static void AddRange<T>(this ObservableCollection<T> arr, IEnumerable<T> values)
-        {
-            foreach (var item in values)
-            {
-                arr.Add(item);
-            }
-        }
-
-        public static Rect ToAvaloniaRect(this RectD rect)
-        {
-            return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
-        }
     }
 }

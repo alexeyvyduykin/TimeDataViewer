@@ -8,12 +8,17 @@ namespace TimeDataViewer.Spatial
     {
         public readonly double X;
         public readonly double Y;
+        private static readonly Point2D s_empty = new();
 
         public Point2D(double x, double y)
         {
             this.X = x;
             this.Y = y;
         }
+
+        public static Point2D Empty => s_empty;
+
+        public bool IsEmpty => X == 0 && Y == 0;
 
         public void Deconstruct(out double x, out double y)
         {

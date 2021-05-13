@@ -314,7 +314,7 @@ namespace TimeDataViewer
         private void DrawEpoch(DrawingContext context)
         {
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _area.FromLocalToAbsolute(new Point2D(d0, 0));
+            var p = _area.FromLocalToAbsolute(d0, 0.0);
             Pen pen = new Pen(Brushes.Yellow, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
         }

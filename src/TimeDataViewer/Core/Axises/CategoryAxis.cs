@@ -27,11 +27,7 @@ namespace TimeDataViewer.Core
                 value = (MaxValue - MinValue) - value;
             }
 
-            var res = MinValue + value;
-
-            res = Math.Clamp(res, MinValue, MaxValue);
-
-            return res;
+            return Math.Clamp(MinValue + value, MinValue, MaxValue);
         }
 
         public override int FromLocalToAbsolute(double value)
@@ -43,11 +39,7 @@ namespace TimeDataViewer.Core
                 pixel = (MaxPixel - MinPixel) - pixel;
             }
 
-            var res = /*MinPixel +*/ pixel;
-
-            res = Math.Clamp(res, MinPixel, MaxPixel);
-
-            return res;
+            return Math.Clamp(/*MinPixel +*/ pixel, MinPixel, MaxPixel);
         }
 
         public override void UpdateWindow(RectI window)

@@ -21,7 +21,9 @@ namespace TimeDataViewer.Core
     }
 
     public abstract class BaseAxis : IAxis
-    { 
+    {
+        public event EventHandler? OnAxisChanged;
+
         public bool HasInversion { get; set; }
 
         public bool IsDynamicLabelEnable { get; set; }
@@ -43,9 +45,7 @@ namespace TimeDataViewer.Core
         public int MaxPixel { get; protected set; }
 
         public abstract AxisInfo AxisInfo { get; }
-
-        public event EventHandler? OnAxisChanged;
-                    
+                         
         public abstract double FromAbsoluteToLocal(int pixel);
 
         public abstract int FromLocalToAbsolute(double value);

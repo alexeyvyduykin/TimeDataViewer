@@ -35,14 +35,12 @@ namespace TimeDataViewer
 
     public partial class SchedulerControl
     {
-        private bool _isSelected = false;
-        private Point2D _selectionStart;
-        private Point2D _selectionEnd;
         private Cursor? _cursorBefore;
         private int _onMouseUpTimestamp = 0;
         private Point2D _mousePosition = new();
         private bool _disableAltForSelection = false;
         private bool _isDragging = false;
+        private Point2D _mouseDown;
 
         public bool IgnoreMarkerOnMouseWheel { get; set; } = true;
 
@@ -74,29 +72,12 @@ namespace TimeDataViewer
             {
                 var p = e.GetPosition(this);
 
-                _area.MouseDown = new Point2I((int)p.X, (int)p.Y);
-            
-                base.InvalidateVisual();
-            }
-            else if (e.GetCurrentPoint(this).Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed)
-            {
-                if (_isSelected == false)
-                {
-                    var p = e.GetPosition(this);
-                    _isSelected = true;                  
-                    _selectionEnd = default;//Point2D.Empty;
-                    _selectionStart = FromScreenToLocal((int)p.X, (int)p.Y);
-                }
+                _mouseDown = new Point2D(p.X, p.Y);
             }
         }
 
         private void SchedulerControl_PointerReleased(object? sender, PointerReleasedEventArgs e)
         {
-            if (_isSelected == true)
-            {
-                _isSelected = false;
-            }
-
             if (_area.IsDragging == true)
             {
                 if (_isDragging == true)
@@ -109,38 +90,28 @@ namespace TimeDataViewer
                         _cursorBefore = new(StandardCursorType.Arrow);
                     }
 
-                    base.Cursor = _cursorBefore;               
+                    Cursor = _cursorBefore;               
                     e.Pointer.Capture(null);
                 }
                 _area.EndDrag();
+                _mouseDown = Point2D.Empty;
             }
             else
             {
-                if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true/*ChangedButton == MouseButton.Right*/)
+                if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true)
                 {
-                    _area.MouseDown = default;//Point2I.Empty;
+                    _mouseDown = Point2D.Empty;
                 }
-
-                if (_selectionEnd.IsEmpty() == false && _selectionStart.IsEmpty() == false)
-                {                                 
-                    _selectionEnd = default;// Point2D.Empty;               
-                }
-                else
-                {
-                    InvalidateVisual();
-                }
+                                    
+                InvalidateVisual();                
             }
         }
 
         private void SchedulerControl_PointerMoved(object? sender, PointerEventArgs e)
         {
             var MouseScreenPosition = e.GetPosition(this);
-
-            //if (_area.IsWindowArea(MouseAbsolutePosition) == true)
-            {
-                _area.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
-                //  base.InvalidateVisual();
-            }
+                
+            _area.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
 
             MousePosition = _area.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
 
@@ -150,18 +121,17 @@ namespace TimeDataViewer
                 return;
             }
 
-            if (_area.IsDragging == false && _area.MouseDown.IsEmpty == false)
+            if (_area.IsDragging == false && _mouseDown.IsEmpty == false)
             {
                 // cursor has moved beyond drag tolerance
                 if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true)
                 {
-                    if (Math.Abs(MouseScreenPosition.X - _area.MouseDown.X) * 2 >= 2/*SystemParameters.MinimumHorizontalDragDistance*/ ||
-                        Math.Abs(MouseScreenPosition.Y - _area.MouseDown.Y) * 2 >= 2/*SystemParameters.MinimumVerticalDragDistance*/)
+                    if (Math.Abs(MouseScreenPosition.X - _mouseDown.X) * 2 >= 2 ||
+                        Math.Abs(MouseScreenPosition.Y - _mouseDown.Y) * 2 >= 2)
                     {
-                        _area.BeginDrag(_area.MouseDown);
+                        _area.BeginDrag(_mouseDown);
                     }
                 }
-
             }
 
             if (_area.IsDragging == true)
@@ -169,29 +139,18 @@ namespace TimeDataViewer
                 if (_isDragging == false)
                 {
                     _isDragging = true;           
-                    _cursorBefore = base.Cursor;
-                    Cursor = new Cursor(StandardCursorType.SizeWestEast);// Cursors.SizeWE;// SizeAll;
-                    e.Pointer.Capture(this);
-                    //Mouse.Capture(this);
+                    _cursorBefore = Cursor;
+                    Cursor = new Cursor(StandardCursorType.SizeWestEast);
+                    e.Pointer.Capture(this);       
                 }
 
-                _area.MouseCurrent = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+                var mouseCurrent = new Point2D(MouseScreenPosition.X, MouseScreenPosition.Y);
                
-                _area.Drag(_area.MouseCurrent);
+                _area.Drag(mouseCurrent);
 
                 UpdateMarkersOffset();
 
-                base.InvalidateVisual();
-            }
-            else
-            {
-                if (_isSelected && _selectionStart.IsEmpty() == false &&
-                    (e.KeyModifiers == KeyModifiers.Shift /*Keyboard.Modifiers == ModifierKeys.Shift*/ ||
-                    e.KeyModifiers == KeyModifiers.Alt /*Keyboard.Modifiers == ModifierKeys.Alt*/ ||
-                    _disableAltForSelection))
-                {
-                    _selectionEnd = _area.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
-                }
+                InvalidateVisual();
             }
         }
     }
