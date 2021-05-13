@@ -34,9 +34,9 @@ namespace TimeDataViewer.Core
 
         public double MaxValue { get; protected set; }
 
-        public double MinScreenValue { get; protected set; }
+        public double MinClientValue { get; protected set; }
 
-        public double MaxScreenValue { get; protected set; }
+        public double MaxClientValue { get; protected set; }
 
         public int MinPixel { get; protected set; }
 
@@ -59,6 +59,6 @@ namespace TimeDataViewer.Core
 
         public abstract void UpdateViewport(RectD viewport);
 
-        public abstract void UpdateScreen(RectD screen);
+        public abstract void UpdateClientViewport(RectD clientViewport);
     }
 }

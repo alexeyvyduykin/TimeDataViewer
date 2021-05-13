@@ -47,15 +47,15 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         }
 
         [Fact]
-        public void UpdateScreen_WithScreen_MinMaxScreenValuesCorrect()
+        public void UpdateClientViewport_WithClientViewport_MinMaxClientValuesCorrect()
         {
             var axis = CreateCategoryAxis(false);
-            var screen = new RectD(10.0, 20.0, 800.0, 600.0);
+            var clientViewport = new RectD(10.0, 20.0, 800.0, 600.0);
 
-            axis.UpdateScreen(screen);
+            axis.UpdateClientViewport(clientViewport);
 
-            Assert.Equal(20.0, axis.MinScreenValue);
-            Assert.Equal(620.0, axis.MaxScreenValue);
+            Assert.Equal(20.0, axis.MinClientValue);
+            Assert.Equal(620.0, axis.MaxClientValue);
         }
 
         [Fact]
@@ -85,14 +85,14 @@ namespace TimeDataViewer.UnitTests.Core.Axises
         }
 
         [Fact]
-        public void UpdateScreen_AddAxisChangedEvent_Raising()
+        public void UpdateClientViewport_AddAxisChangedEvent_Raising()
         {
             var axis = CreateCategoryAxis(false);
             bool raise = false;
 
             axis.OnAxisChanged += (w, h) => raise = true;
 
-            axis.UpdateScreen(new RectD());
+            axis.UpdateClientViewport(new RectD());
 
             Assert.True(raise);
         }

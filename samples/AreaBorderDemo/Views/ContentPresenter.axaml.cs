@@ -243,8 +243,8 @@ namespace AreaBorderDemo.Views
 
         private void DrawWindow(DrawingContext context)
         {       
-            _rect.Width = _area.WindowZoom.Width;
-            _rect.Height = _area.WindowZoom.Height;
+            _rect.Width = _area.Window.Width;
+            _rect.Height = _area.Window.Height;
             
             _rect.RenderTransform = _transform;
             //_rect.Margin = new Thickness(Bounds.Width / 2.0, Bounds.Height / 2.0);

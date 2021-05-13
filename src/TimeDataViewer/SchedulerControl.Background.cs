@@ -150,8 +150,8 @@ namespace TimeDataViewer
 
         private void DrawBackground(DrawingContext context)
         {
-            var w = ViewportAreaScreen.Width;
-            var len = ViewportAreaData.Width;
+            var w = ClientViewportArea.Width;
+            var len = ViewportArea.Width;
 
             if (w == 0)
             {
@@ -185,14 +185,14 @@ namespace TimeDataViewer
                 throw new Exception();
             }
 
-            var height = _area.RenderSize.Height;
-            var width = _area.RenderSize.Width;
+            var height = _area.Window.Height;
+            var width = _area.Window.Width;
 
             for (int i = 0; i < count; i++)
             {
                 var brush = (i % 2 == 0) ? _brushFirst : _brushSecond;
                 var dw = width / count;
-                context.FillRectangle(brush, new Rect(dw * i + RenderOffsetAbsolute.X, 0, dw, height));
+                context.FillRectangle(brush, new Rect(dw * i + WindowOffset.X, 0, dw, height));
             }
         }
 

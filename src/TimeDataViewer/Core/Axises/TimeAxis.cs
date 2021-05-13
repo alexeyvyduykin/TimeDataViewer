@@ -94,17 +94,17 @@ namespace TimeDataViewer.Core
             Invalidate();
         }
 
-        public override void UpdateScreen(RectD screen)
+        public override void UpdateClientViewport(RectD clientViewport)
         {
             switch (Type)
             {
                 case AxisType.X:
-                    MinScreenValue = screen.Left;
-                    MaxScreenValue = screen.Right;
+                    MinClientValue = clientViewport.Left;
+                    MaxClientValue = clientViewport.Right;
                     break;
                 case AxisType.Y:
-                    MinScreenValue = screen.Bottom;
-                    MaxScreenValue = screen.Top;
+                    MinClientValue = clientViewport.Bottom;
+                    MaxClientValue = clientViewport.Top;
                     break;
                 default:
                     break;
@@ -136,7 +136,7 @@ namespace TimeDataViewer.Core
         {
             var labs = new List<AxisLabelPosition>();
 
-            if ((MaxScreenValue - MinScreenValue) == 0.0)
+            if ((MaxClientValue - MinClientValue) == 0.0)
             {
                 return labs;
             }
@@ -149,16 +149,16 @@ namespace TimeDataViewer.Core
 
             double delta = LabelDeltaPool[TimePeriodMode];
 
-            int fl = (int)Math.Floor(MinScreenValue / delta);
+            int fl = (int)Math.Floor(MinClientValue / delta);
 
             double value = fl * delta;
 
-            if (value < MinScreenValue)
+            if (value < MinClientValue)
             {
                 value += delta;
             }
             
-            while (value <= MaxScreenValue)
+            while (value <= MaxClientValue)
             {
                 labs.Add(new AxisLabelPosition()
                 {
@@ -174,7 +174,7 @@ namespace TimeDataViewer.Core
 
         private string CreateMinMaxLabel(double value)
         {
-            if ((MaxScreenValue - MinScreenValue) == 0.0)
+            if ((MaxClientValue - MinClientValue) == 0.0)
             {
                 return string.Empty;
             }
@@ -214,10 +214,10 @@ namespace TimeDataViewer.Core
                 {
                     Labels = CreateLabels(),
                     Type = Type,
-                    MinValue = MinScreenValue,
-                    MaxValue = MaxScreenValue,
-                    MinLabel = CreateMinMaxLabel(MinScreenValue),
-                    MaxLabel = CreateMinMaxLabel(MaxScreenValue),               
+                    MinValue = MinClientValue,
+                    MaxValue = MaxClientValue,
+                    MinLabel = CreateMinMaxLabel(MinClientValue),
+                    MaxLabel = CreateMinMaxLabel(MaxClientValue),               
                     DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : null,
                 };
 

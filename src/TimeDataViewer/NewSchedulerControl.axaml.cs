@@ -160,17 +160,15 @@ namespace TimeDataViewer
             ForceUpdateOverlays();
         }
 
-        public RectD ViewportAreaData => _area.ViewportData;
+        public RectD ViewportArea => _area.Viewport;
 
-        public RectD ViewportAreaScreen => _area.ViewportScreen;
+        public RectD ClientViewportArea => _area.ClientViewport;
 
-        public RectI AbsoluteWindow => _area.WindowZoom;
+        public RectI AbsoluteWindow => _area.Window;
 
         public RectI ScreenWindow => _area.Screen;
 
-        public Point2I RenderOffsetAbsolute => _area.RenderOffsetAbsolute;
-
-        //public bool IsStarted => _core.IsStarted;
+        public Point2I WindowOffset => _area.WindowOffset;
 
         public ITimeAxis AxisX => _area.AxisX;
                   
@@ -265,8 +263,8 @@ namespace TimeDataViewer
         {
             if (Canvas != null)
             {
-                _schedulerTranslateTransform.X = _area.RenderOffsetAbsolute.X;
-                _schedulerTranslateTransform.Y = _area.RenderOffsetAbsolute.Y;
+                _schedulerTranslateTransform.X = _area.WindowOffset.X;
+                _schedulerTranslateTransform.Y = _area.WindowOffset.Y;
             }
         }
 
@@ -318,7 +316,7 @@ namespace TimeDataViewer
             var d0 = (Epoch - Epoch0).TotalSeconds;
             var p = _area.FromLocalToAbsolute(new Point2D(d0, 0));
             Pen pen = new Pen(Brushes.Yellow, 2.0);
-            context.DrawLine(pen, new Point(p.X + RenderOffsetAbsolute.X, 0.0), new Point(p.X + RenderOffsetAbsolute.X, _area.RenderSize.Height));
+            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
         }
 
         public void ShowTooltip(Control placementTarget, Control tooltip)

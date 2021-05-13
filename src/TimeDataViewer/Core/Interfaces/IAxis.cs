@@ -22,16 +22,16 @@ namespace TimeDataViewer.Core
 
         double MaxValue { get; }
 
-        double MinScreenValue { get; }
+        double MinClientValue { get; }
 
-        double MaxScreenValue { get; }
+        double MaxClientValue { get; }
 
         int MinPixel { get; }
 
         int MaxPixel { get; }
 
         void UpdateViewport(RectD viewport);
-        void UpdateScreen(RectD screen);
+        void UpdateClientViewport(RectD clientViewport);
         void UpdateWindow(RectI window);
         double FromAbsoluteToLocal(int pixel);
         int FromLocalToAbsolute(double value);

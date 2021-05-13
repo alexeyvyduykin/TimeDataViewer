@@ -88,17 +88,17 @@ namespace TimeDataViewer.Core
             Invalidate();
         }
 
-        public override void UpdateScreen(RectD screen)
+        public override void UpdateClientViewport(RectD clientViewport)
         {
             switch (Type)
             {
                 case AxisType.X:
-                    MinScreenValue = screen.Left;
-                    MaxScreenValue = screen.Right;
+                    MinClientValue = clientViewport.Left;
+                    MaxClientValue = clientViewport.Right;
                     break;
                 case AxisType.Y:
-                    MinScreenValue = screen.Bottom;
-                    MaxScreenValue = screen.Top;
+                    MinClientValue = clientViewport.Bottom;
+                    MaxClientValue = clientViewport.Top;
                     break;
                 default:
                     break;
@@ -145,8 +145,8 @@ namespace TimeDataViewer.Core
             {
                 Labels = CreateLabels(),
                 Type = Type,
-                MinValue = MinScreenValue,
-                MaxValue = MaxScreenValue,                                 
+                MinValue = MinClientValue,
+                MaxValue = MaxClientValue,                                 
             };
         }
 
