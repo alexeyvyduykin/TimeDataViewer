@@ -191,7 +191,7 @@ namespace TimeDataViewer
             for (int i = 0; i < count; i++)
             {
                 var brush = (i % 2 == 0) ? _brushFirst : _brushSecond;
-                var dw = width / count;
+                double dw = (double)width / count;
                 context.FillRectangle(brush, new Rect(dw * i + WindowOffset.X, 0, dw, height));
             }
         }
