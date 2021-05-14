@@ -50,26 +50,17 @@ namespace TimeDataViewer
             set => SetValue(ZoomProperty, value);
         }
 
-        private static double OnCoerceZoom(IAvaloniaObject o, double value)
+        private static double OnCoerceZoom(IAvaloniaObject obj, double value)
         {
-            SchedulerControl scheduler = o as SchedulerControl;
-            if (scheduler != null)
-            {
-                if (value > scheduler.MaxZoom)
+            if (obj is SchedulerControl scheduler)
+            {             
+                if (scheduler is not null)
                 {
-                    value = scheduler.MaxZoom;
+                    return Math.Clamp(value, scheduler.MinZoom, scheduler.MaxZoom);
                 }
-                if (value < scheduler.MinZoom)
-                {
-                    value = scheduler.MinZoom;
-                }
+            }
 
-                return value;
-            }
-            else
-            {
-                return value;
-            }
+            return value;
         }
 
         public static readonly StyledProperty<DateTime> EpochProperty =    
