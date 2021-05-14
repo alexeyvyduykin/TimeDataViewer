@@ -163,7 +163,7 @@ namespace TimeDataViewer
             if (IsRange(w, 0.0, 3600.0) == true) // Hour
             {
                 AxisX.TimePeriodMode = TimePeriod.Hour;
-                count = (int)(len / (60 * 24 * 86400.0));
+                count = (int)(len / (86400.0 / (24 * 60)));
             }
             else if (IsRange(w, 0.0, 86400.0) == true) // Day
             {
