@@ -16,13 +16,13 @@ using Avalonia.Controls.Shapes;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
 using TimeDataViewer.Models;
+using Avalonia.LogicalTree;
 
 namespace TimeDataViewer.Shapes
 {
     public class IntervalVisual : BaseIntervalVisual
     {
-        private double _widthX = 0.0;
-        //public bool IsChanged = true;           
+        private double _widthX = 0.0;           
         private readonly ScaleTransform _scale;
         private IScheduler? _map;
         private IntervalViewModel? _marker;
@@ -33,13 +33,9 @@ namespace TimeDataViewer.Shapes
             PointerEnter += IntervalVisual_PointerEnter;
             PointerLeave += IntervalVisual_PointerLeave;
          
-            Initialized += IntervalVisual_Initialized;
-
             DataContextProperty.Changed.AddClassHandler<IntervalVisual>((d, e) => d.MarkerChanged(e));
 
             _popupIsOpen = false;
-
-            //    RenderTransform = scale;
 
             _scale = new ScaleTransform(1, 1);                
         }
@@ -84,72 +80,71 @@ namespace TimeDataViewer.Shapes
         {
             if (e.NewValue is IntervalViewModel marker)
             {
-                //if(e.OldValue is not null && e.OldValue is SchedulerInterval oldMarker)
-                //{
-                //    _map.OnSchedulerZoomChanged -= Map_OnMapZoomChanged;
-                //    _map.LayoutUpdated -= Map_LayoutUpdated;
-                //}
-
                 _marker = marker;
                 _marker.ZIndex = 100;
-                   
-                //_map = _marker.Map;
-                //_map.OnSchedulerZoomChanged += Map_OnMapZoomChanged;
-                //_map.LayoutUpdated += Map_LayoutUpdated;
             }
         }
 
-        private void IntervalVisual_Initialized(object? sender, EventArgs e)
-        {                       
-            _map = _marker.Map;
-    
-            _map.OnZoomChanged += (s, e) => Update();
-            _map.OnSizeChanged += (s, e) => Update();
-           
-            InvalidateVisual();
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
+
+            _map = (_marker is not null) ? _marker.Scheduler : null;
+
+            if (_map is not null)
+            {
+                _map.OnZoomChanged += (s, e) => Update();
+                _map.OnSizeChanged += (s, e) => Update();
+            }
+        }
+
+        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromLogicalTree(e);
+
+            if (_map is not null)
+            {
+                _map.OnZoomChanged -= (s, e) => Update();
+                _map.OnSizeChanged -= (s, e) => Update();
+            }
         }
 
         private void IntervalVisual_PointerLeave(object? sender, PointerEventArgs e)
         {
             if (_popupIsOpen == true)
             {
-                _map?.HideTooltip();
                 _popupIsOpen = false;
+
+                _map?.HideTooltip();
+                
+                Cursor = new Cursor(StandardCursorType.Arrow);
+
+                _scale.ScaleY = 1;
+
+                InvalidateVisual();   
             }
-
-            if (_marker is not null)
-            {
-                _marker.ZIndex -= 10000;
-            }
-
-            Cursor = new Cursor(StandardCursorType.Arrow);
-
-            _scale.ScaleY = 1;
-
-            InvalidateVisual();
         }
 
         private void IntervalVisual_PointerEnter(object? sender, PointerEventArgs e)
         {
             if (_popupIsOpen == false)
             {
-                var tooltip = Series.Tooltip;
-                tooltip.DataContext = Series.CreateTooltip(_marker);//  new IntervalTooltipViewModel(_marker);
-                _map?.ShowTooltip(this, tooltip);
                 _popupIsOpen = true;
+
+                if (_marker is not null)
+                {
+                    var tooltip = Series.Tooltip;
+                    tooltip.DataContext = Series.CreateTooltip(_marker);
+
+                    _map?.ShowTooltip(this, tooltip);
+                }
+
+                Cursor = new Cursor(StandardCursorType.Hand);
+
+                _scale.ScaleY = 1.5;
+              
+                InvalidateVisual();    
             }
-
-            if (_marker is not null)
-            {
-                _marker.ZIndex += 10000;
-            }
-            
-            Cursor = new Cursor(StandardCursorType.Hand);
-
-            _scale.ScaleY = 1.5;
-
-            // scale.ScaleX = 1;
-            InvalidateVisual();
         }
 
         private void Update()
@@ -170,24 +165,17 @@ namespace TimeDataViewer.Shapes
             if (_widthX == 0.0)
                 return;
 
-            double thick_half = StrokeThickness / 2.0;
-
             var p0 = new Point(-_widthX / 2.0, -HeightY / 2.0);
             var p1 = new Point(_widthX / 2.0, HeightY / 2.0);
 
-            var RectBorder = new Rect(
-                      new Point(-_widthX / 2.0 + thick_half, -HeightY / 2.0 + thick_half),
-                      new Point(_widthX / 2.0 - thick_half, HeightY / 2.0 - thick_half));
-
-            var RectSolid = new Rect(p0, p1);
+            var rect = new Rect(p0, p1);
                         
             var brush = new SolidColorBrush() { Color = Background };
             var pen = new Pen(new SolidColorBrush() { Color = StrokeColor }, StrokeThickness);
 
             using (context.PushPreTransform(_scale.Value))
-            {
-                context.DrawGeometry(brush, null, new RectangleGeometry(RectSolid));
-                context.DrawGeometry(null, pen, new RectangleGeometry(RectBorder));
+            {        
+                context.DrawRectangle(brush, pen, rect);
             }
         }
 

@@ -63,7 +63,7 @@
                                 <shapes:IntervalVisual Background="Yellow"/>
                             </sch:Series.IntervalTemplate>
                         </sch:Series>
-<!--
+
                         <sch:Series Category="Observation" Items="{Binding Observations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
 
                             <sch:Series.IntervalTemplate>
@@ -71,7 +71,7 @@
                             </sch:Series.IntervalTemplate>
 
                         </sch:Series>
-
+<!--
                         <sch:Series Category="Transmission" Items="{Binding Transmissions}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
 
                             <sch:Series.IntervalTemplate>

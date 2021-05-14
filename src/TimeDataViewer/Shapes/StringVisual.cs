@@ -1,39 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Controls.Primitives;
-using System.Windows.Input;
-using Avalonia.Media;
-using System.Globalization;
-using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
+using Avalonia.LogicalTree;
+using Avalonia.Media;
 using TimeDataViewer.Models;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer.Shapes
 {
     public class StringVisual : Control
     {
         private readonly SeriesViewModel _marker;
-        private IScheduler? _map;      
+        private IScheduler? _map;
         private double _widthX = 0.0;
-      
+
         public StringVisual(SeriesViewModel marker)
         {
             _marker = marker;
             _marker.ZIndex = 30;
-      
-            Initialized += StringVisual_Initialized;
-      
+
             RenderTransform = new ScaleTransform(1, 1);
         }
 
-        public static readonly StyledProperty<double> HeightYProperty =    
+        public static readonly StyledProperty<double> HeightYProperty =
             AvaloniaProperty.Register<IntervalVisual, double>(nameof(HeightY), 2.0);
 
         public double HeightY
@@ -42,18 +31,32 @@ namespace TimeDataViewer.Shapes
             set { SetValue(HeightYProperty, value); }
         }
 
-        private void StringVisual_Initialized(object? sender, EventArgs e)
-        {     
-            _map = _marker.Map;
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
 
-            _map.OnZoomChanged += (s, e) => Update(s, e);
-            _map.OnSizeChanged += (s, e) => Update(s, e);
-       
-            base.InvalidateVisual();     
+            _map = _marker.Scheduler;
+            
+            if (_map is not null)
+            {
+                _map.OnZoomChanged += (s, e) => Update();
+                _map.OnSizeChanged += (s, e) => Update();
+            }
         }
 
-        protected void Update(object? sender, EventArgs e)
-        {          
+        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromLogicalTree(e);
+            
+            if (_map is not null)
+            {
+                _map.OnZoomChanged -= (s, e) => Update();
+                _map.OnSizeChanged -= (s, e) => Update();
+            }
+        }
+
+        protected void Update()
+        {
             if (_map is not null)
             {
                 var left = _map.AbsoluteWindow.Left;
@@ -70,6 +73,5 @@ namespace TimeDataViewer.Shapes
             drawingContext.FillRectangle(Brushes.Black,
                 new Rect(new Point(0, -HeightY / 2.0), new Point(_widthX, HeightY / 2.0)));
         }
-
     }
 }

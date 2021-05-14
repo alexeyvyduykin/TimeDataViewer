@@ -20,7 +20,7 @@ namespace TimeDataViewer.ViewModels
         private int _absolutePositionX;
         private int _absolutePositionY;
         private int _zIndex;
-        private IScheduler _map;
+        private IScheduler? _scheduler;
         private bool _first = false;
 
         internal MarkerViewModel() { }
@@ -38,11 +38,11 @@ namespace TimeDataViewer.ViewModels
 
         public Point2D LocalPosition { get; protected set; }
          
-        public IScheduler Map
+        public IScheduler? Scheduler
         {
             get
             {
-                if (Shape is not null && _map is null)
+                if (Shape is not null && _scheduler is null)
                 {
                     IVisual visual = Shape;
                     while (visual != null && !(visual is IScheduler))
@@ -50,14 +50,14 @@ namespace TimeDataViewer.ViewModels
                         visual = visual.VisualParent;// VisualTreeHelper.GetParent(visual);
                     }
 
-                    _map = visual as IScheduler;
+                    _scheduler = visual as IScheduler;
                 }
 
-                return _map;
+                return _scheduler;
             }
             internal set
             {
-                _map = value;
+                _scheduler = value;
             }
         }
 
@@ -79,25 +79,14 @@ namespace TimeDataViewer.ViewModels
             set => RaiseAndSetIfChanged(ref _zIndex, value);
         }
 
-        public virtual void Clear()
-        {
-            var s = (Shape as IDisposable);
-            if (s != null)
-            {
-                s.Dispose();
-                s = null;
-            }
-            Shape = null;
-        }
-    
         protected virtual void UpdateAbsolutePosition()
         {
-            if (Map != null)
+            if (Scheduler is not null)
             {
                 if (IsFreeze == true && _first == true)
                     return;
 
-                var p = Map.FromLocalToAbsolute(LocalPosition);
+                var p = Scheduler.FromLocalToAbsolute(LocalPosition);
 
                 AbsolutePositionX = p.X;
                 AbsolutePositionY = p.Y;
@@ -106,11 +95,11 @@ namespace TimeDataViewer.ViewModels
             }
         }
 
-        internal void ForceUpdateLocalPosition(IScheduler m)
+        internal void ForceUpdateLocalPosition(IScheduler sch)
         {
-            if (m is not null)
+            if (sch is not null)
             {
-                _map = m;
+                Scheduler = sch;
             }
 
             UpdateAbsolutePosition();
