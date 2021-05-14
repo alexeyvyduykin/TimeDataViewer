@@ -20,7 +20,6 @@ namespace TimeDataViewer.ViewModels
         private int _absolutePositionX;
         private int _absolutePositionY;
         private int _zIndex;
-        private Point2D _offset;
         private IScheduler _map;
         private bool _first = false;
 
@@ -62,22 +61,6 @@ namespace TimeDataViewer.ViewModels
             }
         }
 
-        public virtual Point2D Offset
-        {
-            get
-            {
-                return _offset;
-            }
-            set
-            {
-               // if (_offset != value)
-              //  {
-                    _offset = value;
-                    UpdateAbsolutePosition();
-                //}
-            }
-        }
-      
         public virtual int AbsolutePositionX
         {
             get => _absolutePositionX;
@@ -116,20 +99,11 @@ namespace TimeDataViewer.ViewModels
 
                 var p = Map.FromLocalToAbsolute(LocalPosition);
 
-                AbsolutePositionX = p.X + (int)Offset.X;
-                AbsolutePositionY = p.Y + (int)Offset.Y;
+                AbsolutePositionX = p.X;
+                AbsolutePositionY = p.Y;
 
                 _first = true;
             }
-        }
-
-        public void ResetOffset()
-        {
-            LocalPosition = Map.FromAbsoluteToLocal(AbsolutePositionX, AbsolutePositionY);
-
-            //  SCSchedulerPoint pos = Map.FromLocalToSchedulerPoint(LocalPositionX, LocalPositionY);
-
-            _offset = new Point2D(0, 0);
         }
 
         internal void ForceUpdateLocalPosition(IScheduler m)

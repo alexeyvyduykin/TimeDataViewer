@@ -162,16 +162,11 @@ namespace TimeDataViewer.Shapes
                 _widthX = d2 - d1;
             }
 
-            if (_marker is not null)
-            {
-                _marker.Offset = new Point2D(-DesiredSize.Width / 2.0, -DesiredSize.Height / 2.0);
-            }
-
             InvalidateVisual();        
         }
         
         public override void Render(DrawingContext context)
-        {  
+        {                      
             if (_widthX == 0.0)
                 return;
 

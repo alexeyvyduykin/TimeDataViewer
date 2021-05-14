@@ -25,20 +25,6 @@ namespace TimeDataViewer.ViewModels
 
         public List<IntervalViewModel> Intervals => _intervals;
 
-        public override Point2D Offset
-        {
-            get
-            {
-                return base.Offset;
-            }
-            set
-            {
-                base.Offset = value;
-
-                _intervals.ForEach(s => s.Offset = value);
-            }
-        }
-
         public double MinTime() => (_intervals.Count == 0) ? 0.0 : _intervals.Min(s => s.Left);
 
         public double MaxTime() => (_intervals.Count == 0) ? 0.0 : _intervals.Max(s => s.Right);        

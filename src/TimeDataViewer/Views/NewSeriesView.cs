@@ -99,12 +99,7 @@ namespace TimeDataViewer.Views
                 _widthX = right - left;
             }
 
-            if (_marker is not null)
-            {
-                _marker.Offset = new Point2D(-Bounds.Width / 2.0, -Bounds.Height / 2.0);
-            }
-
-            base.InvalidateVisual();
+            InvalidateVisual();
         }
 
         public override void Render(DrawingContext drawingContext)
