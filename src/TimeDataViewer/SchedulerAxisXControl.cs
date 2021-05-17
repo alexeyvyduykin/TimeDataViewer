@@ -50,6 +50,7 @@ namespace TimeDataViewer
         private double _height;
         private readonly bool _labelRectangleVisible = false;
         private bool _isDynamicLabel;
+        private readonly IBrush _brush = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };
 
         public SchedulerAxisXControl()
         {
@@ -151,7 +152,9 @@ namespace TimeDataViewer
         }
 
         public override void Render(DrawingContext context)
-        {          
+        {
+            context.FillRectangle(_brush, new Rect(0, 0, Bounds.Width, Bounds.Height));
+
             foreach (var label in _labels)
             {
                 DrawTick(context, label, _tickSize);

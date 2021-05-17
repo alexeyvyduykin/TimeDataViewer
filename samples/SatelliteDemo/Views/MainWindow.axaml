@@ -94,7 +94,7 @@
                 </sch:SchedulerControl>
             </ContentControl>
            
-            <sch:SchedulerAxisXControl DataContext="{Binding ElementName=scheduler}" Grid.Row="2"/>
+            <sch:SchedulerAxisXControl DataContext="{Binding #scheduler}" Grid.Row="2"/>
 
         </Grid>
     </Border>
