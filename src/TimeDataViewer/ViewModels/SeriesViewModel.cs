@@ -9,18 +9,25 @@ using System.Drawing;
 using System.ComponentModel;
 using Avalonia.Media;
 using System.Windows;
-using TimeDataViewer.Spatial;
+using TimeDataViewer.Models;
+
 
 namespace TimeDataViewer.ViewModels
 {
     public class SeriesViewModel : MarkerViewModel
     {
         private readonly List<IntervalViewModel> _intervals;
+        private ISeriesControl? _series;
 
-        public SeriesViewModel(string name) : base()
+        public SeriesViewModel() : base()
+        {         
+            _intervals = new List<IntervalViewModel>();         
+        }
+
+        public ISeriesControl? SeriesControl
         {
-            Name = name;
-            _intervals = new List<IntervalViewModel>();
+            get => _series;
+            set => _series = value;
         }
 
         public List<IntervalViewModel> Intervals => _intervals;

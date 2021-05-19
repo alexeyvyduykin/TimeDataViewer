@@ -11,7 +11,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
-using Avalonia.Input;
+using Avalonia.Threading;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
@@ -32,12 +32,14 @@ using Avalonia.Media.Imaging;
 using TimeDataViewer.Models;
 using TimeDataViewer.Core;
 using Avalonia.Controls.Generators;
+using System.Threading.Tasks;
+using TimeDataViewer.Views;
 
 namespace TimeDataViewer
 {
     public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, IScheduler, IStyleable
+    public partial class SchedulerControl : ItemsControl, ISchedulerControl, IStyleable
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
@@ -46,6 +48,8 @@ namespace TimeDataViewer
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
+        private IList<SeriesViewModel> _seriesViewModels;
+        private DateTime _epoch;
         private readonly Popup _popup;
         // center 
         private readonly bool _showCenter = true;
@@ -53,11 +57,12 @@ namespace TimeDataViewer
         // mouse center
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
+        private DispatcherTimer _dispatcher = new DispatcherTimer();
 
         public event EventHandler? OnSizeChanged;
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
         public event EventHandler? OnZoomChanged;
-
+   
         public SchedulerControl()
         {
             CoreFactory factory = new CoreFactory();
@@ -95,11 +100,8 @@ namespace TimeDataViewer
             style.Setters.Add(new Setter(Canvas.ZIndexProperty, new Binding(nameof(MarkerViewModel.ZIndex))));
             Styles.Add(style);
 
-            ItemTemplate = new FuncDataTemplate<MarkerViewModel>((m, s) => new ContentPresenter
-            {
-                [!ContentPresenter.ContentProperty] = new Binding(nameof(MarkerViewModel.Shape)),
-            });
-            
+            ItemTemplate = new CustomItemTemplate();
+
             ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
             
             ClipToBounds = true;
@@ -108,22 +110,87 @@ namespace TimeDataViewer
             LayoutUpdated += SchedulerControl_LayoutUpdated;
          
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
+            Series.CollectionChanged += Series_CollectionChanged;
 
             ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
             EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
             CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
-
-            PropertyChanged += SchedulerControl_PropertyChanged;
         }
 
-        private void SchedulerControl_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-        {
-            if(e.Property.Name == nameof(SchedulerControl.Series))
+        private void Series_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {           
+            foreach (var item in Series)
             {
-                SeriesValidate();
+                item.OnInvalidateData += async (s,e) => await Item_OnInvalidateData();                         
             }
+        }
+
+        private async Task Item_OnInvalidateData()
+        {
+            if (Series.All(s => s.DirtyItems) == true)
+            {
+                _seriesViewModels = Series.Select(s => s.SeriesViewModel).ToList();
+                _epoch = Epoch;
+
+                var list = await Task.Run(aaa);
+                Items = list;
+
+
+                //await Task.Run(() => bbb(this));
+
+                UpdateMarkersOffset();
+
+                foreach (var item in Series)
+                {
+                    item.DirtyItems = false;
+                }
+            }
+        }
+
+        private ObservableCollection<MarkerViewModel> aaa()
+        {
+            var maxRight = _seriesViewModels.Max(s => s.MaxTime());
+
+            var markers = GetMarkers();
+
+            var rightDate = _epoch.AddSeconds(maxRight).Date.AddDays(1);
+
+            var len = (rightDate - _epoch.Date).TotalSeconds;
+
+            AutoSetViewportArea(len);
+
+        //    UpdateMarkersOffset();
+
+            foreach (var item in markers)
+            {
+                item?.ForceUpdateLocalPosition(this);
+            }
+
+            return markers;
+        }
+
+        private void bbb(SchedulerControl scheduler)
+        {
+            var maxRight = _seriesViewModels.Max(s => s.MaxTime());
+
+            var markers = GetMarkers();
+
+            var rightDate = _epoch.AddSeconds(maxRight).Date.AddDays(1);
+
+            var len = (rightDate - _epoch.Date).TotalSeconds;
+
+            AutoSetViewportArea(len);
+
+            //    UpdateMarkersOffset();
+
+            foreach (var item in markers)
+            {
+                item?.ForceUpdateLocalPosition(this);
+            }
+
+            scheduler.Items = markers;
         }
 
         private void _area_OnZoomChanged(object? sender, EventArgs e)
@@ -177,58 +244,36 @@ namespace TimeDataViewer
         {
             _popup.IsOpen = false;
         }
-
-        public void SeriesValidate()
+      
+        private ObservableCollection<MarkerViewModel> GetMarkers()
         {
-            if (Series.Any(s => s.DirtyItems) == true)
+            var markers = new List<MarkerViewModel>();
+
+            foreach (var series in _seriesViewModels)
             {
-                var markers = new ObservableCollection<MarkerViewModel>();
-                //var minLeft = double.MaxValue;
-                var maxRight = double.MinValue;
-
-                foreach (var series in Series)
-                {
-                    if (series.String is not null && series.Ivals is not null)
-                    {
-                        markers.Add(series.String);
-                        markers.AddRange(series.Ivals);
-
-                        //minLeft = Math.Min(series.String.MinTime(), minLeft);
-                        maxRight = Math.Max(series.String.MaxTime(), maxRight);
-                    }
-                    series.DirtyItems = false;
+                if (series is not null && series.Intervals is not null)
+                {                               
+                    markers.Add(series);                 
+                    markers.AddRange(series.Intervals);
                 }
-            
-                var rightDate = Epoch.AddSeconds(maxRight).Date.AddDays(1);
-
-                var len = (rightDate - Epoch0).TotalSeconds;
-
-                AutoSetViewportArea(len);
-
-                UpdateMarkersOffset();
-
-                foreach (var item in markers)
-                {
-                    item?.ForceUpdateLocalPosition(this);
-                }
-
-                Items = markers;
             }
+
+            return new ObservableCollection<MarkerViewModel>(markers);
         }
       
         private void AutoSetViewportArea(double len)
         {
-            var d0 = (Epoch - Epoch0).TotalSeconds;
+            var d0 = (_epoch - _epoch.Date).TotalSeconds;
             double height0 = 100.0;
-            var count = Series.Count;
+            var count = _seriesViewModels.Count;
             double step = height0 / (count + 1);
 
             int i = 0;
-            foreach (var item in Series)
+            foreach (var item in _seriesViewModels)
             {
-                if (item.String is not null)
+                if (item is not null)
                 {
-                    var str = item.String;
+                    var str = item;
 
                     str.SetLocalPosition(0.0, (++i) * step);
 
@@ -394,9 +439,16 @@ namespace TimeDataViewer
 
         public override void Render(DrawingContext context)
         {
-            SeriesValidate();
+            //SeriesValidate();
 
-            DrawBackground(context);
+            //if (_dirtyItems == false)
+            {
+                DrawBackground(context);
+            }
+           // else
+            {
+               // context.FillRectangle(Brushes.LightBlue, new Rect(0, 0, Bounds.Width, Bounds.Height));
+            }
 
             DrawEpoch(context);
               

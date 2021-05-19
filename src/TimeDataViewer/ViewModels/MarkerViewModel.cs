@@ -15,19 +15,19 @@ using TimeDataViewer.Models;
 
 namespace TimeDataViewer.ViewModels
 {
-    public class MarkerViewModel : ViewModelBase
+    public class MarkerViewModel : ViewModelBase, IMarker
     {
         private int _absolutePositionX;
         private int _absolutePositionY;
         private int _zIndex;
-        private IScheduler? _scheduler;
+        private ISchedulerControl? _scheduler;
         private bool _first = false;
 
         internal MarkerViewModel() { }
 
         public bool IsFreeze { get; set; } = false;
 
-        public Visual Shape { get; set; }
+        //public Visual Shape { get; set; }
 
         public void SetLocalPosition(double localPositionX, double localPositionY)
         {
@@ -38,20 +38,20 @@ namespace TimeDataViewer.ViewModels
 
         public Point2D LocalPosition { get; protected set; }
          
-        public IScheduler? Scheduler
+        public ISchedulerControl? Scheduler
         {
             get
             {
-                if (Shape is not null && _scheduler is null)
-                {
-                    IVisual visual = Shape;
-                    while (visual != null && !(visual is IScheduler))
-                    {
-                        visual = visual.VisualParent;// VisualTreeHelper.GetParent(visual);
-                    }
+                //if (Shape is not null && _scheduler is null)
+                //{
+                //    IVisual visual = Shape;
+                //    while (visual != null && !(visual is IScheduler))
+                //    {
+                //        visual = visual.VisualParent;// VisualTreeHelper.GetParent(visual);
+                //    }
 
-                    _scheduler = visual as IScheduler;
-                }
+                //    _scheduler = visual as IScheduler;
+                //}
 
                 return _scheduler;
             }
@@ -95,7 +95,7 @@ namespace TimeDataViewer.ViewModels
             }
         }
 
-        internal void ForceUpdateLocalPosition(IScheduler sch)
+        internal void ForceUpdateLocalPosition(ISchedulerControl sch)
         {
             if (sch is not null)
             {

@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Avalonia.Controls.Primitives;
+using System.Windows.Input;
+using Avalonia.Media;
+using System.Globalization;
+using System.Diagnostics;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using System.Collections.Specialized;
+using Avalonia.Controls.Shapes;
+using TimeDataViewer.Spatial;
+using TimeDataViewer.ViewModels;
+using TimeDataViewer.Models;
+using Avalonia.LogicalTree;
+
+namespace TimeDataViewer.Shapes
+{
+    public abstract class BaseVisual : Control, IShape
+    {
+        private bool _dirty = true;
+        private IMarker? _marker;
+        private ISchedulerControl? _scheduler;
+
+        public BaseVisual()
+        {
+            DataContextProperty.Changed.AddClassHandler<BaseVisual>((d, e) => d.MarkerChanged(e));
+        }
+
+        protected ISchedulerControl? Scheduler => _scheduler;
+
+        protected IMarker? Marker => _marker;
+
+        private void MarkerChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is IMarker marker)
+            {
+                _marker = marker;
+         
+                if (_dirty == true)
+                {
+                    _scheduler = (_marker is not null) ? _marker.Scheduler : null;
+
+                    if (_scheduler is not null)
+                    {
+                        _scheduler.OnZoomChanged += (s, e) => Update();
+                        _scheduler.OnSizeChanged += (s, e) => Update();
+                    }
+
+                    _dirty = false;
+                }
+            }
+        }
+
+        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromLogicalTree(e);
+
+            if (_scheduler is not null)
+            {
+                _scheduler.OnZoomChanged -= (s, e) => Update();
+                _scheduler.OnSizeChanged -= (s, e) => Update();
+            }
+        }
+
+        protected abstract void Update();
+    }
+}
