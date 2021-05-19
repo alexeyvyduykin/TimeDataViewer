@@ -8,7 +8,7 @@ using Avalonia.Controls;
 
 namespace TimeDataViewer.Models
 {
-    public interface IScheduler : IControl
+    public interface ISchedulerControl : IControl
     {
         Point2D FromAbsoluteToLocal(int x, int y);
 
