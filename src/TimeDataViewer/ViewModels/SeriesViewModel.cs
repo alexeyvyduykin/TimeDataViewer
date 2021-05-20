@@ -30,7 +30,7 @@ namespace TimeDataViewer.ViewModels
             set => _series = value;
         }
 
-        public List<IntervalViewModel> Intervals => _intervals;
+        public IList<IntervalViewModel> Intervals => _intervals;
 
         public double MinTime() => (_intervals.Count == 0) ? 0.0 : _intervals.Min(s => s.Left);
 

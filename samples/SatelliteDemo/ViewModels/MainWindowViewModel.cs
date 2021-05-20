@@ -8,6 +8,7 @@ using System.Linq;
 using TimeDataViewer.ViewModels;
 using System.ComponentModel;
 using SatelliteDemo.SceneTimer;
+using TimeDataViewer;
 
 namespace SatelliteDemo.ViewModels
 {
@@ -100,37 +101,25 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series1);
 
-            foreach (var item in satellite.Rotations)
-            {
-                var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
-                series1.Intervals.Add(ival);
-                ival.Series = series1;
-                ivals.Add(ival);
-            }
+            series1.ReplaceIntervals(satellite.Rotations.Select(s => new IntervalViewModel(s.BeginTime, s.EndTime)));
+
+            ivals.AddRange(series1.Intervals);
 
             var series2 = new SeriesViewModel() { Name = "Observations" };
 
             ivals.Add(series2);
 
-            foreach (var item in satellite.Observations)
-            {
-                var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
-                series2.Intervals.Add(ival);
-                ival.Series = series2;
-                ivals.Add(ival);
-            }
+            series2.ReplaceIntervals(satellite.Observations.Select(s => new IntervalViewModel(s.BeginTime, s.EndTime)));
+
+            ivals.AddRange(series2.Intervals);
 
             var series3 = new SeriesViewModel() { Name = "Transmissions" };
 
             ivals.Add(series3);
 
-            foreach (var item in satellite.Transmissions)
-            {
-                var ival = new IntervalViewModel(item.BeginTime, item.EndTime);
-                series3.Intervals.Add(ival);
-                ival.Series = series3;
-                ivals.Add(ival);
-            }
+            series3.ReplaceIntervals(satellite.Transmissions.Select(s => new IntervalViewModel(s.BeginTime, s.EndTime)));
+
+            ivals.AddRange(series3.Intervals);
 
             return ivals;
         }

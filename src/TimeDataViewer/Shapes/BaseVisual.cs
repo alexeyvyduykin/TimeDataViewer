@@ -21,8 +21,7 @@ using Avalonia.LogicalTree;
 namespace TimeDataViewer.Shapes
 {
     public abstract class BaseVisual : Control, IShape
-    {
-        private bool _dirty = true;
+    {   
         private IMarker? _marker;
         private ISchedulerControl? _scheduler;
 
@@ -39,21 +38,25 @@ namespace TimeDataViewer.Shapes
         {
             if (e.NewValue is IMarker marker)
             {
-                _marker = marker;
-         
-                if (_dirty == true)
-                {
-                    _scheduler = (_marker is not null) ? _marker.Scheduler : null;
-
-                    if (_scheduler is not null)
-                    {
-                        _scheduler.OnZoomChanged += (s, e) => Update();
-                        _scheduler.OnSizeChanged += (s, e) => Update();
-                    }
-
-                    _dirty = false;
-                }
+                _marker = marker;        
             }
+        }
+
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
+
+            ILogical control = this;
+
+            while((control.LogicalParent is ISchedulerControl) == false)
+            {
+                control = control.LogicalParent;
+            }
+
+            _scheduler = (ISchedulerControl)control.LogicalParent;
+
+            _scheduler.OnZoomChanged += (s, e) => Update();
+            _scheduler.OnSizeChanged += (s, e) => Update();
         }
 
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)

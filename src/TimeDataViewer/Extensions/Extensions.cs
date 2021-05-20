@@ -40,7 +40,7 @@ namespace TimeDataViewer
             return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
         }
 
-        public static void AddIntervals(this SeriesViewModel series, IEnumerable<IntervalViewModel> ivals)
+        public static void ReplaceIntervals(this SeriesViewModel series, IEnumerable<IntervalViewModel> ivals)
         {
             series.Intervals.Clear();
           

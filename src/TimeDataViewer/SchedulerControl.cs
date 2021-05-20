@@ -134,11 +134,13 @@ namespace TimeDataViewer
                 _seriesViewModels = Series.Select(s => s.SeriesViewModel).ToList();
                 _epoch = Epoch;
 
-                var list = await Task.Run(aaa);
-                Items = list;
+                Debug.WriteLine("Start thread");
 
+                //await Task.Run(test);
 
-                //await Task.Run(() => bbb(this));
+                await Dispatcher.UIThread.InvokeAsync(test, DispatcherPriority.Background);
+
+                Debug.WriteLine("Stop thread");
 
                 UpdateMarkersOffset();
 
@@ -147,6 +149,11 @@ namespace TimeDataViewer
                     item.DirtyItems = false;
                 }
             }
+        }
+
+        private void test()
+        {
+            Items = aaa();
         }
 
         private ObservableCollection<MarkerViewModel> aaa()
@@ -161,36 +168,7 @@ namespace TimeDataViewer
 
             AutoSetViewportArea(len);
 
-        //    UpdateMarkersOffset();
-
-            foreach (var item in markers)
-            {
-                item?.ForceUpdateLocalPosition(this);
-            }
-
             return markers;
-        }
-
-        private void bbb(SchedulerControl scheduler)
-        {
-            var maxRight = _seriesViewModels.Max(s => s.MaxTime());
-
-            var markers = GetMarkers();
-
-            var rightDate = _epoch.AddSeconds(maxRight).Date.AddDays(1);
-
-            var len = (rightDate - _epoch.Date).TotalSeconds;
-
-            AutoSetViewportArea(len);
-
-            //    UpdateMarkersOffset();
-
-            foreach (var item in markers)
-            {
-                item?.ForceUpdateLocalPosition(this);
-            }
-
-            scheduler.Items = markers;
         }
 
         private void _area_OnZoomChanged(object? sender, EventArgs e)
@@ -263,28 +241,37 @@ namespace TimeDataViewer
       
         private void AutoSetViewportArea(double len)
         {
-            var d0 = (_epoch - _epoch.Date).TotalSeconds;
-            double height0 = 100.0;
+            var d0 = (_epoch - _epoch.Date).TotalSeconds;    
             var count = _seriesViewModels.Count;
-            double step = height0 / (count + 1);
+            double step = 1.0 / (count + 1);
 
             int i = 0;
             foreach (var item in _seriesViewModels)
             {
                 if (item is not null)
                 {
-                    var str = item;
+                    var series = item;
 
-                    str.SetLocalPosition(0.0, (++i) * step);
+                    var seriesLocalPostion = new Point2D(0.0, (++i) * step);
+                    var seriesAbsolutePostion = _area.FromLocalToAbsolute(seriesLocalPostion);
+                    
+                    series.LocalPosition = seriesLocalPostion;              
+                    series.AbsolutePositionX = seriesAbsolutePostion.X;
+                    series.AbsolutePositionY = seriesAbsolutePostion.Y;
 
-                    foreach (var ival in str.Intervals)
+                    foreach (var ival in series.Intervals)
                     {
-                        ival.SetLocalPosition(d0 + ival.LocalPosition.X, str.LocalPosition.Y);
+                        var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, series.LocalPosition.Y);
+                        var intervalAbsolutePostion = _area.FromLocalToAbsolute(intervalLocalPosition);
+
+                        ival.LocalPosition = intervalLocalPosition;                    
+                        ival.AbsolutePositionX = intervalAbsolutePostion.X;
+                        ival.AbsolutePositionY = intervalAbsolutePostion.Y;
                     }
                 }
             }
 
-            _area.UpdateViewport(0.0, 0.0, len, height0);            
+            _area.UpdateViewport(0.0, 0.0, len, 1.0);            
         }
 
         public RectD ViewportArea => _area.Viewport;
@@ -339,28 +326,6 @@ namespace TimeDataViewer
             ForceUpdateOverlays();            
         }
 
-        protected override void ItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            base.ItemsCollectionChanged(sender, e);
-
-            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems is not null)
-            {
-                foreach (var item in e.NewItems)
-                {
-                    if (item is MarkerViewModel == false)
-                    {
-                        return;
-                    }
-                }
-
-                ForceUpdateOverlays(e.NewItems);
-            }
-            else
-            {
-                InvalidateVisual();
-            }
-        }
-
         private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        
 
         private void ForceUpdateOverlays(IEnumerable items)
@@ -368,8 +333,11 @@ namespace TimeDataViewer
             UpdateMarkersOffset();
 
             foreach (MarkerViewModel item in items)
-            {                    
-                item?.ForceUpdateLocalPosition(this);                
+            {
+                var p = _area.FromLocalToAbsolute(item.LocalPosition);
+
+                item.AbsolutePositionX = p.X;
+                item.AbsolutePositionY = p.Y;
             }
 
             InvalidateVisual();
@@ -406,8 +374,6 @@ namespace TimeDataViewer
         {
             if (e.NewValue is double)
             {
-                //AxisX.Epoch0 = Epoch0;
-
                 var xValue = (Epoch - Epoch0).TotalSeconds + CurrentTime;
                
                 _area.DragToTime(xValue);

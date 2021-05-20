@@ -21,12 +21,12 @@ namespace TimeDataViewer.ViewModels
             var left = marker.Left;
             var right = marker.Right;
 
-            var strng = marker.Series;
+        //    var strng = marker.Series;
             // var epoch = DateTime.Now.Date;
 
-            var epoch = marker.Series.Scheduler.Epoch;
+            var epoch = marker.SeriesControl.Scheduler.Epoch;
 
-            _category = strng.Name;
+       //     _category = strng.Name;
             _date = epoch.AddSeconds(left).ToShortDateString();
             _begin = epoch.AddSeconds(left).ToLongTimeString();
             _end = epoch.AddSeconds(right).ToLongTimeString();

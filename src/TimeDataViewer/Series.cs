@@ -52,9 +52,6 @@ namespace TimeDataViewer
         public Series()
         {
             _factory = new Factory();
-        //    IntervalTemplate = new IntervalVisual() { /*Series = this*/ };
-
-        //    IntervalTemplateProperty.Changed.AddClassHandler<Series>((d, e) => d.IntervalTemplateChanged(e));
         }
 
         public SeriesViewModel? SeriesViewModel 
@@ -64,14 +61,6 @@ namespace TimeDataViewer
         }
 
         public bool DirtyItems { get; set; } = false;
-
-        private void IntervalTemplateChanged(AvaloniaPropertyChangedEventArgs e)
-        {
-            if(e.NewValue is not null && e.NewValue is BaseIntervalVisual ival)
-            {
-                //ival.Series = this;
-            }
-        }
 
         public static readonly StyledProperty<BaseIntervalVisual> IntervalTemplateProperty =
             AvaloniaProperty.Register<Series, BaseIntervalVisual>(nameof(IntervalTemplate));
@@ -155,13 +144,10 @@ namespace TimeDataViewer
             }
 
             _seriesViewModel = _factory.CreateSeries(_category, this);
-            
-            //var intervals = list.Select(s => _factory.CreateInterval(s, _intervalTemplate));
+
             var intervals = list.Select(s => _factory.CreateInterval(s.Left, s.Right, this));
 
-            _seriesViewModel.AddIntervals(intervals);
-
-           // Ivals = list.Select(s => _factory.CreateInterval(s, String, IntervalTemplate));
+            _seriesViewModel.ReplaceIntervals(intervals);
         }
 
         private IList<Interval> UpdateItems(IEnumerable items)
@@ -189,7 +175,7 @@ namespace TimeDataViewer
             return new List<Interval>();
         }
 
-        //public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;
+        public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;
 
         public virtual IntervalTooltipViewModel CreateTooltip(IntervalViewModel marker)
         {

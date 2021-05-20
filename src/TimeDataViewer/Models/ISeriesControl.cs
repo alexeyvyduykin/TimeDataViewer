@@ -9,6 +9,8 @@ namespace TimeDataViewer.Models
 {
     public interface ISeriesControl
     {
+        SchedulerControl? Scheduler { get; }
+
         IShape CreateIntervalShape(IntervalViewModel interval);
 
         IShape CreateSeriesShape();
