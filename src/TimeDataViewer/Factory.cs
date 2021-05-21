@@ -32,7 +32,7 @@ namespace TimeDataViewer
 {
     public class Factory
     {
-        public SeriesViewModel CreateSeries(string category, ISeriesControl series)
+        public ISeries CreateSeries(string category, ISeriesControl series)
         {
             return new SeriesViewModel() 
             {
@@ -42,7 +42,7 @@ namespace TimeDataViewer
             };
         }
 
-        public IntervalViewModel CreateInterval(double left, double right, ISeriesControl series)
+        public IInterval CreateInterval(double left, double right, ISeriesControl series)
         {
             return new IntervalViewModel(left, right) 
             {

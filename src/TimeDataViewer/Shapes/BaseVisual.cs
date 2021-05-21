@@ -30,9 +30,9 @@ namespace TimeDataViewer.Shapes
             DataContextProperty.Changed.AddClassHandler<BaseVisual>((d, e) => d.MarkerChanged(e));
         }
 
-        protected ISchedulerControl? Scheduler => _scheduler;
+        public ISchedulerControl? Scheduler => _scheduler;
 
-        protected IMarker? Marker => _marker;
+        public IMarker? Marker => _marker;
 
         private void MarkerChanged(AvaloniaPropertyChangedEventArgs e)
         {

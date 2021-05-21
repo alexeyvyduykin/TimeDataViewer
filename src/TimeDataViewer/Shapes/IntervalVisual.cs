@@ -94,12 +94,12 @@ namespace TimeDataViewer.Shapes
             {
                 _popupIsOpen = true;
 
-                if (Marker is not null)
-                {
-      //              var tooltip = Series.Tooltip;
-      //              tooltip.DataContext = Series.CreateTooltip(_marker);
+                if (Marker is not null && Marker is IInterval ival)
+                {                   
+                    var tooltip = ival.SeriesControl.Tooltip;
+                    tooltip.DataContext = ival.SeriesControl.CreateTooltip(ival);
 
-      //              _map?.ShowTooltip(this, tooltip);
+                    Scheduler?.ShowTooltip(this, tooltip);
                 }
 
                 Cursor = new Cursor(StandardCursorType.Hand);
@@ -112,7 +112,7 @@ namespace TimeDataViewer.Shapes
 
         protected override void Update()
         {        
-            if (Scheduler is not null && Marker is not null && Marker is IntervalViewModel marker)
+            if (Scheduler is not null && Marker is not null && Marker is IInterval marker)
             {
                 var d1 = Scheduler.FromLocalToAbsolute(new Point2D(marker.Left, marker.LocalPosition.Y)).X;
                 var d2 = Scheduler.FromLocalToAbsolute(new Point2D(marker.Right, marker.LocalPosition.Y)).X;
@@ -144,7 +144,7 @@ namespace TimeDataViewer.Shapes
             }
         }
 
-        public override BaseIntervalVisual Clone(IntervalViewModel interval)
+        public override BaseIntervalVisual Clone(IInterval interval)
         {
             return new IntervalVisual() 
             {

@@ -46,12 +46,12 @@ namespace TimeDataViewer
 
         private readonly Area _area;        
         private readonly Canvas _canvas;
-        private ObservableCollection<MarkerViewModel> _markers;
+        private ObservableCollection<IMarker> _markers;
 
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
-        private IList<SeriesViewModel> _seriesViewModels;
+        private IList<ISeries> _seriesViewModels;
         private DateTime _epoch;
         private readonly Popup _popup;
         // center 
@@ -60,7 +60,6 @@ namespace TimeDataViewer
         // mouse center
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
-        private DispatcherTimer _dispatcher = new DispatcherTimer();
 
         public event EventHandler? OnSizeChanged;
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
@@ -121,7 +120,7 @@ namespace TimeDataViewer
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
 
-            _markers = new ObservableCollection<MarkerViewModel>();
+            _markers = new ObservableCollection<IMarker>();
 
             Items = _markers;
         }
@@ -196,23 +195,7 @@ namespace TimeDataViewer
         {
             _popup.IsOpen = false;
         }
-      
-        private ObservableCollection<MarkerViewModel> CreateMarkers()
-        {
-            var markers = new List<MarkerViewModel>();
-
-            foreach (var series in _seriesViewModels)
-            {
-                if (series is not null && series.Intervals is not null)
-                {
-                    markers.Add(series);
-                    markers.AddRange(series.Intervals);
-                }
-            }
-
-            return new ObservableCollection<MarkerViewModel>(markers);
-        }
-
+        
         private void AutoSetViewportArea(double len)
         {
             var d0 = (_epoch - _epoch.Date).TotalSeconds;    
@@ -262,7 +245,7 @@ namespace TimeDataViewer
 
         public ICategoryAxis AxisY => _area.AxisY;
             
-       // internal Canvas Canvas => _canvas;
+        private Canvas Canvas => _canvas;
 
         public Panel? TopLevelForToolTips
         {
@@ -306,7 +289,7 @@ namespace TimeDataViewer
         {
             UpdateMarkersOffset();
 
-            foreach (MarkerViewModel item in items)
+            foreach (IMarker item in items)
             {
                 var p = _area.FromLocalToAbsolute(item.LocalPosition);
 
@@ -360,7 +343,7 @@ namespace TimeDataViewer
   
         private void UpdateMarkersOffset()
         {
-           // if (Canvas != null)
+            if (Canvas != null)
             {
                 _schedulerTranslateTransform.X = _area.WindowOffset.X;
                 _schedulerTranslateTransform.Y = _area.WindowOffset.Y;

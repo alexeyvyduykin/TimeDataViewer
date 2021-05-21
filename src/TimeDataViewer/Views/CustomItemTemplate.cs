@@ -39,7 +39,7 @@ namespace TimeDataViewer.Views
     {
         public IControl Build(object param)
         {
-            if(param is IntervalViewModel ival)
+            if(param is IInterval ival)
             {
                 var shape = ival.SeriesControl.CreateIntervalShape(ival);
 
@@ -50,7 +50,7 @@ namespace TimeDataViewer.Views
 
                 //return new IntervalVisual() { DataContext = param };
             }
-            else if(param is SeriesViewModel)
+            else if(param is ISeries)
             {
                 return new SeriesVisual() { DataContext = param };
             }
@@ -60,7 +60,7 @@ namespace TimeDataViewer.Views
 
         public bool Match(object data)
         {
-            return (data is IntervalViewModel) || (data is SeriesViewModel);
+            return (data is IInterval) || (data is ISeries);
         }
     }
 }

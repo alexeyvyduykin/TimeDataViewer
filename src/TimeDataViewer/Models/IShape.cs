@@ -8,5 +8,8 @@ namespace TimeDataViewer.Models
 {
     public interface IShape
     {
+        ISchedulerControl? Scheduler { get; }
+
+        IMarker? Marker { get; }
     }
 }

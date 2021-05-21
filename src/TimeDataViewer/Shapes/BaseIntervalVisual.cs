@@ -1,5 +1,5 @@
 ﻿using Avalonia.Controls;
-using TimeDataViewer.ViewModels;
+using TimeDataViewer.Models;
 using Avalonia.Media;
 using Avalonia;
 
@@ -16,6 +16,6 @@ namespace TimeDataViewer.Shapes
         //    set { SetValue(SeriesProperty, value); }
         //}
 
-        public abstract BaseIntervalVisual Clone(IntervalViewModel interval);
+        public abstract BaseIntervalVisual Clone(IInterval interval);
     }
 }
