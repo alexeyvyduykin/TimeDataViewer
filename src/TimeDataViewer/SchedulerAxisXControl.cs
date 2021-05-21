@@ -18,7 +18,7 @@ using Avalonia.Styling;
 using Avalonia.VisualTree;
 using TimeDataViewer.ViewModels;
 using TimeDataViewer.Core;
-using TimeDataViewer.Spatial;
+using TimeDataViewer.Models;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
@@ -69,15 +69,27 @@ namespace TimeDataViewer
             _defaultRectPen = new Pen(Brushes.Black, 1.0);   
         }
 
+        protected override void OnDataContextBeginUpdate()
+        {
+            base.OnDataContextBeginUpdate();
+
+            if (DataContext is not null && DataContext is ISchedulerControl scheduler)
+            {
+                scheduler.AxisX.OnAxisChanged -= OnAxisChanged;
+                scheduler.PointerEnter -= OnMapEnter;
+                scheduler.PointerLeave -= OnMapLeave;
+            }
+        }
+
         protected override void OnDataContextChanged(EventArgs e)
         {
             base.OnDataContextChanged(e);
 
-            if(DataContext is SchedulerControl map)
+            if(DataContext is ISchedulerControl scheduler)
             {
-                map.AxisX.OnAxisChanged += OnAxisChanged;
-                map.PointerEnter += OnMapEnter;
-                map.PointerLeave += OnMapLeave;
+                scheduler.AxisX.OnAxisChanged += OnAxisChanged;
+                scheduler.PointerEnter += OnMapEnter;
+                scheduler.PointerLeave += OnMapLeave;
             }
         }
 
@@ -85,14 +97,14 @@ namespace TimeDataViewer
         {
             _isDynamicLabel = true;
 
-            base.InvalidateVisual();
+            InvalidateVisual();
         }
 
         private void OnMapLeave(object? s, EventArgs e)
         {
             _isDynamicLabel = false;
 
-            base.InvalidateVisual();
+            InvalidateVisual();
         }
 
         protected override void ArrangeCore(Rect finalRect)

@@ -40,7 +40,7 @@ namespace TimeDataViewer
 {
     public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, ISchedulerControl, IStyleable
+    public partial class SchedulerControl : ItemsControl, IStyleable, ISchedulerControl
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
@@ -71,7 +71,7 @@ namespace TimeDataViewer
 
             _area = factory.CreateArea();
           
-            _area.OnZoomChanged += _area_OnZoomChanged;
+            _area.OnZoomChanged += ZoomChangedEvent;
            
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
@@ -125,11 +125,19 @@ namespace TimeDataViewer
             Items = _markers;
         }
 
+        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromLogicalTree(e);
+            
+            _area.OnZoomChanged -= ZoomChangedEvent;
+            OnMousePositionChanged -= AxisX.UpdateDynamicLabelPosition;
+        }
+
         private void Series_CollectionChanged(object? s, NotifyCollectionChangedEventArgs e)
         {           
-            foreach (var item in Series)
+            foreach (var series in Series)
             {
-                item.OnInvalidateData += (s, e) => SeriesInvalidateData();                              
+                series.OnInvalidateData += SeriesInvalidateDataEvent;                              
             }
         }
     
@@ -144,9 +152,10 @@ namespace TimeDataViewer
             AutoSetViewportArea(len);
         }
 
-        private void _area_OnZoomChanged(object? sender, EventArgs e)
+        private void ZoomChangedEvent(object? sender, EventArgs e)
         {
             OnZoomChanged?.Invoke(this, EventArgs.Empty);
+            //Debug.WriteLine($"SchedulerControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();
         }
@@ -279,7 +288,8 @@ namespace TimeDataViewer
             _area.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
-                
+            //Debug.WriteLine($"SchedulerControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
+
             ForceUpdateOverlays();            
         }
 

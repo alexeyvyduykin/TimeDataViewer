@@ -51,6 +51,7 @@ namespace TimeDataViewer
             {
                 _mousePosition = value;
                 OnMousePositionChanged?.Invoke(_mousePosition);
+                //Debug.WriteLine($"SchedulerControl -> OnMousePositionChanged -> Count = {OnMousePositionChanged?.GetInvocationList().Length}");
             }
         }
 

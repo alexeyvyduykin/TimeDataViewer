@@ -43,6 +43,7 @@ namespace TimeDataViewer
         private readonly Factory _factory;
         private ISeries? _seriesViewModel;
         private BaseIntervalVisual _intervalTemplate;
+       
         public event EventHandler? OnInvalidateData;
 
         public Series()
@@ -103,6 +104,19 @@ namespace TimeDataViewer
             set { SetValue(CategoryProperty, value); }
         }
 
+        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromLogicalTree(e);
+
+            if (OnInvalidateData is not null)
+            {
+                foreach (var d in OnInvalidateData.GetInvocationList())
+                {
+                    OnInvalidateData -= (EventHandler)d;
+                }
+            }
+        }
+
         protected override void ItemsChanged(AvaloniaPropertyChangedEventArgs e)
         {
             base.ItemsChanged(e);
@@ -114,6 +128,7 @@ namespace TimeDataViewer
                     Update(items);
                     DirtyItems = true;
                     OnInvalidateData?.Invoke(this, EventArgs.Empty);
+                    //Debug.WriteLine($"Series -> OnInvalidateData -> Count = {OnInvalidateData?.GetInvocationList().Length}");
                 }
             }
         }

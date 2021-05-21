@@ -55,8 +55,8 @@ namespace TimeDataViewer.Shapes
 
             _scheduler = (ISchedulerControl)control.LogicalParent;
 
-            _scheduler.OnZoomChanged += (s, e) => Update();
-            _scheduler.OnSizeChanged += (s, e) => Update();
+            _scheduler.OnZoomChanged += HandleUpdateEvent;
+            _scheduler.OnSizeChanged += HandleUpdateEvent;
         }
 
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
@@ -65,9 +65,14 @@ namespace TimeDataViewer.Shapes
 
             if (_scheduler is not null)
             {
-                _scheduler.OnZoomChanged -= (s, e) => Update();
-                _scheduler.OnSizeChanged -= (s, e) => Update();
+                _scheduler.OnZoomChanged -= HandleUpdateEvent;
+                _scheduler.OnSizeChanged -= HandleUpdateEvent;
             }
+        }
+
+        private void HandleUpdateEvent(object? sender, EventArgs e)
+        {
+            Update();
         }
 
         protected abstract void Update();

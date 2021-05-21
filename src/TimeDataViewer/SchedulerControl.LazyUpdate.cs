@@ -47,6 +47,11 @@ namespace TimeDataViewer
         private int _jBegSave = 0;
         private readonly int _maxPacks = 10;
 
+        private void SeriesInvalidateDataEvent(object? sender, EventArgs e)
+        {
+            SeriesInvalidateData();
+        }
+
         private void SeriesInvalidateData()
         {
             if (Series.All(s => s.DirtyItems) == true)
