@@ -13,7 +13,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Threading;
 using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
+using System.ComponentModel;
 using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
@@ -34,6 +34,7 @@ using TimeDataViewer.Core;
 using Avalonia.Controls.Generators;
 using System.Threading.Tasks;
 using TimeDataViewer.Views;
+using Avalonia.Collections;
 
 namespace TimeDataViewer
 {
@@ -45,6 +46,8 @@ namespace TimeDataViewer
 
         private readonly Area _area;        
         private readonly Canvas _canvas;
+        private ObservableCollection<MarkerViewModel> _markers;
+
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
@@ -78,7 +81,7 @@ namespace TimeDataViewer
             PointerPressed += SchedulerControl_PointerPressed;
             PointerReleased += SchedulerControl_PointerReleased;
             PointerMoved += SchedulerControl_PointerMoved;
-            
+
             _canvas = new Canvas()
             {
                 RenderTransform = _schedulerTranslateTransform
@@ -103,72 +106,43 @@ namespace TimeDataViewer
             ItemTemplate = new CustomItemTemplate();
 
             ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
-            
+
             ClipToBounds = true;
      //       SnapsToDevicePixels = true;
             
             LayoutUpdated += SchedulerControl_LayoutUpdated;
          
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
-            Series.CollectionChanged += Series_CollectionChanged;
+            Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
             ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
             EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
             CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
+
+            _markers = new ObservableCollection<MarkerViewModel>();
+
+            Items = _markers;
         }
 
-        private void Series_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void Series_CollectionChanged(object? s, NotifyCollectionChangedEventArgs e)
         {           
             foreach (var item in Series)
             {
-                item.OnInvalidateData += async (s,e) => await Item_OnInvalidateData();                         
+                item.OnInvalidateData += (s, e) => SeriesInvalidateData();                              
             }
         }
-
-        private async Task Item_OnInvalidateData()
-        {
-            if (Series.All(s => s.DirtyItems) == true)
-            {
-                _seriesViewModels = Series.Select(s => s.SeriesViewModel).ToList();
-                _epoch = Epoch;
-
-                Debug.WriteLine("Start thread");
-
-                //await Task.Run(test);
-
-                await Dispatcher.UIThread.InvokeAsync(test, DispatcherPriority.Background);
-
-                Debug.WriteLine("Stop thread");
-
-                UpdateMarkersOffset();
-
-                foreach (var item in Series)
-                {
-                    item.DirtyItems = false;
-                }
-            }
-        }
-
-        private void test()
-        {
-            Items = aaa();
-        }
-
-        private ObservableCollection<MarkerViewModel> aaa()
+    
+        private void UpdateViewport()
         {
             var maxRight = _seriesViewModels.Max(s => s.MaxTime());
-
-            var markers = GetMarkers();
 
             var rightDate = _epoch.AddSeconds(maxRight).Date.AddDays(1);
 
             var len = (rightDate - _epoch.Date).TotalSeconds;
 
             AutoSetViewportArea(len);
-
-            return markers;
         }
 
         private void _area_OnZoomChanged(object? sender, EventArgs e)
@@ -223,22 +197,22 @@ namespace TimeDataViewer
             _popup.IsOpen = false;
         }
       
-        private ObservableCollection<MarkerViewModel> GetMarkers()
+        private ObservableCollection<MarkerViewModel> CreateMarkers()
         {
             var markers = new List<MarkerViewModel>();
 
             foreach (var series in _seriesViewModels)
             {
                 if (series is not null && series.Intervals is not null)
-                {                               
-                    markers.Add(series);                 
+                {
+                    markers.Add(series);
                     markers.AddRange(series.Intervals);
                 }
             }
 
             return new ObservableCollection<MarkerViewModel>(markers);
         }
-      
+
         private void AutoSetViewportArea(double len)
         {
             var d0 = (_epoch - _epoch.Date).TotalSeconds;    
@@ -288,7 +262,7 @@ namespace TimeDataViewer
 
         public ICategoryAxis AxisY => _area.AxisY;
             
-        internal Canvas Canvas => _canvas;
+       // internal Canvas Canvas => _canvas;
 
         public Panel? TopLevelForToolTips
         {
@@ -386,7 +360,7 @@ namespace TimeDataViewer
   
         private void UpdateMarkersOffset()
         {
-            if (Canvas != null)
+           // if (Canvas != null)
             {
                 _schedulerTranslateTransform.X = _area.WindowOffset.X;
                 _schedulerTranslateTransform.Y = _area.WindowOffset.Y;

@@ -119,7 +119,7 @@ namespace TimeDataViewer.Shapes
 
                 _widthX = d2 - d1;
 
-                InvalidateVisual();
+         //       InvalidateVisual();
             }               
         }
         

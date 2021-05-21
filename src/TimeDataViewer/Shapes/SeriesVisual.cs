@@ -35,7 +35,7 @@ namespace TimeDataViewer.Shapes
 
                 _widthX = right - left;
                 
-                InvalidateVisual();
+        //        InvalidateVisual();
             }           
         }
 
