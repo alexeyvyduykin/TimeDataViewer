@@ -42,11 +42,7 @@ namespace TimeDataViewer
 
         private readonly Factory _factory;
         private SeriesViewModel? _seriesViewModel;
-        private string _leftBindingPath;
-        private string _rightBindingPath;
-        private string _category;
         private BaseIntervalVisual _intervalTemplate;
-
         public event EventHandler? OnInvalidateData;
 
         public Series()
@@ -85,10 +81,8 @@ namespace TimeDataViewer
 
         public string LeftBindingPath
         {
-            //get { return GetValue(LeftBindingPathProperty); }
-            //set { SetValue(LeftBindingPathProperty, value); }
-            get { return _leftBindingPath; }
-            set { SetAndRaise(LeftBindingPathProperty, ref _leftBindingPath, value); }
+            get { return GetValue(LeftBindingPathProperty); }
+            set { SetValue(LeftBindingPathProperty, value); }
         }
 
         public static readonly StyledProperty<string> RightBindingPathProperty =    
@@ -96,10 +90,8 @@ namespace TimeDataViewer
 
         public string RightBindingPath
         {
-            //get { return GetValue(RightBindingPathProperty); }
-            //set { SetValue(RightBindingPathProperty, value); }
-            get { return _rightBindingPath; }
-            set { SetAndRaise(RightBindingPathProperty, ref _rightBindingPath, value); }
+            get { return GetValue(RightBindingPathProperty); }
+            set { SetValue(RightBindingPathProperty, value); }
         }
 
         public static readonly StyledProperty<string> CategoryProperty =    
@@ -107,10 +99,8 @@ namespace TimeDataViewer
 
         public string Category
         {
-            //get { return GetValue(CategoryProperty); }
-            //set { SetValue(CategoryProperty, value); }
-            get { return _category; }
-            set { SetAndRaise(CategoryProperty, ref _category, value); }
+            get { return GetValue(CategoryProperty); }
+            set { SetValue(CategoryProperty, value); }
         }
 
         protected override void ItemsChanged(AvaloniaPropertyChangedEventArgs e)
@@ -120,17 +110,15 @@ namespace TimeDataViewer
             if (e.NewValue is not null && e.NewValue is IEnumerable items)
             {
                 if (DirtyItems == false)
-                {                   
-                    //Task.Run(() => update(items));
-                    update(items);
-
+                {                                  
+                    Update(items);
                     DirtyItems = true;
                     OnInvalidateData?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
 
-        private void update(IEnumerable items)
+        private void Update(IEnumerable items)
         {
             IList<Interval> list;
 
@@ -143,7 +131,7 @@ namespace TimeDataViewer
                 list = UpdateItems(items);
             }
 
-            _seriesViewModel = _factory.CreateSeries(_category, this);
+            _seriesViewModel = _factory.CreateSeries(Category, this);
 
             var intervals = list.Select(s => _factory.CreateInterval(s.Left, s.Right, this));
 
@@ -152,14 +140,14 @@ namespace TimeDataViewer
 
         private IList<Interval> UpdateItems(IEnumerable items)
         {
-            if (string.IsNullOrWhiteSpace(_leftBindingPath) == false && string.IsNullOrWhiteSpace(_rightBindingPath) == false)
+            if (string.IsNullOrWhiteSpace(LeftBindingPath) == false && string.IsNullOrWhiteSpace(RightBindingPath) == false)
             {
                 var list = new List<Interval>();
 
                 foreach (var item in items)
                 {
-                    var propertyInfoLeft = item.GetType().GetProperty(_leftBindingPath);
-                    var propertyInfoRight = item.GetType().GetProperty(_rightBindingPath);
+                    var propertyInfoLeft = item.GetType().GetProperty(LeftBindingPath);
+                    var propertyInfoRight = item.GetType().GetProperty(RightBindingPath);
 
                     var valueLeft = propertyInfoLeft?.GetValue(item, null);
                     var valueRight = propertyInfoRight?.GetValue(item, null);
