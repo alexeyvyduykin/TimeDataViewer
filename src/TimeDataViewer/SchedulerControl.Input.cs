@@ -61,9 +61,9 @@ namespace TimeDataViewer
             {
                 Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;
                 
-                var ps = (this as Visual).PointToScreen(new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y));
+                //var ps = (this as Visual).PointToScreen(new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y));
 
-                Stuff.SetCursorPos((int)ps.X, (int)ps.Y);
+                //Stuff.SetCursorPos((int)ps.X, (int)ps.Y);
             }
         }
 
