@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TimeDataViewer.Models
+namespace Timeline.Models
 {
     public interface IShape
     {

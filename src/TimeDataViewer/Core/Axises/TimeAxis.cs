@@ -2,11 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TimeDataViewer.Spatial;
+using Timeline.Spatial;
 using System.Globalization;
-using TimeDataViewer.ViewModels;
+using Timeline.ViewModels;
 
-namespace TimeDataViewer.Core
+namespace Timeline.Core
 {
     public enum TimePeriod
     {

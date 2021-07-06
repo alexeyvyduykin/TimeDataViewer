@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeDataViewer", "src\TimeDataViewer\TimeDataViewer.csproj", "{E363FFC8-C3C0-4E76-9EA6-2180DFC437D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Timeline", "src\TimeDataViewer\Timeline.csproj", "{E363FFC8-C3C0-4E76-9EA6-2180DFC437D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E59BF236-C08A-41D2-98BF-989375047653}"
 EndProject
@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{12A7245F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimeDataViewer.UnitTests", "tests\TimeDataViewer.UnitTests\TimeDataViewer.UnitTests.csproj", "{9DEA20D9-AA05-4498-8B71-A1C64F0EA8CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AreaBorderDemo", "samples\AreaBorderDemo\AreaBorderDemo.csproj", "{318EFEB0-543E-40EC-AF19-E8AA0E5CF029}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AreaBorderDemo", "samples\AreaBorderDemo\AreaBorderDemo.csproj", "{318EFEB0-543E-40EC-AF19-E8AA0E5CF029}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

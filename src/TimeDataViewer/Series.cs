@@ -6,7 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Styling;
 using Avalonia.LogicalTree;
-using TimeDataViewer.ViewModels;
+using Timeline.ViewModels;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -18,8 +18,8 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.VisualTree;
-using TimeDataViewer.Shapes;
-using TimeDataViewer.Spatial;
+using Timeline.Shapes;
+using Timeline.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
@@ -28,11 +28,11 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
-using TimeDataViewer.Views;
+using Timeline.Views;
 using System.Threading.Tasks;
-using TimeDataViewer.Models;
+using Timeline.Models;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public record Interval(double Left, double Right);
 

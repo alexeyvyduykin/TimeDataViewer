@@ -13,12 +13,12 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using System.Collections.Specialized;
 using Avalonia.Controls.Shapes;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer.Models;
+using Timeline.Spatial;
+using Timeline.ViewModels;
+using Timeline.Models;
 using Avalonia.LogicalTree;
 
-namespace TimeDataViewer.Shapes
+namespace Timeline.Shapes
 {
     public class IntervalVisual : BaseIntervalVisual
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using TimeDataViewer.Core;
+using Timeline.Core;
 
-namespace TimeDataViewer.UnitTests.Core
+namespace Timeline.UnitTests.Core
 {
     public class CoreFactoryTests
     {

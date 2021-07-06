@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using TimeDataViewer.Core;
-using TimeDataViewer.Spatial;
+using Timeline.Core;
+using Timeline.Spatial;
 
-namespace TimeDataViewer.UnitTests.Core.Axises
+namespace Timeline.UnitTests.Core.Axises
 {
     public class TimeAxisTests
     {

@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Reactive.Disposables;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public class ViewModelBase : INotifyPropertyChanged
     {

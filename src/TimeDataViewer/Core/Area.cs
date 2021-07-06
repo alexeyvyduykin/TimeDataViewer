@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using TimeDataViewer.Spatial;
+using Timeline.Spatial;
 
-namespace TimeDataViewer.Core
+namespace Timeline.Core
 {
     public delegate void SizeChangedEventHandler(int width, int height);
     public delegate void WindowChangedEventHandler(RectI window);

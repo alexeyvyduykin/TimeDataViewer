@@ -15,6 +15,6 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\TimeDataViewer\TimeDataViewer.csproj" />
+    <ProjectReference Include="..\..\src\TimeDataViewer\Timeline.csproj" />
   </ItemGroup>
 </Project>

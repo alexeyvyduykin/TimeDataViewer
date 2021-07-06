@@ -5,10 +5,10 @@ using System.IO;
 using SatelliteDemo.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TimeDataViewer.ViewModels;
+using Timeline.ViewModels;
 using System.ComponentModel;
 using SatelliteDemo.SceneTimer;
-using TimeDataViewer;
+using Timeline;
 
 namespace SatelliteDemo.ViewModels
 {

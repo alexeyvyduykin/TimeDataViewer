@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using TimeDataViewer.Core;
+using Timeline.Core;
 using System.Collections.ObjectModel;
 
-namespace TimeDataViewer.UnitTests
+namespace Timeline.UnitTests
 {
     public class SchedulerControlTests
     {

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TimeDataViewer.Spatial;
+using Timeline.Spatial;
 using System.Collections.ObjectModel;
 using Avalonia;
-using TimeDataViewer.Models;
+using Timeline.Models;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public static class Extensions
     {

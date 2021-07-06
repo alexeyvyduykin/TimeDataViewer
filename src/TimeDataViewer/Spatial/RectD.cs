@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace TimeDataViewer.Spatial
+namespace Timeline.Spatial
 {
     public struct RectD
     {

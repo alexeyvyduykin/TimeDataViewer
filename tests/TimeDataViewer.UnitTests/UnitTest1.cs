@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace TimeDataViewer.UnitTests
+namespace Timeline.UnitTests
 {
     public class UnitTest1
     {

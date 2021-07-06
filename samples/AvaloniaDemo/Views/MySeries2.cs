@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using TimeDataViewer.Models;
+using Timeline.ViewModels;
+using Timeline;
+using Timeline.Models;
 using AvaloniaDemo.ViewModels;
 
 namespace AvaloniaDemo.Views

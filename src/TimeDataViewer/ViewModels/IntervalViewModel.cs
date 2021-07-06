@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TimeDataViewer.Models;
+using Timeline.Models;
 
-namespace TimeDataViewer.ViewModels
+namespace Timeline.ViewModels
 {
     public class IntervalViewModel : MarkerViewModel, IInterval
     {

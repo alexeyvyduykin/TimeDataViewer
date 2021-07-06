@@ -17,9 +17,9 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using TimeDataViewer.Spatial;
+using Timeline.ViewModels;
+using Timeline;
+using Timeline.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
@@ -28,12 +28,12 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using TimeDataViewer.Models;
-using TimeDataViewer.Shapes;
+using Timeline.Models;
+using Timeline.Shapes;
 using Avalonia.Controls.Generators;
 using System.Threading.Tasks;
 
-namespace TimeDataViewer.Views
+namespace Timeline.Views
 {
     public class CustomItemTemplate : IDataTemplate
     {

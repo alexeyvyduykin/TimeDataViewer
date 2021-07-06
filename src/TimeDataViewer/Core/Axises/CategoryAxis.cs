@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
+using Timeline.Spatial;
+using Timeline.ViewModels;
 
-namespace TimeDataViewer.Core
+namespace Timeline.Core
 {
     public class CategoryAxis : BaseAxis, ICategoryAxis
     {

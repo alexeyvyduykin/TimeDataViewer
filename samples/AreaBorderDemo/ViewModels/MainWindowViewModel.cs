@@ -19,9 +19,9 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using TimeDataViewer.Spatial;
+using Timeline.ViewModels;
+using Timeline;
+using Timeline.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
@@ -30,8 +30,8 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using TimeDataViewer.Models;
-using TimeDataViewer.Core;
+using Timeline.Models;
+using Timeline.Core;
 using Avalonia.Controls.Generators;
 
 namespace AreaBorderDemo.ViewModels

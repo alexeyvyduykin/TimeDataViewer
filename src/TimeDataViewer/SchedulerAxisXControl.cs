@@ -16,9 +16,9 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer.Core;
-using TimeDataViewer.Models;
+using Timeline.ViewModels;
+using Timeline.Core;
+using Timeline.Models;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
@@ -26,10 +26,10 @@ using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
-using TimeDataViewer.Shapes;
+using Timeline.Shapes;
 using System.Globalization;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public class SchedulerAxisXControl : UserControl
     {

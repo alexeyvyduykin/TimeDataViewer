@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TimeDataViewer.Models;
+using Timeline.Models;
 
-namespace TimeDataViewer.ViewModels
+namespace Timeline.ViewModels
 {
     public class IntervalTooltipViewModel : ViewModelBase
     {

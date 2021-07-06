@@ -3,8 +3,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using SatelliteDemo.ViewModels;
 using SatelliteDemo.Views;
-using TimeDataViewer;
-using TimeDataViewer.Core;
+using Timeline;
+using Timeline.Core;
 using System.Collections.ObjectModel;
 
 namespace SatelliteDemo

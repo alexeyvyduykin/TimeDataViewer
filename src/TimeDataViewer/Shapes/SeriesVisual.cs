@@ -3,10 +3,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
-using TimeDataViewer.Models;
-using TimeDataViewer.ViewModels;
+using Timeline.Models;
+using Timeline.ViewModels;
 
-namespace TimeDataViewer.Shapes
+namespace Timeline.Shapes
 {
     public class SeriesVisual : BaseVisual
     {  

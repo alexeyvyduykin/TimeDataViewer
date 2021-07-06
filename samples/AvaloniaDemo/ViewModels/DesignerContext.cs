@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AvaloniaDemo.Models;
-using TimeDataViewer.ViewModels;
+using Timeline.ViewModels;
 
 namespace AvaloniaDemo.ViewModels
 {
@@ -28,7 +28,7 @@ namespace AvaloniaDemo.ViewModels
                 Interval3 = DesignerData.Interval3
             };
 
-            var strng = new SeriesViewModel("Observation");
+            var strng = new SeriesViewModel() { Name = "Observation" };
             var marker = new IntervalViewModel(43882.0, 48323.0);
             marker.Series = strng;
 

@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace TimeDataViewer.Views
+namespace Timeline.Views
 {
     public class IntervalTooltip : UserControl
     {

@@ -22,14 +22,14 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer.Core;
-using TimeDataViewer.Spatial;
+using Timeline.ViewModels;
+using Timeline.Core;
+using Timeline.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Input.TextInput;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public delegate void MousePositionChangedEventHandler(Point2D point);
 

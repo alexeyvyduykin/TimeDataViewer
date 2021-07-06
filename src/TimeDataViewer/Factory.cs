@@ -16,19 +16,19 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using TimeDataViewer.Spatial;
+using Timeline.ViewModels;
+using Timeline;
+using Timeline.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
-using TimeDataViewer.Shapes;
-using TimeDataViewer.Models;
+using Timeline.Shapes;
+using Timeline.Models;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public class Factory
     {

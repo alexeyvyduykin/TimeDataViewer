@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
+using Timeline.Spatial;
+using Timeline.ViewModels;
 using System.Diagnostics;
 
-namespace TimeDataViewer.Core
+namespace Timeline.Core
 {
     public enum AxisType
     {

@@ -1,9 +1,9 @@
 ﻿using Avalonia.Controls;
-using TimeDataViewer.Models;
+using Timeline.Models;
 using Avalonia.Media;
 using Avalonia;
 
-namespace TimeDataViewer.Shapes
+namespace Timeline.Shapes
 {
     public abstract class BaseIntervalVisual : BaseVisual
     {

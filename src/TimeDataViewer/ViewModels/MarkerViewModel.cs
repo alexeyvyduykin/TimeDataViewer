@@ -9,12 +9,12 @@ using Avalonia.Visuals;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
 using Avalonia;
-using TimeDataViewer.Spatial;
-using TimeDataViewer;
-using TimeDataViewer.Models;
-using TimeDataViewer.Core;
+using Timeline.Spatial;
+using Timeline;
+using Timeline.Models;
+using Timeline.Core;
 
-namespace TimeDataViewer.ViewModels
+namespace Timeline.ViewModels
 {
     public class MarkerViewModel : ViewModelBase, IMarker
     {

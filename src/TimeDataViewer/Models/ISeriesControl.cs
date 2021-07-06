@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TimeDataViewer.ViewModels;
+using Timeline.ViewModels;
 using Avalonia.Controls;
 
-namespace TimeDataViewer.Models
+namespace Timeline.Models
 {
     public interface ISeriesControl
     {

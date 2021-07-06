@@ -5,9 +5,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using TimeDataViewer.Core;
+using Timeline.Core;
 
-namespace TimeDataViewer
+namespace Timeline
 {
     public partial class SchedulerControl
     {

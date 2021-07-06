@@ -9,9 +9,9 @@ using System.Drawing;
 using System.ComponentModel;
 using Avalonia.Media;
 using System.Windows;
-using TimeDataViewer.Models;
+using Timeline.Models;
 
-namespace TimeDataViewer.ViewModels
+namespace Timeline.ViewModels
 {
     public class SeriesViewModel : MarkerViewModel, ISeries
     {
