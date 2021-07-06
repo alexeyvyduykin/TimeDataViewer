@@ -178,7 +178,7 @@ namespace Timeline
             return new List<Interval>();
         }
 
-        public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;
+        public TimelineControl? Scheduler => (((ILogical)this).LogicalParent is TimelineControl scheduler) ? scheduler : null;
 
         public virtual IntervalTooltipViewModel CreateTooltip(IInterval marker)
         {

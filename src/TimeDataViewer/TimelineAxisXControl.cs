@@ -31,7 +31,7 @@ using System.Globalization;
 
 namespace Timeline
 {
-    public class SchedulerAxisXControl : UserControl
+    public class TimelineAxisXControl : UserControl
     {
         private record Label(Point Position, string Text);
         
@@ -52,7 +52,7 @@ namespace Timeline
         private bool _isDynamicLabel;
         private readonly IBrush _brush = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };
 
-        public SchedulerAxisXControl()
+        public TimelineAxisXControl()
         {
             _labels = new ObservableCollection<Label>();
 
@@ -73,7 +73,7 @@ namespace Timeline
         {
             base.OnDataContextBeginUpdate();
 
-            if (DataContext is not null && DataContext is ISchedulerControl scheduler)
+            if (DataContext is not null && DataContext is ITimeline scheduler)
             {
                 scheduler.AxisX.OnAxisChanged -= OnAxisChanged;
                 scheduler.PointerEnter -= OnMapEnter;
@@ -85,7 +85,7 @@ namespace Timeline
         {
             base.OnDataContextChanged(e);
 
-            if(DataContext is ISchedulerControl scheduler)
+            if(DataContext is ITimeline scheduler)
             {
                 scheduler.AxisX.OnAxisChanged += OnAxisChanged;
                 scheduler.PointerEnter += OnMapEnter;

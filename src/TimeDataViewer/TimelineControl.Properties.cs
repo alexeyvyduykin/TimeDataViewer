@@ -29,10 +29,10 @@ using Avalonia.Controls.Primitives;
 
 namespace Timeline
 {
-    public partial class SchedulerControl
+    public partial class TimelineControl
     {
-        public static readonly DirectProperty<SchedulerControl, ObservableCollection<Series>> SeriesProperty =    
-            AvaloniaProperty.RegisterDirect<SchedulerControl, ObservableCollection<Series>>(nameof(Series), o => o.Series, (o, v) => o.Series = v);
+        public static readonly DirectProperty<TimelineControl, ObservableCollection<Series>> SeriesProperty =    
+            AvaloniaProperty.RegisterDirect<TimelineControl, ObservableCollection<Series>>(nameof(Series), o => o.Series, (o, v) => o.Series = v);
 
         [Content]
         public ObservableCollection<Series> Series
@@ -42,7 +42,7 @@ namespace Timeline
         }
 
         public static readonly StyledProperty<double> ZoomProperty =    
-            AvaloniaProperty.Register<SchedulerControl, double>(nameof(Zoom), defaultValue: 0.0, inherits: true, defaultBindingMode: BindingMode.TwoWay, coerce: OnCoerceZoom);
+            AvaloniaProperty.Register<TimelineControl, double>(nameof(Zoom), defaultValue: 0.0, inherits: true, defaultBindingMode: BindingMode.TwoWay, coerce: OnCoerceZoom);
 
         public double Zoom
         {
@@ -52,7 +52,7 @@ namespace Timeline
 
         private static double OnCoerceZoom(IAvaloniaObject obj, double value)
         {
-            if (obj is SchedulerControl scheduler)
+            if (obj is TimelineControl scheduler)
             {             
                 if (scheduler is not null)
                 {
@@ -64,7 +64,7 @@ namespace Timeline
         }
 
         public static readonly StyledProperty<DateTime> EpochProperty =    
-            AvaloniaProperty.Register<SchedulerControl, DateTime>(nameof(Epoch), DateTime.Now);
+            AvaloniaProperty.Register<TimelineControl, DateTime>(nameof(Epoch), DateTime.Now);
 
         public DateTime Epoch
         {
@@ -73,7 +73,7 @@ namespace Timeline
         }
 
         public static readonly StyledProperty<double> CurrentTimeProperty =    
-            AvaloniaProperty.Register<SchedulerControl, double>(nameof(CurrentTime), 0.0);
+            AvaloniaProperty.Register<TimelineControl, double>(nameof(CurrentTime), 0.0);
 
         public double CurrentTime
         {

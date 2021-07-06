@@ -8,7 +8,7 @@ namespace Timeline.Models
 {
     public interface IShape
     {
-        ISchedulerControl? Scheduler { get; }
+        ITimeline? Scheduler { get; }
 
         IMarker? Marker { get; }
     }

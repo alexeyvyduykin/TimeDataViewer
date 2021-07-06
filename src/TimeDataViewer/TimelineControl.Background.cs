@@ -9,7 +9,7 @@ using Timeline.Core;
 
 namespace Timeline
 {
-    public partial class SchedulerControl
+    public partial class TimelineControl
     {
         private enum BackgroundMode { Hour, Day, Week, Month, Year }
         private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Color.Parse("#BDBDBD") /*Colors.Silver*/ };

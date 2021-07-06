@@ -9,7 +9,7 @@ using Timeline.Core;
 
 namespace Timeline.Models
 {
-    public interface ISchedulerControl : IControl
+    public interface ITimeline : IControl
     {
         Point2D FromAbsoluteToLocal(int x, int y);
 

@@ -13,9 +13,9 @@ namespace Timeline.UnitTests
     {
         public record Rotation(double BeginTime, double EndTime, double Angle);
         
-        private SchedulerControl CreateScheduler()
+        private TimelineControl CreateScheduler()
         {
-            return new SchedulerControl();
+            return new TimelineControl();
         }
 
         [Fact]

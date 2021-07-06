@@ -18,10 +18,10 @@
 
     <Border Margin="5" BorderThickness="3" BorderBrush="Black">
         <Grid RowDefinitions="*, 60" ColumnDefinitions="*" ShowGridLines="False">
-            <sch:SchedulerControl x:Name="scheduler" 
+            <sch:TimelineControl x:Name="timeline" 
                                   Grid.Row="0"
                                   Epoch="{Binding Epoch}">
-                <sch:SchedulerControl.Series>
+                <sch:TimelineControl.Series>
                     <sch:Series Category="Rotation" Items="{Binding Interval1}" LeftBindingPath="Begin" RightBindingPath="End">
                         <sch:Series.IntervalTemplate>
                             <shapes:IntervalVisual Background="Yellow"/>
@@ -51,16 +51,17 @@
                         </views:MySeries2.Tooltip>
 
                     </views:MySeries2>
-                </sch:SchedulerControl.Series>
-            </sch:SchedulerControl>
-        
-        
-            <sch:SchedulerAxisXControl DataContext="{Binding ElementName=scheduler}" 
+                </sch:TimelineControl.Series>
+            </sch:TimelineControl>
+
+
+            <sch:TimelineAxisXControl DataContext="{Binding ElementName=timeline}" 
                                        Grid.Row="1">
                 
-            </sch:SchedulerAxisXControl>
+            </sch:TimelineAxisXControl>
         
-        </Grid>
+        
+    </Grid>
     </Border>
 
 </Window>

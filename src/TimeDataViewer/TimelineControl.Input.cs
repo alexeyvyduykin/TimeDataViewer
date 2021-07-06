@@ -33,7 +33,7 @@ namespace Timeline
 {
     public delegate void MousePositionChangedEventHandler(Point2D point);
 
-    public partial class SchedulerControl
+    public partial class TimelineControl
     {
         private Cursor? _cursorBefore;
         private int _onMouseUpTimestamp = 0;
@@ -51,11 +51,11 @@ namespace Timeline
             {
                 _mousePosition = value;
                 OnMousePositionChanged?.Invoke(_mousePosition);
-                //Debug.WriteLine($"SchedulerControl -> OnMousePositionChanged -> Count = {OnMousePositionChanged?.GetInvocationList().Length}");
+                //Debug.WriteLine($"TimelineControl -> OnMousePositionChanged -> Count = {OnMousePositionChanged?.GetInvocationList().Length}");
             }
         }
 
-        private void SchedulerControl_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
+        private void TimelineControl_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
             if (IgnoreMarkerOnMouseWheel == true && _area.IsDragging == false)
             {
@@ -67,7 +67,7 @@ namespace Timeline
             }
         }
 
-        private void SchedulerControl_PointerPressed(object? sender, PointerPressedEventArgs e)
+        private void TimelineControl_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
             if (e.GetCurrentPoint(this).Properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed)
             {
@@ -77,7 +77,7 @@ namespace Timeline
             }
         }
 
-        private void SchedulerControl_PointerReleased(object? sender, PointerReleasedEventArgs e)
+        private void TimelineControl_PointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             if (_area.IsDragging == true)
             {
@@ -108,7 +108,7 @@ namespace Timeline
             }
         }
 
-        private void SchedulerControl_PointerMoved(object? sender, PointerEventArgs e)
+        private void TimelineControl_PointerMoved(object? sender, PointerEventArgs e)
         {
             var MouseScreenPosition = e.GetPosition(this);
                 

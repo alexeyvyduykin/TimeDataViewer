@@ -59,7 +59,7 @@
 
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Zoom: "/>
-                            <TextBlock Text="{Binding #scheduler.Zoom}"/>
+                            <TextBlock Text="{Binding #timeline.Zoom}"/>
                         </StackPanel>
                         
                         <Border Grid.Column="1" Margin="1">
@@ -69,16 +69,16 @@
                             <Slider TickFrequency="1"
                                     IsSnapToTickEnabled="True"
                                     Padding="5,-15"
-                                    Value="{Binding #scheduler.Zoom}"/>
+                                    Value="{Binding #timeline.Zoom}"/>
                         </Border>                       
                     </Grid>
 
                     <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
-                        <sch:SchedulerControl x:Name="scheduler"
+                        <sch:TimelineControl x:Name="timeline"
                                               Epoch="{Binding $parent[Window].DataContext.Epoch}"
                                               CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
-                            <sch:SchedulerControl.Series>
+                            <sch:TimelineControl.Series>
                                 <sch:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
                                     <sch:Series.IntervalTemplate>
                                         <shapes:IntervalVisual Background="Yellow"/>
@@ -97,12 +97,12 @@
                                     </sch:Series.IntervalTemplate>
                                 </sch:Series>
 
-                            </sch:SchedulerControl.Series>
+                            </sch:TimelineControl.Series>
 
-                        </sch:SchedulerControl>
+                        </sch:TimelineControl>
                     </ContentControl>
-                   
-                    <sch:SchedulerAxisXControl DataContext="{Binding #scheduler}" Grid.Row="2"/>
+
+                    <sch:TimelineAxisXControl DataContext="{Binding #timeline}" Grid.Row="2"/>
               
                 </Grid>
             </Border>

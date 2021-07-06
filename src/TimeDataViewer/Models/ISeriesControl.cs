@@ -10,7 +10,7 @@ namespace Timeline.Models
 {
     public interface ISeriesControl
     {
-        SchedulerControl? Scheduler { get; }
+        TimelineControl? Scheduler { get; }
        
         Control Tooltip { get; set; }
 

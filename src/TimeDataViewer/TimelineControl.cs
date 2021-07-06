@@ -40,7 +40,7 @@ namespace Timeline
 {
     public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, IStyleable, ISchedulerControl
+    public partial class TimelineControl : ItemsControl, IStyleable, ITimeline
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
@@ -65,7 +65,7 @@ namespace Timeline
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
         public event EventHandler? OnZoomChanged;
    
-        public SchedulerControl()
+        public TimelineControl()
         {
             CoreFactory factory = new CoreFactory();
 
@@ -76,10 +76,10 @@ namespace Timeline
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
 
-            PointerWheelChanged += SchedulerControl_PointerWheelChanged;
-            PointerPressed += SchedulerControl_PointerPressed;
-            PointerReleased += SchedulerControl_PointerReleased;
-            PointerMoved += SchedulerControl_PointerMoved;
+            PointerWheelChanged += TimelineControl_PointerWheelChanged;
+            PointerPressed += TimelineControl_PointerPressed;
+            PointerReleased += TimelineControl_PointerReleased;
+            PointerMoved += TimelineControl_PointerMoved;
 
             _canvas = new Canvas()
             {
@@ -109,14 +109,14 @@ namespace Timeline
             ClipToBounds = true;
      //       SnapsToDevicePixels = true;
             
-            LayoutUpdated += SchedulerControl_LayoutUpdated;
+            LayoutUpdated += TimelineControl_LayoutUpdated;
          
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
-            ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
-            EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
-            CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
+            ZoomProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.ZoomChanged(e));
+            EpochProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.EpochChanged(e));
+            CurrentTimeProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.CurrentTimeChanged(e));
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
 
@@ -155,7 +155,7 @@ namespace Timeline
         private void ZoomChangedEvent(object? sender, EventArgs e)
         {
             OnZoomChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"SchedulerControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
+            //Debug.WriteLine($"TimelineControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();
         }
@@ -283,12 +283,12 @@ namespace Timeline
             }
         }
 
-        private void SchedulerControl_LayoutUpdated(object? sender, EventArgs e)
+        private void TimelineControl_LayoutUpdated(object? sender, EventArgs e)
         {
             _area.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"SchedulerControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
+            //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();            
         }

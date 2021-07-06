@@ -37,7 +37,7 @@ using Avalonia.Collections;
 
 namespace Timeline
 {
-    public partial class SchedulerControl
+    public partial class TimelineControl
     {
         private DispatcherTimer _timer;
         private bool _init = false;

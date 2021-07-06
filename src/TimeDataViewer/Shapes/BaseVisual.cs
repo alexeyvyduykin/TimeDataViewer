@@ -23,14 +23,14 @@ namespace Timeline.Shapes
     public abstract class BaseVisual : Control, IShape
     {   
         private IMarker? _marker;
-        private ISchedulerControl? _scheduler;
+        private ITimeline? _scheduler;
 
         public BaseVisual()
         {
             DataContextProperty.Changed.AddClassHandler<BaseVisual>((d, e) => d.MarkerChanged(e));
         }
 
-        public ISchedulerControl? Scheduler => _scheduler;
+        public ITimeline? Scheduler => _scheduler;
 
         public IMarker? Marker => _marker;
 
@@ -48,12 +48,12 @@ namespace Timeline.Shapes
 
             ILogical control = this;
 
-            while((control.LogicalParent is ISchedulerControl) == false)
+            while((control.LogicalParent is ITimeline) == false)
             {
                 control = control.LogicalParent;
             }
 
-            _scheduler = (ISchedulerControl)control.LogicalParent;
+            _scheduler = (ITimeline)control.LogicalParent;
 
             _scheduler.OnZoomChanged += HandleUpdateEvent;
             _scheduler.OnSizeChanged += HandleUpdateEvent;
