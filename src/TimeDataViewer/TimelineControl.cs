@@ -145,6 +145,13 @@ namespace Timeline
             }
         }
     
+        private void UpdateProperties()
+        {
+            Window = _area.Window;
+            Viewport = _area.Viewport;
+            ClientViewport = _area.ClientViewport;
+        }
+
         private void UpdateViewport()
         {
             var maxRight = _seriesViewModels.Max(s => s.MaxTime());
@@ -154,6 +161,8 @@ namespace Timeline
             var len = (rightDate - _epoch.Date).TotalSeconds;
 
             AutoSetViewportArea(len);
+            
+            UpdateProperties();
         }
 
         private void ZoomChangedEvent(object? sender, EventArgs e)
@@ -162,6 +171,8 @@ namespace Timeline
             //Debug.WriteLine($"TimelineControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();
+
+            UpdateProperties();
         }
 
         public DateTime Epoch0 => Epoch.Date;
@@ -299,7 +310,10 @@ namespace Timeline
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
             //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
 
-            ForceUpdateOverlays();            
+            ForceUpdateOverlays();
+
+            UpdateProperties();
+      
         }
 
         private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        

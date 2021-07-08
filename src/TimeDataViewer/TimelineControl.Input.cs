@@ -151,6 +151,8 @@ namespace Timeline
 
                 UpdateMarkersOffset();
 
+                UpdateProperties();
+
                 InvalidateVisual();
             }
         }

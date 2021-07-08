@@ -80,5 +80,32 @@ namespace Timeline
             get => GetValue(CurrentTimeProperty);
             set => SetValue(CurrentTimeProperty, value);
         }
+
+        public static readonly StyledProperty<RectI> WindowProperty =    
+            AvaloniaProperty.Register<TimelineControl, RectI>(nameof(Window));
+
+        public RectI Window
+        {
+            get => GetValue(WindowProperty);
+            set => SetValue(WindowProperty, value);
+        }
+
+        public static readonly StyledProperty<RectD> ViewportProperty =    
+            AvaloniaProperty.Register<TimelineControl, RectD>(nameof(Viewport));
+
+        public RectD Viewport
+        {
+            get => GetValue(ViewportProperty);
+            set => SetValue(ViewportProperty, value);
+        }
+
+        public static readonly StyledProperty<RectD> ClientViewportProperty =    
+            AvaloniaProperty.Register<TimelineControl, RectD>(nameof(ClientViewport));
+
+        public RectD ClientViewport
+        {
+            get => GetValue(ClientViewportProperty);
+            set => SetValue(ClientViewportProperty, value);
+        }
     }
 }
