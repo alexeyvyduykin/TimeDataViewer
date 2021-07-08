@@ -3,15 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SatelliteDemo.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"   
+        xmlns:i="using:Avalonia.Xaml.Interactivity"
+        xmlns:ia="using:Avalonia.Xaml.Interactions.Core"
         xmlns:views="clr-namespace:SatelliteDemo.Views"
         xmlns:vms="using::Timeline.ViewModels"
-        xmlns:sch="using:Timeline"
+        xmlns:local="clr-namespace:Timeline;assembly=Timeline"     
+        xmlns:converter="using:SatelliteDemo.Converters"
         xmlns:shapes="using:Timeline.Shapes"
         xmlns:models="clr-namespace:SatelliteDemo.Models"
         xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
         xmlns:sys="clr-namespace:System;assembly=netstandard" 
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"        
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"        
         Icon="/Assets/avalonia-logo.ico"
         Title="SatelliteDemo">
     <!--
@@ -20,8 +23,90 @@
     </Design.DataContext>
 -->
 
+    <Window.Resources>
+        <converter:LabelTransformConverter x:Key="labelTransformConverter"/>
+    </Window.Resources>
+        
+    <Window.Styles>
+                        
+        <Style Selector="Border.label">
+            <Setter Property="Background" Value="LightBlue"></Setter>
+            <Setter Property="BorderBrush" Value="Blue"></Setter>
+            <Setter Property="BorderThickness" Value="1"></Setter>
+            <Setter Property="CornerRadius" Value="8"></Setter>
+            <Setter Property="Padding" Value="4,2"></Setter>            
+        </Style>
+        
+        <Style Selector="TextBlock.label">                     
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>        
+            <Setter Property="Foreground" Value="#A6A6A6"></Setter>                    
+        </Style>
+            
+        <Style Selector="TextBlock.leftlabel">           
+            <Setter Property="Foreground" Value="#A6A6A6"></Setter>      
+            <Setter Property="HorizontalAlignment" Value="Left"></Setter>                   
+        </Style>
+            
+        <Style Selector="TextBlock.rightlabel">           
+            <Setter Property="Foreground" Value="#A6A6A6"></Setter>            
+            <Setter Property="HorizontalAlignment" Value="Right"></Setter>                
+        </Style>
+            
+        <Style Selector="local|TimelineAxisXControl">
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Background" Value="#292929" />
+                <Setter Property="Template">
+                    <ControlTemplate>
+                        <Border Margin="{TemplateBinding Margin}"
+                                Background="{TemplateBinding Background}"
+                                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                            <Grid RowDefinitions="16,16">
+                                <ItemsPresenter Name="PART_ItemsPresenter"
+                                                Grid.Row="0"                                                                                       
+                                                Items="{TemplateBinding Items}"
+                                                ItemsPanel="{TemplateBinding ItemsPanel}"
+                                                ItemTemplate="{TemplateBinding ItemTemplate}"/>
+
+                                    <TextBlock Classes="leftlabel"
+                                               Grid.Row="1"
+                                               Text="{TemplateBinding LeftLabel}" />
+                              
+                                    <TextBlock Classes="rightlabel"
+                                               Grid.Row="1"
+                                               Text="{TemplateBinding RightLabel}" />                                   
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter>
+        </Style>
+
+        <Style Selector="local|TimelineAxisXControl">
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate DataType="local:Label">                                                    
+                        <TextBlock Classes="label" Text="{Binding Text}"/>                       
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style Selector="local|TimelineAxisXControl > ContentPresenter">                
+            <Setter Property="Canvas.Left" Value="{Binding X}" />       
+            <Setter Property="Width" Value="50" />  
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <TranslateTransform X="-25"/>
+            </Setter.Value>
+        </Setter>
+        </Style>
+
+    </Window.Styles>
+
+
     <Border Margin="5" BorderThickness="3" BorderBrush="Black">
-        <Grid RowDefinitions="Auto, *" ColumnDefinitions="*" ShowGridLines="False">
+        <Grid RowDefinitions="Auto, *" ColumnDefinitions="300,*" ShowGridLines="False">
 
             <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,*">
                 <Border Margin="5" Grid.RowSpan="2" BorderThickness="2" BorderBrush="Black">
@@ -46,14 +131,9 @@
                 </Border>
             </Grid>
 
-            <!--
-            <sch:NewSchedulerControl Grid.Row="1"
-                      Items="{Binding NewIntervals}">
-            </sch:NewSchedulerControl>
-            -->
 
-            <Border Margin="5" Grid.Row="1" BorderBrush="Black" BorderThickness="2">
-                <Grid RowDefinitions="Auto,*,60">
+            <Border Margin="5" Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="2">
+                <Grid RowDefinitions="Auto,*,Auto">
 
                     <Grid ColumnDefinitions="80,400" RowDefinitions="30" Grid.Row="0" HorizontalAlignment="Center">
 
@@ -61,7 +141,7 @@
                             <TextBlock Text="Zoom: "/>
                             <TextBlock Text="{Binding #timeline.Zoom}"/>
                         </StackPanel>
-                        
+
                         <Border Grid.Column="1" Margin="1">
                             <Border.Background>
                                 <SolidColorBrush Color="Silver" Opacity="0.3"/>
@@ -70,44 +150,100 @@
                                     IsSnapToTickEnabled="True"
                                     Padding="5,-15"
                                     Value="{Binding #timeline.Zoom}"/>
-                        </Border>                       
+                        </Border>
                     </Grid>
 
                     <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
-                        <sch:TimelineControl x:Name="timeline"
-                                              Epoch="{Binding $parent[Window].DataContext.Epoch}"
-                                              CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
+                        <local:TimelineControl Name="timeline"
+                                               Epoch="{Binding $parent[Window].DataContext.Epoch}"
+                                               CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
-                            <sch:TimelineControl.Series>
-                                <sch:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
-                                    <sch:Series.IntervalTemplate>
-                                        <shapes:IntervalVisual Background="Yellow"/>
-                                    </sch:Series.IntervalTemplate>
-                                </sch:Series>
+                            <!--<local:TimelineControl.Series>
+                                    <local:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
+                                        <local:Series.IntervalTemplate>
+                                            <shapes:IntervalVisual Background="Yellow"/>
+                                        </local:Series.IntervalTemplate>
+                                    </local:Series>
 
-                                <sch:Series Category="Observation" Items="{Binding Observations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
-                                    <sch:Series.IntervalTemplate>
-                                        <shapes:IntervalVisual Background="Blue"/>
-                                    </sch:Series.IntervalTemplate>
-                                </sch:Series>
+                                    <local:Series Category="Observation" Items="{Binding Observations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
+                                        <local:Series.IntervalTemplate>
+                                            <shapes:IntervalVisual Background="Blue"/>
+                                        </local:Series.IntervalTemplate>
+                                    </local:Series>
 
-                                <sch:Series Category="Transmission" Items="{Binding Transmissions}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
-                                    <sch:Series.IntervalTemplate>
-                                        <shapes:IntervalVisual Background="Green"/>
-                                    </sch:Series.IntervalTemplate>
-                                </sch:Series>
+                                    <local:Series Category="Transmission" Items="{Binding Transmissions}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
+                                        <local:Series.IntervalTemplate>
+                                            <shapes:IntervalVisual Background="Green"/>
+                                        </local:Series.IntervalTemplate>
+                                    </local:Series>
 
-                            </sch:TimelineControl.Series>
+                                </local:TimelineControl.Series>-->
 
-                        </sch:TimelineControl>
+                        </local:TimelineControl>
                     </ContentControl>
 
-                    <sch:TimelineAxisXControl DataContext="{Binding #timeline}" Grid.Row="2"/>
-              
+                    <local:TimelineAxisXControl Timeline="{Binding #timeline}" Grid.Row="2"/>
+
                 </Grid>
             </Border>
 
+        
+    <Border Margin="5" Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="2">
+        <StackPanel>
+            <!-- Area -->
+            <Grid RowDefinitions="*,*,*,*,*,*,*" ColumnDefinitions="*,Auto">                
+                  <TextBlock Text="Area" FontWeight="Bold"></TextBlock>
+            
+                  <TextBlock Grid.Row="1" Text="Zoom"></TextBlock>
+                  <TextBlock Grid.Row="1" Grid.Column="1"
+                HorizontalAlignment="Left"             
+                Text="{Binding #timeline.Zoom}"></TextBlock>
+                
+                  <TextBlock Grid.Row="2" Text="Window"></TextBlock>
+                  <TextBlock Grid.Row="2" Grid.Column="1"
+                             HorizontalAlignment="Left"    
+                Text="{Binding #timeline.AbsoluteWindow}"></TextBlock>
+                                
+                  <TextBlock Grid.Row="3" Text="ClientViewport"></TextBlock>
+                  <TextBlock Grid.Row="3" Grid.Column="1" 
+                             HorizontalAlignment="Left"   
+                             Text="{Binding #timeline.ClientViewportArea}"></TextBlock>
+                
+                  <TextBlock Grid.Row="4" Text="Viewport"></TextBlock>
+                  <TextBlock Grid.Row="4" Grid.Column="1"
+                             HorizontalAlignment="Left"   
+                             Text="{Binding #timeline.ViewportArea}"></TextBlock>
+            </Grid>
+            
+            <!-- AxisX -->
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
+                <TextBlock Text="AxisX" FontWeight="Bold"></TextBlock>
+
+
+            </Grid>
+    
+            <!-- TimelineControl -->
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
+                <TextBlock Text="TimelineControl" FontWeight="Bold"></TextBlock>
+
+
+            </Grid>
+
+            <!-- TimelineAxisXControl -->
+            <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
+                <TextBlock Text="TimelineAxisXControl" FontWeight="Bold"></TextBlock>
+
+
+            </Grid>
+
+
+
+        </StackPanel>
+    
+            
+    </Border>
+    
         </Grid>
     </Border>
-   
+
 </Window>

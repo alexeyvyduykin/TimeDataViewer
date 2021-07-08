@@ -13,8 +13,13 @@ namespace Timeline
     {
         private enum BackgroundMode { Hour, Day, Week, Month, Year }
         private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Color.Parse("#BDBDBD") /*Colors.Silver*/ };
-        private readonly IBrush _brushSecond = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };         
-        
+        private readonly IBrush _brushSecond = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };
+
+        private readonly IBrush _background = new SolidColorBrush() { Color = Color.Parse("#424242") };
+
+        private readonly IBrush _minorGridLine = new SolidColorBrush() { Color = Color.Parse("#2A2A2A"), Opacity = 1.0 };
+        private readonly IBrush _majorGridLine = new SolidColorBrush() { Color = Color.Parse("#2A2A2A"), Opacity = 0.5 };
+
         //private VisualBrush _areaBackground;
 
         //public VisualBrush AreaBackground => _areaBackground;
@@ -132,7 +137,7 @@ namespace Timeline
         //    {
         //        throw new Exception();
         //    }
-          
+
         //    var grid = CreateGrid(count, AbsoluteWindow.Width, AbsoluteWindow.Height);
 
         //    grid.Width = AbsoluteWindow.Width;
@@ -168,7 +173,7 @@ namespace Timeline
             else if (IsRange(w, 0.0, 86400.0) == true) // Day
             {
                 AxisX.TimePeriodMode = TimePeriod.Day;
-                count = (int)(len / (86400.0 / 24));           
+                count = (int)(len / (86400.0 / 24));
             }
             else if (IsRange(w, 0.0, 7 * 86400.0) == true) // Week
             {
@@ -188,11 +193,16 @@ namespace Timeline
             var height = _area.Window.Height;
             var width = _area.Window.Width;
 
+            context.FillRectangle(_background, new Rect(0, 0, width, height));
+
             for (int i = 0; i < count; i++)
             {
-                var brush = (i % 2 == 0) ? _brushFirst : _brushSecond;
+                var brush = (i % 2 == 0) ? _minorGridLine : _majorGridLine;
                 double dw = (double)width / count;
-                context.FillRectangle(brush, new Rect(dw * i + WindowOffset.X, 0, dw, height));
+
+                context.DrawLine(new Pen() { Thickness = 1, Brush = brush }, new Point(dw * i + WindowOffset.X, 0), new Point(dw * i + WindowOffset.X, height));
+
+                //context.FillRectangle(brush, new Rect(dw * i + WindowOffset.X, 0, dw, height));
             }
         }
 

@@ -21,10 +21,14 @@ namespace Timeline.Core
     {
         private AxisLabelPosition? _dynamicLabel;
         private DateTime _epoch0 = DateTime.MinValue;
-        
+        private string _minLabel;
+
+        private string _maxLabel;
+        private IList<AxisLabelPosition> _labels;
+
         public TimeAxis() 
         {
-            
+            _labels = new List<AxisLabelPosition>();
         }
 
         public IDictionary<TimePeriod, string>? LabelFormatPool { get; init; }
@@ -40,6 +44,12 @@ namespace Timeline.Core
                 Invalidate();
             }
         }
+
+        public IList<AxisLabelPosition> Labels => _labels;
+
+        public string MinLabel => _minLabel;
+
+        public string MaxLabel => _maxLabel;
 
         public TimePeriod TimePeriodMode { get; set; }
 
@@ -160,6 +170,10 @@ namespace Timeline.Core
 
                 value += delta;
             }
+
+            _labels = new List<AxisLabelPosition>(labs);
+            _minLabel = CreateMinMaxLabel(MinClientValue);
+            _maxLabel = CreateMinMaxLabel(MaxClientValue);     
 
             return labs;
         }

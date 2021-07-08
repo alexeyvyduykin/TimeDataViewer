@@ -122,6 +122,10 @@ namespace Timeline
 
             _markers = new ObservableCollection<IMarker>();
 
+            Epoch = new DateTime(2020,6,20,12,0,0);
+            AutoSetViewportArea(86400.0);
+
+
             Items = _markers;
         }
 
@@ -207,32 +211,37 @@ namespace Timeline
         
         private void AutoSetViewportArea(double len)
         {
-            var d0 = (_epoch - _epoch.Date).TotalSeconds;    
-            var count = _seriesViewModels.Count;
-            double step = 1.0 / (count + 1);
+            var d0 = (_epoch - _epoch.Date).TotalSeconds;
 
-            int i = 0;
-            foreach (var item in _seriesViewModels)
+
+            if (_seriesViewModels is not null)
             {
-                if (item is not null)
+                var count = _seriesViewModels.Count;
+                double step = 1.0 / (count + 1);
+
+                int i = 0;
+                foreach (var item in _seriesViewModels)
                 {
-                    var series = item;
-
-                    var seriesLocalPostion = new Point2D(0.0, (++i) * step);
-                    var seriesAbsolutePostion = _area.FromLocalToAbsolute(seriesLocalPostion);
-                    
-                    series.LocalPosition = seriesLocalPostion;              
-                    series.AbsolutePositionX = seriesAbsolutePostion.X;
-                    series.AbsolutePositionY = seriesAbsolutePostion.Y;
-
-                    foreach (var ival in series.Intervals)
+                    if (item is not null)
                     {
-                        var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, series.LocalPosition.Y);
-                        var intervalAbsolutePostion = _area.FromLocalToAbsolute(intervalLocalPosition);
+                        var series = item;
 
-                        ival.LocalPosition = intervalLocalPosition;                    
-                        ival.AbsolutePositionX = intervalAbsolutePostion.X;
-                        ival.AbsolutePositionY = intervalAbsolutePostion.Y;
+                        var seriesLocalPostion = new Point2D(0.0, (++i) * step);
+                        var seriesAbsolutePostion = _area.FromLocalToAbsolute(seriesLocalPostion);
+
+                        series.LocalPosition = seriesLocalPostion;
+                        series.AbsolutePositionX = seriesAbsolutePostion.X;
+                        series.AbsolutePositionY = seriesAbsolutePostion.Y;
+
+                        foreach (var ival in series.Intervals)
+                        {
+                            var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, series.LocalPosition.Y);
+                            var intervalAbsolutePostion = _area.FromLocalToAbsolute(intervalLocalPosition);
+
+                            ival.LocalPosition = intervalLocalPosition;
+                            ival.AbsolutePositionX = intervalAbsolutePostion.X;
+                            ival.AbsolutePositionY = intervalAbsolutePostion.Y;
+                        }
                     }
                 }
             }

@@ -72,5 +72,12 @@ namespace Timeline.Spatial
                 && (rect.Top >= Bottom)
                 && (rect.Bottom <= Top);
         }
+
+        public override string ToString()
+        {
+            return X.ToString("F1", CultureInfo.CurrentCulture) + ", " + Y.ToString("F1", CultureInfo.CurrentCulture) +
+               ", " + Width.ToString("F1", CultureInfo.CurrentCulture) +
+               ", " + Height.ToString("F1", CultureInfo.CurrentCulture);
+        }
     }
 }

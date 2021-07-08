@@ -1,0 +1,42 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="using:System"
+        xmlns:Control="using:Timeline">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <Border.Resources>
+                <sys:DateTime x:Key="epoch">6/20/2021</sys:DateTime>
+                <sys:Double x:Key="time">43200</sys:Double>
+            </Border.Resources>
+                                    
+            <Control:TimelineControl 
+                Epoch="{StaticResource epoch}"
+                CurrentTime="{StaticResource time}"
+                Zoom="0"                
+                Width="400" Height="200">
+                
+            </Control:TimelineControl>
+                        
+        </Border>
+    </Design.PreviewWith>
+
+    <!--<Style Selector="Control|TimelineControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>                
+                        <Border Background="Silver">
+                            <Grid RowDefinitions="*,Auto">
+
+                                <Border Grid.Row="1" Background="Gray" Height="20">
+                                    <Control:TimelineAxisXControl>
+
+                                    </Control:TimelineAxisXControl>
+                                </Border>
+                            </Grid>
+                        </Border>                   
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
+    
+</Styles>

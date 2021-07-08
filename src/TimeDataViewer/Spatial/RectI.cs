@@ -223,11 +223,17 @@ namespace Timeline.Spatial
             _y += y;
         }
 
+        //public override string ToString()
+        //{
+        //    return "{X=" + X.ToString(CultureInfo.CurrentCulture) + ",Y=" + Y.ToString(CultureInfo.CurrentCulture) +
+        //       ",Width=" + Width.ToString(CultureInfo.CurrentCulture) +
+        //       ",Height=" + Height.ToString(CultureInfo.CurrentCulture) + "}";
+        //}
         public override string ToString()
         {
-            return "{X=" + X.ToString(CultureInfo.CurrentCulture) + ",Y=" + Y.ToString(CultureInfo.CurrentCulture) +
-               ",Width=" + Width.ToString(CultureInfo.CurrentCulture) +
-               ",Height=" + Height.ToString(CultureInfo.CurrentCulture) + "}";
+            return X.ToString(CultureInfo.CurrentCulture) + ", " + Y.ToString(CultureInfo.CurrentCulture) +
+               ", " + Width.ToString(CultureInfo.CurrentCulture) +
+               ", " + Height.ToString(CultureInfo.CurrentCulture);
         }
     }
 }

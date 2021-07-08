@@ -13,6 +13,10 @@ namespace Timeline.Core
         IDictionary<TimePeriod, double>? LabelDeltaPool { get; }
         DateTime Epoch0 { get; set; }
         TimePeriod TimePeriodMode { get; set; }
-        void UpdateDynamicLabelPosition(Point2D point);
+        void UpdateDynamicLabelPosition(Point2D point); 
+        string MinLabel { get; }
+
+        string MaxLabel { get; }
+        IList<AxisLabelPosition> Labels { get; }
     }
 }
