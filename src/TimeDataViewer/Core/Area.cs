@@ -7,11 +7,6 @@ using Timeline.Spatial;
 
 namespace Timeline.Core
 {
-    public delegate void SizeChangedEventHandler(int width, int height);
-    public delegate void WindowChangedEventHandler(RectI window);
-    public delegate void ClientViewportChangedEventHandler(RectD viewport);
-    public delegate void ViewportChangedEventHandler(RectD viewport);
-
     public class Area
     {
         private int _width;
@@ -28,46 +23,27 @@ namespace Timeline.Core
      
         public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
+        public event EventHandler OnLayoutUpdated;
        
-        private event SizeChangedEventHandler OnSizeChanged;        
-        private event WindowChangedEventHandler OnWindowChanged;
-        private event ClientViewportChangedEventHandler OnClientViewportChanged;
-        private event ViewportChangedEventHandler OnViewportChanged;
-
         public Area() 
         {
             _coreFactory = new CoreFactory();
             _axisX = _coreFactory.CreateTimeAxis(this);
             _axisY = _coreFactory.CreateCategoryAxis(this);
 
-            OnSizeChanged += SizeChangedEvent;
-            OnWindowChanged += WindowChangedEvent;
-            OnClientViewportChanged += ClientViewportChangedEvent;
-            OnViewportChanged += ViewportChangedEvent;
+            OnLayoutUpdated += Area_OnLayoutUpdated;
         }
 
-        private void SizeChangedEvent(int width, int height)
+        private void Area_OnLayoutUpdated(object sender, EventArgs e)
         {
-            _axisX.UpdateWindow(new RectI(0, 0, width, height));
-            _axisY.UpdateWindow(new RectI(0, 0, width, height));
-        }
+            _axisX.UpdateWindow(Window);
+            _axisY.UpdateWindow(Window);
 
-        private void WindowChangedEvent(RectI rect)
-        {
-            _axisX.UpdateWindow(rect);
-            _axisY.UpdateWindow(rect);
-        }
+            _axisX.UpdateClientViewport(ClientViewport);
+            _axisY.UpdateClientViewport(ClientViewport);
 
-        private void ClientViewportChangedEvent(RectD rect)
-        {
-            _axisX.UpdateClientViewport(rect);
-            _axisY.UpdateClientViewport(rect);
-        }
-
-        private void ViewportChangedEvent(RectD rect)
-        {
-            _axisX.UpdateViewport(rect);
-            _axisY.UpdateViewport(rect);
+            _axisX.UpdateViewport(Viewport);
+            _axisY.UpdateViewport(Viewport);
         }
 
         public int Width => _width;
@@ -108,8 +84,7 @@ namespace Timeline.Core
             {
                 _window = value;
 
-                OnWindowChanged?.Invoke(_window);
-                //Debug.WriteLine($"Area -> OnWindowChanged -> Count = {OnWindowChanged?.GetInvocationList().Length}");
+                OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
             }
         }
      
@@ -122,9 +97,7 @@ namespace Timeline.Core
             private set
             {
                 _clientViewport = value;
-
-                OnClientViewportChanged?.Invoke(_clientViewport);
-                //Debug.WriteLine($"Area -> OnClientViewportChanged -> Count = {OnClientViewportChanged?.GetInvocationList().Length}");
+                OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
             }
         }
    
@@ -137,9 +110,7 @@ namespace Timeline.Core
             private set
             {
                 _viewport = value;
-
-                OnViewportChanged?.Invoke(_viewport);
-                //Debug.WriteLine($"Area -> OnViewportChanged -> Count = {OnViewportChanged?.GetInvocationList().Length}");
+                OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -186,9 +157,6 @@ namespace Timeline.Core
             _width = width;
             _height = height;
 
-            OnSizeChanged?.Invoke(width, height);
-            //Debug.WriteLine($"Area -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
-
             Window = CreateWindow(_zoom);
 
             WindowOffset = CreateWindowOffset(center);
@@ -196,6 +164,8 @@ namespace Timeline.Core
             ClientViewport = CreateClientViewport();
 
             ZoomScreenPosition = FromLocalToScreen(center);
+
+            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         public void BeginDrag(Point2D pt)
