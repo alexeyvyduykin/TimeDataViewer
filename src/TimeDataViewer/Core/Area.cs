@@ -23,27 +23,13 @@ namespace Timeline.Core
      
         public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
-        public event EventHandler OnLayoutUpdated;
        
         public Area() 
         {
             _coreFactory = new CoreFactory();
+
             _axisX = _coreFactory.CreateTimeAxis(this);
             _axisY = _coreFactory.CreateCategoryAxis(this);
-
-            OnLayoutUpdated += Area_OnLayoutUpdated;
-        }
-
-        private void Area_OnLayoutUpdated(object sender, EventArgs e)
-        {
-            _axisX.UpdateWindow(Window);
-            _axisY.UpdateWindow(Window);
-
-            _axisX.UpdateClientViewport(ClientViewport);
-            _axisY.UpdateClientViewport(ClientViewport);
-
-            _axisX.UpdateViewport(Viewport);
-            _axisY.UpdateViewport(Viewport);
         }
 
         public int Width => _width;
@@ -111,12 +97,16 @@ namespace Timeline.Core
 
         public void WindowUpdated(int width, int height, int zoom)
         {
+            _width = width;
+            _height = height;
+
             int w = width * (1 + (int)(zoom * ZoomScaleX));
             int h = height * (1 + (int)(zoom * ZoomScaleY));
 
             _window = new RectI(0, 0, w, h);
 
-            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
+            _axisX.UpdateWindow(_window);
+            _axisY.UpdateWindow(_window);
         }
 
         public void ClientViewportUpdated(Point2I offset, RectI window, RectD viewport)
@@ -136,8 +126,9 @@ namespace Timeline.Core
             }
 
             _clientViewport = new RectD(left, bottom, w, h);
-            
-            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
+
+            _axisX.UpdateClientViewport(_clientViewport);
+            _axisY.UpdateClientViewport(_clientViewport);
         }
 
         public void ViewportUpdated(double x, double y, double width, double height)
@@ -145,28 +136,25 @@ namespace Timeline.Core
             RectD viewport = new RectD(x, y, width, height);
             _viewport = viewport;
             _clientViewport = viewport;
-            
-            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
+
+            _axisX.UpdateViewport(_viewport);
+            _axisY.UpdateViewport(_viewport);
+
+            _axisX.UpdateClientViewport(_clientViewport);
+            _axisY.UpdateClientViewport(_clientViewport);
         }
 
         public void SizeUpdated(int width, int height)
         {
-            var oldCenter = FromScreenToLocal(_width / 2, _height / 2);
-
-            _width = width;
-            _height = height;
-
-            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
+            var oldCenter = FromScreenToLocal(Width / 2, Height / 2);
 
             WindowUpdated(width, height, _zoom);
-
+     
             WindowOffset = CreateWindowOffset(oldCenter);
 
             ClientViewportUpdated(WindowOffset, Window, Viewport);
 
             ZoomScreenPosition = FromLocalToScreen(oldCenter);
-
-            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
         }
 
         public void BeginDrag(Point2D pt)
