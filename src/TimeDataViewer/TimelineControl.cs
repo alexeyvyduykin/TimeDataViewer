@@ -265,7 +265,7 @@ namespace Timeline
                 }
             }
 
-            _area.UpdateViewport(0.0, 0.0, len, 1.0);            
+            _area.ViewportUpdated(0.0, 0.0, len, 1.0);            
         }
 
         public RectD ViewportArea => _area.Viewport;
@@ -313,7 +313,7 @@ namespace Timeline
 
         private void TimelineControl_LayoutUpdated(object? sender, EventArgs e)
         {
-            _area.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
+            _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
             //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");

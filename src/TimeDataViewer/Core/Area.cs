@@ -74,45 +74,11 @@ namespace Timeline.Core
 
         public Point2D ZoomPositionLocal => FromScreenToLocal(ZoomScreenPosition);
 
-        public RectI Window
-        {
-            get
-            {
-                return _window;
-            }
-            private set
-            {
-                _window = value;
-
-                OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
-            }
-        }
+        public RectI Window => _window;
      
-        public RectD ClientViewport
-        {
-            get
-            {
-                return _clientViewport;
-            }
-            private set
-            {
-                _clientViewport = value;
-                OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
-            }
-        }
+        public RectD ClientViewport => _clientViewport;
    
-        public RectD Viewport
-        {
-            get
-            {
-                return _viewport;
-            }
-            private set
-            {
-                _viewport = value;
-                OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
-            }
-        }
+        public RectD Viewport => _viewport;
 
         public Point2I WindowOffset
         {
@@ -143,27 +109,62 @@ namespace Timeline.Core
             }
         }
 
-        public void UpdateViewport(double x, double y, double width, double height)
+        public void WindowUpdated(int width, int height, int zoom)
         {
-            RectD viewport = new RectD(x, y, width, height);
-            Viewport = viewport;
-            ClientViewport = viewport;
+            int w = width * (1 + (int)(zoom * ZoomScaleX));
+            int h = height * (1 + (int)(zoom * ZoomScaleY));
+
+            _window = new RectI(0, 0, w, h);
+
+            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
         }
 
-        public void UpdateSize(int width, int height)
+        public void ClientViewportUpdated(Point2I offset, RectI window, RectD viewport)
+        {              
+            int x00 = -offset.X;
+            int y00 = -offset.Y;
+
+            double bottom = y00 * viewport.Height / window.Height + viewport.Y;
+            double left = x00 * viewport.Width / window.Width + viewport.X;
+
+            double w = _width * viewport.Width / window.Width;
+            double h = _height * viewport.Height / window.Height;
+
+            if (w < 0 || h < 0)
+            {
+                throw new Exception();
+            }
+
+            _clientViewport = new RectD(left, bottom, w, h);
+            
+            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void ViewportUpdated(double x, double y, double width, double height)
         {
-            var center = FromScreenToLocal(_width / 2, _height / 2);
-    
+            RectD viewport = new RectD(x, y, width, height);
+            _viewport = viewport;
+            _clientViewport = viewport;
+            
+            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void SizeUpdated(int width, int height)
+        {
+            var oldCenter = FromScreenToLocal(_width / 2, _height / 2);
+
             _width = width;
             _height = height;
 
-            Window = CreateWindow(_zoom);
+            OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
 
-            WindowOffset = CreateWindowOffset(center);
+            WindowUpdated(width, height, _zoom);
 
-            ClientViewport = CreateClientViewport();
+            WindowOffset = CreateWindowOffset(oldCenter);
 
-            ZoomScreenPosition = FromLocalToScreen(center);
+            ClientViewportUpdated(WindowOffset, Window, Viewport);
+
+            ZoomScreenPosition = FromLocalToScreen(oldCenter);
 
             OnLayoutUpdated?.Invoke(this, EventArgs.Empty);
         }
@@ -184,8 +185,8 @@ namespace Timeline.Core
             if (IsDragging == true)
             {
                 WindowOffset = new Point2I((int)(point.X - _dragPoint.X), (int)(point.Y - _dragPoint.Y));
-
-                ClientViewport = CreateClientViewport();
+             
+                ClientViewportUpdated(WindowOffset, Window, Viewport);
 
                 OnDragChanged?.Invoke(this, EventArgs.Empty);
                 //Debug.WriteLine($"Area -> OnDragChanged -> Count = {OnDragChanged?.GetInvocationList().Length}");
@@ -248,8 +249,8 @@ namespace Timeline.Core
         {            
             WindowOffset = CreateWindowOffset(new Point2D(xValue, 0.0));
             
-            ClientViewport = CreateClientViewport();
-
+            ClientViewportUpdated(WindowOffset, Window, Viewport);
+        
             OnDragChanged?.Invoke(this, EventArgs.Empty);
             //Debug.WriteLine($"Area -> OnDragChanged -> Count = {OnDragChanged?.GetInvocationList().Length}");
         }
@@ -283,43 +284,13 @@ namespace Timeline.Core
         {
             var posLoc = ZoomPositionLocal;
 
-            Window = CreateWindow(zoom);
+            WindowUpdated(Width, Height, zoom);
 
             WindowOffset = CreateWindowOffset(posLoc);
-
-            ClientViewport = CreateClientViewport();
+           
+            ClientViewportUpdated(WindowOffset, Window, Viewport);
 
             ZoomScreenPosition = FromLocalToScreen(posLoc);
-        }
-
-        private RectI CreateWindow(int zoom)
-        {                                   
-            int w = _width * (1 + (int)(zoom * ZoomScaleX));
-            int h = _height * (1 + (int)(zoom * ZoomScaleY));
-
-            return new RectI(0, 0, w, h);
-        }
-
-        private RectD CreateClientViewport()
-        {
-            RectI Abs = Window;
-            RectD Loc = Viewport;
-
-            int x00 = -WindowOffset.X;
-            int y00 = -WindowOffset.Y;
-
-            double bottom = y00 * Loc.Height / Abs.Height + Loc.Y;
-            double left = x00 * Loc.Width / Abs.Width + Loc.X;
-
-            double w = _width * Loc.Width / Abs.Width;
-            double h = _height * Loc.Height / Abs.Height;
-
-            if (w < 0 || h < 0)
-            {
-                throw new Exception();
-            }
-
-            return new RectD(left, bottom, w, h);
         }
     }
 }
