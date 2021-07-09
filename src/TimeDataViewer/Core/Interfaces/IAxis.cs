@@ -10,15 +10,9 @@ namespace Timeline.Core
 {
     public interface IAxis
     {
-        //event EventHandler OnAxisChanged;
-
-        AxisType Type { get; set; }
-
-        string Header { get; set; }
-
-        bool HasInversion { get; set; }
+ //       bool HasInversion { get; set; }
   
-        bool IsDynamicLabelEnable { get; set; }
+ //       bool IsDynamicLabelEnable { get; set; }
 
         double MinValue { get; }
 

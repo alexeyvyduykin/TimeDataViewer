@@ -109,10 +109,11 @@ namespace Timeline
             ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
 
             ClipToBounds = true;
-     //       SnapsToDevicePixels = true;
-            
-            LayoutUpdated += TimelineControl_LayoutUpdated;
-         
+            //       SnapsToDevicePixels = true;
+
+            //       LayoutUpdated += TimelineControl_LayoutUpdated;    
+            TransformedBoundsProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.SizeChanged(e));
+
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
@@ -129,6 +130,7 @@ namespace Timeline
 
             Items = _markers;
         }
+
 
         private void TimelineControl_OnMousePositionChanged(Point2D point)
         {
@@ -156,8 +158,6 @@ namespace Timeline
             Window = _area.Window;
             Viewport = _area.Viewport;
             ClientViewport = _area.ClientViewport;
-
-            _axisX.UpdateStaticLabels(Begin0);
         }
 
         private void UpdateViewport()
@@ -311,19 +311,50 @@ namespace Timeline
             }
         }
 
+        //protected override Size ArrangeOverride(Size finalSize)
+        //{
+        //    var actualSize = base.ArrangeOverride(finalSize);
+        //    if (actualSize.Width > 0 && actualSize.Height > 0)
+        //    {
+        //        _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
+
+            
+        //        //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
+
+        //        ForceUpdateOverlays();
+
+        //        UpdateProperties();
+               
+        //        OnSizeChanged?.Invoke(this, EventArgs.Empty);
+        //    }
+
+        //    return actualSize;
+        //}
+
+        private void SizeChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
+            
+            //OnSizeChanged?.Invoke(this, EventArgs.Empty);
+            
+            ForceUpdateOverlays();
+
+            UpdateProperties();
+            
+            _axisX.UpdateStaticLabels(Begin0);
+            
+            OnSizeChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         private void TimelineControl_LayoutUpdated(object? sender, EventArgs e)
         {
             _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();
 
-
-            
             UpdateProperties();
-      
         }
 
         private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        

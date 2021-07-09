@@ -29,8 +29,8 @@ namespace Timeline.Core
 
         public TimeAxis(Area area) 
         {
-            _area = area;
-               _labels = new List<AxisLabelPosition>();
+            _area = area;               
+            _labels = new List<AxisLabelPosition>();
         }
 
         public IDictionary<TimePeriod, string>? LabelFormatPool { get; init; }
@@ -48,11 +48,6 @@ namespace Timeline.Core
         public override double FromAbsoluteToLocal(int pixel)
         {
             double value = (MaxValue - MinValue) * pixel / (MaxPixel - MinPixel);
-
-            if (HasInversion == true)
-            {
-                value = (MaxValue - MinValue) - value;
-            }
         
             return Math.Clamp(MinValue + value, MinValue, MaxValue);
         }
@@ -60,64 +55,26 @@ namespace Timeline.Core
         public override int FromLocalToAbsolute(double value)
         {
             int pixel = (int)((value - MinValue) * (MaxPixel - MinPixel) / (MaxValue - MinValue));
-
-            if (HasInversion == true)
-            {
-                pixel = (MaxPixel - MinPixel) - pixel;
-            }
         
             return Math.Clamp(/*MinPixel +*/ pixel, MinPixel, MaxPixel);
         }
 
         public override void UpdateViewport(RectD viewport)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    MinValue = viewport.Left;
-                    MaxValue = viewport.Right;
-                    break;
-                case AxisType.Y:
-                    MinValue = viewport.Bottom;
-                    MaxValue = viewport.Top;
-                    break;
-                default:
-                    break;
-            }
+        {                    
+            MinValue = viewport.Left;                    
+            MaxValue = viewport.Right;
         }
 
         public override void UpdateClientViewport(RectD clientViewport)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    MinClientValue = clientViewport.Left;
-                    MaxClientValue = clientViewport.Right;
-                    break;
-                case AxisType.Y:
-                    MinClientValue = clientViewport.Bottom;
-                    MaxClientValue = clientViewport.Top;
-                    break;
-                default:
-                    break;
-            }
+        {                    
+            MinClientValue = clientViewport.Left;                    
+            MaxClientValue = clientViewport.Right;
         }
 
         public override void UpdateWindow(RectI window)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    MinPixel = 0;
-                    MaxPixel = window.Width;
-                    break;
-                case AxisType.Y:
-                    MinPixel = 0;
-                    MaxPixel = window.Height;
-                    break;
-                default:
-                    break;
-            }
+        {                    
+            MinPixel = 0;                    
+            MaxPixel = window.Width;
         }
    
         private IList<AxisLabelPosition> CreateLabels(DateTime begin)
@@ -156,14 +113,11 @@ namespace Timeline.Core
 
                 value += delta;
             }
-
-            _labels = new List<AxisLabelPosition>(labs);
- 
-
+       
             return labs;
         }
 
-        private string CreateMinMaxLabel(DateTime begin, double value)
+        private string CreateLabel(DateTime begin, double value)
         {
             if ((MaxClientValue - MinClientValue) == 0.0)
             {
@@ -178,28 +132,17 @@ namespace Timeline.Core
             _labels = CreateLabels(begin);
      //       MinValue = MinClientValue;
      //       MaxValue = MaxClientValue;
-            _minLabel = CreateMinMaxLabel(begin, MinClientValue);
-            _maxLabel = CreateMinMaxLabel(begin, MaxClientValue); 
+            _minLabel = CreateLabel(begin, MinClientValue);
+            _maxLabel = CreateLabel(begin, MaxClientValue); 
         }
 
         public void UpdateDynamicLabelPosition(DateTime begin, Point2D point)
         {
-            if (Type == AxisType.Y)
+            _dynamicLabel = new AxisLabelPosition()
             {
-                _dynamicLabel = new AxisLabelPosition()
-                {
-                    Label = string.Format("{0:HH:mm:ss}", begin.AddSeconds(point.Y)),
-                    Value = point.Y
-                };
-            }
-            else if (Type == AxisType.X)
-            {
-                _dynamicLabel = new AxisLabelPosition()
-                {
-                    Label = string.Format("{0:HH:mm:ss}", begin.AddSeconds(point.X)),
-                    Value = point.X
-                };
-            }
+                Label = string.Format("{0:HH:mm:ss}", begin.AddSeconds(point.X)),
+                Value = point.X
+            };
 
             OnBoundChanged?.Invoke(this, EventArgs.Empty);
         }

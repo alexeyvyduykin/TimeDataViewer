@@ -70,7 +70,11 @@ namespace Timeline
                 if(Timeline is not null)
                 {
                     //Timeline.AxisX.OnAxisChanged -= OnAxisChanged;
-                    Timeline.AxisX.OnBoundChanged -= OnBoundChanged;
+                    //Timeline.AxisX.OnBoundChanged -= OnBoundChanged;
+
+                    Timeline.OnSizeChanged -= OnBoundChanged;
+                    Timeline.OnZoomChanged -= OnBoundChanged;
+
                     Timeline.PointerEnter -= OnMapEnter;
                     Timeline.PointerLeave -= OnMapLeave;
                 }
@@ -78,13 +82,15 @@ namespace Timeline
                 Timeline = timeline;
 
                 //Timeline.AxisX.OnAxisChanged += OnAxisChanged;
-                Timeline.AxisX.OnBoundChanged += OnBoundChanged;
+                //Timeline.AxisX.OnBoundChanged += OnBoundChanged;
+
+                Timeline.OnSizeChanged += OnBoundChanged;
+                Timeline.OnZoomChanged += OnBoundChanged;
+
                 Timeline.PointerEnter += OnMapEnter;
                 Timeline.PointerLeave += OnMapLeave;
             }
         }
-
-
 
         public static readonly StyledProperty<string> LeftLabelProperty =    
             AvaloniaProperty.Register<TimelineAxisXControl, string>(nameof(LeftLabel));
@@ -127,7 +133,7 @@ namespace Timeline
 
         private void OnBoundChanged(object? s, EventArgs e)
         {
-            if (s is ITimeAxis axis)
+            if (s is ITimeline timeline && timeline.AxisX is ITimeAxis axis)
             {
                 _labels.Clear();
 

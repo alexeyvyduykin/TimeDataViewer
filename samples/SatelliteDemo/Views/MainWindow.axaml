@@ -158,7 +158,7 @@
                                                Begin="{Binding $parent[Window].DataContext.Epoch}"
                                                CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
-                            <local:TimelineControl.Series>
+                            <!--<local:TimelineControl.Series>
                                     <local:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
                                         <local:Series.IntervalTemplate>
                                             <shapes:IntervalVisual Background="Yellow"/>
@@ -177,7 +177,7 @@
                                         </local:Series.IntervalTemplate>
                                     </local:Series>
 
-                                </local:TimelineControl.Series>
+                                </local:TimelineControl.Series>-->
 
                         </local:TimelineControl>
                     </ContentControl>

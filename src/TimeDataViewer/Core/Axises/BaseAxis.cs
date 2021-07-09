@@ -9,12 +9,6 @@ using System.Diagnostics;
 
 namespace Timeline.Core
 {
-    public enum AxisType
-    {
-        X,
-        Y
-    }
-
     public record AxisLabelPosition
     {
         public string? Label { get; init; }
@@ -23,13 +17,11 @@ namespace Timeline.Core
 
     public abstract class BaseAxis : IAxis
     {
-        public bool HasInversion { get; set; }
+    //    public bool HasInversion { get; set; }
 
-        public bool IsDynamicLabelEnable { get; set; }
+    //    public bool IsDynamicLabelEnable { get; set; }
 
-        public string Header { get; set; } = "Header";
-
-        public AxisType Type { get; set; }
+    //    public string Header { get; set; } = "Header";
 
         public double MinValue { get; protected set; }
 

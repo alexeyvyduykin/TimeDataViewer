@@ -9,7 +9,7 @@ namespace Timeline.Core
 {
     public interface ITimeAxis : IAxis
     {
-        event EventHandler OnBoundChanged;
+        //event EventHandler OnBoundChanged;
 
         IDictionary<TimePeriod, string>? LabelFormatPool { get; }
 

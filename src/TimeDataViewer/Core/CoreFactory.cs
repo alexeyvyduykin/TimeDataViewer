@@ -21,11 +21,7 @@ namespace Timeline.Core
         public ITimeAxis CreateTimeAxis(Area area)
         {
             return new TimeAxis(area)
-            {
-                Header = "X",
-                Type = AxisType.X,
-                HasInversion = false,
-                IsDynamicLabelEnable = true,
+            {                       
                 TimePeriodMode = TimePeriod.Month,
                 LabelFormatPool = new Dictionary<TimePeriod, string>()
                 {
@@ -48,13 +44,7 @@ namespace Timeline.Core
 
         public ICategoryAxis CreateCategoryAxis(Area area)
         {
-            return new CategoryAxis(area)
-            {
-                Header = "Y",
-                Type = AxisType.Y,
-                HasInversion = false,
-                IsDynamicLabelEnable = true,
-            };
+            return new CategoryAxis(area);
         }
 
         public Area CreateArea()
