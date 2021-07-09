@@ -13,9 +13,11 @@ namespace Timeline.Core
         event EventHandler OnAxisChanged;
 
         AxisType Type { get; set; }
+
         string Header { get; set; }
+
         bool HasInversion { get; set; }
-        AxisInfo AxisInfo { get; }
+  
         bool IsDynamicLabelEnable { get; set; }
 
         double MinValue { get; }
@@ -31,9 +33,13 @@ namespace Timeline.Core
         int MaxPixel { get; }
 
         void UpdateViewport(RectD viewport);
+
         void UpdateClientViewport(RectD clientViewport);
+
         void UpdateWindow(RectI window);
+
         double FromAbsoluteToLocal(int pixel);
+
         int FromLocalToAbsolute(double value);
     }
 }

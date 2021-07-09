@@ -44,8 +44,6 @@ namespace Timeline.Core
         public int MinPixel { get; protected set; }
 
         public int MaxPixel { get; protected set; }
-
-        public abstract AxisInfo AxisInfo { get; }
                          
         public abstract double FromAbsoluteToLocal(int pixel);
 

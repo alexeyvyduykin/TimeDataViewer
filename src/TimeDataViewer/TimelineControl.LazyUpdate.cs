@@ -70,7 +70,7 @@ namespace Timeline
                     _jBegSave = 0;
 
                     _seriesViewModels = Series.Select(s => s.SeriesViewModel).ToList();
-                    _epoch = Epoch;
+                    //_epoch = Begin;
 
                     UpdateViewport();
 

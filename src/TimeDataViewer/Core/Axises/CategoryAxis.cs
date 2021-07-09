@@ -9,7 +9,7 @@ namespace Timeline.Core
 {
     public class CategoryAxis : BaseAxis, ICategoryAxis
     {
-        private AxisInfo? _axisInfo;
+        //private AxisInfo? _axisInfo;
         private bool _dirty = true; 
         private readonly Dictionary<string, Point2D> _targetMarkers;
 
@@ -131,29 +131,29 @@ namespace Timeline.Core
         //    Invalidate();
         //}
 
-        private AxisInfo CreateAxisInfo()
-        {
-            return new AxisInfo()
-            {
-                Labels = CreateLabels(),
-                Type = Type,
-                MinValue = MinClientValue,
-                MaxValue = MaxClientValue,                                 
-            };
-        }
+        //private AxisInfo CreateAxisInfo()
+        //{
+        //    return new AxisInfo()
+        //    {
+        //        Labels = CreateLabels(),
+        //        Type = Type,
+        //        MinValue = MinClientValue,
+        //        MaxValue = MaxClientValue,                                 
+        //    };
+        //}
 
-        public override AxisInfo AxisInfo
-        {
-            get
-            {
-                if (_dirty == true || _axisInfo == null)
-                {
-                    _axisInfo = CreateAxisInfo();
-                    _dirty = false;
-                }
+        //public override AxisInfo AxisInfo
+        //{
+        //    get
+        //    {
+        //        if (_dirty == true || _axisInfo == null)
+        //        {
+        //            _axisInfo = CreateAxisInfo();
+        //            _dirty = false;
+        //        }
 
-                return _axisInfo;
-            }
-        }
+        //        return _axisInfo;
+        //    }
+        //}
     }
 }

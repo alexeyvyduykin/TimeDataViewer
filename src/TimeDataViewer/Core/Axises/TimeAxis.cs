@@ -25,6 +25,8 @@ namespace Timeline.Core
 
         private string _maxLabel;
         private IList<AxisLabelPosition> _labels;
+        
+        public event EventHandler OnBoundChanged;
 
         public TimeAxis() 
         {
@@ -134,7 +136,7 @@ namespace Timeline.Core
             Invalidate();
         }
    
-        private IList<AxisLabelPosition> CreateLabels()
+        private IList<AxisLabelPosition> CreateLabels(DateTime begin)
         {
             var labs = new List<AxisLabelPosition>();
 
@@ -164,7 +166,7 @@ namespace Timeline.Core
             {
                 labs.Add(new AxisLabelPosition()
                 {
-                    Label = string.Format(CultureInfo.InvariantCulture, LabelFormatPool[TimePeriodMode], Epoch0.AddSeconds(value)),
+                    Label = string.Format(CultureInfo.InvariantCulture, LabelFormatPool[TimePeriodMode], begin.AddSeconds(value)),
                     Value = value
                 });
 
@@ -172,29 +174,37 @@ namespace Timeline.Core
             }
 
             _labels = new List<AxisLabelPosition>(labs);
-            _minLabel = CreateMinMaxLabel(MinClientValue);
-            _maxLabel = CreateMinMaxLabel(MaxClientValue);     
+ 
 
             return labs;
         }
 
-        private string CreateMinMaxLabel(double value)
+        private string CreateMinMaxLabel(DateTime begin, double value)
         {
             if ((MaxClientValue - MinClientValue) == 0.0)
             {
                 return string.Empty;
             }
 
-            return Epoch0.AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
+            return begin.AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
         }
 
-        public void UpdateDynamicLabelPosition(Point2D point)
+        public void UpdateStaticLabels(DateTime begin)
+        {
+            _labels = CreateLabels(begin);
+     //       MinValue = MinClientValue;
+     //       MaxValue = MaxClientValue;
+            _minLabel = CreateMinMaxLabel(begin, MinClientValue);
+            _maxLabel = CreateMinMaxLabel(begin, MaxClientValue); 
+        }
+
+        public void UpdateDynamicLabelPosition(DateTime begin, Point2D point)
         {
             if (Type == AxisType.Y)
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
-                    Label = string.Format("{0:HH:mm:ss}", Epoch0.AddSeconds(point.Y)),
+                    Label = string.Format("{0:HH:mm:ss}", begin.AddSeconds(point.Y)),
                     Value = point.Y
                 };
             }
@@ -202,33 +212,35 @@ namespace Timeline.Core
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
-                    Label = string.Format("{0:HH:mm:ss}", Epoch0.AddSeconds(point.X)),
+                    Label = string.Format("{0:HH:mm:ss}", begin.AddSeconds(point.X)),
                     Value = point.X
                 };
             }
 
-            Invalidate();
+            OnBoundChanged?.Invoke(this, EventArgs.Empty);
+
+            //Invalidate();
         }
 
        // public override void UpdateFollowLabelPosition(MarkerViewModel marker) { }
   
-        public override AxisInfo AxisInfo
-        {
-            get
-            {
-                var axisInfo = new AxisInfo()
-                {
-                    Labels = CreateLabels(),
-                    Type = Type,
-                    MinValue = MinClientValue,
-                    MaxValue = MaxClientValue,
-                    MinLabel = CreateMinMaxLabel(MinClientValue),
-                    MaxLabel = CreateMinMaxLabel(MaxClientValue),               
-                    DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : null,
-                };
+        //public override AxisInfo AxisInfo
+        //{
+        //    get
+        //    {
+        //        var axisInfo = new AxisInfo()
+        //        {
+        //            Labels = CreateLabels(),
+        //            Type = Type,
+        //            MinValue = MinClientValue,
+        //            MaxValue = MaxClientValue,
+        //            MinLabel = CreateMinMaxLabel(MinClientValue),
+        //            MaxLabel = CreateMinMaxLabel(MaxClientValue),               
+        //            DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : null,
+        //        };
 
-                return axisInfo;
-            }
-        }
+        //        return axisInfo;
+        //    }
+        //}
     }
 }

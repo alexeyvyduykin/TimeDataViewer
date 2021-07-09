@@ -70,7 +70,7 @@ namespace Timeline
                 if(Timeline is not null)
                 {
                     Timeline.AxisX.OnAxisChanged -= OnAxisChanged;
-         //           Timeline.AxisX.OnBoundChanged -= OnBoundChanged;
+                    Timeline.AxisX.OnBoundChanged -= OnBoundChanged;
                     Timeline.PointerEnter -= OnMapEnter;
                     Timeline.PointerLeave -= OnMapLeave;
                 }
@@ -78,7 +78,7 @@ namespace Timeline
                 Timeline = timeline;
 
                 Timeline.AxisX.OnAxisChanged += OnAxisChanged;
-           //     Timeline.AxisX.OnBoundChanged += OnBoundChanged;
+                Timeline.AxisX.OnBoundChanged += OnBoundChanged;
                 Timeline.PointerEnter += OnMapEnter;
                 Timeline.PointerLeave += OnMapLeave;
             }

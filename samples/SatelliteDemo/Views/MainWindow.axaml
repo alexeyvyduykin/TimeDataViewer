@@ -155,10 +155,10 @@
 
                     <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
                         <local:TimelineControl Name="timeline"
-                                               Epoch="{Binding $parent[Window].DataContext.Epoch}"
+                                               Begin="{Binding $parent[Window].DataContext.Epoch}"
                                                CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
-                            <!--<local:TimelineControl.Series>
+                            <local:TimelineControl.Series>
                                     <local:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
                                         <local:Series.IntervalTemplate>
                                             <shapes:IntervalVisual Background="Yellow"/>
@@ -177,7 +177,7 @@
                                         </local:Series.IntervalTemplate>
                                     </local:Series>
 
-                                </local:TimelineControl.Series>-->
+                                </local:TimelineControl.Series>
 
                         </local:TimelineControl>
                     </ContentControl>
@@ -190,9 +190,9 @@
         
     <Border Margin="5" Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="2">
         <StackPanel>
-            <!-- Area -->
+            <!-- TimelineControl -->
             <Grid RowDefinitions="*,*,*,*,*,*,*" ColumnDefinitions="*,Auto">                
-                  <TextBlock Text="Area" FontWeight="Bold"></TextBlock>
+                  <TextBlock Text="TimelineControl" FontWeight="Bold"></TextBlock>
             
                   <TextBlock Grid.Row="1" Text="Zoom"></TextBlock>
                   <TextBlock Grid.Row="1" Grid.Column="1"
@@ -215,24 +215,9 @@
                              Text="{Binding #timeline.Viewport}"></TextBlock>
             </Grid>
             
-            <!-- AxisX -->
-            <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
-                <TextBlock Text="AxisX" FontWeight="Bold"></TextBlock>
-
-
-            </Grid>
-    
-            <!-- TimelineControl -->
-            <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
-                <TextBlock Text="TimelineControl" FontWeight="Bold"></TextBlock>
-
-
-            </Grid>
-
             <!-- TimelineAxisXControl -->
             <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
                 <TextBlock Text="TimelineAxisXControl" FontWeight="Bold"></TextBlock>
-
 
             </Grid>
 

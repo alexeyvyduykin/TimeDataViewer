@@ -25,7 +25,7 @@ namespace Timeline.ViewModels
             var series = marker.Series;
             // var epoch = DateTime.Now.Date;
 
-            var epoch = marker.SeriesControl.Scheduler.Epoch;
+            var epoch = marker.SeriesControl.Scheduler.Begin;
 
             _category = series.Name;
             _date = epoch.AddSeconds(left).ToShortDateString();

@@ -21,7 +21,7 @@ namespace Timeline.Models
 
         RectI AbsoluteWindow { get; }
 
-        DateTime Epoch { get; }
+        DateTime Begin { get; }
         
         ITimeAxis AxisX { get; }
 

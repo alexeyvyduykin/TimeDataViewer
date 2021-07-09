@@ -9,14 +9,22 @@ namespace Timeline.Core
 {
     public interface ITimeAxis : IAxis
     {
+        event EventHandler OnBoundChanged;
+
         IDictionary<TimePeriod, string>? LabelFormatPool { get; }
+
         IDictionary<TimePeriod, double>? LabelDeltaPool { get; }
-        DateTime Epoch0 { get; set; }
+
         TimePeriod TimePeriodMode { get; set; }
-        void UpdateDynamicLabelPosition(Point2D point); 
+
+        void UpdateDynamicLabelPosition(DateTime begin, Point2D point); 
+
+        void UpdateStaticLabels(DateTime begin);
+
         string MinLabel { get; }
 
         string MaxLabel { get; }
+
         IList<AxisLabelPosition> Labels { get; }
     }
 }

@@ -63,13 +63,13 @@ namespace Timeline
             return value;
         }
 
-        public static readonly StyledProperty<DateTime> EpochProperty =    
-            AvaloniaProperty.Register<TimelineControl, DateTime>(nameof(Epoch), DateTime.Now);
+        public static readonly StyledProperty<DateTime> BeginProperty =    
+            AvaloniaProperty.Register<TimelineControl, DateTime>(nameof(Begin), DateTime.Now);
 
-        public DateTime Epoch
+        public DateTime Begin
         {
-            get => GetValue(EpochProperty);
-            set => SetValue(EpochProperty, value);
+            get => GetValue(BeginProperty);
+            set => SetValue(BeginProperty, value);
         }
 
         public static readonly StyledProperty<double> CurrentTimeProperty =    

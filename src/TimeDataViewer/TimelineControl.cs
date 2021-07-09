@@ -44,7 +44,8 @@ namespace Timeline
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private readonly Area _area;        
+        private readonly Area _area; 
+        private readonly ITimeAxis _axisX;
         private readonly Canvas _canvas;
         private ObservableCollection<IMarker> _markers;
 
@@ -52,7 +53,7 @@ namespace Timeline
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
         private IList<ISeries> _seriesViewModels;
-        private DateTime _epoch;
+        //private DateTime _epoch;
         private readonly Popup _popup;
         // center 
         private readonly bool _showCenter = true;
@@ -70,7 +71,8 @@ namespace Timeline
             CoreFactory factory = new CoreFactory();
 
             _area = factory.CreateArea();
-          
+            _axisX = _area.AxisX;
+
             _area.OnZoomChanged += ZoomChangedEvent;
            
             _series = new ObservableCollection<Series>();
@@ -114,19 +116,23 @@ namespace Timeline
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
-            ZoomProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.ZoomChanged(e));
-            EpochProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.EpochChanged(e));
+            ZoomProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.ZoomChanged(e));          
             CurrentTimeProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.CurrentTimeChanged(e));
 
-            OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
+            OnMousePositionChanged += TimelineControl_OnMousePositionChanged;
 
             _markers = new ObservableCollection<IMarker>();
 
-            Epoch = new DateTime(2020,6,20,12,0,0);
+            Begin = new DateTime(2020,6,20,12,0,0);
             AutoSetViewportArea(86400.0);
 
 
             Items = _markers;
+        }
+
+        private void TimelineControl_OnMousePositionChanged(Point2D point)
+        {
+            AxisX.UpdateDynamicLabelPosition(Begin0, point);
         }
 
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
@@ -134,7 +140,7 @@ namespace Timeline
             base.OnDetachedFromLogicalTree(e);
             
             _area.OnZoomChanged -= ZoomChangedEvent;
-            OnMousePositionChanged -= AxisX.UpdateDynamicLabelPosition;
+            OnMousePositionChanged -= TimelineControl_OnMousePositionChanged;
         }
 
         private void Series_CollectionChanged(object? s, NotifyCollectionChangedEventArgs e)
@@ -150,15 +156,17 @@ namespace Timeline
             Window = _area.Window;
             Viewport = _area.Viewport;
             ClientViewport = _area.ClientViewport;
+
+            _axisX.UpdateStaticLabels(Begin0);
         }
 
         private void UpdateViewport()
         {
             var maxRight = _seriesViewModels.Max(s => s.MaxTime());
 
-            var rightDate = _epoch.AddSeconds(maxRight).Date.AddDays(1);
+            var rightDate = Begin.AddSeconds(maxRight).Date.AddDays(1);
 
-            var len = (rightDate - _epoch.Date).TotalSeconds;
+            var len = (rightDate - Begin0).TotalSeconds;
 
             AutoSetViewportArea(len);
             
@@ -175,7 +183,7 @@ namespace Timeline
             UpdateProperties();
         }
 
-        public DateTime Epoch0 => Epoch.Date;
+        public DateTime Begin0 => Begin.Date;
 
         private void PassingLogicalTree(NotifyCollectionChangedEventArgs e)
         {
@@ -222,7 +230,7 @@ namespace Timeline
         
         private void AutoSetViewportArea(double len)
         {
-            var d0 = (_epoch - _epoch.Date).TotalSeconds;
+            var d0 = (Begin - Begin0).TotalSeconds;
 
 
             if (_seriesViewModels is not null)
@@ -312,6 +320,8 @@ namespace Timeline
 
             ForceUpdateOverlays();
 
+
+            
             UpdateProperties();
       
         }
@@ -351,20 +361,12 @@ namespace Timeline
                 }
             }
         }
-
-        private void EpochChanged(AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.NewValue is DateTime)
-            {              
-                AxisX.Epoch0 = Epoch0;
-            }
-        }
         
         private void CurrentTimeChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.NewValue is double)
             {
-                var xValue = (Epoch - Epoch0).TotalSeconds + CurrentTime;
+                var xValue = (Begin - Begin0).TotalSeconds + CurrentTime;
                
                 _area.DragToTime(xValue);
             }
@@ -434,7 +436,7 @@ namespace Timeline
 
         private void DrawEpoch(DrawingContext context)
         {
-            var d0 = (Epoch - Epoch0).TotalSeconds;
+            var d0 = (Begin - Begin0).TotalSeconds;
             var p = _area.FromLocalToAbsolute(d0, 0.0);    
             Pen pen = new Pen(Brushes.Yellow, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
@@ -442,7 +444,7 @@ namespace Timeline
 
         private void DrawCurrentTime(DrawingContext context)
         {            
-            var d0 = (Epoch - Epoch0).TotalSeconds;
+            var d0 = (Begin - Begin0).TotalSeconds;
             var p = _area.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
             Pen pen = new Pen(Brushes.Red, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
