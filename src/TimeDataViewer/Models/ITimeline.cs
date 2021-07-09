@@ -29,6 +29,8 @@ namespace Timeline.Models
 
         event EventHandler OnZoomChanged;
 
-        event EventHandler OnSizeChanged;
+        event EventHandler OnSizeChanged; 
+        
+        event EventHandler OnDragChanged;
     }
 }

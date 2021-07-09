@@ -182,7 +182,8 @@
                         </local:TimelineControl>
                     </ContentControl>
 
-                    <local:TimelineAxisXControl Timeline="{Binding #timeline}" Grid.Row="2"/>
+                    <local:TimelineAxisXControl Name="timelineAxisX" 
+                                                Timeline="{Binding #timeline}" Grid.Row="2"/>
 
                 </Grid>
             </Border>
@@ -192,33 +193,51 @@
         <StackPanel>
             <!-- TimelineControl -->
             <Grid RowDefinitions="*,*,*,*,*,*,*" ColumnDefinitions="*,Auto">                
-                  <TextBlock Text="TimelineControl" FontWeight="Bold"></TextBlock>
+                  <TextBlock Text="TimelineControl" FontWeight="Bold" Grid.ColumnSpan="2"></TextBlock>
             
-                  <TextBlock Grid.Row="1" Text="Zoom"></TextBlock>
-                  <TextBlock Grid.Row="1" Grid.Column="1"
-                HorizontalAlignment="Left"             
-                Text="{Binding #timeline.Zoom}"></TextBlock>
+                  <TextBlock Grid.Row="1" Text="Zoom"/>
+                  <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timeline.Zoom}"/>
                 
-                  <TextBlock Grid.Row="2" Text="Window"></TextBlock>
-                  <TextBlock Grid.Row="2" Grid.Column="1"
-                             HorizontalAlignment="Left"    
-                Text="{Binding #timeline.Window}"></TextBlock>
+                  <TextBlock Grid.Row="2" Text="Window"/>
+                  <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timeline.Window}"/>
                                 
-                  <TextBlock Grid.Row="3" Text="ClientViewport"></TextBlock>
-                  <TextBlock Grid.Row="3" Grid.Column="1" 
-                             HorizontalAlignment="Left"   
-                             Text="{Binding #timeline.ClientViewport}"></TextBlock>
+                  <TextBlock Grid.Row="3" Text="ClientViewport"/>
+                  <TextBlock Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timeline.ClientViewport}"/>
                 
-                  <TextBlock Grid.Row="4" Text="Viewport"></TextBlock>
-                  <TextBlock Grid.Row="4" Grid.Column="1"
-                             HorizontalAlignment="Left"   
-                             Text="{Binding #timeline.Viewport}"></TextBlock>
+                  <TextBlock Grid.Row="4" Text="Viewport"/>
+                  <TextBlock Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timeline.Viewport}"/>
             </Grid>
             
             <!-- TimelineAxisXControl -->
-            <Grid RowDefinitions="*,*" ColumnDefinitions="*,30">
-                <TextBlock Text="TimelineAxisXControl" FontWeight="Bold"></TextBlock>
+            <Grid RowDefinitions="*,*,*,*,*,*,*,*,*" ColumnDefinitions="*,Auto">
+                <TextBlock Text="TimelineAxisXControl" FontWeight="Bold" Grid.ColumnSpan="2"></TextBlock>
 
+                <TextBlock Grid.Row="1" Text="LeftLabel"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timelineAxisX.LeftLabel}"/>
+            
+                <TextBlock Grid.Row="2" Text="RightLabel"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timelineAxisX.RightLabel}"/>
+            
+                <TextBlock Grid.Row="3" Text="MinValue"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timelineAxisX.MinValue}"/>
+                     
+                <TextBlock Grid.Row="4" Text="MaxValue"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timelineAxisX.MaxValue}"/>
+                 
+                <TextBlock Grid.Row="5" Text="MinClientValue"/>
+                <TextBlock Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" 
+                           Text="{Binding #timelineAxisX.MinClientValue, StringFormat=\{0:0.0\}}"/>
+             
+                <TextBlock Grid.Row="6" Text="MaxClientValue"/>
+                <TextBlock Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" 
+                           Text="{Binding #timelineAxisX.MaxClientValue, StringFormat=\{0:0.0\}}"/>
+         
+                <TextBlock Grid.Row="7" Text="MinPixel"/>
+                <TextBlock Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timelineAxisX.MinPixel}"/>
+         
+                <TextBlock Grid.Row="8" Text="MaxPixel"/>
+                <TextBlock Grid.Row="8" Grid.Column="1" HorizontalAlignment="Left" Text="{Binding #timelineAxisX.MaxPixel}"/>
+                     
             </Grid>
 
 

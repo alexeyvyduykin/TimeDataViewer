@@ -17,12 +17,6 @@ namespace Timeline.Core
 
     public abstract class BaseAxis : IAxis
     {
-    //    public bool HasInversion { get; set; }
-
-    //    public bool IsDynamicLabelEnable { get; set; }
-
-    //    public string Header { get; set; } = "Header";
-
         public double MinValue { get; protected set; }
 
         public double MaxValue { get; protected set; }

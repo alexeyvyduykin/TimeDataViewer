@@ -52,8 +52,7 @@ namespace Timeline
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
-        private IList<ISeries> _seriesViewModels;
-        //private DateTime _epoch;
+        private IList<ISeries> _seriesViewModels;    
         private readonly Popup _popup;
         // center 
         private readonly bool _showCenter = true;
@@ -65,7 +64,8 @@ namespace Timeline
         public event EventHandler? OnSizeChanged;
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
         public event EventHandler? OnZoomChanged;
-   
+        public event EventHandler? OnDragChanged;
+
         public TimelineControl()
         {
             CoreFactory factory = new CoreFactory();
@@ -112,7 +112,7 @@ namespace Timeline
             //       SnapsToDevicePixels = true;
 
             //       LayoutUpdated += TimelineControl_LayoutUpdated;    
-            TransformedBoundsProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.SizeChanged(e));
+            //TransformedBoundsProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.SizeChanged(e));
 
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
@@ -175,12 +175,15 @@ namespace Timeline
 
         private void ZoomChangedEvent(object? sender, EventArgs e)
         {
-            OnZoomChanged?.Invoke(this, EventArgs.Empty);
+            
             //Debug.WriteLine($"TimelineControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();
 
             UpdateProperties();
+
+            OnZoomChanged?.Invoke(this, EventArgs.Empty);
+            //_axisX.UpdateStaticLabels(Begin0);
         }
 
         public DateTime Begin0 => Begin.Date;
@@ -274,7 +277,7 @@ namespace Timeline
 
         public RectI AbsoluteWindow => _area.Window;
 
-        public RectI ScreenWindow => _area.Screen;
+        public RectI Screen => _area.Screen;
 
         public Point2I WindowOffset => _area.WindowOffset;
 
@@ -311,51 +314,45 @@ namespace Timeline
             }
         }
 
-        //protected override Size ArrangeOverride(Size finalSize)
-        //{
-        //    var actualSize = base.ArrangeOverride(finalSize);
-        //    if (actualSize.Width > 0 && actualSize.Height > 0)
-        //    {
-        //        _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var actualSize = base.ArrangeOverride(finalSize);
+            if (actualSize.Width > 0 && actualSize.Height > 0)
+            {
+                _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
+                //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
 
-            
-        //        //Debug.WriteLine($"TimelineControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
+                ForceUpdateOverlays();
 
-        //        ForceUpdateOverlays();
+                UpdateProperties();
 
-        //        UpdateProperties();
-               
-        //        OnSizeChanged?.Invoke(this, EventArgs.Empty);
-        //    }
+                OnSizeChanged?.Invoke(this, EventArgs.Empty);
+            }
 
-        //    return actualSize;
-        //}
+            return actualSize;
+        }
 
         private void SizeChanged(AvaloniaPropertyChangedEventArgs e)
         {
             _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
-            
-            //OnSizeChanged?.Invoke(this, EventArgs.Empty);
-            
+                        
             ForceUpdateOverlays();
 
             UpdateProperties();
-            
-            _axisX.UpdateStaticLabels(Begin0);
-            
+                        
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void TimelineControl_LayoutUpdated(object? sender, EventArgs e)
-        {
-            _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
+        //private void TimelineControl_LayoutUpdated(object? sender, EventArgs e)
+        //{
+        //    _area.SizeUpdated((int)Bounds.Width, (int)Bounds.Height);
 
-            OnSizeChanged?.Invoke(this, EventArgs.Empty);
+        //    OnSizeChanged?.Invoke(this, EventArgs.Empty);
 
-            ForceUpdateOverlays();
+        //    ForceUpdateOverlays();
 
-            UpdateProperties();
-        }
+        //    UpdateProperties();
+        //}
 
         private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        
 
@@ -423,9 +420,7 @@ namespace Timeline
         public Point2D FromAbsoluteToLocal(int x, int y) => _area.FromAbsoluteToLocal(x, y);        
 
         public Point2I FromLocalToAbsolute(Point2D point) => _area.FromLocalToAbsolute(point);
-        
-        public bool IsTestBrush { get; set; } = false;
-
+         
         public override void Render(DrawingContext context)
         {
             //SeriesValidate();

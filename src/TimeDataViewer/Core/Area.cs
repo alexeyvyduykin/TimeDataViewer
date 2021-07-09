@@ -137,11 +137,11 @@ namespace Timeline.Core
             _viewport = viewport;
             _clientViewport = viewport;
 
-            _axisX.UpdateViewport(_viewport);
-            _axisY.UpdateViewport(_viewport);
+            _axisX.UpdateViewport(viewport);
+            _axisY.UpdateViewport(viewport);
 
-            _axisX.UpdateClientViewport(_clientViewport);
-            _axisY.UpdateClientViewport(_clientViewport);
+            _axisX.UpdateClientViewport(viewport);
+            _axisY.UpdateClientViewport(viewport);
         }
 
         public void SizeUpdated(int width, int height)

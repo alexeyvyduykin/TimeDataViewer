@@ -33,11 +33,12 @@ namespace Timeline
 {
     public record Label(double X, string Text);
 
-    public class TimelineAxisXControl : ItemsControl
+    public partial class TimelineAxisXControl : ItemsControl
     {                
         private readonly ObservableCollection<Label> _labels;
-        private Label? _dynamicLabel;       
-        private double _width;     
+        private Label? _dynamicLabel; 
+        private ITimeAxis _axisX;
+        //private double _width;     
         private bool _isDynamicLabel;       
         private Canvas _canvas;
 
@@ -69,45 +70,25 @@ namespace Timeline
             {
                 if(Timeline is not null)
                 {
-                    //Timeline.AxisX.OnAxisChanged -= OnAxisChanged;
-                    //Timeline.AxisX.OnBoundChanged -= OnBoundChanged;
-
                     Timeline.OnSizeChanged -= OnBoundChanged;
                     Timeline.OnZoomChanged -= OnBoundChanged;
+                    Timeline.OnDragChanged -= OnBoundChanged;
 
                     Timeline.PointerEnter -= OnMapEnter;
                     Timeline.PointerLeave -= OnMapLeave;
                 }
 
                 Timeline = timeline;
-
-                //Timeline.AxisX.OnAxisChanged += OnAxisChanged;
-                //Timeline.AxisX.OnBoundChanged += OnBoundChanged;
+                          
+                _axisX = timeline.AxisX;
 
                 Timeline.OnSizeChanged += OnBoundChanged;
                 Timeline.OnZoomChanged += OnBoundChanged;
+                Timeline.OnDragChanged += OnBoundChanged;
 
                 Timeline.PointerEnter += OnMapEnter;
                 Timeline.PointerLeave += OnMapLeave;
             }
-        }
-
-        public static readonly StyledProperty<string> LeftLabelProperty =    
-            AvaloniaProperty.Register<TimelineAxisXControl, string>(nameof(LeftLabel));
-
-        public string LeftLabel
-        {
-            get => GetValue(LeftLabelProperty);
-            set => SetValue(LeftLabelProperty, value);
-        }
-
-        public static readonly StyledProperty<string> RightLabelProperty =    
-            AvaloniaProperty.Register<TimelineAxisXControl, string>(nameof(RightLabel));
-
-        public string RightLabel
-        {
-            get => GetValue(RightLabelProperty);
-            set => SetValue(RightLabelProperty, value);
         }
 
         private void OnMapEnter(object? s, EventArgs e)
@@ -124,53 +105,42 @@ namespace Timeline
             InvalidateVisual();
         }
 
-        protected override void ArrangeCore(Rect finalRect)
-        {
-            base.ArrangeCore(finalRect);
-
-            _width = finalRect.Width;          
-        }
-
         private void OnBoundChanged(object? s, EventArgs e)
         {
-            if (s is ITimeline timeline && timeline.AxisX is ITimeAxis axis)
+            var begin = Timeline.Begin0;
+            _axisX.UpdateStaticLabels(begin);
+
+            _labels.Clear();
+           
+            double wth = _axisX.MaxClientValue - _axisX.MinClientValue;
+          //  double wth = _axisX.MaxValue - _axisX.MinValue;
+            double width = Timeline.Screen/*Window*/.Width;
+            foreach (var item in _axisX.Labels)
             {
-                _labels.Clear();
+                double x = width * (item.Value - _axisX.MinClientValue) / wth;
 
-                double wth = axis.MaxValue - axis.MinValue;
-                foreach (var item in axis.Labels)
-                {
-                    double x = _width * (item.Value - axis.MinValue) / wth;
+                _labels.Add(new Label(x, item.Label));
+            }
 
-                    _labels.Add(new Label(x, item.Label));
-                }
+            //if (axis.DynamicLabel != null && axis.DynamicLabel is AxisLabelPosition dynLab)
+            //{                  
+            //    double W = _width;
+            //    double width = axis.MaxValue - axis.MinValue;
 
-                //if (axis.DynamicLabel != null && axis.DynamicLabel is AxisLabelPosition dynLab)
-                //{                  
-                //    double W = _width;
-                //    double width = axis.MaxValue - axis.MinValue;
+            //    double x = W * (dynLab.Value - axis.MinValue) / width;
 
-                //    double x = W * (dynLab.Value - axis.MinValue) / width;
+            //    _dynamicLabel = new Label(x, dynLab.Label);
+            //}
 
-                //    _dynamicLabel = new Label(x, dynLab.Label);
-                //}
+            UpdateProperties();
 
-                LeftLabel = axis.MinLabel;
-
-                RightLabel = axis.MaxLabel;
-
-                Items = new ObservableCollection<Label>(_labels);
-            }            
+            Items = new ObservableCollection<Label>(_labels);
+            
+            InvalidateVisual();
         }
 
         public override void Render(DrawingContext context)
         {
-            foreach (var label in _labels)
-            {
-                //DrawTick(context, label, _tickSize);
-                //DrawLabel(context, label);
-            }
-
             if (_isDynamicLabel == true && _dynamicLabel?.Text is not null)
             {
                 //DrawDynamicLabel(context, _dynamicLabel);

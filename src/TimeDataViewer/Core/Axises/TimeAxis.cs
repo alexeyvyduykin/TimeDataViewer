@@ -130,10 +130,10 @@ namespace Timeline.Core
         public void UpdateStaticLabels(DateTime begin)
         {
             _labels = CreateLabels(begin);
-     //       MinValue = MinClientValue;
-     //       MaxValue = MaxClientValue;
             _minLabel = CreateLabel(begin, MinClientValue);
-            _maxLabel = CreateLabel(begin, MaxClientValue); 
+            _maxLabel = CreateLabel(begin, MaxClientValue);
+
+            OnBoundChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void UpdateDynamicLabelPosition(DateTime begin, Point2D point)
