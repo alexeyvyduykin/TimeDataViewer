@@ -153,8 +153,6 @@ namespace Timeline
 
                 UpdateProperties();
 
-               // _axisX.UpdateStaticLabels(Begin0);
-
                 OnDragChanged?.Invoke(this, EventArgs.Empty);
 
                 InvalidateVisual();

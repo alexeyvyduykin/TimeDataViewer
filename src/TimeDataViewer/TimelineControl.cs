@@ -48,8 +48,6 @@ namespace Timeline
         private readonly ITimeAxis _axisX;
         private readonly Canvas _canvas;
         private ObservableCollection<IMarker> _markers;
-
-        private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
         private IList<ISeries> _seriesViewModels;    
@@ -72,16 +70,9 @@ namespace Timeline
 
             _area = factory.CreateArea();
             _axisX = _area.AxisX;
-
-            _area.OnZoomChanged += ZoomChangedEvent;
            
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
-
-            PointerWheelChanged += TimelineControl_PointerWheelChanged;
-            PointerPressed += TimelineControl_PointerPressed;
-            PointerReleased += TimelineControl_PointerReleased;
-            PointerMoved += TimelineControl_PointerMoved;
 
             _canvas = new Canvas()
             {
@@ -120,28 +111,62 @@ namespace Timeline
             ZoomProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.ZoomChanged(e));          
             CurrentTimeProperty.Changed.AddClassHandler<TimelineControl>((d, e) => d.CurrentTimeChanged(e));
 
-            OnMousePositionChanged += TimelineControl_OnMousePositionChanged;
-
             _markers = new ObservableCollection<IMarker>();
 
-            Begin = new DateTime(2020,6,20,12,0,0);
+            Begin = new DateTime(2020, 6, 20, 12, 0, 0);
             AutoSetViewportArea(86400.0);
-
 
             Items = _markers;
         }
 
+        public DateTime Begin0 => Begin.Date;
+
+        public RectD ViewportArea => _area.Viewport;
+
+        public RectD ClientViewportArea => _area.ClientViewport;
+
+        public RectI AbsoluteWindow => _area.Window;
+
+        public RectI Screen => _area.Screen;
+
+        public int MaxZoom => _area.MaxZoom;
+
+        public int MinZoom => _area.MinZoom;
+
+        public Point2I WindowOffset => _area.WindowOffset;
+
+        public ITimeAxis AxisX => _area.AxisX;
+
+        public ICategoryAxis AxisY => _area.AxisY;
+
+        private Canvas Canvas => _canvas;
 
         private void TimelineControl_OnMousePositionChanged(Point2D point)
         {
             AxisX.UpdateDynamicLabelPosition(Begin0, point);
         }
 
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+
+            PointerWheelChanged += TimelineControl_PointerWheelChanged;
+            PointerPressed += TimelineControl_PointerPressed;
+            PointerReleased += TimelineControl_PointerReleased;
+            PointerMoved += TimelineControl_PointerMoved;
+
+            OnMousePositionChanged += TimelineControl_OnMousePositionChanged;
+        }
+
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
             base.OnDetachedFromLogicalTree(e);
-            
-            _area.OnZoomChanged -= ZoomChangedEvent;
+
+            PointerWheelChanged -= TimelineControl_PointerWheelChanged;
+            PointerPressed -= TimelineControl_PointerPressed;
+            PointerReleased -= TimelineControl_PointerReleased;
+            PointerMoved -= TimelineControl_PointerMoved;
+
             OnMousePositionChanged -= TimelineControl_OnMousePositionChanged;
         }
 
@@ -172,21 +197,6 @@ namespace Timeline
             
             UpdateProperties();
         }
-
-        private void ZoomChangedEvent(object? sender, EventArgs e)
-        {
-            
-            //Debug.WriteLine($"TimelineControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
-
-            ForceUpdateOverlays();
-
-            UpdateProperties();
-
-            OnZoomChanged?.Invoke(this, EventArgs.Empty);
-            //_axisX.UpdateStaticLabels(Begin0);
-        }
-
-        public DateTime Begin0 => Begin.Date;
 
         private void PassingLogicalTree(NotifyCollectionChangedEventArgs e)
         {
@@ -270,22 +280,6 @@ namespace Timeline
 
             _area.ViewportUpdated(0.0, 0.0, len, 1.0);            
         }
-
-        public RectD ViewportArea => _area.Viewport;
-
-        public RectD ClientViewportArea => _area.ClientViewport;
-
-        public RectI AbsoluteWindow => _area.Window;
-
-        public RectI Screen => _area.Screen;
-
-        public Point2I WindowOffset => _area.WindowOffset;
-
-        public ITimeAxis AxisX => _area.AxisX;
-
-        public ICategoryAxis AxisY => _area.AxisY;
-            
-        private Canvas Canvas => _canvas;
 
         public Panel? TopLevelForToolTips
         {
@@ -374,19 +368,17 @@ namespace Timeline
         private void ZoomChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.NewValue is not null && e.NewValue is double value)
-            {                           
-                var zoom = Math.Clamp(value, MinZoom, MaxZoom);
-                
-                if (_zoom != zoom)
+            {
+                _area.ZoomUpdated((int)value);
+
+                if (IsInitialized == true)
                 {
-                    _zoom = zoom;
-                    _area.Zoom = (int)Math.Floor(zoom);
-                    
-                    if (IsInitialized == true)
-                    {
-                        ForceUpdateOverlays();                   
-                    }                   
+                    ForceUpdateOverlays();
                 }
+
+                UpdateProperties();
+
+                OnZoomChanged?.Invoke(this, EventArgs.Empty);
             }
         }
         
@@ -397,12 +389,16 @@ namespace Timeline
                 var xValue = (Begin - Begin0).TotalSeconds + CurrentTime;
                
                 _area.DragToTime(xValue);
+
+                UpdateMarkersOffset();
+
+                UpdateProperties();
+
+                OnDragChanged?.Invoke(this, EventArgs.Empty);
+                
+                InvalidateVisual();
             }
         }
-
-        public int MaxZoom => _area.MaxZoom;  
-
-        public int MinZoom => _area.MinZoom;   
   
         private void UpdateMarkersOffset()
         {

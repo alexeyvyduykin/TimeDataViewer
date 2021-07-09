@@ -20,10 +20,7 @@ namespace Timeline.Core
         private Point2I _windowOffset;        
         private int _zoom = 0;
         private Point2D _dragPoint;
-     
-        public event EventHandler OnDragChanged;
-        public event EventHandler OnZoomChanged;
-       
+
         public Area() 
         {
             _coreFactory = new CoreFactory();
@@ -76,25 +73,8 @@ namespace Timeline.Core
             }
         }
 
-        public int Zoom
-        {
-            get => _zoom;            
-            set
-            {              
-                var zoom = Math.Clamp(value, MinZoom, MaxZoom);
-
-                if (_zoom != zoom && IsDragging == false)
-                {
-                    _zoom = zoom;
-
-                    Zooming(_zoom);
-                   
-                    OnZoomChanged?.Invoke(this, EventArgs.Empty);
-                    //Debug.WriteLine($"Area -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
-                }
-            }
-        }
-
+        public int Zoom => _zoom;            
+        
         public void WindowUpdated(int width, int height, int zoom)
         {
             _width = width;
@@ -157,6 +137,26 @@ namespace Timeline.Core
             ZoomScreenPosition = FromLocalToScreen(oldCenter);
         }
 
+        public void ZoomUpdated(int zoom)
+        {
+            var z = Math.Clamp(zoom, MinZoom, MaxZoom);
+
+            if (_zoom != z && IsDragging == false)
+            {
+                _zoom = z;
+
+                var posLoc = ZoomPositionLocal;
+
+                WindowUpdated(Width, Height, _zoom);
+
+                WindowOffset = CreateWindowOffset(posLoc);
+
+                ClientViewportUpdated(WindowOffset, Window, Viewport);
+
+                ZoomScreenPosition = FromLocalToScreen(posLoc);
+            }
+        }
+
         public void BeginDrag(Point2D pt)
         {
             _dragPoint = new Point2D(pt.X - WindowOffset.X, pt.Y - WindowOffset.Y);
@@ -175,9 +175,6 @@ namespace Timeline.Core
                 WindowOffset = new Point2I((int)(point.X - _dragPoint.X), (int)(point.Y - _dragPoint.Y));
              
                 ClientViewportUpdated(WindowOffset, Window, Viewport);
-
-                OnDragChanged?.Invoke(this, EventArgs.Empty);
-                //Debug.WriteLine($"Area -> OnDragChanged -> Count = {OnDragChanged?.GetInvocationList().Length}");
             }
         }
 
@@ -237,10 +234,7 @@ namespace Timeline.Core
         {            
             WindowOffset = CreateWindowOffset(new Point2D(xValue, 0.0));
             
-            ClientViewportUpdated(WindowOffset, Window, Viewport);
-        
-            OnDragChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"Area -> OnDragChanged -> Count = {OnDragChanged?.GetInvocationList().Length}");
+            ClientViewportUpdated(WindowOffset, Window, Viewport);       
         }
 
         private Point2I CreateWindowOffset(Point2D pos)
@@ -266,19 +260,6 @@ namespace Timeline.Core
             yOffset = Math.Max(yOffset + Window.Height, _height) - Window.Height;
 
             return new Point2I(xOffset, yOffset);
-        }
-
-        private void Zooming(int zoom)
-        {
-            var posLoc = ZoomPositionLocal;
-
-            WindowUpdated(Width, Height, zoom);
-
-            WindowOffset = CreateWindowOffset(posLoc);
-           
-            ClientViewportUpdated(WindowOffset, Window, Viewport);
-
-            ZoomScreenPosition = FromLocalToScreen(posLoc);
         }
     }
 }
