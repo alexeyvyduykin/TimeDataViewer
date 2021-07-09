@@ -69,7 +69,7 @@ namespace Timeline
             {
                 if(Timeline is not null)
                 {
-                    Timeline.AxisX.OnAxisChanged -= OnAxisChanged;
+                    //Timeline.AxisX.OnAxisChanged -= OnAxisChanged;
                     Timeline.AxisX.OnBoundChanged -= OnBoundChanged;
                     Timeline.PointerEnter -= OnMapEnter;
                     Timeline.PointerLeave -= OnMapLeave;
@@ -77,7 +77,7 @@ namespace Timeline
 
                 Timeline = timeline;
 
-                Timeline.AxisX.OnAxisChanged += OnAxisChanged;
+                //Timeline.AxisX.OnAxisChanged += OnAxisChanged;
                 Timeline.AxisX.OnBoundChanged += OnBoundChanged;
                 Timeline.PointerEnter += OnMapEnter;
                 Timeline.PointerLeave += OnMapLeave;
@@ -125,7 +125,7 @@ namespace Timeline
             _width = finalRect.Width;          
         }
 
-        private void OnAxisChanged(object? s, EventArgs e)
+        private void OnBoundChanged(object? s, EventArgs e)
         {
             if (s is ITimeAxis axis)
             {
@@ -135,7 +135,7 @@ namespace Timeline
                 foreach (var item in axis.Labels)
                 {
                     double x = _width * (item.Value - axis.MinValue) / wth;
-                   
+
                     _labels.Add(new Label(x, item.Label));
                 }
 
@@ -145,22 +145,14 @@ namespace Timeline
                 //    double width = axis.MaxValue - axis.MinValue;
 
                 //    double x = W * (dynLab.Value - axis.MinValue) / width;
-               
+
                 //    _dynamicLabel = new Label(x, dynLab.Label);
                 //}
-                                    
-                LeftLabel = axis.MinLabel;
-                                                 
-                RightLabel = axis.MaxLabel;
-                
-                //base.InvalidateVisual();
-            }
-        }
 
-        private void OnBoundChanged(object? s, EventArgs e)
-        {
-            if (s is IAxis axis)
-            {
+                LeftLabel = axis.MinLabel;
+
+                RightLabel = axis.MaxLabel;
+
                 Items = new ObservableCollection<Label>(_labels);
             }            
         }

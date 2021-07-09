@@ -10,7 +10,7 @@ namespace Timeline.Core
 {
     public interface IAxis
     {
-        event EventHandler OnAxisChanged;
+        //event EventHandler OnAxisChanged;
 
         AxisType Type { get; set; }
 

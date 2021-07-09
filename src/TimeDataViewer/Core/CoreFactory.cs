@@ -9,18 +9,18 @@ namespace Timeline.Core
 
     public interface ICoreFactory
     {
-        ITimeAxis CreateTimeAxis();
+        ITimeAxis CreateTimeAxis(Area area);
 
-        ICategoryAxis CreateCategoryAxis(); 
+        ICategoryAxis CreateCategoryAxis(Area area); 
 
         Area CreateArea();
     }
 
     public class CoreFactory : ICoreFactory
     {
-        public ITimeAxis CreateTimeAxis()
+        public ITimeAxis CreateTimeAxis(Area area)
         {
-            return new TimeAxis()
+            return new TimeAxis(area)
             {
                 Header = "X",
                 Type = AxisType.X,
@@ -46,9 +46,9 @@ namespace Timeline.Core
             };
         }
 
-        public ICategoryAxis CreateCategoryAxis()
+        public ICategoryAxis CreateCategoryAxis(Area area)
         {
-            return new CategoryAxis()
+            return new CategoryAxis(area)
             {
                 Header = "Y",
                 Type = AxisType.Y,

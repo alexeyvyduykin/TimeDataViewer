@@ -37,8 +37,8 @@ namespace Timeline.Core
         public Area() 
         {
             _coreFactory = new CoreFactory();
-            _axisX = _coreFactory.CreateTimeAxis();
-            _axisY = _coreFactory.CreateCategoryAxis();
+            _axisX = _coreFactory.CreateTimeAxis(this);
+            _axisY = _coreFactory.CreateCategoryAxis(this);
 
             OnSizeChanged += SizeChangedEvent;
             OnWindowChanged += WindowChangedEvent;

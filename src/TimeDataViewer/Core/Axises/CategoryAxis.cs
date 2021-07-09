@@ -9,12 +9,12 @@ namespace Timeline.Core
 {
     public class CategoryAxis : BaseAxis, ICategoryAxis
     {
-        //private AxisInfo? _axisInfo;
-        private bool _dirty = true; 
+        private readonly Area _area;
         private readonly Dictionary<string, Point2D> _targetMarkers;
 
-        public CategoryAxis()
+        public CategoryAxis(Area area)
         {
+            _area = area;
             _targetMarkers = new Dictionary<string, Point2D>();          
         }
 
@@ -57,8 +57,6 @@ namespace Timeline.Core
                 default:
                     break;
             }
-
-            Invalidate();
         }
 
         public override void UpdateViewport(RectD viewport)
@@ -76,8 +74,6 @@ namespace Timeline.Core
                 default:
                     break;
             }
-
-            Invalidate();
         }
 
         public override void UpdateClientViewport(RectD clientViewport)
@@ -95,10 +91,6 @@ namespace Timeline.Core
                 default:
                     break;
             }
-
-            _dirty = true;
-
-            Invalidate();
         }
 
         private IList<AxisLabelPosition> CreateLabels()
@@ -116,44 +108,5 @@ namespace Timeline.Core
 
             return list;
         }
-
-        //public override void UpdateFollowLabelPosition(MarkerViewModel marker)
-        //{
-        //    if (_targetMarkers.ContainsKey(marker.Name) == false)
-        //    {
-        //        _targetMarkers.Add(marker.Name, new Point2D());
-        //    }
-
-        //    _targetMarkers[marker.Name] = marker.LocalPosition;
-
-        //    _dirty = true;
-
-        //    Invalidate();
-        //}
-
-        //private AxisInfo CreateAxisInfo()
-        //{
-        //    return new AxisInfo()
-        //    {
-        //        Labels = CreateLabels(),
-        //        Type = Type,
-        //        MinValue = MinClientValue,
-        //        MaxValue = MaxClientValue,                                 
-        //    };
-        //}
-
-        //public override AxisInfo AxisInfo
-        //{
-        //    get
-        //    {
-        //        if (_dirty == true || _axisInfo == null)
-        //        {
-        //            _axisInfo = CreateAxisInfo();
-        //            _dirty = false;
-        //        }
-
-        //        return _axisInfo;
-        //    }
-        //}
     }
 }

@@ -19,33 +19,23 @@ namespace Timeline.Core
 
     public class TimeAxis : BaseAxis, ITimeAxis
     {
+        private readonly Area _area;
         private AxisLabelPosition? _dynamicLabel;
-        private DateTime _epoch0 = DateTime.MinValue;
         private string _minLabel;
-
         private string _maxLabel;
         private IList<AxisLabelPosition> _labels;
         
         public event EventHandler OnBoundChanged;
 
-        public TimeAxis() 
+        public TimeAxis(Area area) 
         {
-            _labels = new List<AxisLabelPosition>();
+            _area = area;
+               _labels = new List<AxisLabelPosition>();
         }
 
         public IDictionary<TimePeriod, string>? LabelFormatPool { get; init; }
 
         public IDictionary<TimePeriod, double>? LabelDeltaPool { get; init; }
-
-        public DateTime Epoch0 
-        { 
-            get => _epoch0; 
-            set 
-            {
-                _epoch0 = value;
-                Invalidate();
-            }
-        }
 
         public IList<AxisLabelPosition> Labels => _labels;
 
@@ -94,8 +84,6 @@ namespace Timeline.Core
                 default:
                     break;
             }
-
-            Invalidate();
         }
 
         public override void UpdateClientViewport(RectD clientViewport)
@@ -113,8 +101,6 @@ namespace Timeline.Core
                 default:
                     break;
             }
-
-            Invalidate();
         }
 
         public override void UpdateWindow(RectI window)
@@ -132,8 +118,6 @@ namespace Timeline.Core
                 default:
                     break;
             }
-
-            Invalidate();
         }
    
         private IList<AxisLabelPosition> CreateLabels(DateTime begin)
@@ -218,29 +202,6 @@ namespace Timeline.Core
             }
 
             OnBoundChanged?.Invoke(this, EventArgs.Empty);
-
-            //Invalidate();
         }
-
-       // public override void UpdateFollowLabelPosition(MarkerViewModel marker) { }
-  
-        //public override AxisInfo AxisInfo
-        //{
-        //    get
-        //    {
-        //        var axisInfo = new AxisInfo()
-        //        {
-        //            Labels = CreateLabels(),
-        //            Type = Type,
-        //            MinValue = MinClientValue,
-        //            MaxValue = MaxClientValue,
-        //            MinLabel = CreateMinMaxLabel(MinClientValue),
-        //            MaxLabel = CreateMinMaxLabel(MaxClientValue),               
-        //            DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : null,
-        //        };
-
-        //        return axisInfo;
-        //    }
-        //}
     }
 }

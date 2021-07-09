@@ -23,8 +23,6 @@ namespace Timeline.Core
 
     public abstract class BaseAxis : IAxis
     {
-        public event EventHandler? OnAxisChanged;
-
         public bool HasInversion { get; set; }
 
         public bool IsDynamicLabelEnable { get; set; }
@@ -49,12 +47,6 @@ namespace Timeline.Core
 
         public abstract int FromLocalToAbsolute(double value);
       
-        protected virtual void Invalidate()
-        {
-            OnAxisChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"BaseAxis -> OnAxisChanged -> Count = {OnAxisChanged?.GetInvocationList().Length}");
-        }
-
         public abstract void UpdateWindow(RectI window);
 
         public abstract void UpdateViewport(RectD viewport);
