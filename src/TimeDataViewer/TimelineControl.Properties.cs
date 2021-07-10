@@ -29,6 +29,8 @@ using Avalonia.Controls.Primitives;
 
 namespace Timeline
 {
+    public enum DurationMode { Auto, Manual };
+
     public partial class TimelineControl
     {
         public static readonly DirectProperty<TimelineControl, ObservableCollection<Series>> SeriesProperty =    
@@ -64,13 +66,38 @@ namespace Timeline
         }
 
         public static readonly StyledProperty<DateTime> BeginProperty =    
-            AvaloniaProperty.Register<TimelineControl, DateTime>(nameof(Begin), DateTime.Now);
+            AvaloniaProperty.Register<TimelineControl, DateTime>(nameof(Begin), new DateTime(2000, 6, 20, 12, 0, 0));
 
         public DateTime Begin
         {
             get => GetValue(BeginProperty);
             set => SetValue(BeginProperty, value);
         }
+
+        public static readonly StyledProperty<double> DurationProperty =    
+            AvaloniaProperty.Register<TimelineControl, double>(nameof(Duration), 86400.0);
+
+        public double Duration
+        {
+            get => GetValue(DurationProperty);
+            set => SetValue(DurationProperty, value);
+        }
+
+        public static readonly StyledProperty<DurationMode> DurationModeProperty =    
+            AvaloniaProperty.Register<TimelineControl, DurationMode>(nameof(Begin), DurationMode.Manual);
+
+        public DurationMode DurationMode
+        {
+            get => GetValue(DurationModeProperty);
+            set => SetValue(DurationModeProperty, value);
+        }
+
+
+
+
+
+
+
 
         public static readonly StyledProperty<double> CurrentTimeProperty =    
             AvaloniaProperty.Register<TimelineControl, double>(nameof(CurrentTime), 0.0);

@@ -153,9 +153,11 @@
                         </Border>
                     </Grid>
 
+                    <!-- Begin="{Binding $parent[Window].DataContext.Epoch}"-->
+                    
                     <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
                         <local:TimelineControl Name="timeline"
-                                               Begin="{Binding $parent[Window].DataContext.Epoch}"
+                                              
                                                CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
                             <!--<local:TimelineControl.Series>

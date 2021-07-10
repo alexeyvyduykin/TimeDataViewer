@@ -113,8 +113,7 @@ namespace Timeline
 
             _markers = new ObservableCollection<IMarker>();
 
-            Begin = new DateTime(2020, 6, 20, 12, 0, 0);
-            AutoSetViewportArea(86400.0);
+            SetViewport();
 
             Items = _markers;
         }
@@ -191,9 +190,9 @@ namespace Timeline
 
             var rightDate = Begin.AddSeconds(maxRight).Date.AddDays(1);
 
-            var len = (rightDate - Begin0).TotalSeconds;
+            Duration = (rightDate - Begin0).TotalSeconds;
 
-            AutoSetViewportArea(len);
+            SetViewport();
             
             UpdateProperties();
         }
@@ -241,10 +240,11 @@ namespace Timeline
             _popup.IsOpen = false;
         }
         
-        private void AutoSetViewportArea(double len)
+        private void SetViewport()
         {
             var d0 = (Begin - Begin0).TotalSeconds;
-
+            var end = Begin0.AddSeconds(d0 + Duration + 86399.0).Date;
+            var len = (end - Begin0).TotalSeconds;
 
             if (_seriesViewModels is not null)
             {
