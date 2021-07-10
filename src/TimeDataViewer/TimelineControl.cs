@@ -120,6 +120,8 @@ namespace Timeline
 
         public DateTime Begin0 => Begin.Date;
 
+        public DateTime End => Begin0.AddSeconds((Begin - Begin0).TotalSeconds + Duration + 86399.0).Date;
+
         public RectD ViewportArea => _area.Viewport;
 
         public RectD ClientViewportArea => _area.ClientViewport;
@@ -242,9 +244,8 @@ namespace Timeline
         
         private void SetViewport()
         {
-            var d0 = (Begin - Begin0).TotalSeconds;
-            var end = Begin0.AddSeconds(d0 + Duration + 86399.0).Date;
-            var len = (end - Begin0).TotalSeconds;
+            var d0 = (Begin - Begin0).TotalSeconds;           
+            var len = (End - Begin0).TotalSeconds;
 
             if (_seriesViewModels is not null)
             {

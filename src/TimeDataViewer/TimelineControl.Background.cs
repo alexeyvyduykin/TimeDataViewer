@@ -15,7 +15,8 @@ namespace Timeline
         private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Color.Parse("#BDBDBD") /*Colors.Silver*/ };
         private readonly IBrush _brushSecond = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };
 
-        private readonly IBrush _background = new SolidColorBrush() { Color = Color.Parse("#424242") };
+        private readonly IBrush _background = new SolidColorBrush() { Color = Color.Parse("#424242"), Opacity = 1.0 };
+        private readonly IBrush _backgroundOverlay = new SolidColorBrush() { Color = Colors.Black, Opacity = 0.3 };
 
         private readonly IBrush _minorGridLine = new SolidColorBrush() { Color = Color.Parse("#2A2A2A"), Opacity = 1.0 };
         private readonly IBrush _majorGridLine = new SolidColorBrush() { Color = Color.Parse("#2A2A2A"), Opacity = 0.5 };
@@ -178,7 +179,7 @@ namespace Timeline
             else if (IsRange(w, 0.0, 7 * 86400.0) == true) // Week
             {
                 AxisX.TimePeriodMode = TimePeriod.Week;
-                count = (int)(len / 86400.0);
+                count = (int)(len / 43200.0/* 86400.0*/);
             }
             else if (IsRange(w, 0.0, 30 * 86400.0) == true) // Month
             {
@@ -203,6 +204,24 @@ namespace Timeline
                 context.DrawLine(new Pen() { Thickness = 1, Brush = brush }, new Point(dw * i + WindowOffset.X, 0), new Point(dw * i + WindowOffset.X, height));
 
                 //context.FillRectangle(brush, new Rect(dw * i + WindowOffset.X, 0, dw, height));
+            }
+
+            var d0 = (Begin - Begin0).TotalSeconds;
+            var p0 = FromLocalToScreen(new Spatial.Point2D(d0, 0));
+            var p1 = FromLocalToScreen(new Spatial.Point2D(d0 + Duration, 0));
+
+            var x0 = p0.X;
+            var x1 = p1.X;
+            var x2 = Screen.Width;
+
+            if (x0 > 0)
+            {
+               context.FillRectangle(_backgroundOverlay, new Rect(0, 0, x0, height));
+            }
+
+            if (x2 - x1 > 0)
+            {
+               context.FillRectangle(_backgroundOverlay, new Rect(x1, 0, x2 - x1, height));
             }
         }
 
