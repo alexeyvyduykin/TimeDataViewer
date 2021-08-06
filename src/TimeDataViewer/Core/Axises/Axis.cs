@@ -26,11 +26,12 @@ namespace TimeDataViewer.Core
 
     public abstract class Axis
     {
+        private double _scale;
+        private double _offset;        
+
         private AxisPosition _position;
 
         public event EventHandler? OnAxisChanged;
-
-        public bool HasInversion { get; set; }
 
         public bool IsDynamicLabelEnable { get; set; }
 
@@ -56,9 +57,33 @@ namespace TimeDataViewer.Core
 
         public abstract AxisInfo AxisInfo { get; }
                          
-        public abstract double FromAbsoluteToLocal(int pixel);
+        public double FromAbsoluteToLocal(double pixel)
+        {
+            double scale = (MaxPixel - MinPixel) / (MaxValue - MinValue);
 
-        public abstract int FromLocalToAbsolute(double value);
+            return pixel / scale + MinValue;
+            
+            //return Math.Clamp(value, MinValue, MaxValue);
+        }
+
+        public double FromLocalToAbsolute(double value)
+        {
+            double scale = (MaxPixel - MinPixel) / (MaxValue - MinValue);
+
+            return (value - MinValue) * scale;
+         
+            //return Math.Clamp(pixel, MinPixel, MaxPixel);
+        }
+
+        public Point2I FromLocalToScreen(double x, double y, Axis axisy)
+        {
+            return new Point2I((int)FromLocalToAbsolute(x), (int)axisy.FromLocalToAbsolute(y));     
+        }
+
+        public Point2I FromLocalToAbsolute(double x, double y, Axis axisy)
+        {
+            return new Point2I((int)FromLocalToAbsolute(x), (int)axisy.FromLocalToAbsolute(y));
+        }
 
         public bool IsHorizontal()
         {
@@ -73,9 +98,8 @@ namespace TimeDataViewer.Core
         protected virtual void Invalidate()
         {
             OnAxisChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"BaseAxis -> OnAxisChanged -> Count = {OnAxisChanged?.GetInvocationList().Length}");
         }
-     
+
         public void UpdateWindow(RectI window)
         {
             if(IsHorizontal() == true)

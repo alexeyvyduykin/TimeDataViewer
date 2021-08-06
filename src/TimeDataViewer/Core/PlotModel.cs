@@ -287,7 +287,7 @@ namespace TimeDataViewer.Core
 
         public Point2I FromLocalToScreen(double x, double y)
         {
-            var pLocal = new Point2I(AxisX.FromLocalToAbsolute(x), AxisY.FromLocalToAbsolute(y));
+            var pLocal = new Point2I((int)AxisX.FromLocalToAbsolute(x), (int)AxisY.FromLocalToAbsolute(y));
 
             pLocal.Offset(WindowOffset);
 
@@ -296,7 +296,7 @@ namespace TimeDataViewer.Core
 
         public Point2I FromLocalToAbsolute(double x, double y)
         {
-            var pLocal = new Point2I(AxisX.FromLocalToAbsolute(x), AxisY.FromLocalToAbsolute(y));
+            var pLocal = new Point2I((int)AxisX.FromLocalToAbsolute(x), (int)AxisY.FromLocalToAbsolute(y));
 
             return new Point2I(pLocal.X, pLocal.Y);
         }
@@ -319,7 +319,7 @@ namespace TimeDataViewer.Core
             var offsetX = _width / 2 - xAbs;
             var offsetY = _height / 2 - yAbs;
 
-            return new Point2I(offsetX, offsetY);
+            return new Point2I((int)offsetX, (int)offsetY);
         }
 
         private Point2I WindowOffsetValidate(Point2I offset)

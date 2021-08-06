@@ -25,8 +25,7 @@ namespace TimeDataViewer.Core
         public TimeAxis() 
         {
             Header = "X";
-            Position = AxisPosition.Bottom;
-            HasInversion = false;
+            Position = AxisPosition.Bottom;            
             IsDynamicLabelEnable = true;
             TimePeriodMode = TimePeriod.Month;
             LabelFormatPool = new Dictionary<TimePeriod, string>()
@@ -62,30 +61,6 @@ namespace TimeDataViewer.Core
         }
 
         public TimePeriod TimePeriodMode { get; set; }
-
-        public override double FromAbsoluteToLocal(int pixel)
-        {
-            double value = (MaxValue - MinValue) * pixel / (MaxPixel - MinPixel);
-
-            if (HasInversion == true)
-            {
-                value = (MaxValue - MinValue) - value;
-            }
-        
-            return Math.Clamp(MinValue + value, MinValue, MaxValue);
-        }
-
-        public override int FromLocalToAbsolute(double value)
-        {
-            int pixel = (int)((value - MinValue) * (MaxPixel - MinPixel) / (MaxValue - MinValue));
-
-            if (HasInversion == true)
-            {
-                pixel = (MaxPixel - MinPixel) - pixel;
-            }
-        
-            return Math.Clamp(/*MinPixel +*/ pixel, MinPixel, MaxPixel);
-        }
    
         private IList<AxisLabelPosition> CreateLabels()
         {
