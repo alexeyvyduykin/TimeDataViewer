@@ -9,10 +9,13 @@ using System.Diagnostics;
 
 namespace TimeDataViewer.Core
 {
-    public enum AxisType
+    public enum AxisPosition
     {
-        X,
-        Y
+        None,
+        Left,
+        Right,
+        Top,
+        Bottom
     }
 
     public record AxisLabelPosition
@@ -23,6 +26,8 @@ namespace TimeDataViewer.Core
 
     public abstract class Axis
     {
+        private AxisPosition _position;
+
         public event EventHandler? OnAxisChanged;
 
         public bool HasInversion { get; set; }
@@ -31,7 +36,11 @@ namespace TimeDataViewer.Core
 
         public string Header { get; set; } = "Header";
 
-        public AxisType Type { get; set; }
+        public AxisPosition Position 
+        {
+            get => _position;
+            set => _position = value;
+        }
 
         public double MinValue { get; protected set; }
 
@@ -50,17 +59,69 @@ namespace TimeDataViewer.Core
         public abstract double FromAbsoluteToLocal(int pixel);
 
         public abstract int FromLocalToAbsolute(double value);
-      
+
+        public bool IsHorizontal()
+        {
+            return _position == AxisPosition.Top || _position == AxisPosition.Bottom;
+        }
+
+        public bool IsVertical()
+        {
+            return _position == AxisPosition.Left || _position == AxisPosition.Right;
+        }
+
         protected virtual void Invalidate()
         {
             OnAxisChanged?.Invoke(this, EventArgs.Empty);
             //Debug.WriteLine($"BaseAxis -> OnAxisChanged -> Count = {OnAxisChanged?.GetInvocationList().Length}");
         }
+     
+        public void UpdateWindow(RectI window)
+        {
+            if(IsHorizontal() == true)
+            {
+                MinPixel = 0;
+                MaxPixel = window.Width;
+            }
+            else
+            {
+                MinPixel = 0;
+                MaxPixel = window.Height;
+            }
 
-        public abstract void UpdateWindow(RectI window);
+            OnAxisChanged?.Invoke(this, EventArgs.Empty);
+        }
 
-        public abstract void UpdateViewport(RectD viewport);
+        public void UpdateViewport(RectD viewport)
+        {
+            if (IsHorizontal() == true)
+            {
+                MinValue = viewport.Left;
+                MaxValue = viewport.Right;
+            }
+            else
+            {
+                MinValue = viewport.Bottom;
+                MaxValue = viewport.Top;
+            }
 
-        public abstract void UpdateClientViewport(RectD clientViewport);
+            OnAxisChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void UpdateClientViewport(RectD clientViewport)
+        {
+            if (IsHorizontal() == true)
+            {
+                MinClientValue = clientViewport.Left;
+                MaxClientValue = clientViewport.Right;
+            }
+            else
+            {
+                MinClientValue = clientViewport.Bottom;                    
+                MaxClientValue = clientViewport.Top;
+            }
+
+            OnAxisChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
 }

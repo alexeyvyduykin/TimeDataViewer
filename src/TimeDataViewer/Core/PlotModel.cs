@@ -43,6 +43,13 @@ namespace TimeDataViewer.Core
 
             _series = new ObservableCollection<Series>();
 
+            MinZoom = 0;
+            MaxZoom = 100;
+            ZoomScaleX = 1.0; // 30 %        
+            ZoomScaleY = 0.0;
+            CanDragMap = true;
+            MouseWheelZoomEnabled = true;     
+
             OnSizeChanged += SizeChangedEvent;
             OnWindowChanged += WindowChangedEvent;
             OnClientViewportChanged += ClientViewportChangedEvent;

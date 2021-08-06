@@ -16,7 +16,7 @@ namespace TimeDataViewer.Core
 
         public AxisLabelPosition? DynamicLabel { get; init; }
 
-        public AxisType Type { get; init; }
+        public AxisPosition Position { get; init; }
 
         public double MinValue { get; init; }
 

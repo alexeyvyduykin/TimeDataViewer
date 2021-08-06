@@ -25,7 +25,7 @@ namespace TimeDataViewer.Core
         public TimeAxis() 
         {
             Header = "X";
-            Type = AxisType.X;
+            Position = AxisPosition.Bottom;
             HasInversion = false;
             IsDynamicLabelEnable = true;
             TimePeriodMode = TimePeriod.Month;
@@ -86,63 +86,6 @@ namespace TimeDataViewer.Core
         
             return Math.Clamp(/*MinPixel +*/ pixel, MinPixel, MaxPixel);
         }
-
-        public override void UpdateViewport(RectD viewport)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    MinValue = viewport.Left;
-                    MaxValue = viewport.Right;
-                    break;
-                case AxisType.Y:
-                    MinValue = viewport.Bottom;
-                    MaxValue = viewport.Top;
-                    break;
-                default:
-                    break;
-            }
-
-            Invalidate();
-        }
-
-        public override void UpdateClientViewport(RectD clientViewport)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    MinClientValue = clientViewport.Left;
-                    MaxClientValue = clientViewport.Right;
-                    break;
-                case AxisType.Y:
-                    MinClientValue = clientViewport.Bottom;
-                    MaxClientValue = clientViewport.Top;
-                    break;
-                default:
-                    break;
-            }
-
-            Invalidate();
-        }
-
-        public override void UpdateWindow(RectI window)
-        {
-            switch (Type)
-            {
-                case AxisType.X:
-                    MinPixel = 0;
-                    MaxPixel = window.Width;
-                    break;
-                case AxisType.Y:
-                    MinPixel = 0;
-                    MaxPixel = window.Height;
-                    break;
-                default:
-                    break;
-            }
-
-            Invalidate();
-        }
    
         private IList<AxisLabelPosition> CreateLabels()
         {
@@ -196,7 +139,7 @@ namespace TimeDataViewer.Core
 
         public void UpdateDynamicLabelPosition(Point2D point)
         {
-            if (Type == AxisType.Y)
+            if (IsVertical() == true)
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
@@ -204,7 +147,7 @@ namespace TimeDataViewer.Core
                     Value = point.Y
                 };
             }
-            else if (Type == AxisType.X)
+            else
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
@@ -225,7 +168,7 @@ namespace TimeDataViewer.Core
                 var axisInfo = new AxisInfo()
                 {
                     Labels = CreateLabels(),
-                    Type = Type,
+                    Position = Position,
                     MinValue = MinClientValue,
                     MaxValue = MaxClientValue,
                     MinLabel = CreateMinMaxLabel(MinClientValue),

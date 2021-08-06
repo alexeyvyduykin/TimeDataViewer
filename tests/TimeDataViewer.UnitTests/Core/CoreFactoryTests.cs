@@ -15,7 +15,7 @@ namespace TimeDataViewer.UnitTests.Core
         {           
             var axis = new TimeAxis();
 
-            Assert.Equal(AxisType.X, axis.Type);
+            Assert.Equal(AxisPosition.Bottom, axis.Position);
             Assert.Equal("X", axis.Header);
             Assert.False(axis.HasInversion);
             Assert.True(axis.IsDynamicLabelEnable);
@@ -30,7 +30,7 @@ namespace TimeDataViewer.UnitTests.Core
         {         
             var axis = new CategoryAxis();
 
-            Assert.Equal(AxisType.Y, axis.Type);
+            Assert.Equal(AxisPosition.Left, axis.Position);
             Assert.Equal("Y", axis.Header);
             Assert.False(axis.HasInversion);
             Assert.True(axis.IsDynamicLabelEnable);

@@ -15,9 +15,9 @@ namespace TimeDataViewer
         private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Color.Parse("#BDBDBD") /*Colors.Silver*/ };
         private readonly IBrush _brushSecond = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };         
         
-        //private VisualBrush _areaBackground;
+        //private VisualBrush _plotBackground;
 
-        //public VisualBrush AreaBackground => _areaBackground;
+        //public VisualBrush AreaBackground => _plotBackground;
 
         //private Grid CreateGrid(int count, double w, double h)
         //{
@@ -185,8 +185,8 @@ namespace TimeDataViewer
                 throw new Exception();
             }
 
-            var height = _area.Window.Height;
-            var width = _area.Window.Width;
+            var height = _plot.Window.Height;
+            var width = _plot.Window.Width;
 
             for (int i = 0; i < count; i++)
             {

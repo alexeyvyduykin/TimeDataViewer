@@ -44,7 +44,7 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private readonly PlotModel _area;        
+        private readonly PlotModel _plot;        
         private readonly Canvas _canvas;
         private ObservableCollection<IMarker> _markers;
 
@@ -66,12 +66,10 @@ namespace TimeDataViewer
         public event EventHandler? OnZoomChanged;
    
         public SchedulerControl()
-        {
-            CoreFactory factory = new CoreFactory();
-
-            _area = factory.CreateArea();
+        {          
+            _plot = new PlotModel();
           
-            _area.OnZoomChanged += ZoomChangedEvent;
+            _plot.OnZoomChanged += ZoomChangedEvent;
            
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
@@ -129,7 +127,7 @@ namespace TimeDataViewer
         {
             base.OnDetachedFromLogicalTree(e);
             
-            _area.OnZoomChanged -= ZoomChangedEvent;
+            _plot.OnZoomChanged -= ZoomChangedEvent;
             OnMousePositionChanged -= AxisX.UpdateDynamicLabelPosition;
         }
 
@@ -219,7 +217,7 @@ namespace TimeDataViewer
                     var series = item;
 
                     var seriesLocalPostion = new Point2D(0.0, (++i) * step);
-                    var seriesAbsolutePostion = _area.FromLocalToAbsolute(seriesLocalPostion);
+                    var seriesAbsolutePostion = _plot.FromLocalToAbsolute(seriesLocalPostion);
                     
                     series.LocalPosition = seriesLocalPostion;              
                     series.AbsolutePositionX = seriesAbsolutePostion.X;
@@ -228,7 +226,7 @@ namespace TimeDataViewer
                     foreach (var ival in series.Intervals)
                     {
                         var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, series.LocalPosition.Y);
-                        var intervalAbsolutePostion = _area.FromLocalToAbsolute(intervalLocalPosition);
+                        var intervalAbsolutePostion = _plot.FromLocalToAbsolute(intervalLocalPosition);
 
                         ival.LocalPosition = intervalLocalPosition;                    
                         ival.AbsolutePositionX = intervalAbsolutePostion.X;
@@ -237,22 +235,22 @@ namespace TimeDataViewer
                 }
             }
 
-            _area.UpdateViewport(0.0, 0.0, len, 1.0);            
+            _plot.UpdateViewport(0.0, 0.0, len, 1.0);            
         }
 
-        public RectD ViewportArea => _area.Viewport;
+        public RectD ViewportArea => _plot.Viewport;
 
-        public RectD ClientViewportArea => _area.ClientViewport;
+        public RectD ClientViewportArea => _plot.ClientViewport;
 
-        public RectI AbsoluteWindow => _area.Window;
+        public RectI AbsoluteWindow => _plot.Window;
 
-        public RectI ScreenWindow => _area.PlotArea;
+        public RectI ScreenWindow => _plot.PlotArea;
 
-        public Point2I WindowOffset => _area.WindowOffset;
+        public Point2I WindowOffset => _plot.WindowOffset;
 
-        public TimeAxis AxisX => _area.AxisX;
+        public TimeAxis AxisX => _plot.AxisX;
 
-        public CategoryAxis AxisY => _area.AxisY;
+        public CategoryAxis AxisY => _plot.AxisY;
             
         private Canvas Canvas => _canvas;
 
@@ -285,7 +283,7 @@ namespace TimeDataViewer
 
         private void SchedulerControl_LayoutUpdated(object? sender, EventArgs e)
         {
-            _area.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
+            _plot.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
             //Debug.WriteLine($"SchedulerControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
@@ -301,7 +299,7 @@ namespace TimeDataViewer
 
             foreach (IMarker item in items)
             {
-                var p = _area.FromLocalToAbsolute(item.LocalPosition);
+                var p = _plot.FromLocalToAbsolute(item.LocalPosition);
 
                 item.AbsolutePositionX = p.X;
                 item.AbsolutePositionY = p.Y;
@@ -319,7 +317,7 @@ namespace TimeDataViewer
                 if (_zoom != zoom)
                 {
                     _zoom = zoom;
-                    _area.Zoom = (int)Math.Floor(zoom);
+                    _plot.Zoom = (int)Math.Floor(zoom);
                     
                     if (IsInitialized == true)
                     {
@@ -343,30 +341,30 @@ namespace TimeDataViewer
             {
                 var xValue = (Epoch - Epoch0).TotalSeconds + CurrentTime;
                
-                _area.DragToTime(xValue);
+                _plot.DragToTime(xValue);
             }
         }
 
-        public int MaxZoom => _area.MaxZoom;  
+        public int MaxZoom => _plot.MaxZoom;  
 
-        public int MinZoom => _area.MinZoom;   
+        public int MinZoom => _plot.MinZoom;   
   
         private void UpdateMarkersOffset()
         {
             if (Canvas != null)
             {
-                _schedulerTranslateTransform.X = _area.WindowOffset.X;
-                _schedulerTranslateTransform.Y = _area.WindowOffset.Y;
+                _schedulerTranslateTransform.X = _plot.WindowOffset.X;
+                _schedulerTranslateTransform.Y = _plot.WindowOffset.Y;
             }
         }
 
-        public Point2D FromScreenToLocal(int x, int y) => _area.FromScreenToLocal(x, y);        
+        public Point2D FromScreenToLocal(int x, int y) => _plot.FromScreenToLocal(x, y);        
 
-        public Point2I FromLocalToScreen(Point2D point) => _area.FromLocalToScreen(point);        
+        public Point2I FromLocalToScreen(Point2D point) => _plot.FromLocalToScreen(point);        
 
-        public Point2D FromAbsoluteToLocal(int x, int y) => _area.FromAbsoluteToLocal(x, y);        
+        public Point2D FromAbsoluteToLocal(int x, int y) => _plot.FromAbsoluteToLocal(x, y);        
 
-        public Point2I FromLocalToAbsolute(Point2D point) => _area.FromLocalToAbsolute(point);
+        public Point2I FromLocalToAbsolute(Point2D point) => _plot.FromLocalToAbsolute(point);
         
         public bool IsTestBrush { get; set; } = false;
 
@@ -394,11 +392,11 @@ namespace TimeDataViewer
             if (_showMouseCenter == true)
             {
                 context.DrawLine(_mouseCrossPen,
-                    new Point(_area.ZoomScreenPosition.X - 5, _area.ZoomScreenPosition.Y),
-                    new Point(_area.ZoomScreenPosition.X + 5, _area.ZoomScreenPosition.Y));
+                    new Point(_plot.ZoomScreenPosition.X - 5, _plot.ZoomScreenPosition.Y),
+                    new Point(_plot.ZoomScreenPosition.X + 5, _plot.ZoomScreenPosition.Y));
                 context.DrawLine(_mouseCrossPen,
-                    new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y - 5),
-                    new Point(_area.ZoomScreenPosition.X, _area.ZoomScreenPosition.Y + 5));
+                    new Point(_plot.ZoomScreenPosition.X, _plot.ZoomScreenPosition.Y - 5),
+                    new Point(_plot.ZoomScreenPosition.X, _plot.ZoomScreenPosition.Y + 5));
             }
 
             using (context.PushPreTransform(_schedulerTranslateTransform.Value))
@@ -412,17 +410,17 @@ namespace TimeDataViewer
         private void DrawEpoch(DrawingContext context)
         {
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _area.FromLocalToAbsolute(d0, 0.0);    
+            var p = _plot.FromLocalToAbsolute(d0, 0.0);    
             Pen pen = new Pen(Brushes.Yellow, 2.0);
-            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
+            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _plot.Window.Height));
         }
 
         private void DrawCurrentTime(DrawingContext context)
         {            
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _area.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
+            var p = _plot.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
             Pen pen = new Pen(Brushes.Red, 2.0);
-            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _area.Window.Height));
+            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _plot.Window.Height));
         }        
     }
 
