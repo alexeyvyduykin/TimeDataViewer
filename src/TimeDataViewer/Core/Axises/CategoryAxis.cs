@@ -7,7 +7,7 @@ using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer.Core
 {
-    public class CategoryAxis : BaseAxis, ICategoryAxis
+    public class CategoryAxis : Axis
     {
         private AxisInfo? _axisInfo;
         private bool _dirty = true; 
@@ -15,7 +15,11 @@ namespace TimeDataViewer.Core
 
         public CategoryAxis()
         {
-            _targetMarkers = new Dictionary<string, Point2D>();          
+            _targetMarkers = new Dictionary<string, Point2D>();
+            Header = "Y";
+            Type = AxisType.Y;
+            HasInversion = false;
+            IsDynamicLabelEnable = true; 
         }
 
         public override double FromAbsoluteToLocal(int pixel)

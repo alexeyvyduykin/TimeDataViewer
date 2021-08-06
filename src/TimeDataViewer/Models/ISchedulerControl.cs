@@ -23,9 +23,9 @@ namespace TimeDataViewer.Models
 
         DateTime Epoch { get; }
         
-        ITimeAxis AxisX { get; }
+        TimeAxis AxisX { get; }
 
-        ICategoryAxis AxisY { get; }
+        CategoryAxis AxisY { get; }
 
         event EventHandler OnZoomChanged;
 

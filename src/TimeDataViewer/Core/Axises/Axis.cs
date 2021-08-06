@@ -21,7 +21,7 @@ namespace TimeDataViewer.Core
         public double Value { get; init; }
     }
 
-    public abstract class BaseAxis : IAxis
+    public abstract class Axis
     {
         public event EventHandler? OnAxisChanged;
 

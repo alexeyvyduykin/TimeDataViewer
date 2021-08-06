@@ -39,7 +39,7 @@ namespace AreaBorderDemo.Views
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private Area _area;
+        private PlotModel _area;
         private TranslateTransform _transform;
         private FrameControl _rect; 
         private readonly Canvas _canvas;

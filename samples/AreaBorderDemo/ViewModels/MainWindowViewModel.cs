@@ -38,7 +38,7 @@ namespace AreaBorderDemo.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly Area _area;
+        private readonly PlotModel _area;
 
         public MainWindowViewModel()
         {
@@ -50,7 +50,7 @@ namespace AreaBorderDemo.ViewModels
             _area.UpdateSize(400, 160);
         }
 
-        public Area Area => _area;
+        public PlotModel Area => _area;
 
     }
 }

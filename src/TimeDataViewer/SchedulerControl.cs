@@ -44,7 +44,7 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private readonly Area _area;        
+        private readonly PlotModel _area;        
         private readonly Canvas _canvas;
         private ObservableCollection<IMarker> _markers;
 
@@ -246,13 +246,13 @@ namespace TimeDataViewer
 
         public RectI AbsoluteWindow => _area.Window;
 
-        public RectI ScreenWindow => _area.Screen;
+        public RectI ScreenWindow => _area.PlotArea;
 
         public Point2I WindowOffset => _area.WindowOffset;
 
-        public ITimeAxis AxisX => _area.AxisX;
+        public TimeAxis AxisX => _area.AxisX;
 
-        public ICategoryAxis AxisY => _area.AxisY;
+        public CategoryAxis AxisY => _area.AxisY;
             
         private Canvas Canvas => _canvas;
 

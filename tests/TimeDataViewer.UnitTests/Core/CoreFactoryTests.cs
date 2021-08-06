@@ -12,10 +12,8 @@ namespace TimeDataViewer.UnitTests.Core
     {
         [Fact]
         public void CreateTimeAxis_ValidateProperties_EqualDefaultValues()
-        {
-            var factory = new CoreFactory();
-
-            var axis = factory.CreateTimeAxis();
+        {           
+            var axis = new TimeAxis();
 
             Assert.Equal(AxisType.X, axis.Type);
             Assert.Equal("X", axis.Header);
@@ -29,10 +27,8 @@ namespace TimeDataViewer.UnitTests.Core
 
         [Fact]
         public void CreateCategoryAxis_ValidateProperties_EqualDefaultValues()
-        {
-            var factory = new CoreFactory();
-
-            var axis = factory.CreateCategoryAxis();
+        {         
+            var axis = new CategoryAxis();
 
             Assert.Equal(AxisType.Y, axis.Type);
             Assert.Equal("Y", axis.Header);

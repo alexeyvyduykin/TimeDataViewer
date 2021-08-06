@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using TimeDataViewer.Spatial;
+using System.Collections.ObjectModel;
 
 namespace TimeDataViewer.Core
 {
@@ -12,16 +13,17 @@ namespace TimeDataViewer.Core
     public delegate void ClientViewportChangedEventHandler(RectD viewport);
     public delegate void ViewportChangedEventHandler(RectD viewport);
 
-    public class Area
+    public class PlotModel
     {
         private int _width;
         private int _height;
-        private readonly ITimeAxis _axisX;
-        private readonly ICategoryAxis _axisY;
+        private readonly TimeAxis _axisX;
+        private readonly CategoryAxis _axisY;
+        private readonly ObservableCollection<Series> _series;
+        private RectI _plotArea;
         private RectI _window;
         private RectD _clientViewport;
-        private RectD _viewport = new RectD();
-        private readonly CoreFactory _coreFactory;
+        private RectD _viewport = new RectD();  
         private Point2I _windowOffset;        
         private int _zoom = 0;
         private Point2D _dragPoint;
@@ -34,17 +36,39 @@ namespace TimeDataViewer.Core
         private event ClientViewportChangedEventHandler OnClientViewportChanged;
         private event ViewportChangedEventHandler OnViewportChanged;
 
-        public Area() 
-        {
-            _coreFactory = new CoreFactory();
-            _axisX = _coreFactory.CreateTimeAxis();
-            _axisY = _coreFactory.CreateCategoryAxis();
+        public PlotModel() 
+        {       
+            _axisX = new TimeAxis();
+            _axisY = new CategoryAxis();
+
+            _series = new ObservableCollection<Series>();
 
             OnSizeChanged += SizeChangedEvent;
             OnWindowChanged += WindowChangedEvent;
             OnClientViewportChanged += ClientViewportChangedEvent;
             OnViewportChanged += ViewportChangedEvent;
         }
+
+        public TimeAxis AxisX => _axisX;
+
+        public CategoryAxis AxisY => _axisY;
+
+        public ObservableCollection<Series> Series => _series;
+
+        /// <summary>
+        /// Gets the total width of the plot (in device units).
+        /// </summary>
+        public double Width => _width;
+
+        /// <summary>
+        /// Gets the total height of the plot (in device units).
+        /// </summary>
+        public double Height => _height;
+   
+        /// <summary>
+        /// Gets the plot area. This area is used to draw the series (not including axes or legends).
+        /// </summary>
+        public RectI PlotArea => _plotArea;
 
         private void SizeChangedEvent(int width, int height)
         {
@@ -70,13 +94,9 @@ namespace TimeDataViewer.Core
             _axisY.UpdateViewport(rect);
         }
 
-        public int Width => _width;
 
-        public int Height => _height;
 
-        public ITimeAxis AxisX => _axisX;            
-        
-        public ICategoryAxis AxisY => _axisY;
+
 
         public double ZoomScaleX { get; init; }
 
@@ -93,8 +113,6 @@ namespace TimeDataViewer.Core
         public bool MouseWheelZoomEnabled { get; set; }
 
         public Point2I ZoomScreenPosition { get; set; }
-
-        public RectI Screen => new(0, 0, _width, _height);
 
         public Point2D ZoomPositionLocal => FromScreenToLocal(ZoomScreenPosition);
 
@@ -185,6 +203,8 @@ namespace TimeDataViewer.Core
     
             _width = width;
             _height = height;
+
+            _plotArea = new RectI(0, 0, _width, _height);
 
             OnSizeChanged?.Invoke(width, height);
             //Debug.WriteLine($"Area -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");

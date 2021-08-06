@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace TimeDataViewer.Core
 {
-    public interface ICategoryAxis : IAxis
+    public abstract class Series
     {
-
     }
 }

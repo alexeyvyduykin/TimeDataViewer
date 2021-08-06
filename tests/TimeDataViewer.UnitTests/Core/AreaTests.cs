@@ -10,7 +10,7 @@ namespace TimeDataViewer.UnitTests.Core
 {
     public class AreaTests
     {
-        private Area CreateArea()
+        private PlotModel CreateArea()
         {
             CoreFactory factory = new CoreFactory();
             return factory.CreateArea();

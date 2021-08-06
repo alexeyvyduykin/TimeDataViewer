@@ -123,7 +123,7 @@ namespace TimeDataViewer
 
         private void OnAxisChanged(object? s, EventArgs e)
         {
-            if (s is IAxis axis && axis?.AxisInfo is AxisInfo axisInfo)
+            if (s is Axis axis && axis?.AxisInfo is AxisInfo axisInfo)
             {
                 _labels.Clear();
 

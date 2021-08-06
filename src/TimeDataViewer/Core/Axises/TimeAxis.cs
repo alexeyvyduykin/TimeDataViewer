@@ -17,14 +17,34 @@ namespace TimeDataViewer.Core
         Year,
     }
 
-    public class TimeAxis : BaseAxis, ITimeAxis
+    public class TimeAxis : Axis
     {
         private AxisLabelPosition? _dynamicLabel;
         private DateTime _epoch0 = DateTime.MinValue;
         
         public TimeAxis() 
         {
-            
+            Header = "X";
+            Type = AxisType.X;
+            HasInversion = false;
+            IsDynamicLabelEnable = true;
+            TimePeriodMode = TimePeriod.Month;
+            LabelFormatPool = new Dictionary<TimePeriod, string>()
+                {
+                    { TimePeriod.Hour, @"{0:HH:mm}" },
+                    { TimePeriod.Day, @"{0:HH:mm}" },
+                    { TimePeriod.Week, @"{0:dd/MMM}" },
+                    { TimePeriod.Month, @"{0:dd}" },
+                    { TimePeriod.Year, @"{0:dd/MMM}" },
+                };
+            LabelDeltaPool = new Dictionary<TimePeriod, double>()
+                {
+                    { TimePeriod.Hour, 60.0 * 5 },
+                    { TimePeriod.Day, 3600.0 * 2 },
+                    { TimePeriod.Week, 86400.0 },
+                    { TimePeriod.Month, 86400.0 },
+                    { TimePeriod.Year, 86400.0 * 12 },
+                };
         }
 
         public IDictionary<TimePeriod, string>? LabelFormatPool { get; init; }
