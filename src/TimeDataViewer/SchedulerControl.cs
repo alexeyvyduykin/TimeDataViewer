@@ -51,7 +51,7 @@ namespace TimeDataViewer
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
-        private IList<ISeries> _seriesViewModels;
+        private IList<SeriesViewModel> _seriesViewModels;
         private DateTime _epoch;
         private readonly Popup _popup;
         // center 

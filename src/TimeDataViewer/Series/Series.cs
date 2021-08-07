@@ -36,12 +36,10 @@ namespace TimeDataViewer
 {
     public record Interval(double Left, double Right);
 
-    public class Series : ItemsControl, IStyleable, ISeriesControl
-    {
-        Type IStyleable.StyleKey => typeof(ItemsControl);
-
+    public class Series : ItemsControl
+    {       
         private readonly Factory _factory;
-        private ISeries? _seriesViewModel;
+        private SeriesViewModel? _seriesViewModel;
         private BaseIntervalVisual _intervalTemplate;
        
         public event EventHandler? OnInvalidateData;
@@ -51,7 +49,7 @@ namespace TimeDataViewer
             _factory = new Factory();
         }
 
-        public ISeries? SeriesViewModel 
+        public SeriesViewModel? SeriesViewModel 
         {
             get => _seriesViewModel; 
             set => _seriesViewModel = value; 
@@ -146,7 +144,7 @@ namespace TimeDataViewer
                 list = UpdateItems(items);
             }
 
-            _seriesViewModel = _factory.CreateSeries(Category, this);
+            _seriesViewModel = _factory.CreateSeries(Category);
 
             var intervals = list.Select(s => _factory.CreateInterval(s.Left, s.Right, this));
 
@@ -180,12 +178,12 @@ namespace TimeDataViewer
 
         public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;
 
-        public virtual IntervalTooltipViewModel CreateTooltip(IInterval marker)
+        public virtual IntervalTooltipViewModel CreateTooltip(IntervalViewModel marker)
         {
             return new IntervalTooltipViewModel(marker);
         }
 
-        public virtual IShape CreateIntervalShape(IInterval interval)
+        public virtual IShape CreateIntervalShape(IntervalViewModel interval)
         {
             return IntervalTemplate.Clone(interval);
         }

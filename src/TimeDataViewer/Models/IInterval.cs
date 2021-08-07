@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace TimeDataViewer.Models
 {
-    public interface IInterval : IMarker
-    {
-        double Left { get; }
+    //public interface IInterval : IMarker
+    //{
+    //    double Left { get; }
 
-        double Right { get; }
+    //    double Right { get; }
         
-        ISeries? Series { get; set; }
+    //    ISeries? Series { get; set; }
 
-        ISeriesControl? SeriesControl { get; set; }
-    }
+    //    ISeriesControl? SeriesControl { get; set; }
+    //}
 }

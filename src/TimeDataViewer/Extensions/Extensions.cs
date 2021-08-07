@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
 using System.Collections.ObjectModel;
 using Avalonia;
-using TimeDataViewer.Models;
+using TimeDataViewer.ViewModels;
 
 namespace TimeDataViewer
 {
@@ -40,7 +40,7 @@ namespace TimeDataViewer
             return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
         }
 
-        public static void ReplaceIntervals(this ISeries series, IEnumerable<IInterval> ivals)
+        public static void ReplaceIntervals(this SeriesViewModel series, IEnumerable<IntervalViewModel> ivals)
         {
             series.Intervals.Clear();
           

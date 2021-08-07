@@ -8,16 +8,16 @@ using Avalonia.Controls;
 
 namespace TimeDataViewer.Models
 {
-    public interface ISeriesControl
-    {
-        SchedulerControl? Scheduler { get; }
+    //public interface ISeriesControl
+    //{
+    //    SchedulerControl? Scheduler { get; }
        
-        Control Tooltip { get; set; }
+    //    Control Tooltip { get; set; }
 
-        IShape CreateIntervalShape(IInterval interval);
+    //    IShape CreateIntervalShape(IInterval interval);
 
-        IShape CreateSeriesShape(); 
+    //    IShape CreateSeriesShape(); 
           
-        IntervalTooltipViewModel CreateTooltip(IInterval marker);
-    }
+    //    IntervalTooltipViewModel CreateTooltip(IInterval marker);
+    //}
 }

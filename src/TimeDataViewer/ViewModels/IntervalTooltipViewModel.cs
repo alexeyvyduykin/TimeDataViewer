@@ -9,13 +9,13 @@ namespace TimeDataViewer.ViewModels
 {
     public class IntervalTooltipViewModel : ViewModelBase
     {
-        private readonly IInterval _marker;
+        private readonly IntervalViewModel _marker;
         private string _category;
         private string _date;
         private string _begin;
         private string _end;
 
-        public IntervalTooltipViewModel(IInterval marker)
+        public IntervalTooltipViewModel(IntervalViewModel marker)
         {
             _marker = marker;
 

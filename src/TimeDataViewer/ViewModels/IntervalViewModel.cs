@@ -6,10 +6,10 @@ using TimeDataViewer.Models;
 
 namespace TimeDataViewer.ViewModels
 {
-    public class IntervalViewModel : MarkerViewModel, IInterval
+    public class IntervalViewModel : MarkerViewModel//, IInterval
     {
-        private ISeries? _series;
-        private ISeriesControl? _seriesControl;
+        private SeriesViewModel? _series;
+        private Series? _seriesControl;
         private readonly double _left;
         private readonly double _right;
 
@@ -19,13 +19,13 @@ namespace TimeDataViewer.ViewModels
             _right = right;     
         }
         
-        public ISeries? Series
+        public SeriesViewModel? Series
         {
             get => _series;            
             set => _series = value;            
         }
 
-        public ISeriesControl? SeriesControl
+        public Series? SeriesControl
         {
             get => _seriesControl;
             set => _seriesControl = value;

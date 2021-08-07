@@ -13,23 +13,16 @@ using TimeDataViewer.Models;
 
 namespace TimeDataViewer.ViewModels
 {
-    public class SeriesViewModel : MarkerViewModel, ISeries
+    public class SeriesViewModel : MarkerViewModel
     {
-        private readonly List<IInterval> _intervals;
-        private ISeriesControl? _series;
-
+        private readonly List<IntervalViewModel> _intervals;
+       
         public SeriesViewModel() : base()
         {         
-            _intervals = new List<IInterval>();         
+            _intervals = new List<IntervalViewModel>();         
         }
 
-        public ISeriesControl? SeriesControl
-        {
-            get => _series;
-            set => _series = value;
-        }
-
-        public IList<IInterval> Intervals => _intervals;
+        public IList<IntervalViewModel> Intervals => _intervals;
 
         public double MinTime() => (_intervals.Count == 0) ? 0.0 : _intervals.Min(s => s.Left);
 
