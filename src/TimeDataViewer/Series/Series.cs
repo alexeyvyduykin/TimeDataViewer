@@ -38,8 +38,7 @@ namespace TimeDataViewer
     public record Interval(double Left, double Right);
 
     public abstract class Series : ItemsControl
-    {       
-        private readonly Factory _factory;
+    {          
         protected SeriesViewModel? _seriesViewModel;
         private BaseIntervalVisual _intervalTemplate;
        
@@ -47,7 +46,7 @@ namespace TimeDataViewer
 
         public Series()
         {
-            _factory = new Factory();
+
         }
 
         public Core.Series InternalSeries { get; protected set; }
