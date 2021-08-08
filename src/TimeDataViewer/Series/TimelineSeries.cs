@@ -110,8 +110,8 @@ namespace TimeDataViewer
 
             _seriesViewModel =  new SeriesViewModel()
             {
-                Name = Category,
-                ZIndex = 30,
+                //Name = Category,
+                //ZIndex = 30,
             };
        
             var intervals = list.Select(s => 

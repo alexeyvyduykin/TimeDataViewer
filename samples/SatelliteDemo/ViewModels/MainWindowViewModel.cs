@@ -97,7 +97,7 @@ namespace SatelliteDemo.ViewModels
         {
             var ivals = new List<object>();
 
-            var series1 = new SeriesViewModel() { Name = "Rotations" };
+            var series1 = new SeriesViewModel();// { Name = "Rotations" };
 
             ivals.Add(series1);
 
@@ -105,7 +105,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.AddRange(series1.Intervals);
 
-            var series2 = new SeriesViewModel() { Name = "Observations" };
+            var series2 = new SeriesViewModel();// { Name = "Observations" };
 
             ivals.Add(series2);
 
@@ -113,7 +113,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.AddRange(series2.Intervals);
 
-            var series3 = new SeriesViewModel() { Name = "Transmissions" };
+            var series3 = new SeriesViewModel();// { Name = "Transmissions" };
 
             ivals.Add(series3);
 

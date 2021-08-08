@@ -219,13 +219,9 @@ namespace TimeDataViewer
                     var seriesLocalPostion = new Point2D(0.0, (++i) * step);
                     var seriesAbsolutePostion = _plot.FromLocalToAbsolute(seriesLocalPostion);
                     
-                    series.LocalPosition = seriesLocalPostion;              
-                    series.AbsolutePositionX = seriesAbsolutePostion.X;
-                    series.AbsolutePositionY = seriesAbsolutePostion.Y;
-
                     foreach (var ival in series.Intervals)
                     {
-                        var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, series.LocalPosition.Y);
+                        var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, seriesLocalPostion.Y);
                         var intervalAbsolutePostion = _plot.FromLocalToAbsolute(intervalLocalPosition);
 
                         ival.LocalPosition = intervalLocalPosition;                    

@@ -27,7 +27,7 @@ namespace TimeDataViewer.ViewModels
 
             var epoch = marker.SeriesControl.Scheduler.Epoch;
 
-            _category = series.Name;
+           // _category = series.Name;
             _date = epoch.AddSeconds(left).ToShortDateString();
             _begin = epoch.AddSeconds(left).ToLongTimeString();
             _end = epoch.AddSeconds(right).ToLongTimeString();

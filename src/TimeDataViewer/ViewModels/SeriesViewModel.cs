@@ -13,7 +13,7 @@ using TimeDataViewer.Models;
 
 namespace TimeDataViewer.ViewModels
 {
-    public class SeriesViewModel : MarkerViewModel
+    public class SeriesViewModel : ViewModelBase
     {
         private readonly List<IntervalViewModel> _intervals;
        

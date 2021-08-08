@@ -39,8 +39,7 @@ namespace TimeDataViewer
 {
     public partial class SchedulerControl
     {
-        private DispatcherTimer _timer;
-        private bool _init = false;
+        private DispatcherTimer _timer;       
         private bool _dirty = false;
         private bool _complete = true;       
         private int _iBegSave = 0;
@@ -62,8 +61,7 @@ namespace TimeDataViewer
                     {
                         item.DirtyItems = false;
                     }
-
-                    _init = false;
+                   
                     _dirty = false;
                     _complete = false;
                     _iBegSave = 0;
@@ -117,18 +115,7 @@ namespace TimeDataViewer
         private void LazyUpdateMarkers()
         {
             int packs = 0;
-         
-            if (_init == false)
-            {                                
-                for (int i = 0; i < _seriesViewModels.Count; i++)
-                {
-                    _markers.Add(_seriesViewModels[i]);
-                    packs++;
-                }
-
-                _init = true;
-            }
-
+            
             for (int i = _iBegSave; i < _seriesViewModels.Count; i++)
             {
                 for (int j = _jBegSave; j < _seriesViewModels[i].Intervals.Count; j++)
