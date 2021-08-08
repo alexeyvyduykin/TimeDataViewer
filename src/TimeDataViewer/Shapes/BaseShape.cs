@@ -15,28 +15,27 @@ using System.Collections.Specialized;
 using Avalonia.Controls.Shapes;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
-using TimeDataViewer.Models;
 using Avalonia.LogicalTree;
 
 namespace TimeDataViewer.Shapes
 {
-    public abstract class BaseVisual : Control, IShape
+    public abstract class BaseShape : Control
     {   
-        private IMarker? _marker;
-        private ISchedulerControl? _scheduler;
+        private MarkerViewModel? _marker;
+        private SchedulerControl? _scheduler;
 
-        public BaseVisual()
+        public BaseShape()
         {
-            DataContextProperty.Changed.AddClassHandler<BaseVisual>((d, e) => d.MarkerChanged(e));
+            DataContextProperty.Changed.AddClassHandler<BaseShape>((d, e) => d.MarkerChanged(e));
         }
 
-        public ISchedulerControl? Scheduler => _scheduler;
+        public SchedulerControl? Scheduler => _scheduler;
 
-        public IMarker? Marker => _marker;
+        public MarkerViewModel? Marker => _marker;
 
         private void MarkerChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            if (e.NewValue is IMarker marker)
+            if (e.NewValue is MarkerViewModel marker)
             {
                 _marker = marker;        
             }
@@ -48,12 +47,12 @@ namespace TimeDataViewer.Shapes
 
             ILogical control = this;
 
-            while((control.LogicalParent is ISchedulerControl) == false)
+            while((control.LogicalParent is SchedulerControl) == false)
             {
                 control = control.LogicalParent;
             }
 
-            _scheduler = (ISchedulerControl)control.LogicalParent;
+            _scheduler = (SchedulerControl)control.LogicalParent;
 
             _scheduler.OnZoomChanged += HandleUpdateEvent;
             _scheduler.OnSizeChanged += HandleUpdateEvent;

@@ -45,9 +45,7 @@ namespace TimeDataViewer
             series.Intervals.Clear();
           
             foreach (var item in ivals)
-            {
-                item.Series = series;
-
+            {             
                 series.Intervals.Add(item);
             }
         }

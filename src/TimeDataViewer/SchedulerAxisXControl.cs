@@ -18,7 +18,6 @@ using Avalonia.Styling;
 using Avalonia.VisualTree;
 using TimeDataViewer.ViewModels;
 using TimeDataViewer.Core;
-using TimeDataViewer.Models;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Metadata;
@@ -73,7 +72,7 @@ namespace TimeDataViewer
         {
             base.OnDataContextBeginUpdate();
 
-            if (DataContext is not null && DataContext is ISchedulerControl scheduler)
+            if (DataContext is not null && DataContext is SchedulerControl scheduler)
             {
                 scheduler.AxisX.OnAxisChanged -= OnAxisChanged;
                 scheduler.PointerEnter -= OnMapEnter;
@@ -85,7 +84,7 @@ namespace TimeDataViewer
         {
             base.OnDataContextChanged(e);
 
-            if(DataContext is ISchedulerControl scheduler)
+            if(DataContext is SchedulerControl scheduler)
             {
                 scheduler.AxisX.OnAxisChanged += OnAxisChanged;
                 scheduler.PointerEnter += OnMapEnter;

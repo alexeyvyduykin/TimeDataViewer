@@ -30,7 +30,6 @@ using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
 using TimeDataViewer.Views;
 using System.Threading.Tasks;
-using TimeDataViewer.Models;
 using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer

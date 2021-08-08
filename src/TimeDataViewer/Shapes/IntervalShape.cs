@@ -15,18 +15,17 @@ using System.Collections.Specialized;
 using Avalonia.Controls.Shapes;
 using TimeDataViewer.Spatial;
 using TimeDataViewer.ViewModels;
-using TimeDataViewer.Models;
 using Avalonia.LogicalTree;
 
 namespace TimeDataViewer.Shapes
 {
-    public class IntervalVisual : BaseIntervalVisual
+    public class IntervalShape : BaseIntervalShape
     {
         private double _widthX = 0.0;           
         private readonly ScaleTransform _scale;
         private bool _popupIsOpen;
 
-        public IntervalVisual()
+        public IntervalShape()
         {                               
             PointerEnter += IntervalVisual_PointerEnter;
             PointerLeave += IntervalVisual_PointerLeave;
@@ -37,7 +36,7 @@ namespace TimeDataViewer.Shapes
         }
 
         public static readonly StyledProperty<Color> BackgroundProperty =    
-            AvaloniaProperty.Register<IntervalVisual, Color>(nameof(Background), Colors.LightGray);
+            AvaloniaProperty.Register<IntervalShape, Color>(nameof(Background), Colors.LightGray);
 
         public Color Background
         {
@@ -46,7 +45,7 @@ namespace TimeDataViewer.Shapes
         }
 
         public static readonly StyledProperty<double> HeightYProperty =    
-            AvaloniaProperty.Register<IntervalVisual, double>(nameof(HeightY), 20.0);
+            AvaloniaProperty.Register<IntervalShape, double>(nameof(HeightY), 20.0);
 
         public double HeightY
         {
@@ -55,7 +54,7 @@ namespace TimeDataViewer.Shapes
         }
 
         public static readonly StyledProperty<Color> StrokeColorProperty =   
-            AvaloniaProperty.Register<IntervalVisual, Color>(nameof(StrokeColor), Colors.Black);
+            AvaloniaProperty.Register<IntervalShape, Color>(nameof(StrokeColor), Colors.Black);
 
         public Color StrokeColor
         {
@@ -64,7 +63,7 @@ namespace TimeDataViewer.Shapes
         }
 
         public static readonly StyledProperty<double> StrokeThicknessProperty =    
-            AvaloniaProperty.Register<IntervalVisual, double>(nameof(StrokeThickness), 1.0);
+            AvaloniaProperty.Register<IntervalShape, double>(nameof(StrokeThickness), 1.0);
 
         public double StrokeThickness
         {
@@ -144,9 +143,9 @@ namespace TimeDataViewer.Shapes
             }
         }
 
-        public override BaseIntervalVisual Clone()
+        public override BaseIntervalShape Clone()
         {
-            var shape = new IntervalVisual();
+            var shape = new IntervalShape();
 
             shape.Background = Background;             
                            

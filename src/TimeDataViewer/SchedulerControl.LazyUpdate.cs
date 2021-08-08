@@ -28,7 +28,6 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using TimeDataViewer.Models;
 using TimeDataViewer.Core;
 using Avalonia.Controls.Generators;
 using System.Threading.Tasks;

@@ -30,7 +30,6 @@ using Avalonia.Controls.Generators;
 using Avalonia.Controls.Primitives;
 using TimeDataViewer.Views;
 using System.Threading.Tasks;
-using TimeDataViewer.Models;
 using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
@@ -40,7 +39,7 @@ namespace TimeDataViewer
     public abstract class Series : ItemsControl
     {          
         protected SeriesViewModel? _seriesViewModel;
-        private BaseIntervalVisual _intervalTemplate;
+        private BaseIntervalShape _intervalTemplate;
        
         public event EventHandler? OnInvalidateData;
 
@@ -61,10 +60,10 @@ namespace TimeDataViewer
 
         public bool DirtyItems { get; set; } = false;
 
-        public static readonly StyledProperty<BaseIntervalVisual> IntervalTemplateProperty =
-            AvaloniaProperty.Register<Series, BaseIntervalVisual>(nameof(IntervalTemplate));
+        public static readonly StyledProperty<BaseIntervalShape> IntervalTemplateProperty =
+            AvaloniaProperty.Register<Series, BaseIntervalShape>(nameof(IntervalTemplate));
 
-        public BaseIntervalVisual IntervalTemplate
+        public BaseIntervalShape IntervalTemplate
         {
             get { return _intervalTemplate; }
             set { SetAndRaise(IntervalTemplateProperty, ref _intervalTemplate, value); }
@@ -136,7 +135,7 @@ namespace TimeDataViewer
             return new IntervalTooltipViewModel(marker);
         }
 
-        public virtual IShape CreateIntervalShape()
+        public virtual BaseShape CreateIntervalShape()
         {
             return IntervalTemplate.Clone();
         }

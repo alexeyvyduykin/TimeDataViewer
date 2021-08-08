@@ -29,7 +29,6 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using TimeDataViewer.Models;
 using TimeDataViewer.Core;
 using Avalonia.Controls.Generators;
 using System.Threading.Tasks;
@@ -40,13 +39,13 @@ namespace TimeDataViewer
 {
     public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, IStyleable, ISchedulerControl
+    public partial class SchedulerControl : ItemsControl, IStyleable
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
         private readonly PlotModel _plot;        
         private readonly Canvas _canvas;
-        private ObservableCollection<IMarker> _markers;
+        private ObservableCollection<MarkerViewModel> _markers;
 
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
@@ -118,7 +117,7 @@ namespace TimeDataViewer
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
 
-            _markers = new ObservableCollection<IMarker>();
+            _markers = new ObservableCollection<MarkerViewModel>();
 
             Items = _markers;
         }
@@ -293,7 +292,7 @@ namespace TimeDataViewer
         {
             UpdateMarkersOffset();
 
-            foreach (IMarker item in items)
+            foreach (MarkerViewModel item in items)
             {
                 var p = _plot.FromLocalToAbsolute(item.LocalPosition);
 

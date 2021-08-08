@@ -5,8 +5,8 @@ using Avalonia;
 
 namespace TimeDataViewer.Shapes
 {
-    public abstract class BaseIntervalVisual : BaseVisual
+    public abstract class BaseIntervalShape : BaseShape
     {
-        public abstract BaseIntervalVisual Clone();
+        public abstract BaseIntervalShape Clone();
     }
 }

@@ -13,7 +13,7 @@ namespace AvaloniaDemo.ViewModels
         private int _absX;
         private int _absY;
 
-        public IntervalTooltipViewModel2(IInterval marker) : base(marker)
+        public IntervalTooltipViewModel2(IntervalViewModel marker) : base(marker)
         {
             _absX = marker.AbsolutePositionX;
             _absY = marker.AbsolutePositionY;

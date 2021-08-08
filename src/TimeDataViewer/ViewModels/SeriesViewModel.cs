@@ -9,7 +9,6 @@ using System.Drawing;
 using System.ComponentModel;
 using Avalonia.Media;
 using System.Windows;
-using TimeDataViewer.Models;
 
 namespace TimeDataViewer.ViewModels
 {

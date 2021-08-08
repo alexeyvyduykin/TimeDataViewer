@@ -28,7 +28,7 @@ namespace AvaloniaDemo.ViewModels
                 Interval3 = DesignerData.Interval3
             };
 
-            var strng = new SeriesViewModel("Observation");
+            var strng = new SeriesViewModel(/*"Observation"*/);
             var marker = new IntervalViewModel(43882.0, 48323.0);
             marker.Series = strng;
 

@@ -81,19 +81,19 @@
                             <sch:SchedulerControl.Series>
                                 <sch:TimelineSeries Category="Rotation" Items="{Binding Rotations}" BeginField="BeginTime" EndField="EndTime">
                                     <sch:TimelineSeries.IntervalTemplate>
-                                        <shapes:IntervalVisual Background="Yellow"/>
+                                        <shapes:IntervalShape Background="Yellow"/>
                                     </sch:TimelineSeries.IntervalTemplate>
                                 </sch:TimelineSeries>
 
                                 <sch:TimelineSeries Category="Observation" Items="{Binding Observations}" BeginField="BeginTime" EndField="EndTime">
                                     <sch:TimelineSeries.IntervalTemplate>
-                                        <shapes:IntervalVisual Background="Blue"/>
+                                        <shapes:IntervalShape Background="Blue"/>
                                     </sch:TimelineSeries.IntervalTemplate>
                                 </sch:TimelineSeries>
 
                                 <sch:TimelineSeries Category="Transmission" Items="{Binding Transmissions}" BeginField="BeginTime" EndField="EndTime">
                                     <sch:TimelineSeries.IntervalTemplate>
-                                        <shapes:IntervalVisual Background="Green"/>
+                                        <shapes:IntervalShape Background="Green"/>
                                     </sch:TimelineSeries.IntervalTemplate>
                                 </sch:TimelineSeries>
 
