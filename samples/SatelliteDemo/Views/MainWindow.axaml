@@ -79,23 +79,23 @@
                                               CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
 
                             <sch:SchedulerControl.Series>
-                                <sch:Series Category="Rotation" Items="{Binding Rotations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
-                                    <sch:Series.IntervalTemplate>
+                                <sch:TimelineSeries Category="Rotation" Items="{Binding Rotations}" BeginField="BeginTime" EndField="EndTime">
+                                    <sch:TimelineSeries.IntervalTemplate>
                                         <shapes:IntervalVisual Background="Yellow"/>
-                                    </sch:Series.IntervalTemplate>
-                                </sch:Series>
+                                    </sch:TimelineSeries.IntervalTemplate>
+                                </sch:TimelineSeries>
 
-                                <sch:Series Category="Observation" Items="{Binding Observations}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
-                                    <sch:Series.IntervalTemplate>
+                                <sch:TimelineSeries Category="Observation" Items="{Binding Observations}" BeginField="BeginTime" EndField="EndTime">
+                                    <sch:TimelineSeries.IntervalTemplate>
                                         <shapes:IntervalVisual Background="Blue"/>
-                                    </sch:Series.IntervalTemplate>
-                                </sch:Series>
+                                    </sch:TimelineSeries.IntervalTemplate>
+                                </sch:TimelineSeries>
 
-                                <sch:Series Category="Transmission" Items="{Binding Transmissions}" LeftBindingPath="BeginTime" RightBindingPath="EndTime">
-                                    <sch:Series.IntervalTemplate>
+                                <sch:TimelineSeries Category="Transmission" Items="{Binding Transmissions}" BeginField="BeginTime" EndField="EndTime">
+                                    <sch:TimelineSeries.IntervalTemplate>
                                         <shapes:IntervalVisual Background="Green"/>
-                                    </sch:Series.IntervalTemplate>
-                                </sch:Series>
+                                    </sch:TimelineSeries.IntervalTemplate>
+                                </sch:TimelineSeries>
 
                             </sch:SchedulerControl.Series>
 

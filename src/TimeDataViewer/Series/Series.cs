@@ -31,15 +31,16 @@ using Avalonia.Controls.Primitives;
 using TimeDataViewer.Views;
 using System.Threading.Tasks;
 using TimeDataViewer.Models;
+using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
     public record Interval(double Left, double Right);
 
-    public class Series : ItemsControl
+    public abstract class Series : ItemsControl
     {       
         private readonly Factory _factory;
-        private SeriesViewModel? _seriesViewModel;
+        protected SeriesViewModel? _seriesViewModel;
         private BaseIntervalVisual _intervalTemplate;
        
         public event EventHandler? OnInvalidateData;
@@ -48,6 +49,10 @@ namespace TimeDataViewer
         {
             _factory = new Factory();
         }
+
+        public Core.Series InternalSeries { get; protected set; }
+
+        public abstract Core.Series CreateModel();
 
         public SeriesViewModel? SeriesViewModel 
         {
@@ -75,33 +80,6 @@ namespace TimeDataViewer
             set { SetValue(TooltipProperty, value); }
         }
 
-        public static readonly StyledProperty<string> LeftBindingPathProperty =    
-            AvaloniaProperty.Register<Series, string>(nameof(LeftBindingPath), string.Empty);
-
-        public string LeftBindingPath
-        {
-            get { return GetValue(LeftBindingPathProperty); }
-            set { SetValue(LeftBindingPathProperty, value); }
-        }
-
-        public static readonly StyledProperty<string> RightBindingPathProperty =    
-            AvaloniaProperty.Register<Series, string>(nameof(RightBindingPath), string.Empty);
-
-        public string RightBindingPath
-        {
-            get { return GetValue(RightBindingPathProperty); }
-            set { SetValue(RightBindingPathProperty, value); }
-        }
-
-        public static readonly StyledProperty<string> CategoryProperty =    
-            AvaloniaProperty.Register<Series, string>(nameof(Category), string.Empty);
-
-        public string Category
-        {
-            get { return GetValue(CategoryProperty); }
-            set { SetValue(CategoryProperty, value); }
-        }
-
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
             base.OnDetachedFromLogicalTree(e);
@@ -115,6 +93,19 @@ namespace TimeDataViewer
             }
         }
 
+        protected static void DataChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
+        {
+            ((Series)d).OnDataChanged();
+        }
+
+        protected void OnDataChanged()
+        {
+            if (Parent is SchedulerControl pc)
+            {
+                pc.InvalidatePlot();
+            }
+        }
+
         protected override void ItemsChanged(AvaloniaPropertyChangedEventArgs e)
         {
             base.ItemsChanged(e);
@@ -123,7 +114,7 @@ namespace TimeDataViewer
             {
                 if (DirtyItems == false)
                 {                                  
-                    Update(items);
+                    UpdateData(items);
                     DirtyItems = true;
                     OnInvalidateData?.Invoke(this, EventArgs.Empty);
                     //Debug.WriteLine($"Series -> OnInvalidateData -> Count = {OnInvalidateData?.GetInvocationList().Length}");
@@ -131,49 +122,12 @@ namespace TimeDataViewer
             }
         }
 
-        private void Update(IEnumerable items)
+        protected abstract void UpdateData(IEnumerable items);
+
+        protected virtual void SynchronizeProperties(Core.Series s)
         {
-            IList<Interval> list;
-
-            if (items is IEnumerable<Interval> ivals)
-            {
-                list = new List<Interval>(ivals);
-            }
-            else
-            {
-                list = UpdateItems(items);
-            }
-
-            _seriesViewModel = _factory.CreateSeries(Category);
-
-            var intervals = list.Select(s => _factory.CreateInterval(s.Left, s.Right, this));
-
-            _seriesViewModel.ReplaceIntervals(intervals);
-        }
-
-        private IList<Interval> UpdateItems(IEnumerable items)
-        {
-            if (string.IsNullOrWhiteSpace(LeftBindingPath) == false && string.IsNullOrWhiteSpace(RightBindingPath) == false)
-            {
-                var list = new List<Interval>();
-
-                foreach (var item in items)
-                {
-                    var propertyInfoLeft = item.GetType().GetProperty(LeftBindingPath);
-                    var propertyInfoRight = item.GetType().GetProperty(RightBindingPath);
-
-                    var valueLeft = propertyInfoLeft?.GetValue(item, null);
-                    var valueRight = propertyInfoRight?.GetValue(item, null);
-
-                    if (valueLeft is not null && valueRight is not null && valueLeft is double left && valueRight is double right)
-                    {
-                        list.Add(new Interval(left, right));
-                    }
-                }
-                return list;             
-            }
-
-            return new List<Interval>();
+         //   s.IsVisible = IsVisible;              
+          
         }
 
         public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;

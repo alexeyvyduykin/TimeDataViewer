@@ -308,6 +308,14 @@ namespace TimeDataViewer
             InvalidateVisual();
         }
 
+        public void InvalidatePlot(bool updateData = true)
+        {
+            if (Width <= 0 || Height <= 0)
+            {
+                return;
+            }
+        }
+
         private void ZoomChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.NewValue is not null && e.NewValue is double value)

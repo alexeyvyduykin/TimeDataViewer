@@ -41,13 +41,5 @@ namespace TimeDataViewer
             };
         }
 
-        public IntervalViewModel CreateInterval(double left, double right, Series series)
-        {
-            return new IntervalViewModel(left, right) 
-            {
-                ZIndex = 100,            
-                SeriesControl = series, 
-            };
-        }
     }
 }
