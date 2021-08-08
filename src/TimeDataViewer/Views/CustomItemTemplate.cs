@@ -50,17 +50,13 @@ namespace TimeDataViewer.Views
 
                 //return new IntervalVisual() { DataContext = param };
             }
-            else if(param is SeriesViewModel)
-            {
-                return new SeriesVisual() { DataContext = param };
-            }
 
             return new TextBlock() { Text = "Template not find" };
         }
 
         public bool Match(object data)
         {
-            return (data is IntervalViewModel) || (data is SeriesViewModel);
+            return (data is IntervalViewModel);
         }
     }
 }

@@ -140,10 +140,5 @@ namespace TimeDataViewer
         {
             return IntervalTemplate.Clone(interval);
         }
-
-        public IShape CreateSeriesShape()
-        {                
-            return new SeriesVisual() { DataContext = this };            
-        }
     }
 }
