@@ -136,9 +136,9 @@ namespace TimeDataViewer
             return new IntervalTooltipViewModel(marker);
         }
 
-        public virtual IShape CreateIntervalShape(IntervalViewModel interval)
+        public virtual IShape CreateIntervalShape()
         {
-            return IntervalTemplate.Clone(interval);
+            return IntervalTemplate.Clone();
         }
     }
 }

@@ -7,6 +7,6 @@ namespace TimeDataViewer.Shapes
 {
     public abstract class BaseIntervalVisual : BaseVisual
     {
-        public abstract BaseIntervalVisual Clone(IntervalViewModel interval);
+        public abstract BaseIntervalVisual Clone();
     }
 }

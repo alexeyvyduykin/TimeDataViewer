@@ -144,13 +144,13 @@ namespace TimeDataViewer.Shapes
             }
         }
 
-        public override BaseIntervalVisual Clone(IntervalViewModel interval)
+        public override BaseIntervalVisual Clone()
         {
-            return new IntervalVisual() 
-            {
-                Background = this.Background,
-                DataContext = interval 
-            };
+            var shape = new IntervalVisual();
+
+            shape.Background = Background;             
+                           
+            return shape;
         }
     }
 }

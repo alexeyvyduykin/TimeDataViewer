@@ -8,23 +8,16 @@ using TimeDataViewer.Models;
 namespace TimeDataViewer.ViewModels
 {
     public class IntervalTooltipViewModel : ViewModelBase
-    {
-        private readonly IntervalViewModel _marker;
+    {       
         private string _category;
         private string _date;
         private string _begin;
         private string _end;
 
         public IntervalTooltipViewModel(IntervalViewModel marker)
-        {
-            _marker = marker;
-
+        {        
             var left = marker.Left;
             var right = marker.Right;
-
-            var series = marker.Series;
-            // var epoch = DateTime.Now.Date;
-
             var epoch = marker.SeriesControl.Scheduler.Epoch;
 
            // _category = series.Name;
