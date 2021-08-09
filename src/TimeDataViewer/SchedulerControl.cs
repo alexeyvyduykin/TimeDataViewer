@@ -44,7 +44,7 @@ namespace TimeDataViewer
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private readonly PlotModel _plot;        
+        private readonly PlotModel _internalModel;        
         private readonly Canvas _canvas;
         private ObservableCollection<Core.TimelineItem> _markers;
 
@@ -66,10 +66,10 @@ namespace TimeDataViewer
         public event EventHandler? OnZoomChanged;
    
         public SchedulerControl()
-        {          
-            _plot = new PlotModel();
-          
-            _plot.OnZoomChanged += ZoomChangedEvent;
+        {
+            _internalModel = new PlotModel();
+
+            _internalModel.OnZoomChanged += ZoomChangedEvent;
            
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
@@ -120,8 +120,8 @@ namespace TimeDataViewer
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
             base.OnDetachedFromLogicalTree(e);
-            
-            _plot.OnZoomChanged -= ZoomChangedEvent;
+
+            _internalModel.OnZoomChanged -= ZoomChangedEvent;
             OnMousePositionChanged -= AxisX.UpdateDynamicLabelPosition;
         }
 
@@ -135,28 +135,16 @@ namespace TimeDataViewer
 
         private void SynchronizeSeries()
         {
-            _plot.Series.Clear();
+            _internalModel.Series.Clear();
             foreach (var s in Series)
             {
-                _plot.Series.Add(s.CreateModel());
+                _internalModel.Series.Add(s.CreateModel());
             }
-        }
-
-        private void UpdateViewport()
-        {
-            var maxRight = _seriesViewModels.Max(s => s.MaxTime());
-
-            var rightDate = _epoch.AddSeconds(maxRight).Date.AddDays(1);
-
-            var len = (rightDate - _epoch.Date).TotalSeconds;
-
-            AutoSetViewportArea(len);
         }
 
         private void ZoomChangedEvent(object? sender, EventArgs e)
         {
             OnZoomChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"SchedulerControl -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();
         }
@@ -206,50 +194,19 @@ namespace TimeDataViewer
             _popup.IsOpen = false;
         }
         
-        private void AutoSetViewportArea(double len)
-        {
-            var d0 = (_epoch - _epoch.Date).TotalSeconds;    
-            var count = _seriesViewModels.Count;
-            double step = 1.0 / (count + 1);
+        public RectD ViewportArea => _internalModel.Viewport;
 
-            int i = 0;
-            foreach (var item in _seriesViewModels)
-            {
-                if (item is not null)
-                {
-                    var series = item;
+        public RectD ClientViewportArea => _internalModel.ClientViewport;
 
-                    var seriesLocalPostion = new Point2D(0.0, (++i) * step);
-                    var seriesAbsolutePostion = _plot.FromLocalToAbsolute(seriesLocalPostion);
-                    
-                    foreach (var ival in series.Items)
-                    {
-                        var intervalLocalPosition = new Point2D(d0 + ival.Begin + (ival.End - ival.Begin) / 2.0, seriesLocalPostion.Y);
-                        var intervalAbsolutePostion = _plot.FromLocalToAbsolute(intervalLocalPosition);
+        public RectI AbsoluteWindow => _internalModel.Window;
 
-                        ival.LocalPosition = intervalLocalPosition;                    
-                        ival.AbsolutePositionX = intervalAbsolutePostion.X;
-                        ival.AbsolutePositionY = intervalAbsolutePostion.Y;
-                    }
-                }
-            }
+        public RectI ScreenWindow => _internalModel.PlotArea;
 
-            _plot.UpdateViewport(0.0, 0.0, len, 1.0);            
-        }
+        public Point2I WindowOffset => _internalModel.WindowOffset;
 
-        public RectD ViewportArea => _plot.Viewport;
+        public TimeAxis AxisX => _internalModel.AxisX;
 
-        public RectD ClientViewportArea => _plot.ClientViewport;
-
-        public RectI AbsoluteWindow => _plot.Window;
-
-        public RectI ScreenWindow => _plot.PlotArea;
-
-        public Point2I WindowOffset => _plot.WindowOffset;
-
-        public TimeAxis AxisX => _plot.AxisX;
-
-        public CategoryAxis AxisY => _plot.AxisY;
+        public CategoryAxis AxisY => _internalModel.AxisY;
 
         public Panel? TopLevelForToolTips
         {
@@ -280,22 +237,24 @@ namespace TimeDataViewer
 
         private void SchedulerControl_LayoutUpdated(object? sender, EventArgs e)
         {
-            _plot.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
+            _internalModel.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
 
             ForceUpdateOverlays();            
         }
 
-        private void ForceUpdateOverlays() => ForceUpdateOverlays(Items);        
-
-        private void ForceUpdateOverlays(IEnumerable items)
+        private void ForceUpdateOverlays()
         {
+            SynchronizeProperties();
+
+            _internalModel.UpdateViewport();
+
             UpdateMarkersOffset();
 
-            foreach (Core.TimelineItem item in items)
+            foreach (Core.TimelineItem item in Items)
             {
-                var p = _plot.FromLocalToAbsolute(item.LocalPosition);
+                var p = _internalModel.FromLocalToAbsolute(item.LocalPosition);
 
                 item.AbsolutePositionX = p.X;
                 item.AbsolutePositionY = p.Y;
@@ -321,7 +280,7 @@ namespace TimeDataViewer
                 if (_zoom != zoom)
                 {
                     _zoom = zoom;
-                    _plot.Zoom = (int)Math.Floor(zoom);
+                    _internalModel.Zoom = (int)Math.Floor(zoom);
                     
                     if (IsInitialized == true)
                     {
@@ -344,31 +303,45 @@ namespace TimeDataViewer
             if (e.NewValue is double)
             {
                 var xValue = (Epoch - Epoch0).TotalSeconds + CurrentTime;
-               
-                _plot.DragToTime(xValue);
+
+                _internalModel.DragToTime(xValue);
             }
         }
 
-        public int MaxZoom => _plot.MaxZoom;  
+        public int MaxZoom => _internalModel.MaxZoom;  
 
-        public int MinZoom => _plot.MinZoom;   
+        public int MinZoom => _internalModel.MinZoom;   
   
         private void UpdateMarkersOffset()
         {
             if (_canvas != null)
             {
-                _schedulerTranslateTransform.X = _plot.WindowOffset.X;
-                _schedulerTranslateTransform.Y = _plot.WindowOffset.Y;
+                _schedulerTranslateTransform.X = _internalModel.WindowOffset.X;
+                _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
             }
         }
 
-        public Point2D FromScreenToLocal(int x, int y) => _plot.FromScreenToLocal(x, y);        
+        private void SynchronizeProperties()
+        {
+            var m = _internalModel;
 
-        public Point2I FromLocalToScreen(Point2D point) => _plot.FromLocalToScreen(point);        
+            m.Epoch = _epoch;
 
-        public Point2D FromAbsoluteToLocal(int x, int y) => _plot.FromAbsoluteToLocal(x, y);        
+            //     m.PlotMargins = PlotMargins.ToOxyThickness();
+            //     m.Padding = Padding.ToOxyThickness();
 
-        public Point2I FromLocalToAbsolute(Point2D point) => _plot.FromLocalToAbsolute(point);
+            //  m.DefaultColors = DefaultColors.Select(c => c.ToOxyColor()).ToArray();
+
+            //   m.AxisTierDistance = AxisTierDistance;
+        }
+
+        public Point2D FromScreenToLocal(int x, int y) => _internalModel.FromScreenToLocal(x, y);        
+
+        public Point2I FromLocalToScreen(Point2D point) => _internalModel.FromLocalToScreen(point);        
+
+        public Point2D FromAbsoluteToLocal(int x, int y) => _internalModel.FromAbsoluteToLocal(x, y);        
+
+        public Point2I FromLocalToAbsolute(Point2D point) => _internalModel.FromLocalToAbsolute(point);
         
         public bool IsTestBrush { get; set; } = false;
 
@@ -396,11 +369,11 @@ namespace TimeDataViewer
             if (_showMouseCenter == true)
             {
                 context.DrawLine(_mouseCrossPen,
-                    new Point(_plot.ZoomScreenPosition.X - 5, _plot.ZoomScreenPosition.Y),
-                    new Point(_plot.ZoomScreenPosition.X + 5, _plot.ZoomScreenPosition.Y));
+                    new Point(_internalModel.ZoomScreenPosition.X - 5, _internalModel.ZoomScreenPosition.Y),
+                    new Point(_internalModel.ZoomScreenPosition.X + 5, _internalModel.ZoomScreenPosition.Y));
                 context.DrawLine(_mouseCrossPen,
-                    new Point(_plot.ZoomScreenPosition.X, _plot.ZoomScreenPosition.Y - 5),
-                    new Point(_plot.ZoomScreenPosition.X, _plot.ZoomScreenPosition.Y + 5));
+                    new Point(_internalModel.ZoomScreenPosition.X, _internalModel.ZoomScreenPosition.Y - 5),
+                    new Point(_internalModel.ZoomScreenPosition.X, _internalModel.ZoomScreenPosition.Y + 5));
             }
 
             //using (context.PushPreTransform(_schedulerTranslateTransform.Value))
@@ -414,17 +387,17 @@ namespace TimeDataViewer
         private void DrawEpoch(DrawingContext context)
         {
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _plot.FromLocalToAbsolute(d0, 0.0);    
+            var p = _internalModel.FromLocalToAbsolute(d0, 0.0);    
             Pen pen = new Pen(Brushes.Yellow, 2.0);
-            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _plot.Window.Height));
+            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _internalModel.Window.Height));
         }
 
         private void DrawCurrentTime(DrawingContext context)
         {            
             var d0 = (Epoch - Epoch0).TotalSeconds;
-            var p = _plot.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
+            var p = _internalModel.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
             Pen pen = new Pen(Brushes.Red, 2.0);
-            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _plot.Window.Height));
+            context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _internalModel.Window.Height));
         }        
     }
 

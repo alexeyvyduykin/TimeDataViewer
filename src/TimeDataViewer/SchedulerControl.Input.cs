@@ -57,7 +57,7 @@ namespace TimeDataViewer
 
         private void SchedulerControl_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
-            if (IgnoreMarkerOnMouseWheel == true && _plot.IsDragging == false)
+            if (IgnoreMarkerOnMouseWheel == true && _internalModel.IsDragging == false)
             {
                 Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;
                 
@@ -79,7 +79,7 @@ namespace TimeDataViewer
 
         private void SchedulerControl_PointerReleased(object? sender, PointerReleasedEventArgs e)
         {
-            if (_plot.IsDragging == true)
+            if (_internalModel.IsDragging == true)
             {
                 if (_isDragging == true)
                 {
@@ -94,7 +94,7 @@ namespace TimeDataViewer
                     Cursor = _cursorBefore;               
                     e.Pointer.Capture(null);
                 }
-                _plot.EndDrag();
+                _internalModel.EndDrag();
                 _mouseDown = Point2D.Empty;
             }
             else
@@ -111,10 +111,10 @@ namespace TimeDataViewer
         private void SchedulerControl_PointerMoved(object? sender, PointerEventArgs e)
         {
             var MouseScreenPosition = e.GetPosition(this);
-                
-            _plot.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
 
-            MousePosition = _plot.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+            _internalModel.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+
+            MousePosition = _internalModel.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
 
             // wpf generates to many events if mouse is over some visual and OnMouseUp is fired, wtf, anyway...         
             if (((int)e.Timestamp & int.MaxValue) - _onMouseUpTimestamp < 55)
@@ -122,7 +122,7 @@ namespace TimeDataViewer
                 return;
             }
 
-            if (_plot.IsDragging == false && _mouseDown.IsEmpty == false)
+            if (_internalModel.IsDragging == false && _mouseDown.IsEmpty == false)
             {
                 // cursor has moved beyond drag tolerance
                 if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed == true)
@@ -130,12 +130,12 @@ namespace TimeDataViewer
                     if (Math.Abs(MouseScreenPosition.X - _mouseDown.X) * 2 >= 2 ||
                         Math.Abs(MouseScreenPosition.Y - _mouseDown.Y) * 2 >= 2)
                     {
-                        _plot.BeginDrag(_mouseDown);
+                        _internalModel.BeginDrag(_mouseDown);
                     }
                 }
             }
 
-            if (_plot.IsDragging == true)
+            if (_internalModel.IsDragging == true)
             {
                 if (_isDragging == false)
                 {
@@ -146,8 +146,8 @@ namespace TimeDataViewer
                 }
 
                 var mouseCurrent = new Point2D(MouseScreenPosition.X, MouseScreenPosition.Y);
-               
-                _plot.Drag(mouseCurrent);
+
+                _internalModel.Drag(mouseCurrent);
 
                 UpdateMarkersOffset();
 

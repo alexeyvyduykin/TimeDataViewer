@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using TimeDataViewer.Spatial;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace TimeDataViewer.Core
 {
@@ -15,6 +16,8 @@ namespace TimeDataViewer.Core
 
     public class PlotModel
     {
+        private readonly object _syncRoot = new object(); 
+        private bool _isDataUpdated;
         private int _width;
         private int _height;
         private readonly TimeAxis _axisX;
@@ -56,11 +59,15 @@ namespace TimeDataViewer.Core
             OnViewportChanged += ViewportChangedEvent;
         }
 
+        public DateTime Epoch { get; set; }
+        
         public TimeAxis AxisX => _axisX;
 
         public CategoryAxis AxisY => _axisY;
 
         public ObservableCollection<Series> Series => _series;
+        
+        public object SyncRoot => _syncRoot;
 
         /// <summary>
         /// Gets the total width of the plot (in device units).
@@ -196,6 +203,58 @@ namespace TimeDataViewer.Core
                 }
             }
         }
+        
+        public void Update(bool updateData)
+        {
+            lock (SyncRoot)
+            {
+                try
+                {
+                    // Updates the default axes
+                    //EnsureDefaultAxes();
+
+                    var visibleSeries = Series./*Where(s => s.IsVisible).*/ToArray();
+
+                    // Update data of the series
+                    if (updateData || _isDataUpdated == false)
+                    {
+                        foreach (var s in visibleSeries)
+                        {
+                            s.UpdateData();
+                        }
+
+                        UpdateViewport();
+
+                        _isDataUpdated = true;
+                    }
+
+                    // Updates axes with information from the series
+                    // This is used by the category axis that need to know the number of series using the axis.
+                    //foreach (var a in Axes)
+                    //{
+                    //    a.UpdateFromSeries(visibleSeries);
+                    //    a.ResetCurrentValues();
+                    //}
+
+                    // Update valid data of the series
+                    // This must be done after the axes are updated from series!
+                    if (updateData)
+                    {
+                        foreach (var s in visibleSeries)
+                        {
+                            //s.UpdateValidData();
+                        }
+                    }
+
+                    // Update the max and min of the axes
+                    //UpdateMaxMin(updateData);
+                }
+                catch (Exception)
+                {
+                    throw new Exception();
+                }
+            }
+        }
 
         public void UpdateViewport(double x, double y, double width, double height)
         {
@@ -214,7 +273,6 @@ namespace TimeDataViewer.Core
             _plotArea = new RectI(0, 0, _width, _height);
 
             OnSizeChanged?.Invoke(width, height);
-            //Debug.WriteLine($"Area -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
 
             Window = CreateWindow(_zoom);
 
@@ -245,7 +303,48 @@ namespace TimeDataViewer.Core
                 ClientViewport = CreateClientViewport();
 
                 OnDragChanged?.Invoke(this, EventArgs.Empty);
-                //Debug.WriteLine($"Area -> OnDragChanged -> Count = {OnDragChanged?.GetInvocationList().Length}");
+            }
+        }
+
+        public void UpdateViewport()
+        {
+            var maxRight = _series.Max(s => ((TimelineSeries)s).MaxTime());
+
+            var rightDate = Epoch.AddSeconds(maxRight).Date.AddDays(1);
+
+            var len = (rightDate - Epoch.Date).TotalSeconds;
+
+            AutoSetViewportArea(len);
+
+            UpdateViewport(0.0, 0.0, len, 1.0);
+        }
+
+        private void AutoSetViewportArea(double len)
+        {
+            var d0 = (Epoch - Epoch.Date).TotalSeconds;
+            var count = _series.Count;
+            double step = 1.0 / (count + 1);
+
+            int i = 0;
+            foreach (TimelineSeries item in _series)
+            {
+                if (item is not null)
+                {
+                    var series = item;
+
+                    var seriesLocalPostion = new Point2D(0.0, (++i) * step);
+                    var seriesAbsolutePostion = FromLocalToAbsolute(seriesLocalPostion);
+
+                    foreach (var ival in series.Items)
+                    {
+                        var intervalLocalPosition = new Point2D(d0 + ival.Begin + (ival.End - ival.Begin) / 2.0, seriesLocalPostion.Y);
+                        var intervalAbsolutePostion = FromLocalToAbsolute(intervalLocalPosition);
+
+                        ival.LocalPosition = intervalLocalPosition;
+                        ival.AbsolutePositionX = intervalAbsolutePostion.X;
+                        ival.AbsolutePositionY = intervalAbsolutePostion.Y;
+                    }
+                }
             }
         }
 
@@ -308,7 +407,6 @@ namespace TimeDataViewer.Core
             ClientViewport = CreateClientViewport();
 
             OnDragChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"Area -> OnDragChanged -> Count = {OnDragChanged?.GetInvocationList().Length}");
         }
 
         private Point2I CreateWindowOffset(Point2D pos)

@@ -61,6 +61,7 @@ namespace TimeDataViewer
                         item.DirtyItems = false;
                     }
 
+                    SynchronizeProperties();
                     SynchronizeSeries();
 
                     _dirty = false;
@@ -68,17 +69,11 @@ namespace TimeDataViewer
                     _iBegSave = 0;
                     _jBegSave = 0;
 
-                    _seriesViewModels = Series.Select(s => (Core.TimelineSeries)s.InternalSeries/*SeriesViewModel*/).ToList();
+                    _seriesViewModels = Series.Select(s => (Core.TimelineSeries)s.InternalSeries).ToList();
                     _epoch = Epoch;
 
-
-                    foreach (var item in _seriesViewModels)
-                    {
-                        item.UpdateData();
-                    }
-
-                    UpdateViewport();
-
+                    _internalModel.Update(true);
+                  
                     _markers.Clear();
 
                     StartLazyUpdate();
