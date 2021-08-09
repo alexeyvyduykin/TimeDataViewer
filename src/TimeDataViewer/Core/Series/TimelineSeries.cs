@@ -23,14 +23,17 @@ namespace TimeDataViewer.Core
         public double MaxTime() => (Items.Count == 0) ? 0.0 : Items.Max(s => s.End);
 
         protected internal override void UpdateData()
-        {           
-            if (ItemsSource is IEnumerable<TimelineItem> ivals)
+        {
+            if (ItemsSource != null)
             {
-                Items = new List<TimelineItem>(ivals);
-            }
-            else
-            {
-                Items = UpdateItems();
+                if (ItemsSource is IEnumerable<TimelineItem> ivals)
+                {
+                    Items = new List<TimelineItem>(ivals);
+                }
+                else
+                {
+                    Items = UpdateItems();
+                }
             }
         }
 
@@ -39,7 +42,7 @@ namespace TimeDataViewer.Core
             if (string.IsNullOrWhiteSpace(BeginField) == false && string.IsNullOrWhiteSpace(EndField) == false)
             {
                 var list = new List<TimelineItem>();
-
+             
                 foreach (var item in ItemsSource)
                 {
                     var propertyInfoLeft = item.GetType().GetProperty(BeginField);

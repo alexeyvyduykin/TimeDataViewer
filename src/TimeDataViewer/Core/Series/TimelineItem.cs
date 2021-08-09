@@ -43,9 +43,9 @@ namespace TimeDataViewer.Core
 
         public Point2D LocalPosition { get; set; }
 
-        public int AbsolutePositionX { get; set; }
+        //public int AbsolutePositionX { get; set; }
 
-        public int AbsolutePositionY { get; set; }
+        //public int AbsolutePositionY { get; set; }
 
         public int ZIndex { get; set; }
     }

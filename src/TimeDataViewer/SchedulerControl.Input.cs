@@ -37,8 +37,7 @@ namespace TimeDataViewer
     {
         private Cursor? _cursorBefore;
         private int _onMouseUpTimestamp = 0;
-        private Point2D _mousePosition = new();
-        private bool _disableAltForSelection = false;
+        private Point2D _mousePosition = new();    
         private bool _isDragging = false;
         private Point2D _mouseDown;
 
@@ -51,7 +50,6 @@ namespace TimeDataViewer
             {
                 _mousePosition = value;
                 OnMousePositionChanged?.Invoke(_mousePosition);
-                //Debug.WriteLine($"SchedulerControl -> OnMousePositionChanged -> Count = {OnMousePositionChanged?.GetInvocationList().Length}");
             }
         }
 
@@ -59,11 +57,7 @@ namespace TimeDataViewer
         {
             if (IgnoreMarkerOnMouseWheel == true && _internalModel.IsDragging == false)
             {
-                Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;
-                
-                //var ps = (this as Visual).PointToScreen(new Point(_plot.ZoomScreenPosition.X, _plot.ZoomScreenPosition.Y));
-
-                //Stuff.SetCursorPos((int)ps.X, (int)ps.Y);
+                Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;               
             }
         }
 
@@ -148,8 +142,6 @@ namespace TimeDataViewer
                 var mouseCurrent = new Point2D(MouseScreenPosition.X, MouseScreenPosition.Y);
 
                 _internalModel.Drag(mouseCurrent);
-
-                UpdateMarkersOffset();
 
                 InvalidateVisual();
             }

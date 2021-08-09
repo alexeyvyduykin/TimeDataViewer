@@ -33,8 +33,7 @@ namespace TimeDataViewer.Core
      
         public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
-       
-        private event SizeChangedEventHandler OnSizeChanged;        
+ 
         private event WindowChangedEventHandler OnWindowChanged;
         private event ClientViewportChangedEventHandler OnClientViewportChanged;
         private event ViewportChangedEventHandler OnViewportChanged;
@@ -53,7 +52,6 @@ namespace TimeDataViewer.Core
             CanDragMap = true;
             MouseWheelZoomEnabled = true;     
 
-            OnSizeChanged += SizeChangedEvent;
             OnWindowChanged += WindowChangedEvent;
             OnClientViewportChanged += ClientViewportChangedEvent;
             OnViewportChanged += ViewportChangedEvent;
@@ -84,12 +82,6 @@ namespace TimeDataViewer.Core
         /// </summary>
         public RectI PlotArea => _plotArea;
 
-        private void SizeChangedEvent(int width, int height)
-        {
-            _axisX.UpdateWindow(new RectI(0, 0, width, height));
-            _axisY.UpdateWindow(new RectI(0, 0, width, height));
-        }
-
         private void WindowChangedEvent(RectI rect)
         {
             _axisX.UpdateWindow(rect);
@@ -107,10 +99,6 @@ namespace TimeDataViewer.Core
             _axisX.UpdateViewport(rect);
             _axisY.UpdateViewport(rect);
         }
-
-
-
-
 
         public double ZoomScaleX { get; init; }
 
@@ -139,9 +127,7 @@ namespace TimeDataViewer.Core
             private set
             {
                 _window = value;
-
-                OnWindowChanged?.Invoke(_window);
-                //Debug.WriteLine($"Area -> OnWindowChanged -> Count = {OnWindowChanged?.GetInvocationList().Length}");
+                OnWindowChanged?.Invoke(_window);    
             }
         }
      
@@ -154,9 +140,7 @@ namespace TimeDataViewer.Core
             private set
             {
                 _clientViewport = value;
-
-                OnClientViewportChanged?.Invoke(_clientViewport);
-                //Debug.WriteLine($"Area -> OnClientViewportChanged -> Count = {OnClientViewportChanged?.GetInvocationList().Length}");
+                OnClientViewportChanged?.Invoke(_clientViewport);             
             }
         }
    
@@ -170,8 +154,7 @@ namespace TimeDataViewer.Core
             {
                 _viewport = value;
 
-                OnViewportChanged?.Invoke(_viewport);
-                //Debug.WriteLine($"Area -> OnViewportChanged -> Count = {OnViewportChanged?.GetInvocationList().Length}");
+                OnViewportChanged?.Invoke(_viewport);                
             }
         }
 
@@ -198,8 +181,7 @@ namespace TimeDataViewer.Core
 
                     Zooming(_zoom);
                    
-                    OnZoomChanged?.Invoke(this, EventArgs.Empty);
-                    //Debug.WriteLine($"Area -> OnZoomChanged -> Count = {OnZoomChanged?.GetInvocationList().Length}");
+                    OnZoomChanged?.Invoke(this, EventArgs.Empty);                   
                 }
             }
         }
@@ -212,6 +194,8 @@ namespace TimeDataViewer.Core
                 {
                     // Updates the default axes
                     //EnsureDefaultAxes();
+                    _axisX.UpdateWindow(_plotArea);
+                    _axisY.UpdateWindow(_plotArea);
 
                     var visibleSeries = Series./*Where(s => s.IsVisible).*/ToArray();
 
@@ -272,8 +256,6 @@ namespace TimeDataViewer.Core
 
             _plotArea = new RectI(0, 0, _width, _height);
 
-            OnSizeChanged?.Invoke(width, height);
-
             Window = CreateWindow(_zoom);
 
             WindowOffset = CreateWindowOffset(center);
@@ -314,12 +296,12 @@ namespace TimeDataViewer.Core
 
             var len = (rightDate - Epoch.Date).TotalSeconds;
 
-            AutoSetViewportArea(len);
+            AutoSetViewportArea();
 
             UpdateViewport(0.0, 0.0, len, 1.0);
         }
 
-        private void AutoSetViewportArea(double len)
+        private void AutoSetViewportArea()
         {
             var d0 = (Epoch - Epoch.Date).TotalSeconds;
             var count = _series.Count;
@@ -331,18 +313,12 @@ namespace TimeDataViewer.Core
                 if (item is not null)
                 {
                     var series = item;
-
                     var seriesLocalPostion = new Point2D(0.0, (++i) * step);
-                    var seriesAbsolutePostion = FromLocalToAbsolute(seriesLocalPostion);
 
                     foreach (var ival in series.Items)
-                    {
-                        var intervalLocalPosition = new Point2D(d0 + ival.Begin + (ival.End - ival.Begin) / 2.0, seriesLocalPostion.Y);
-                        var intervalAbsolutePostion = FromLocalToAbsolute(intervalLocalPosition);
-
-                        ival.LocalPosition = intervalLocalPosition;
-                        ival.AbsolutePositionX = intervalAbsolutePostion.X;
-                        ival.AbsolutePositionY = intervalAbsolutePostion.Y;
+                    {                      
+                        ival.LocalPosition = 
+                            new Point2D(d0 + ival.Begin + (ival.End - ival.Begin) / 2.0, seriesLocalPostion.Y);                        
                     }
                 }
             }

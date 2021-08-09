@@ -61,7 +61,7 @@ namespace TimeDataViewer
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
-        public event EventHandler? OnSizeChanged;
+    //    public event EventHandler? OnSizeChanged;
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
         public event EventHandler? OnZoomChanged;
    
@@ -70,7 +70,8 @@ namespace TimeDataViewer
             _internalModel = new PlotModel();
 
             _internalModel.OnZoomChanged += ZoomChangedEvent;
-           
+            _internalModel.OnDragChanged += DragChangedEvent;
+
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
 
@@ -100,9 +101,9 @@ namespace TimeDataViewer
 
             ClipToBounds = true;
      //       SnapsToDevicePixels = true;
-            
-            LayoutUpdated += SchedulerControl_LayoutUpdated;
-         
+
+            this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
+
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
@@ -144,9 +145,24 @@ namespace TimeDataViewer
 
         private void ZoomChangedEvent(object? sender, EventArgs e)
         {
+            if (_canvas != null)
+            {
+                _schedulerTranslateTransform.X = _internalModel.WindowOffset.X;
+                _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
+            }
+
             OnZoomChanged?.Invoke(this, EventArgs.Empty);
 
             ForceUpdateOverlays();
+        }
+
+        private void DragChangedEvent(object? sender, EventArgs e)
+        {
+            if (_canvas != null)
+            {
+                _schedulerTranslateTransform.X = _internalModel.WindowOffset.X;
+                _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
+            }
         }
 
         public DateTime Epoch0 => Epoch.Date;
@@ -235,13 +251,76 @@ namespace TimeDataViewer
             }
         }
 
-        private void SchedulerControl_LayoutUpdated(object? sender, EventArgs e)
+        public void InvalidatePlot(bool updateData = true)
         {
+            if (Width <= 0 || Height <= 0)
+            {
+                return;
+            }
+
+            UpdateModel(updateData);
+
+            //if (Interlocked.CompareExchange(ref _isPlotInvalidated, 1, 0) == 0)
+            //{
+            //    // Invalidate the arrange state for the element.
+            //    // After the invalidation, the element will have its layout updated,
+            //    // which will occur asynchronously unless subsequently forced by UpdateLayout.
+            //    BeginInvoke(InvalidateArrange);
+            //    BeginInvoke(InvalidateVisual);
+            //}
+
+            BeginInvoke(InvalidateVisual);
+        }
+
+        protected void UpdateModel(bool updateData = true)
+        {
+            SynchronizeProperties();
+            SynchronizeSeries();
+            //SynchronizeAxes();
+
+            if (_internalModel != null)
+            {
+                _internalModel.Update(updateData);
+            }
+        }
+
+        private void UpdateVisuals(DrawingContext context)
+        {
+            if (_canvas == null)
+            {
+                return;
+            }
+
             _internalModel.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
-            OnSizeChanged?.Invoke(this, EventArgs.Empty);
+            DrawBackground(context);
 
-            ForceUpdateOverlays();            
+            DrawEpoch(context);
+
+            if (_showCenter == true)
+            {
+                context.DrawLine(_centerCrossPen, new Point((Bounds.Width / 2) - 5, Bounds.Height / 2), new Point((Bounds.Width / 2) + 5, Bounds.Height / 2));
+                context.DrawLine(_centerCrossPen, new Point(Bounds.Width / 2, (Bounds.Height / 2) - 5), new Point(Bounds.Width / 2, (Bounds.Height / 2) + 5));
+            }
+
+            if (_showMouseCenter == true)
+            {
+                context.DrawLine(_mouseCrossPen,
+                    new Point(_internalModel.ZoomScreenPosition.X - 5, _internalModel.ZoomScreenPosition.Y),
+                    new Point(_internalModel.ZoomScreenPosition.X + 5, _internalModel.ZoomScreenPosition.Y));
+                context.DrawLine(_mouseCrossPen,
+                    new Point(_internalModel.ZoomScreenPosition.X, _internalModel.ZoomScreenPosition.Y - 5),
+                    new Point(_internalModel.ZoomScreenPosition.X, _internalModel.ZoomScreenPosition.Y + 5));
+            }
+            DrawCurrentTime(context);
+        }
+
+        private void OnSizeChanged(object sender, Size size)
+        {
+            if (size.Height > 0 && size.Width > 0)
+            {
+                InvalidatePlot(false);
+            }
         }
 
         private void ForceUpdateOverlays()
@@ -250,25 +329,7 @@ namespace TimeDataViewer
 
             _internalModel.UpdateViewport();
 
-            UpdateMarkersOffset();
-
-            foreach (Core.TimelineItem item in Items)
-            {
-                var p = _internalModel.FromLocalToAbsolute(item.LocalPosition);
-
-                item.AbsolutePositionX = p.X;
-                item.AbsolutePositionY = p.Y;
-            }
-
             InvalidateVisual();
-        }
-
-        public void InvalidatePlot(bool updateData = true)
-        {
-            if (Width <= 0 || Height <= 0)
-            {
-                return;
-            }
         }
 
         private void ZoomChanged(AvaloniaPropertyChangedEventArgs e)
@@ -312,15 +373,6 @@ namespace TimeDataViewer
 
         public int MinZoom => _internalModel.MinZoom;   
   
-        private void UpdateMarkersOffset()
-        {
-            if (_canvas != null)
-            {
-                _schedulerTranslateTransform.X = _internalModel.WindowOffset.X;
-                _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
-            }
-        }
-
         private void SynchronizeProperties()
         {
             var m = _internalModel;
@@ -347,41 +399,9 @@ namespace TimeDataViewer
 
         public override void Render(DrawingContext context)
         {
-            //SeriesValidate();
+            UpdateVisuals(context);
 
-            //if (_dirtyItems == false)
-            {
-                DrawBackground(context);
-            }
-           // else
-            {
-               // context.FillRectangle(Brushes.LightBlue, new Rect(0, 0, Bounds.Width, Bounds.Height));
-            }
-
-            DrawEpoch(context);
-              
-            if (_showCenter == true)
-            {
-                context.DrawLine(_centerCrossPen, new Point((Bounds.Width / 2) - 5, Bounds.Height / 2), new Point((Bounds.Width / 2) + 5, Bounds.Height / 2));
-                context.DrawLine(_centerCrossPen, new Point(Bounds.Width / 2, (Bounds.Height / 2) - 5), new Point(Bounds.Width / 2, (Bounds.Height / 2) + 5));
-            }
-
-            if (_showMouseCenter == true)
-            {
-                context.DrawLine(_mouseCrossPen,
-                    new Point(_internalModel.ZoomScreenPosition.X - 5, _internalModel.ZoomScreenPosition.Y),
-                    new Point(_internalModel.ZoomScreenPosition.X + 5, _internalModel.ZoomScreenPosition.Y));
-                context.DrawLine(_mouseCrossPen,
-                    new Point(_internalModel.ZoomScreenPosition.X, _internalModel.ZoomScreenPosition.Y - 5),
-                    new Point(_internalModel.ZoomScreenPosition.X, _internalModel.ZoomScreenPosition.Y + 5));
-            }
-
-            //using (context.PushPreTransform(_schedulerTranslateTransform.Value))
-            //{
-                base.Render(context);
-            //}
-
-            DrawCurrentTime(context);
+            base.Render(context);                     
         }
 
         private void DrawEpoch(DrawingContext context)
@@ -398,13 +418,18 @@ namespace TimeDataViewer
             var p = _internalModel.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
             Pen pen = new Pen(Brushes.Red, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _internalModel.Window.Height));
-        }        
+        }
+        
+        private static void BeginInvoke(Action action)
+        {
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.InvokeAsync(action, DispatcherPriority.Loaded);
+            }
+            else
+            {
+                action?.Invoke();
+            }
+        }
     }
-
-    //internal class Stuff
-    //{
-    //    [System.Runtime.InteropServices.DllImportAttribute("user32.dll", EntryPoint = "SetCursorPos")]
-    //    [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.Bool)]
-    //    public static extern bool SetCursorPos(int X, int Y);
-    //}
 }
