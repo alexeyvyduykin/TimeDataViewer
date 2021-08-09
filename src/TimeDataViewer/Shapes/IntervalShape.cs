@@ -137,8 +137,14 @@ namespace TimeDataViewer.Shapes
             var brush = new SolidColorBrush() { Color = Background };
             var pen = new Pen(new SolidColorBrush() { Color = StrokeColor }, StrokeThickness);
 
+            var offset = Scheduler.WindowOffset;
+
+            var p = Scheduler.FromLocalToScreen(Marker.LocalPosition);
+            
+            using (context.PushPreTransform(Matrix.CreateTranslation(-offset.X, offset.Y)))
+            using (context.PushPreTransform(Matrix.CreateTranslation(p.X, p.Y)))
             using (context.PushPreTransform(_scale.Value))
-            {        
+            {
                 context.DrawRectangle(brush, pen, rect);
             }
         }

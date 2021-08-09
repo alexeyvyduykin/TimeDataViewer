@@ -93,12 +93,6 @@ namespace TimeDataViewer
 
             TopLevelForToolTips?.Children.Add(_popup);
 
-            var style = new Style(x => x.OfType<ItemsControl>().Child().OfType<ContentPresenter>());
-            style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding(nameof(MarkerViewModel.AbsolutePositionX))));
-            style.Setters.Add(new Setter(Canvas.TopProperty, new Binding(nameof(MarkerViewModel.AbsolutePositionY))));
-            style.Setters.Add(new Setter(Canvas.ZIndexProperty, new Binding(nameof(MarkerViewModel.ZIndex))));
-            Styles.Add(style);
-
             ItemTemplate = new CustomItemTemplate();
 
             ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
@@ -247,7 +241,7 @@ namespace TimeDataViewer
 
         public CategoryAxis AxisY => _plot.AxisY;
             
-        private Canvas Canvas => _canvas;
+        //private Canvas Canvas => _canvas;
 
         public Panel? TopLevelForToolTips
         {
@@ -354,7 +348,7 @@ namespace TimeDataViewer
   
         private void UpdateMarkersOffset()
         {
-            if (Canvas != null)
+            if (_canvas != null)
             {
                 _schedulerTranslateTransform.X = _plot.WindowOffset.X;
                 _schedulerTranslateTransform.Y = _plot.WindowOffset.Y;
@@ -402,10 +396,10 @@ namespace TimeDataViewer
                     new Point(_plot.ZoomScreenPosition.X, _plot.ZoomScreenPosition.Y + 5));
             }
 
-            using (context.PushPreTransform(_schedulerTranslateTransform.Value))
-            {
+            //using (context.PushPreTransform(_schedulerTranslateTransform.Value))
+            //{
                 base.Render(context);
-            }
+            //}
 
             DrawCurrentTime(context);
         }
