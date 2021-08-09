@@ -24,7 +24,6 @@ namespace TimeDataViewer.Core
         private readonly CategoryAxis _axisY;
         private readonly ObservableCollection<Series> _series;
         private RectI _plotArea;
-        private RectI _window;
         private RectD _clientViewport;
         private RectD _viewport = new RectD();  
         private Point2I _windowOffset;        
@@ -33,8 +32,7 @@ namespace TimeDataViewer.Core
      
         public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
- 
-        private event WindowChangedEventHandler OnWindowChanged;
+
         private event ClientViewportChangedEventHandler OnClientViewportChanged;
         private event ViewportChangedEventHandler OnViewportChanged;
 
@@ -52,7 +50,6 @@ namespace TimeDataViewer.Core
             CanDragMap = true;
             MouseWheelZoomEnabled = true;     
 
-            OnWindowChanged += WindowChangedEvent;
             OnClientViewportChanged += ClientViewportChangedEvent;
             OnViewportChanged += ViewportChangedEvent;
         }
@@ -81,12 +78,6 @@ namespace TimeDataViewer.Core
         /// Gets the plot area. This area is used to draw the series (not including axes or legends).
         /// </summary>
         public RectI PlotArea => _plotArea;
-
-        private void WindowChangedEvent(RectI rect)
-        {
-            _axisX.UpdateWindow(rect);
-            _axisY.UpdateWindow(rect);
-        }
 
         private void ClientViewportChangedEvent(RectD rect)
         {
@@ -118,18 +109,7 @@ namespace TimeDataViewer.Core
 
         public Point2D ZoomPositionLocal => FromScreenToLocal(ZoomScreenPosition);
 
-        public RectI Window
-        {
-            get
-            {
-                return _window;
-            }
-            private set
-            {
-                _window = value;
-                OnWindowChanged?.Invoke(_window);    
-            }
-        }
+        public RectI Window { get; private set; }
      
         public RectD ClientViewport
         {
@@ -194,8 +174,6 @@ namespace TimeDataViewer.Core
                 {
                     // Updates the default axes
                     //EnsureDefaultAxes();
-                    _axisX.UpdateWindow(_plotArea);
-                    _axisY.UpdateWindow(_plotArea);
 
                     var visibleSeries = Series./*Where(s => s.IsVisible).*/ToArray();
 
@@ -257,12 +235,29 @@ namespace TimeDataViewer.Core
             _plotArea = new RectI(0, 0, _width, _height);
 
             Window = CreateWindow(_zoom);
+            _axisX.UpdateWindow(Window);
+            _axisY.UpdateWindow(Window);
 
             WindowOffset = CreateWindowOffset(center);
 
             ClientViewport = CreateClientViewport();
 
             ZoomScreenPosition = FromLocalToScreen(center);
+        }
+
+        private void Zooming(int zoom)
+        {
+            var posLoc = ZoomPositionLocal;
+
+            Window = CreateWindow(zoom);
+            _axisX.UpdateWindow(Window);
+            _axisY.UpdateWindow(Window);
+
+            WindowOffset = CreateWindowOffset(posLoc);
+
+            ClientViewport = CreateClientViewport();
+
+            ZoomScreenPosition = FromLocalToScreen(posLoc);
         }
 
         public void BeginDrag(Point2D pt)
@@ -408,19 +403,6 @@ namespace TimeDataViewer.Core
             yOffset = Math.Max(yOffset + Window.Height, _height) - Window.Height;
 
             return new Point2I(xOffset, yOffset);
-        }
-
-        private void Zooming(int zoom)
-        {
-            var posLoc = ZoomPositionLocal;
-
-            Window = CreateWindow(zoom);
-
-            WindowOffset = CreateWindowOffset(posLoc);
-
-            ClientViewport = CreateClientViewport();
-
-            ZoomScreenPosition = FromLocalToScreen(posLoc);
         }
 
         private RectI CreateWindow(int zoom)

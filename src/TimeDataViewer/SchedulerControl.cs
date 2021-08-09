@@ -61,7 +61,6 @@ namespace TimeDataViewer
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
-    //    public event EventHandler? OnSizeChanged;
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
         public event EventHandler? OnZoomChanged;
    
