@@ -57,7 +57,7 @@ namespace TimeDataViewer
         {
             if (IgnoreMarkerOnMouseWheel == true && _internalModel.IsDragging == false)
             {
-                Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;               
+                Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;
             }
         }
 

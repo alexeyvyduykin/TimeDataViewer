@@ -109,22 +109,17 @@ namespace TimeDataViewer.Shapes
                 InvalidateVisual();    
             }
         }
-
-        protected override void Update()
-        {        
+        
+        public override void Render(DrawingContext context)
+        {
             if (Scheduler is not null && Marker is not null && Marker is Core.TimelineItem marker)
             {
                 var d1 = Scheduler.FromLocalToAbsolute(new Point2D(marker.Begin, marker.LocalPosition.Y)).X;
                 var d2 = Scheduler.FromLocalToAbsolute(new Point2D(marker.End, marker.LocalPosition.Y)).X;
 
                 _widthX = d2 - d1;
+            }
 
-         //       InvalidateVisual();
-            }               
-        }
-        
-        public override void Render(DrawingContext context)
-        {
             if (_widthX == 0.0)
             {
                 return;

@@ -62,7 +62,7 @@ namespace TimeDataViewer
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
-        public event EventHandler? OnZoomChanged;
+        //public event EventHandler? OnZoomChanged;
    
         public SchedulerControl()
         {
@@ -150,7 +150,7 @@ namespace TimeDataViewer
                 _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
             }
 
-            OnZoomChanged?.Invoke(this, EventArgs.Empty);
+            //OnZoomChanged?.Invoke(this, EventArgs.Empty);
 
             ForceUpdateOverlays();
         }
