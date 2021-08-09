@@ -60,14 +60,22 @@ namespace TimeDataViewer
                     {
                         item.DirtyItems = false;
                     }
-                   
+
+                    SynchronizeSeries();
+
                     _dirty = false;
                     _complete = false;
                     _iBegSave = 0;
                     _jBegSave = 0;
 
-                    _seriesViewModels = Series.Select(s => s.SeriesViewModel).ToList();
+                    _seriesViewModels = Series.Select(s => (Core.TimelineSeries)s.InternalSeries/*SeriesViewModel*/).ToList();
                     _epoch = Epoch;
+
+
+                    foreach (var item in _seriesViewModels)
+                    {
+                        item.UpdateData();
+                    }
 
                     UpdateViewport();
 

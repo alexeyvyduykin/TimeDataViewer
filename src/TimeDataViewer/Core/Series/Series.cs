@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
-using System.Linq;
 
 namespace TimeDataViewer.Core
 {
@@ -12,6 +11,6 @@ namespace TimeDataViewer.Core
     {
         public IEnumerable ItemsSource { get; set; }
 
-
+        protected internal abstract void UpdateData();
     }
 }

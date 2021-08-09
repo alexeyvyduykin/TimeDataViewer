@@ -38,7 +38,6 @@ namespace TimeDataViewer
 
     public abstract class Series : ItemsControl
     {          
-        protected Core.TimelineSeries? _seriesViewModel;
         private BaseIntervalShape _intervalTemplate;
        
         public event EventHandler? OnInvalidateData;
@@ -51,12 +50,6 @@ namespace TimeDataViewer
         public Core.Series InternalSeries { get; protected set; }
 
         public abstract Core.Series CreateModel();
-
-        public Core.TimelineSeries? SeriesViewModel 
-        {
-            get => _seriesViewModel; 
-            set => _seriesViewModel = value; 
-        }
 
         public bool DirtyItems { get; set; } = false;
 
@@ -111,20 +104,17 @@ namespace TimeDataViewer
             if (e.NewValue is not null && e.NewValue is IEnumerable items)
             {
                 if (DirtyItems == false)
-                {                                  
-                    UpdateData(items);
+                {
+                    InternalSeries.UpdateData();                 
                     DirtyItems = true;
                     OnInvalidateData?.Invoke(this, EventArgs.Empty);                   
                 }
             }
         }
 
-        protected abstract void UpdateData(IEnumerable items);
-
         protected virtual void SynchronizeProperties(Core.Series s)
         {
-         //   s.IsVisible = IsVisible;              
-          
+         //   s.IsVisible = IsVisible;                        
         }
 
         public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;

@@ -92,60 +92,8 @@ namespace TimeDataViewer
             s.CategoryField = Category;
             s.BeginField = BeginField;
             s.EndField = EndField;
-        }
 
-        protected override void UpdateData(IEnumerable items)
-        {
-            IList<Interval> list;
-
-            if (items is IEnumerable<Interval> ivals)
-            {
-                list = new List<Interval>(ivals);
-            }
-            else
-            {
-                list = UpdateItems(items);
-            }
-
-            _seriesViewModel =  new Core.TimelineSeries()
-            {
-                //Name = Category,
-                //ZIndex = 30,
-            };
-       
-            var intervals = list.Select(s => 
-            new Core.TimelineItem(s.Left, s.Right)
-            {
-                ZIndex = 100,
-                SeriesControl = this,
-            });
-
-            _seriesViewModel.ReplaceIntervals(intervals);
-        }
-
-        private IList<Interval> UpdateItems(IEnumerable items)
-        {
-            if (string.IsNullOrWhiteSpace(BeginField) == false && string.IsNullOrWhiteSpace(EndField) == false)
-            {
-                var list = new List<Interval>();
-
-                foreach (var item in items)
-                {
-                    var propertyInfoLeft = item.GetType().GetProperty(BeginField);
-                    var propertyInfoRight = item.GetType().GetProperty(EndField);
-
-                    var valueLeft = propertyInfoLeft?.GetValue(item, null);
-                    var valueRight = propertyInfoRight?.GetValue(item, null);
-
-                    if (valueLeft is not null && valueRight is not null && valueLeft is double left && valueRight is double right)
-                    {
-                        list.Add(new Interval(left, right));
-                    }
-                }
-                return list;
-            }
-
-            return new List<Interval>();
+            s.SeriesControl = this;
         }
     }
 }

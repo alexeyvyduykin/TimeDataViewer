@@ -132,7 +132,16 @@ namespace TimeDataViewer
                 series.OnInvalidateData += SeriesInvalidateDataEvent;                              
             }
         }
-    
+
+        private void SynchronizeSeries()
+        {
+            _plot.Series.Clear();
+            foreach (var s in Series)
+            {
+                _plot.Series.Add(s.CreateModel());
+            }
+        }
+
         private void UpdateViewport()
         {
             var maxRight = _seriesViewModels.Max(s => s.MaxTime());
