@@ -9,23 +9,16 @@ using System.Linq;
 
 namespace TimeDataViewer.Core
 {
-    public delegate void SizeChangedEventHandler(int width, int height);
-    public delegate void WindowChangedEventHandler(RectI window);
-    public delegate void ClientViewportChangedEventHandler(RectD viewport);
-    public delegate void ViewportChangedEventHandler(RectD viewport);
-
     public class PlotModel
     {
         private readonly object _syncRoot = new object(); 
         private bool _isDataUpdated;
         private int _width;
         private int _height;
-        private readonly TimeAxis _axisX;
-        private readonly CategoryAxis _axisY;
-        private readonly ObservableCollection<Series> _series;
+        private readonly TimeAxis _axisX = new TimeAxis();
+        private readonly CategoryAxis _axisY = new CategoryAxis();
+        private readonly ObservableCollection<Series> _series = new ObservableCollection<Series>();
         private RectI _plotArea;
-        private RectD _clientViewport;
-        private RectD _viewport = new RectD();  
         private Point2I _windowOffset;        
         private int _zoom = 0;
         private Point2D _dragPoint;
@@ -33,25 +26,14 @@ namespace TimeDataViewer.Core
         public event EventHandler OnDragChanged;
         public event EventHandler OnZoomChanged;
 
-        private event ClientViewportChangedEventHandler OnClientViewportChanged;
-        private event ViewportChangedEventHandler OnViewportChanged;
-
         public PlotModel() 
         {       
-            _axisX = new TimeAxis();
-            _axisY = new CategoryAxis();
-
-            _series = new ObservableCollection<Series>();
-
             MinZoom = 0;
             MaxZoom = 100;
             ZoomScaleX = 1.0; // 30 %        
             ZoomScaleY = 0.0;
             CanDragMap = true;
             MouseWheelZoomEnabled = true;     
-
-            OnClientViewportChanged += ClientViewportChangedEvent;
-            OnViewportChanged += ViewportChangedEvent;
         }
 
         public DateTime Epoch { get; set; }
@@ -79,18 +61,6 @@ namespace TimeDataViewer.Core
         /// </summary>
         public RectI PlotArea => _plotArea;
 
-        private void ClientViewportChangedEvent(RectD rect)
-        {
-            _axisX.UpdateClientViewport(rect);
-            _axisY.UpdateClientViewport(rect);
-        }
-
-        private void ViewportChangedEvent(RectD rect)
-        {
-            _axisX.UpdateViewport(rect);
-            _axisY.UpdateViewport(rect);
-        }
-
         public double ZoomScaleX { get; init; }
 
         public double ZoomScaleY { get; init; }
@@ -111,32 +81,9 @@ namespace TimeDataViewer.Core
 
         public RectI Window { get; private set; }
      
-        public RectD ClientViewport
-        {
-            get
-            {
-                return _clientViewport;
-            }
-            private set
-            {
-                _clientViewport = value;
-                OnClientViewportChanged?.Invoke(_clientViewport);             
-            }
-        }
+        public RectD ClientViewport { get; private set; }
    
-        public RectD Viewport
-        {
-            get
-            {
-                return _viewport;
-            }
-            private set
-            {
-                _viewport = value;
-
-                OnViewportChanged?.Invoke(_viewport);                
-            }
-        }
+        public RectD Viewport { get; private set; }
 
         public Point2I WindowOffset
         {
@@ -222,7 +169,11 @@ namespace TimeDataViewer.Core
         {
             RectD viewport = new RectD(x, y, width, height);
             Viewport = viewport;
+            _axisX.UpdateViewport(Viewport);
+            _axisY.UpdateViewport(Viewport);
             ClientViewport = viewport;
+            _axisX.UpdateClientViewport(ClientViewport);
+            _axisY.UpdateClientViewport(ClientViewport);
         }
 
         public void UpdateSize(int width, int height)
@@ -241,6 +192,8 @@ namespace TimeDataViewer.Core
             WindowOffset = CreateWindowOffset(center);
 
             ClientViewport = CreateClientViewport();
+            _axisX.UpdateClientViewport(ClientViewport);
+            _axisY.UpdateClientViewport(ClientViewport);
 
             ZoomScreenPosition = FromLocalToScreen(center);
         }
@@ -256,6 +209,8 @@ namespace TimeDataViewer.Core
             WindowOffset = CreateWindowOffset(posLoc);
 
             ClientViewport = CreateClientViewport();
+            _axisX.UpdateClientViewport(ClientViewport);
+            _axisY.UpdateClientViewport(ClientViewport);
 
             ZoomScreenPosition = FromLocalToScreen(posLoc);
         }
@@ -278,6 +233,8 @@ namespace TimeDataViewer.Core
                 WindowOffset = new Point2I((int)(point.X - _dragPoint.X), (int)(point.Y - _dragPoint.Y));
 
                 ClientViewport = CreateClientViewport();
+                _axisX.UpdateClientViewport(ClientViewport);
+                _axisY.UpdateClientViewport(ClientViewport);
 
                 OnDragChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -376,6 +333,8 @@ namespace TimeDataViewer.Core
             WindowOffset = CreateWindowOffset(new Point2D(xValue, 0.0));
             
             ClientViewport = CreateClientViewport();
+            _axisX.UpdateClientViewport(ClientViewport);
+            _axisY.UpdateClientViewport(ClientViewport);
 
             OnDragChanged?.Invoke(this, EventArgs.Empty);
         }
