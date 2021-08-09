@@ -9,6 +9,7 @@ using TimeDataViewer.ViewModels;
 using System.ComponentModel;
 using SatelliteDemo.SceneTimer;
 using TimeDataViewer;
+using Core = TimeDataViewer.Core;
 
 namespace SatelliteDemo.ViewModels
 {
@@ -101,7 +102,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series1);
 
-            series1.ReplaceIntervals(satellite.Rotations.Select(s => new IntervalViewModel(s.BeginTime, s.EndTime)));
+            series1.ReplaceIntervals(satellite.Rotations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
 
             ivals.AddRange(series1.Intervals);
 
@@ -109,7 +110,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series2);
 
-            series2.ReplaceIntervals(satellite.Observations.Select(s => new IntervalViewModel(s.BeginTime, s.EndTime)));
+            series2.ReplaceIntervals(satellite.Observations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
 
             ivals.AddRange(series2.Intervals);
 
@@ -117,7 +118,7 @@ namespace SatelliteDemo.ViewModels
 
             ivals.Add(series3);
 
-            series3.ReplaceIntervals(satellite.Transmissions.Select(s => new IntervalViewModel(s.BeginTime, s.EndTime)));
+            series3.ReplaceIntervals(satellite.Transmissions.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
 
             ivals.AddRange(series3.Intervals);
 

@@ -13,10 +13,10 @@ namespace TimeDataViewer.ViewModels
         private string _begin;
         private string _end;
 
-        public IntervalTooltipViewModel(IntervalViewModel marker)
+        public IntervalTooltipViewModel(Core.TimelineItem marker)
         {        
-            var left = marker.Left;
-            var right = marker.Right;
+            var left = marker.Begin;
+            var right = marker.End;
             var epoch = marker.SeriesControl.Scheduler.Epoch;
 
            // _category = series.Name;

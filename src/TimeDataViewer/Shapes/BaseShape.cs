@@ -21,7 +21,7 @@ namespace TimeDataViewer.Shapes
 {
     public abstract class BaseShape : Control
     {   
-        private MarkerViewModel? _marker;
+        private Core.TimelineItem? _marker;
         private SchedulerControl? _scheduler;
 
         public BaseShape()
@@ -31,11 +31,11 @@ namespace TimeDataViewer.Shapes
 
         public SchedulerControl? Scheduler => _scheduler;
 
-        public MarkerViewModel? Marker => _marker;
+        public Core.TimelineItem? Marker => _marker;
 
         private void MarkerChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            if (e.NewValue is MarkerViewModel marker)
+            if (e.NewValue is Core.TimelineItem marker)
             {
                 _marker = marker;        
             }

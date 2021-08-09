@@ -34,6 +34,7 @@ using Avalonia.Controls.Generators;
 using System.Threading.Tasks;
 using TimeDataViewer.Views;
 using Avalonia.Collections;
+using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
@@ -45,7 +46,7 @@ namespace TimeDataViewer
 
         private readonly PlotModel _plot;        
         private readonly Canvas _canvas;
-        private ObservableCollection<MarkerViewModel> _markers;
+        private ObservableCollection<Core.TimelineItem> _markers;
 
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
@@ -111,7 +112,7 @@ namespace TimeDataViewer
 
             OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
 
-            _markers = new ObservableCollection<MarkerViewModel>();
+            _markers = new ObservableCollection<Core.TimelineItem>();
 
             Items = _markers;
         }
@@ -214,7 +215,7 @@ namespace TimeDataViewer
                     
                     foreach (var ival in series.Intervals)
                     {
-                        var intervalLocalPosition = new Point2D(d0 + ival.Left + (ival.Right - ival.Left) / 2.0, seriesLocalPostion.Y);
+                        var intervalLocalPosition = new Point2D(d0 + ival.Begin + (ival.End - ival.Begin) / 2.0, seriesLocalPostion.Y);
                         var intervalAbsolutePostion = _plot.FromLocalToAbsolute(intervalLocalPosition);
 
                         ival.LocalPosition = intervalLocalPosition;                    
@@ -240,8 +241,6 @@ namespace TimeDataViewer
         public TimeAxis AxisX => _plot.AxisX;
 
         public CategoryAxis AxisY => _plot.AxisY;
-            
-        //private Canvas Canvas => _canvas;
 
         public Panel? TopLevelForToolTips
         {
@@ -275,7 +274,6 @@ namespace TimeDataViewer
             _plot.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
             OnSizeChanged?.Invoke(this, EventArgs.Empty);
-            //Debug.WriteLine($"SchedulerControl -> OnSizeChanged -> Count = {OnSizeChanged?.GetInvocationList().Length}");
 
             ForceUpdateOverlays();            
         }
@@ -286,7 +284,7 @@ namespace TimeDataViewer
         {
             UpdateMarkersOffset();
 
-            foreach (MarkerViewModel item in items)
+            foreach (Core.TimelineItem item in items)
             {
                 var p = _plot.FromLocalToAbsolute(item.LocalPosition);
 

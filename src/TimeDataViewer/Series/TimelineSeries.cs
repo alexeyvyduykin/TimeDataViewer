@@ -114,7 +114,7 @@ namespace TimeDataViewer
             };
        
             var intervals = list.Select(s => 
-            new IntervalViewModel(s.Left, s.Right)
+            new Core.TimelineItem(s.Left, s.Right)
             {
                 ZIndex = 100,
                 SeriesControl = this,

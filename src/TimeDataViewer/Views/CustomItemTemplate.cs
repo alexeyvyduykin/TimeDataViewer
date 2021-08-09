@@ -38,7 +38,7 @@ namespace TimeDataViewer.Views
     {
         public IControl Build(object param)
         {
-            if(param is IntervalViewModel ival)
+            if(param is Core.TimelineItem ival)
             {
                 var shape = ival.SeriesControl.CreateIntervalShape(/*ival*/);
 
@@ -55,7 +55,7 @@ namespace TimeDataViewer.Views
 
         public bool Match(object data)
         {
-            return (data is IntervalViewModel);
+            return (data is Core.TimelineItem);
         }
     }
 }

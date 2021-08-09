@@ -114,8 +114,7 @@ namespace TimeDataViewer
                 {                                  
                     UpdateData(items);
                     DirtyItems = true;
-                    OnInvalidateData?.Invoke(this, EventArgs.Empty);
-                    //Debug.WriteLine($"Series -> OnInvalidateData -> Count = {OnInvalidateData?.GetInvocationList().Length}");
+                    OnInvalidateData?.Invoke(this, EventArgs.Empty);                   
                 }
             }
         }
@@ -130,7 +129,7 @@ namespace TimeDataViewer
 
         public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;
 
-        public virtual IntervalTooltipViewModel CreateTooltip(IntervalViewModel marker)
+        public virtual IntervalTooltipViewModel CreateTooltip(Core.TimelineItem marker)
         {
             return new IntervalTooltipViewModel(marker);
         }

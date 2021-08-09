@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
+using A = TimeDataViewer;
 
 namespace TimeDataViewer.Core
 {
@@ -38,13 +39,14 @@ namespace TimeDataViewer.Core
             return CategoryIndex;
         }
 
+        public A.Series? SeriesControl { get; set; }
 
-        //public Point2D LocalPosition { get; set; }
+        public Point2D LocalPosition { get; set; }
 
-        //public int AbsolutePositionX { get; set; }
+        public int AbsolutePositionX { get; set; }
 
-        //public int AbsolutePositionY { get; set; }
+        public int AbsolutePositionY { get; set; }
 
-        //public int ZIndex { get; set; }
+        public int ZIndex { get; set; }
     }
 }

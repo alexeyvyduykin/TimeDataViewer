@@ -7,6 +7,7 @@ using TimeDataViewer.Spatial;
 using System.Collections.ObjectModel;
 using Avalonia;
 using TimeDataViewer.ViewModels;
+using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
@@ -40,7 +41,7 @@ namespace TimeDataViewer
             return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
         }
 
-        public static void ReplaceIntervals(this SeriesViewModel series, IEnumerable<IntervalViewModel> ivals)
+        public static void ReplaceIntervals(this SeriesViewModel series, IEnumerable<Core.TimelineItem> ivals)
         {
             series.Intervals.Clear();
           
