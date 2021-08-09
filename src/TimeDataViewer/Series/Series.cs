@@ -38,7 +38,7 @@ namespace TimeDataViewer
 
     public abstract class Series : ItemsControl
     {          
-        protected SeriesViewModel? _seriesViewModel;
+        protected Core.TimelineSeries? _seriesViewModel;
         private BaseIntervalShape _intervalTemplate;
        
         public event EventHandler? OnInvalidateData;
@@ -52,7 +52,7 @@ namespace TimeDataViewer
 
         public abstract Core.Series CreateModel();
 
-        public SeriesViewModel? SeriesViewModel 
+        public Core.TimelineSeries? SeriesViewModel 
         {
             get => _seriesViewModel; 
             set => _seriesViewModel = value; 

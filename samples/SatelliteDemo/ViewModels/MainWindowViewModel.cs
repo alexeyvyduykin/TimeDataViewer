@@ -98,29 +98,29 @@ namespace SatelliteDemo.ViewModels
         {
             var ivals = new List<object>();
 
-            var series1 = new SeriesViewModel();// { Name = "Rotations" };
+            var series1 = new Core.TimelineSeries();// { Name = "Rotations" };
 
             ivals.Add(series1);
 
             series1.ReplaceIntervals(satellite.Rotations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
 
-            ivals.AddRange(series1.Intervals);
+            ivals.AddRange(series1.Items);
 
-            var series2 = new SeriesViewModel();// { Name = "Observations" };
+            var series2 = new Core.TimelineSeries();// { Name = "Observations" };
 
             ivals.Add(series2);
 
             series2.ReplaceIntervals(satellite.Observations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
 
-            ivals.AddRange(series2.Intervals);
+            ivals.AddRange(series2.Items);
 
-            var series3 = new SeriesViewModel();// { Name = "Transmissions" };
+            var series3 = new Core.TimelineSeries();// { Name = "Transmissions" };
 
             ivals.Add(series3);
 
             series3.ReplaceIntervals(satellite.Transmissions.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
 
-            ivals.AddRange(series3.Intervals);
+            ivals.AddRange(series3.Items);
 
             return ivals;
         }

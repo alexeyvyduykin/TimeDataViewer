@@ -51,7 +51,7 @@ namespace TimeDataViewer
         private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
-        private IList<SeriesViewModel> _seriesViewModels;
+        private IList<Core.TimelineSeries> _seriesViewModels;
         private DateTime _epoch;
         private readonly Popup _popup;
         // center 
@@ -213,7 +213,7 @@ namespace TimeDataViewer
                     var seriesLocalPostion = new Point2D(0.0, (++i) * step);
                     var seriesAbsolutePostion = _plot.FromLocalToAbsolute(seriesLocalPostion);
                     
-                    foreach (var ival in series.Intervals)
+                    foreach (var ival in series.Items)
                     {
                         var intervalLocalPosition = new Point2D(d0 + ival.Begin + (ival.End - ival.Begin) / 2.0, seriesLocalPostion.Y);
                         var intervalAbsolutePostion = _plot.FromLocalToAbsolute(intervalLocalPosition);

@@ -117,7 +117,7 @@ namespace TimeDataViewer
             
             for (int i = _iBegSave; i < _seriesViewModels.Count; i++)
             {
-                for (int j = _jBegSave; j < _seriesViewModels[i].Intervals.Count; j++)
+                for (int j = _jBegSave; j < _seriesViewModels[i].Items.Count; j++)
                 {
                     if (++packs > _maxPacks)
                     {
@@ -129,7 +129,7 @@ namespace TimeDataViewer
                         return;
                     }
 
-                    _markers.Add(_seriesViewModels[i].Intervals[j]);
+                    _markers.Add(_seriesViewModels[i].Items[j]);
                 }
 
                 _jBegSave = 0;

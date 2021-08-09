@@ -107,7 +107,7 @@ namespace TimeDataViewer
                 list = UpdateItems(items);
             }
 
-            _seriesViewModel =  new SeriesViewModel()
+            _seriesViewModel =  new Core.TimelineSeries()
             {
                 //Name = Category,
                 //ZIndex = 30,

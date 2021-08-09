@@ -41,13 +41,13 @@ namespace TimeDataViewer
             return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
         }
 
-        public static void ReplaceIntervals(this SeriesViewModel series, IEnumerable<Core.TimelineItem> ivals)
+        public static void ReplaceIntervals(this Core.TimelineSeries series, IEnumerable<Core.TimelineItem> ivals)
         {
-            series.Intervals.Clear();
+            series.Items.Clear();
           
             foreach (var item in ivals)
             {             
-                series.Intervals.Add(item);
+                series.Items.Add(item);
             }
         }
     }
