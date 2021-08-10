@@ -7,34 +7,17 @@ using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
-    /// <summary>
-    /// Provides a manipulator for panning functionality.
-    /// </summary>
     public class PanManipulator : MouseManipulator
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PanManipulator" /> class.
-        /// </summary>
-        /// <param name="plotView">The plot view.</param>
         public PanManipulator(IPlotView plotView)
             : base(plotView)
         {
         }
 
-        /// <summary>
-        /// Gets or sets the previous position.
-        /// </summary>
         private Point2D PreviousPosition { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether panning is enabled.
-        /// </summary>
         private bool IsPanEnabled { get; set; }
 
-        /// <summary>
-        /// Occurs when a manipulation is complete.
-        /// </summary>
-        /// <param name="e">The <see cref="OxyInputEventArgs" /> instance containing the event data.</param>
         public override void Completed(OxyMouseEventArgs e)
         {
             base.Completed(e);
@@ -47,10 +30,6 @@ namespace TimeDataViewer.Core
             e.Handled = true;
         }
 
-        /// <summary>
-        /// Occurs when the input device changes position during a manipulation.
-        /// </summary>
-        /// <param name="e">The <see cref="OxyPlot.OxyMouseEventArgs" /> instance containing the event data.</param>
         public override void Delta(OxyMouseEventArgs e)
         {
             base.Delta(e);
@@ -74,10 +53,6 @@ namespace TimeDataViewer.Core
             e.Handled = true;
         }
 
-        /// <summary>
-        /// Occurs when an input device begins a manipulation on the plot.
-        /// </summary>
-        /// <param name="e">The <see cref="OxyPlot.OxyMouseEventArgs" /> instance containing the event data.</param>
         public override void Started(OxyMouseEventArgs e)
         {
             base.Started(e);

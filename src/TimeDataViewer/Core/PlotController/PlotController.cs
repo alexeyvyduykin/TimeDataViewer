@@ -11,7 +11,7 @@ namespace TimeDataViewer.Core
         public PlotController()
         {
             // Zoom rectangle bindings: MMB / control RMB / control+alt LMB
-            this.BindMouseDown(OxyMouseButton.Middle, PlotCommands.ZoomRectangle);
+            //this.BindMouseDown(OxyMouseButton.Middle, PlotCommands.ZoomRectangle);
 
             // Pan bindings: RMB / alt LMB / Up/down/left/right keys (panning direction on axis is opposite of key as it is more intuitive)
             this.BindMouseDown(OxyMouseButton.Right, PlotCommands.PanAt);
