@@ -117,6 +117,49 @@ namespace TimeDataViewer
             Items = _markers;
         }
 
+        public DateTime Epoch0 => Epoch.Date;
+
+        public RectD ViewportArea => _internalModel.Viewport;
+
+        public RectD ClientViewportArea => _internalModel.ClientViewport;
+
+        public RectI AbsoluteWindow => _internalModel.Window;
+
+        public RectI ScreenWindow => _internalModel.PlotArea;
+
+        public Point2I WindowOffset => _internalModel.WindowOffset;
+
+        public TimeAxis AxisX => _internalModel.AxisX;
+
+        public CategoryAxis AxisY => _internalModel.AxisY;
+
+        public Panel? TopLevelForToolTips
+        {
+            get
+            {
+                IVisual root = this.GetVisualRoot();
+
+                while (root is not null)
+                {
+                    if (root is Panel panel)
+                    {
+                        return panel;
+                    }
+
+                    if (root.VisualChildren.Count != 0)
+                    {
+                        root = root.VisualChildren[0];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+                return null;
+            }
+        }
+
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
         {
             base.OnDetachedFromLogicalTree(e);
@@ -164,7 +207,6 @@ namespace TimeDataViewer
             }
         }
 
-        public DateTime Epoch0 => Epoch.Date;
 
         private void PassingLogicalTree(NotifyCollectionChangedEventArgs e)
         {
@@ -209,46 +251,7 @@ namespace TimeDataViewer
             _popup.IsOpen = false;
         }
         
-        public RectD ViewportArea => _internalModel.Viewport;
 
-        public RectD ClientViewportArea => _internalModel.ClientViewport;
-
-        public RectI AbsoluteWindow => _internalModel.Window;
-
-        public RectI ScreenWindow => _internalModel.PlotArea;
-
-        public Point2I WindowOffset => _internalModel.WindowOffset;
-
-        public TimeAxis AxisX => _internalModel.AxisX;
-
-        public CategoryAxis AxisY => _internalModel.AxisY;
-
-        public Panel? TopLevelForToolTips
-        {
-            get
-            {
-                IVisual root = this.GetVisualRoot();
-
-                while (root is not null)
-                {
-                    if (root is Panel panel)
-                    {
-                        return panel;
-                    }
-
-                    if (root.VisualChildren.Count != 0)
-                    {
-                        root = root.VisualChildren[0];
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-
-                return null;
-            }
-        }
 
         public void InvalidatePlot(bool updateData = true)
         {

@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace TimeDataViewer.Core
 {
-    public class PlotModel
+    public partial class PlotModel
     {
         private readonly object _syncRoot = new object(); 
         private bool _isDataUpdated;
@@ -112,7 +112,155 @@ namespace TimeDataViewer.Core
                 }
             }
         }
+
+        // Gets the first axes that covers the area of the specified point.
+        public void GetAxesFromPoint(Point2D pt, out Axis xaxis, out Axis yaxis)
+        {
+            throw new Exception();
+            //xaxis = yaxis = null;
+
+            //// Get the axis position of the given point. Using null if the point is inside the plot area.
+            //AxisPosition? position = null;
+            //double plotAreaValue = 0;
+            //if (pt.X < PlotArea.Left)
+            //{
+            //    position = AxisPosition.Left;
+            //    plotAreaValue = PlotArea.Left;
+            //}
+
+            //if (pt.X > PlotArea.Right)
+            //{
+            //    position = AxisPosition.Right;
+            //    plotAreaValue = PlotArea.Right;
+            //}
+
+            //if (pt.Y < PlotArea.Top)
+            //{
+            //    position = AxisPosition.Top;
+            //    plotAreaValue = PlotArea.Top;
+            //}
+
+            //if (pt.Y > PlotArea.Bottom)
+            //{
+            //    position = AxisPosition.Bottom;
+            //    plotAreaValue = PlotArea.Bottom;
+            //}
+
+            //foreach (var axis in Axes)
+            //{
+            //    if (!axis.IsAxisVisible)
+            //    {
+            //        continue;
+            //    }
+
+            //    //if (axis is IColorAxis)
+            //    //{
+            //    //    continue;
+            //    //}
+
+            //    //if (axis is MagnitudeAxis)
+            //    //{
+            //    //    xaxis = axis;
+            //    //    continue;
+            //    //}
+
+            //    //if (axis is AngleAxis)
+            //    //{
+            //    //    yaxis = axis;
+            //    //    continue;
+            //    //}
+
+            //    double x = double.NaN;
+            //    if (axis.IsHorizontal())
+            //    {
+            //        x = axis.InverseTransform(pt.X);
+            //    }
+
+            //    if (axis.IsVertical())
+            //    {
+            //        x = axis.InverseTransform(pt.Y);
+            //    }
+
+            //    if (x >= axis.ActualMinimum && x <= axis.ActualMaximum)
+            //    {
+            //        if (position == null)
+            //        {
+            //            if (axis.IsHorizontal())
+            //            {
+            //                if (xaxis == null)
+            //                {
+            //                    xaxis = axis;
+            //                }
+            //            }
+            //            else if (axis.IsVertical())
+            //            {
+            //                if (yaxis == null)
+            //                {
+            //                    yaxis = axis;
+            //                }
+            //            }
+            //        }
+            //        else if (position == axis.Position)
+            //        {
+            //            // Choose right tier
+            //            double positionTierMinShift = 0;// axis.PositionTierMinShift;
+            //            double positionTierMaxShift = 0;// axis.PositionTierMaxShift;
+
+            //            double posValue = axis.IsHorizontal() ? pt.Y : pt.X;
+            //            bool isLeftOrTop = position == AxisPosition.Top || position == AxisPosition.Left;
+            //            if ((posValue >= plotAreaValue + positionTierMinShift
+            //                 && posValue < plotAreaValue + positionTierMaxShift && !isLeftOrTop)
+            //                ||
+            //                (posValue <= plotAreaValue - positionTierMinShift
+            //                 && posValue > plotAreaValue - positionTierMaxShift && isLeftOrTop))
+            //            {
+            //                if (axis.IsHorizontal())
+            //                {
+            //                    if (xaxis == null)
+            //                    {
+            //                        xaxis = axis;
+            //                    }
+            //                }
+            //                else if (axis.IsVertical())
+            //                {
+            //                    if (yaxis == null)
+            //                    {
+            //                        yaxis = axis;
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+        }
+
+        public void ResetAllAxes()
+        {
+            throw new Exception();
+            //foreach (var a in Axes)
+            //{
+            //    a.Reset();
+            //}
+        }
+
+        public void PanAllAxes(double dx, double dy)
+        {
+            throw new Exception();
+            //foreach (var a in Axes)
+            //{
+            //    a.Pan(a.IsHorizontal() ? dx : dy);
+            //}
+        }
         
+        public void ZoomAllAxes(double factor)
+        {
+            throw new Exception();
+            //foreach (var a in Axes)
+            //{
+            //    a.ZoomAtCenter(factor);
+            //}
+        }
+
         public void Update(bool updateData)
         {
             lock (SyncRoot)

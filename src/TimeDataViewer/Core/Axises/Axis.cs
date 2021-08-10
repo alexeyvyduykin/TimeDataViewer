@@ -33,6 +33,10 @@ namespace TimeDataViewer.Core
 
         public event EventHandler? OnAxisChanged;
 
+        public bool IsPanEnabled { get; set; }
+
+        public bool IsZoomEnabled { get; set; }
+
         public bool IsDynamicLabelEnable { get; set; }
 
         public string Header { get; set; } = "Header";
@@ -83,6 +87,101 @@ namespace TimeDataViewer.Core
         public Point2I FromLocalToAbsolute(double x, double y, Axis axisy)
         {
             return new Point2I((int)FromLocalToAbsolute(x), (int)axisy.FromLocalToAbsolute(y));
+        }
+
+        public Point2D InverseTransform(double x, double y, Axis yaxis)
+        {
+            throw new Exception();
+            //return new Point2D(InverseTransform(x), yaxis != null ? yaxis.InverseTransform(y) : 0);
+        }
+
+        public double InverseTransform(double sx)
+        {
+            throw new Exception();
+            //return (sx / _scale) + offset;
+        }
+
+        public virtual void ZoomAt(double factor, double x)
+        {
+            throw new Exception();
+            //if (!this.IsZoomEnabled)
+            //{
+            //    return;
+            //}
+
+            //var oldMinimum = this.ActualMinimum;
+            //var oldMaximum = this.ActualMaximum;
+
+            //double dx0 = (this.ActualMinimum - x) * _scale;
+            //double dx1 = (this.ActualMaximum - x) * _scale;
+            //_scale *= factor;
+
+            //double newMinimum = (dx0 / _scale) + x;
+            //double newMaximum = (dx1 / _scale) + x;
+
+            //if (newMaximum - newMinimum > this.MaximumRange)
+            //{
+            //    var mid = (newMinimum + newMaximum) * 0.5;
+            //    newMaximum = mid + (this.MaximumRange * 0.5);
+            //    newMinimum = mid - (this.MaximumRange * 0.5);
+            //}
+
+            //if (newMaximum - newMinimum < this.MinimumRange)
+            //{
+            //    var mid = (newMinimum + newMaximum) * 0.5;
+            //    newMaximum = mid + (this.MinimumRange * 0.5);
+            //    newMinimum = mid - (this.MinimumRange * 0.5);
+            //}
+
+            //newMinimum = Math.Max(newMinimum, this.AbsoluteMinimum);
+            //newMaximum = Math.Min(newMaximum, this.AbsoluteMaximum);
+
+            //ViewMinimum = newMinimum;
+            //ViewMaximum = newMaximum;
+            //UpdateActualMaxMin();
+
+            //var deltaMinimum = this.ActualMinimum - oldMinimum;
+            //var deltaMaximum = this.ActualMaximum - oldMaximum;
+
+            //this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
+        }
+
+        public virtual void Pan(Point2D ppt, Point2D cpt)
+        {
+            throw new Exception();
+            //if (!this.IsPanEnabled)
+            //{
+            //    return;
+            //}
+
+            //bool isHorizontal = this.IsHorizontal();
+
+            //double dsx = isHorizontal ? cpt.X - ppt.X : cpt.Y - ppt.Y;
+            //this.Pan(dsx);
+        }
+
+        public virtual void Zoom(double x0, double x1)
+        {
+            throw new Exception();
+            //if (!this.IsZoomEnabled)
+            //{
+            //    return;
+            //}
+
+            //var oldMinimum = this.ActualMinimum;
+            //var oldMaximum = this.ActualMaximum;
+
+            //double newMinimum = Math.Max(Math.Min(x0, x1), this.AbsoluteMinimum);
+            //double newMaximum = Math.Min(Math.Max(x0, x1), this.AbsoluteMaximum);
+
+            //ViewMinimum = newMinimum;
+            //ViewMaximum = newMaximum;
+            //UpdateActualMaxMin();
+
+            //var deltaMinimum = this.ActualMinimum - oldMinimum;
+            //var deltaMaximum = this.ActualMaximum - oldMaximum;
+
+            //this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
         }
 
         public bool IsHorizontal()
