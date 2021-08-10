@@ -35,20 +35,23 @@ using System.Threading.Tasks;
 using TimeDataViewer.Views;
 using Avalonia.Collections;
 using Core = TimeDataViewer.Core;
+using Avalonia.Input;
+using Avalonia.Input.Platform;
 
 namespace TimeDataViewer
 {
     public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, IStyleable
+    public partial class SchedulerControl : ItemsControl, IStyleable, IPlotView
     {
         Type IStyleable.StyleKey => typeof(ItemsControl);
 
-        private readonly PlotModel _internalModel;        
+        private readonly PlotModel _internalModel; 
+        private readonly IPlotController _defaultController;
         private readonly Canvas _canvas;
         private ObservableCollection<Core.TimelineItem> _markers;
+        private ContentControl _zoomControl;
 
-        private double _zoom;
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
         private IList<Core.TimelineSeries> _seriesViewModels;
@@ -62,11 +65,11 @@ namespace TimeDataViewer
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
         public event MousePositionChangedEventHandler? OnMousePositionChanged;
-        //public event EventHandler? OnZoomChanged;
-   
+
         public SchedulerControl()
         {
             _internalModel = new PlotModel();
+            _defaultController = new PlotController();
 
             _internalModel.OnZoomChanged += ZoomChangedEvent;
             _internalModel.OnDragChanged += DragChangedEvent;
@@ -74,7 +77,6 @@ namespace TimeDataViewer
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
 
-            PointerWheelChanged += SchedulerControl_PointerWheelChanged;
             PointerPressed += SchedulerControl_PointerPressed;
             PointerReleased += SchedulerControl_PointerReleased;
             PointerMoved += SchedulerControl_PointerMoved;
@@ -106,7 +108,6 @@ namespace TimeDataViewer
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
-            ZoomProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.ZoomChanged(e));
             EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
             CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
 
@@ -115,6 +116,59 @@ namespace TimeDataViewer
             _markers = new ObservableCollection<Core.TimelineItem>();
 
             Items = _markers;
+        }
+        
+        Model IView.ActualModel => _internalModel;
+
+        public PlotModel ActualModel => _internalModel;
+
+        IController IView.ActualController => _defaultController;
+
+        public IController ActualController => _defaultController;
+
+        public RectD ClientArea => new RectD(0, 0, Bounds.Width, Bounds.Height);
+        
+        public void HideZoomRectangle()
+        {
+            _zoomControl.IsVisible = false;
+        }
+
+        public void SetCursorType(CursorType cursorType)
+        {
+            switch (cursorType)
+            {
+                case CursorType.Pan:
+                    Cursor = PanCursor;
+                    break;
+                case CursorType.ZoomRectangle:
+                    Cursor = ZoomRectangleCursor;
+                    break;
+                case CursorType.ZoomHorizontal:
+                    Cursor = ZoomHorizontalCursor;
+                    break;
+                case CursorType.ZoomVertical:
+                    Cursor = ZoomVerticalCursor;
+                    break;
+                default:
+                    Cursor = Cursor.Default;
+                    break;
+            }
+        }
+        
+        public void ShowZoomRectangle(RectD r)
+        {
+            _zoomControl.Width = r.Width;
+            _zoomControl.Height = r.Height;
+            Canvas.SetLeft(_zoomControl, r.Left);
+            Canvas.SetTop(_zoomControl, r.Top);
+            _zoomControl.Template = ZoomRectangleTemplate;
+            _zoomControl.IsVisible = true;
+        }
+
+        // Stores text on the clipboard.
+        public async void SetClipboardText(string text)
+        {
+            await AvaloniaLocator.Current.GetService<IClipboard>().SetTextAsync(text);
         }
 
         public DateTime Epoch0 => Epoch.Date;
@@ -325,32 +379,13 @@ namespace TimeDataViewer
             }
         }
 
-        private void ForceUpdateOverlays()
+        public void ForceUpdateOverlays()
         {
             SynchronizeProperties();
 
             _internalModel.UpdateViewport();
 
             InvalidateVisual();
-        }
-
-        private void ZoomChanged(AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.NewValue is not null && e.NewValue is double value)
-            {                           
-                var zoom = Math.Clamp(value, MinZoom, MaxZoom);
-                
-                if (_zoom != zoom)
-                {
-                    _zoom = zoom;
-                    _internalModel.Zoom = (int)Math.Floor(zoom);
-                    
-                    if (IsInitialized == true)
-                    {
-                        ForceUpdateOverlays();                   
-                    }                   
-                }
-            }
         }
 
         private void EpochChanged(AvaloniaPropertyChangedEventArgs e)

@@ -78,14 +78,14 @@ namespace TimeDataViewer.Core
         // Zooms the view by the specified factor at the position specified in the <see cref="OxyMouseEventArgs" />.
         private static void HandleZoomAt(IPlotView view, OxyMouseEventArgs args, double delta)
         {
-            var m = new ZoomStepManipulator(view) { Step = delta };
+            var m = new MyZoomStepManipulator(view) { Step = delta };
             m.Started(args);
         }
 
         // Zooms the view by the mouse wheel delta in the specified <see cref="OxyKeyEventArgs" />.
         private static void HandleZoomByWheel(IPlotView view, OxyMouseWheelEventArgs args, double factor = 1)
         {
-            var m = new ZoomStepManipulator(view) { Step = args.Delta * 0.001 * factor };
+            var m = new MyZoomStepManipulator(view) { Step = args.Delta * 0.001 * factor };
             m.Started(args);
         }
 

@@ -80,5 +80,85 @@ namespace TimeDataViewer
             get => GetValue(CurrentTimeProperty);
             set => SetValue(CurrentTimeProperty, value);
         }
+
+        public static readonly StyledProperty<ControlTemplate> ZoomRectangleTemplateProperty =   
+            AvaloniaProperty.Register<SchedulerControl, ControlTemplate>(nameof(ZoomRectangleTemplate));
+
+        public ControlTemplate ZoomRectangleTemplate
+        {
+            get
+            {
+                return GetValue(ZoomRectangleTemplateProperty);
+            }
+
+            set
+            {
+                SetValue(ZoomRectangleTemplateProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Cursor> PanCursorProperty =   
+            AvaloniaProperty.Register<SchedulerControl, Cursor>(nameof(PanCursor), new Cursor(StandardCursorType.Hand));
+
+        public Cursor PanCursor
+        {
+            get
+            {
+                return GetValue(PanCursorProperty);
+            }
+
+            set
+            {
+                SetValue(PanCursorProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Cursor> ZoomHorizontalCursorProperty =
+            AvaloniaProperty.Register<SchedulerControl, Cursor>(nameof(ZoomHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
+
+        public Cursor ZoomHorizontalCursor
+        {
+            get
+            {
+                return GetValue(ZoomHorizontalCursorProperty);
+            }
+
+            set
+            {
+                SetValue(ZoomHorizontalCursorProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Cursor> ZoomRectangleCursorProperty =
+            AvaloniaProperty.Register<SchedulerControl, Cursor>(nameof(ZoomRectangleCursor), new Cursor(StandardCursorType.SizeAll));
+
+        public Cursor ZoomRectangleCursor
+        {
+            get
+            {
+                return GetValue(ZoomRectangleCursorProperty);
+            }
+
+            set
+            {
+                SetValue(ZoomRectangleCursorProperty, value);
+            }
+        }
+        
+        public static readonly StyledProperty<Cursor> ZoomVerticalCursorProperty =
+            AvaloniaProperty.Register<SchedulerControl, Cursor>(nameof(ZoomVerticalCursor), new Cursor(StandardCursorType.SizeNorthSouth));
+
+        public Cursor ZoomVerticalCursor
+        {
+            get
+            {
+                return GetValue(ZoomVerticalCursorProperty);
+            }
+
+            set
+            {
+                SetValue(ZoomVerticalCursorProperty, value);
+            }
+        }
     }
 }

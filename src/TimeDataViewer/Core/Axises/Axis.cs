@@ -29,6 +29,12 @@ namespace TimeDataViewer.Core
         private double _scale;
         private double _offset;        
 
+        protected Axis()
+        {
+            IsZoomEnabled = true;
+            IsPanEnabled = true;
+        }
+
         private AxisPosition _position;
 
         public event EventHandler? OnAxisChanged;
@@ -90,20 +96,19 @@ namespace TimeDataViewer.Core
         }
 
         public Point2D InverseTransform(double x, double y, Axis yaxis)
-        {
-            throw new Exception();
-            //return new Point2D(InverseTransform(x), yaxis != null ? yaxis.InverseTransform(y) : 0);
+        {           
+            return new Point2D(InverseTransform(x), yaxis != null ? yaxis.InverseTransform(y) : 0);
         }
 
         public double InverseTransform(double sx)
-        {
-            throw new Exception();
-            //return (sx / _scale) + offset;
+        {          
+            return (sx / _scale) + _offset;
         }
 
         public virtual void ZoomAt(double factor, double x)
         {
             throw new Exception();
+
             //if (!this.IsZoomEnabled)
             //{
             //    return;

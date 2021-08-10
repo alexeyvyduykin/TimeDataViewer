@@ -37,7 +37,7 @@ namespace TimeDataViewer
     {
         private Cursor? _cursorBefore;
         private int _onMouseUpTimestamp = 0;
-        private Point2D _mousePosition = new();    
+        private Point2D _mousePosition = new();
         private bool _isDragging = false;
         private Point2D _mouseDown;
 
@@ -45,19 +45,11 @@ namespace TimeDataViewer
 
         public Point2D MousePosition
         {
-            get => _mousePosition;            
+            get => _mousePosition;
             protected set
             {
                 _mousePosition = value;
                 OnMousePositionChanged?.Invoke(_mousePosition);
-            }
-        }
-
-        private void SchedulerControl_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
-        {
-            if (IgnoreMarkerOnMouseWheel == true && _internalModel.IsDragging == false)
-            {
-                Zoom = (e.Delta.Y > 0) ? ((int)Zoom) + 1 : ((int)(Zoom + 0.99)) - 1;
             }
         }
 
@@ -78,14 +70,14 @@ namespace TimeDataViewer
                 if (_isDragging == true)
                 {
                     _onMouseUpTimestamp = (int)e.Timestamp & int.MaxValue;
-                    _isDragging = false; 
-                    
-                    if(_cursorBefore == null)
+                    _isDragging = false;
+
+                    if (_cursorBefore == null)
                     {
                         _cursorBefore = new(StandardCursorType.Arrow);
                     }
 
-                    Cursor = _cursorBefore;               
+                    Cursor = _cursorBefore;
                     e.Pointer.Capture(null);
                 }
                 _internalModel.EndDrag();
@@ -97,8 +89,8 @@ namespace TimeDataViewer
                 {
                     _mouseDown = Point2D.Empty;
                 }
-                                    
-                InvalidateVisual();                
+
+                InvalidateVisual();
             }
         }
 
@@ -112,7 +104,7 @@ namespace TimeDataViewer
 
             // wpf generates to many events if mouse is over some visual and OnMouseUp is fired, wtf, anyway...         
             if (((int)e.Timestamp & int.MaxValue) - _onMouseUpTimestamp < 55)
-            {              
+            {
                 return;
             }
 
@@ -133,10 +125,10 @@ namespace TimeDataViewer
             {
                 if (_isDragging == false)
                 {
-                    _isDragging = true;           
+                    _isDragging = true;
                     _cursorBefore = Cursor;
                     Cursor = new Cursor(StandardCursorType.SizeWestEast);
-                    e.Pointer.Capture(this);       
+                    e.Pointer.Capture(this);
                 }
 
                 var mouseCurrent = new Point2D(MouseScreenPosition.X, MouseScreenPosition.Y);
@@ -146,5 +138,100 @@ namespace TimeDataViewer
                 InvalidateVisual();
             }
         }
+
+        //private Point2D _mouseDownPoint;
+
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+        {
+            base.OnPointerWheelChanged(e);
+            if (e.Handled)
+            {
+                return;
+            }
+
+            e.Handled = ActualController.HandleMouseWheel(this, e.ToMouseWheelEventArgs(this));
+        }
+
+        //protected override void OnPointerPressed(PointerPressedEventArgs e)
+        //{
+        //    base.OnPointerPressed(e);
+        //    if (e.Handled)
+        //    {
+        //        return;
+        //    }
+
+        //    Focus();
+        //    e.Pointer.Capture(this);
+
+        //    // store the mouse down point, check it when mouse button is released to determine if the context menu should be shown
+        //    _mouseDownPoint = e.GetPosition(this).ToScreenPoint();
+
+        //    e.Handled = ActualController.HandleMouseDown(this, e.ToMouseDownEventArgs(this));
+        //}
+
+        //protected override void OnPointerMoved(PointerEventArgs e)
+        //{
+        //    base.OnPointerMoved(e);
+        //    if (e.Handled)
+        //    {
+        //        return;
+        //    }
+
+        //    e.Handled = ActualController.HandleMouseMove(this, e.ToMouseEventArgs(this));
+        //}
+
+        //protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        //{
+        //    base.OnPointerReleased(e);
+        //    if (e.Handled)
+        //    {
+        //        return;
+        //    }
+
+        //    var releasedArgs = (PointerReleasedEventArgs)e;
+
+        //    e.Pointer.Capture(null);
+
+        //    e.Handled = ActualController.HandleMouseUp(this, releasedArgs.ToMouseReleasedEventArgs(this));
+
+        //    // Open the context menu
+        //    var p = e.GetPosition(this).ToScreenPoint();
+        //    var d = p.DistanceTo(_mouseDownPoint);
+
+        //    if (ContextMenu != null)
+        //    {
+        //        if (Math.Abs(d) < 1e-8 && releasedArgs.InitialPressMouseButton == MouseButton.Right)
+        //        {
+        //            ContextMenu.DataContext = DataContext;
+        //            ContextMenu.IsVisible = true;
+        //        }
+        //        else
+        //        {
+        //            ContextMenu.IsVisible = false;
+        //        }
+        //    }
+        //}
+
+        //protected override void OnPointerEnter(PointerEventArgs e)
+        //{
+        //    base.OnPointerEnter(e);
+        //    if (e.Handled)
+        //    {
+        //        return;
+        //    }
+
+        //    e.Handled = ActualController.HandleMouseEnter(this, e.ToMouseEventArgs(this));
+        //}
+
+        //protected override void OnPointerLeave(PointerEventArgs e)
+        //{
+        //    base.OnPointerLeave(e);
+        //    if (e.Handled)
+        //    {
+        //        return;
+        //    }
+
+        //    e.Handled = ActualController.HandleMouseLeave(this, e.ToMouseEventArgs(this));
+        //}
     }
 }
