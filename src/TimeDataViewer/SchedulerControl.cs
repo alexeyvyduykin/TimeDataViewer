@@ -64,8 +64,6 @@ namespace TimeDataViewer
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
-        public event MousePositionChangedEventHandler? OnMousePositionChanged;
-
         public SchedulerControl()
         {
             _internalModel = new PlotModel();
@@ -76,10 +74,6 @@ namespace TimeDataViewer
 
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
-
-            PointerPressed += SchedulerControl_PointerPressed;
-            PointerReleased += SchedulerControl_PointerReleased;
-            PointerMoved += SchedulerControl_PointerMoved;
 
             _canvas = new Canvas()
             {
@@ -111,8 +105,6 @@ namespace TimeDataViewer
             EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
             CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
 
-            OnMousePositionChanged += AxisX.UpdateDynamicLabelPosition;
-
             _markers = new ObservableCollection<Core.TimelineItem>();
 
             Items = _markers;
@@ -139,6 +131,9 @@ namespace TimeDataViewer
             {
                 case CursorType.Pan:
                     Cursor = PanCursor;
+                    break;
+                case CursorType.PanHorizontal:
+                    Cursor = PanHorizontalCursor;
                     break;
                 case CursorType.ZoomRectangle:
                     Cursor = ZoomRectangleCursor;
@@ -218,8 +213,7 @@ namespace TimeDataViewer
         {
             base.OnDetachedFromLogicalTree(e);
 
-            _internalModel.OnZoomChanged -= ZoomChangedEvent;
-            OnMousePositionChanged -= AxisX.UpdateDynamicLabelPosition;
+            _internalModel.OnZoomChanged -= ZoomChangedEvent;      
         }
 
         private void Series_CollectionChanged(object? s, NotifyCollectionChangedEventArgs e)

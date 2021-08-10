@@ -7,65 +7,124 @@ using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
-    public class PanManipulator : MouseManipulator
+    //public class PanManipulator : MouseManipulator
+    //{
+    //    public PanManipulator(IPlotView plotView)
+    //        : base(plotView)
+    //    {
+    //    }
+
+    //    private Point2D PreviousPosition { get; set; }
+
+    //    private bool IsPanEnabled { get; set; }
+
+    //    public override void Completed(OxyMouseEventArgs e)
+    //    {
+    //        base.Completed(e);
+    //        if (!this.IsPanEnabled)
+    //        {
+    //            return;
+    //        }
+
+    //        this.View.SetCursorType(CursorType.Default);
+    //        e.Handled = true;
+    //    }
+
+    //    public override void Delta(OxyMouseEventArgs e)
+    //    {
+    //        base.Delta(e);
+    //        if (!this.IsPanEnabled)
+    //        {
+    //            return;
+    //        }
+
+    //        if (this.XAxis != null)
+    //        {
+    //            this.XAxis.Pan(this.PreviousPosition, e.Position);
+    //        }
+
+    //        if (this.YAxis != null)
+    //        {
+    //            this.YAxis.Pan(this.PreviousPosition, e.Position);
+    //        }
+
+    //        this.PlotView.InvalidatePlot(false);
+    //        this.PreviousPosition = e.Position;
+    //        e.Handled = true;
+    //    }
+
+    //    public override void Started(OxyMouseEventArgs e)
+    //    {
+    //        base.Started(e);
+    //        this.PreviousPosition = e.Position;
+
+    //        this.IsPanEnabled = (this.XAxis != null && this.XAxis.IsPanEnabled)
+    //                            || (this.YAxis != null && this.YAxis.IsPanEnabled);
+
+    //        if (this.IsPanEnabled)
+    //        {
+    //            this.View.SetCursorType(CursorType.Pan);
+    //            e.Handled = true;
+    //        }
+    //    }
+    //}
+
+    public class MyPanManipulator : MouseManipulator
     {
-        public PanManipulator(IPlotView plotView)
-            : base(plotView)
+        public MyPanManipulator(IPlotView plotView) : base(plotView)
         {
         }
 
         private Point2D PreviousPosition { get; set; }
 
-        private bool IsPanEnabled { get; set; }
-
         public override void Completed(OxyMouseEventArgs e)
         {
             base.Completed(e);
-            if (!this.IsPanEnabled)
+
+            View.SetCursorType(CursorType.Default);
+
+            if (PlotView is SchedulerControl scheduler)
             {
-                return;
+                if (scheduler.ActualModel.IsDragging == true)
+                {
+                    scheduler.ActualModel.EndDrag();
+                }
+
+                PreviousPosition = e.Position;
+                e.Handled = true;
             }
 
-            this.View.SetCursorType(CursorType.Default);
             e.Handled = true;
         }
 
         public override void Delta(OxyMouseEventArgs e)
         {
             base.Delta(e);
-            if (!this.IsPanEnabled)
+            
+            if (PlotView is SchedulerControl scheduler && scheduler.ActualModel.IsDragging == true)
             {
-                return;
-            }
+                scheduler.ActualModel.Drag(e.Position);
 
-            if (this.XAxis != null)
-            {
-                this.XAxis.Pan(this.PreviousPosition, e.Position);
-            }
+                scheduler.InvalidateVisual();
 
-            if (this.YAxis != null)
-            {
-                this.YAxis.Pan(this.PreviousPosition, e.Position);
+                PreviousPosition = e.Position;
             }
-
-            this.PlotView.InvalidatePlot(false);
-            this.PreviousPosition = e.Position;
-            e.Handled = true;
         }
 
         public override void Started(OxyMouseEventArgs e)
         {
             base.Started(e);
-            this.PreviousPosition = e.Position;
-
-            this.IsPanEnabled = (this.XAxis != null && this.XAxis.IsPanEnabled)
-                                || (this.YAxis != null && this.YAxis.IsPanEnabled);
-
-            if (this.IsPanEnabled)
+           
+            if (PlotView is SchedulerControl scheduler && scheduler.ActualModel.IsDragging == false)
             {
-                this.View.SetCursorType(CursorType.Pan);
+                scheduler.ActualModel.BeginDrag(e.Position);
+
+                PreviousPosition = e.Position;
+
+                View.SetCursorType(CursorType.PanHorizontal);
+
                 e.Handled = true;
-            }
+            }        
         }
     }
 }

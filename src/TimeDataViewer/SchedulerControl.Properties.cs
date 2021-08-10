@@ -113,6 +113,22 @@ namespace TimeDataViewer
             }
         }
 
+        public static readonly StyledProperty<Cursor> PanHorizontalCursorProperty =   
+            AvaloniaProperty.Register<SchedulerControl, Cursor>(nameof(PanHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
+
+        public Cursor PanHorizontalCursor
+        {
+            get
+            {
+                return GetValue(PanHorizontalCursorProperty);
+            }
+
+            set
+            {
+                SetValue(PanHorizontalCursorProperty, value);
+            }
+        }
+
         public static readonly StyledProperty<Cursor> ZoomHorizontalCursorProperty =
             AvaloniaProperty.Register<SchedulerControl, Cursor>(nameof(ZoomHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
 
