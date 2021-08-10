@@ -22,14 +22,14 @@ namespace TimeDataViewer.Shapes
     public abstract class BaseShape : Control
     {   
         private Core.TimelineItem? _marker;
-        private SchedulerControl? _scheduler;
+        private Timeline? _scheduler;
 
         public BaseShape()
         {
             DataContextProperty.Changed.AddClassHandler<BaseShape>((d, e) => d.MarkerChanged(e));
         }
 
-        public SchedulerControl? Scheduler => _scheduler;
+        public Timeline? Scheduler => _scheduler;
 
         public Core.TimelineItem? Marker => _marker;
 
@@ -47,12 +47,12 @@ namespace TimeDataViewer.Shapes
 
             ILogical control = this;
 
-            while((control.LogicalParent is SchedulerControl) == false)
+            while((control.LogicalParent is Timeline) == false)
             {
                 control = control.LogicalParent;
             }
 
-            _scheduler = (SchedulerControl)control.LogicalParent;
+            _scheduler = (Timeline)control.LogicalParent;
         }
     }
 }

@@ -72,7 +72,7 @@ namespace TimeDataViewer
         {
             base.OnDataContextBeginUpdate();
 
-            if (DataContext is not null && DataContext is SchedulerControl scheduler)
+            if (DataContext is not null && DataContext is Timeline scheduler)
             {
                 scheduler.AxisX.OnAxisChanged -= OnAxisChanged;
                 scheduler.PointerEnter -= OnMapEnter;
@@ -84,7 +84,7 @@ namespace TimeDataViewer
         {
             base.OnDataContextChanged(e);
 
-            if(DataContext is SchedulerControl scheduler)
+            if(DataContext is Timeline scheduler)
             {
                 scheduler.AxisX.OnAxisChanged += OnAxisChanged;
                 scheduler.PointerEnter += OnMapEnter;

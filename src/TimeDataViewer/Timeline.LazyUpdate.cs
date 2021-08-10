@@ -36,7 +36,7 @@ using Avalonia.Collections;
 
 namespace TimeDataViewer
 {
-    public partial class SchedulerControl
+    public partial class Timeline
     {
         private DispatcherTimer _timer;       
         private bool _dirty = false;

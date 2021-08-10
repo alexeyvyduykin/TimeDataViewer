@@ -42,16 +42,13 @@ namespace TimeDataViewer
 {
     public delegate void SelectionChangeEventHandler(RectD Selection, bool ZoomToFit);
 
-    public partial class SchedulerControl : ItemsControl, IStyleable, IPlotView
-    {
-        Type IStyleable.StyleKey => typeof(ItemsControl);
-
+    public partial class Timeline : TimelineBase
+    {    
         private readonly PlotModel _internalModel; 
         private readonly IPlotController _defaultController;
         private readonly Canvas _canvas;
         private ObservableCollection<Core.TimelineItem> _markers;
-        private ContentControl _zoomControl;
-
+  
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
         private IList<Core.TimelineSeries> _seriesViewModels;
@@ -64,7 +61,7 @@ namespace TimeDataViewer
         private readonly bool _showMouseCenter = true;
         private readonly Pen _mouseCrossPen = new(Brushes.Blue, 1);
 
-        public SchedulerControl()
+        public Timeline()
         {
             _internalModel = new PlotModel();
             _defaultController = new PlotController();
@@ -97,74 +94,20 @@ namespace TimeDataViewer
             ClipToBounds = true;
      //       SnapsToDevicePixels = true;
 
-            this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
-
             Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
             Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
 
-            EpochProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.EpochChanged(e));
-            CurrentTimeProperty.Changed.AddClassHandler<SchedulerControl>((d, e) => d.CurrentTimeChanged(e));
+            EpochProperty.Changed.AddClassHandler<Timeline>((d, e) => d.EpochChanged(e));
+            CurrentTimeProperty.Changed.AddClassHandler<Timeline>((d, e) => d.CurrentTimeChanged(e));
 
             _markers = new ObservableCollection<Core.TimelineItem>();
 
             Items = _markers;
         }
-        
-        Model IView.ActualModel => _internalModel;
 
-        public PlotModel ActualModel => _internalModel;
+        public override PlotModel ActualModel => _internalModel;
 
-        IController IView.ActualController => _defaultController;
-
-        public IController ActualController => _defaultController;
-
-        public RectD ClientArea => new RectD(0, 0, Bounds.Width, Bounds.Height);
-        
-        public void HideZoomRectangle()
-        {
-            _zoomControl.IsVisible = false;
-        }
-
-        public void SetCursorType(CursorType cursorType)
-        {
-            switch (cursorType)
-            {
-                case CursorType.Pan:
-                    Cursor = PanCursor;
-                    break;
-                case CursorType.PanHorizontal:
-                    Cursor = PanHorizontalCursor;
-                    break;
-                case CursorType.ZoomRectangle:
-                    Cursor = ZoomRectangleCursor;
-                    break;
-                case CursorType.ZoomHorizontal:
-                    Cursor = ZoomHorizontalCursor;
-                    break;
-                case CursorType.ZoomVertical:
-                    Cursor = ZoomVerticalCursor;
-                    break;
-                default:
-                    Cursor = Cursor.Default;
-                    break;
-            }
-        }
-        
-        public void ShowZoomRectangle(RectD r)
-        {
-            _zoomControl.Width = r.Width;
-            _zoomControl.Height = r.Height;
-            Canvas.SetLeft(_zoomControl, r.Left);
-            Canvas.SetTop(_zoomControl, r.Top);
-            _zoomControl.Template = ZoomRectangleTemplate;
-            _zoomControl.IsVisible = true;
-        }
-
-        // Stores text on the clipboard.
-        public async void SetClipboardText(string text)
-        {
-            await AvaloniaLocator.Current.GetService<IClipboard>().SetTextAsync(text);
-        }
+        public override IPlotController ActualController => _defaultController;
 
         public DateTime Epoch0 => Epoch.Date;
 
@@ -207,6 +150,19 @@ namespace TimeDataViewer
 
                 return null;
             }
+        }
+
+        protected override void OnPointerMoved(PointerEventArgs e)
+        {
+            base.OnPointerMoved(e);
+
+            var MouseScreenPosition = e.GetPosition(this);
+
+            ActualModel.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+
+            var mousePosition = ActualModel.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
+
+            AxisX.UpdateDynamicLabelPosition(mousePosition);
         }
 
         protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
@@ -299,39 +255,13 @@ namespace TimeDataViewer
             _popup.IsOpen = false;
         }
         
-
-
-        public void InvalidatePlot(bool updateData = true)
-        {
-            if (Width <= 0 || Height <= 0)
-            {
-                return;
-            }
-
-            UpdateModel(updateData);
-
-            //if (Interlocked.CompareExchange(ref _isPlotInvalidated, 1, 0) == 0)
-            //{
-            //    // Invalidate the arrange state for the element.
-            //    // After the invalidation, the element will have its layout updated,
-            //    // which will occur asynchronously unless subsequently forced by UpdateLayout.
-            //    BeginInvoke(InvalidateArrange);
-            //    BeginInvoke(InvalidateVisual);
-            //}
-
-            BeginInvoke(InvalidateVisual);
-        }
-
-        protected void UpdateModel(bool updateData = true)
+        protected override void UpdateModel(bool updateData = true)
         {
             SynchronizeProperties();
             SynchronizeSeries();
             //SynchronizeAxes();
 
-            if (_internalModel != null)
-            {
-                _internalModel.Update(updateData);
-            }
+            base.UpdateModel(updateData);
         }
 
         private void UpdateVisuals(DrawingContext context)
@@ -365,13 +295,7 @@ namespace TimeDataViewer
             DrawCurrentTime(context);
         }
 
-        private void OnSizeChanged(object sender, Size size)
-        {
-            if (size.Height > 0 && size.Width > 0)
-            {
-                InvalidatePlot(false);
-            }
-        }
+
 
         public void ForceUpdateOverlays()
         {
@@ -449,18 +373,6 @@ namespace TimeDataViewer
             var p = _internalModel.FromLocalToAbsolute(d0 + CurrentTime, 0.0);
             Pen pen = new Pen(Brushes.Red, 2.0);
             context.DrawLine(pen, new Point(p.X + WindowOffset.X, 0.0), new Point(p.X + WindowOffset.X, _internalModel.Window.Height));
-        }
-        
-        private static void BeginInvoke(Action action)
-        {
-            if (Dispatcher.UIThread.CheckAccess())
-            {
-                Dispatcher.UIThread.InvokeAsync(action, DispatcherPriority.Loaded);
-            }
-            else
-            {
-                action?.Invoke();
-            }
-        }
+        }       
     }
 }

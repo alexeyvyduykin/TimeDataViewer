@@ -73,7 +73,7 @@ namespace TimeDataViewer.Core
         {
             base.Started(e);
 
-            if (PlotView is SchedulerControl scheduler)
+            if (PlotView is Timeline scheduler)
             {
                 var zoom = (Step > 0) ? ((int)scheduler.Zoom) + 1 : ((int)(scheduler.Zoom + 0.99)) - 1;               
                 zoom = Math.Clamp(zoom, scheduler.MinZoom, scheduler.MaxZoom);

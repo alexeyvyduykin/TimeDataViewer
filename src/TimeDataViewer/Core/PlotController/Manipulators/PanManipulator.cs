@@ -83,7 +83,7 @@ namespace TimeDataViewer.Core
 
             View.SetCursorType(CursorType.Default);
 
-            if (PlotView is SchedulerControl scheduler)
+            if (PlotView is IPlotView scheduler)
             {
                 if (scheduler.ActualModel.IsDragging == true)
                 {
@@ -101,7 +101,7 @@ namespace TimeDataViewer.Core
         {
             base.Delta(e);
             
-            if (PlotView is SchedulerControl scheduler && scheduler.ActualModel.IsDragging == true)
+            if (PlotView is Timeline scheduler && scheduler.ActualModel.IsDragging == true)
             {
                 scheduler.ActualModel.Drag(e.Position);
 
@@ -115,7 +115,7 @@ namespace TimeDataViewer.Core
         {
             base.Started(e);
            
-            if (PlotView is SchedulerControl scheduler && scheduler.ActualModel.IsDragging == false)
+            if (PlotView is IPlotView scheduler && scheduler.ActualModel.IsDragging == false)
             {
                 scheduler.ActualModel.BeginDrag(e.Position);
 

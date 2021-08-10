@@ -91,7 +91,7 @@ namespace TimeDataViewer
 
         protected void OnDataChanged()
         {
-            if (Parent is SchedulerControl pc)
+            if (Parent is Core.IPlotView pc)
             {
                 pc.InvalidatePlot();
             }
@@ -117,7 +117,7 @@ namespace TimeDataViewer
          //   s.IsVisible = IsVisible;                        
         }
 
-        public SchedulerControl? Scheduler => (((ILogical)this).LogicalParent is SchedulerControl scheduler) ? scheduler : null;
+        public Timeline? Scheduler => (((ILogical)this).LogicalParent is Timeline scheduler) ? scheduler : null;
 
         public virtual IntervalTooltipViewModel CreateTooltip(Core.TimelineItem marker)
         {

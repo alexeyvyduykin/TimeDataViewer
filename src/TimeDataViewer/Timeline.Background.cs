@@ -9,7 +9,7 @@ using TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
-    public partial class SchedulerControl
+    public partial class Timeline
     {
         private enum BackgroundMode { Hour, Day, Week, Month, Year }
         private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Color.Parse("#BDBDBD") /*Colors.Silver*/ };

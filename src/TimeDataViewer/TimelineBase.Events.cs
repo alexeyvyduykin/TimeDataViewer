@@ -1,37 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input;
-using Avalonia.Interactivity;
-using Avalonia.Visuals;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Diagnostics;
+﻿using Avalonia.Media;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Input.Platform;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
+using System.ComponentModel;
 using Avalonia.Metadata;
 using Avalonia.Styling;
-using Avalonia.VisualTree;
 using TimeDataViewer.ViewModels;
-using TimeDataViewer.Core;
+using TimeDataViewer;
 using TimeDataViewer.Spatial;
 using System.Xml;
 using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Controls.Metadata;
+using Avalonia.Input.GestureRecognizers;
 using Avalonia.Input.TextInput;
+using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using TimeDataViewer.Core;
+using Avalonia.Controls.Generators;
+using System.Threading.Tasks;
+using TimeDataViewer.Views;
+using Avalonia.Collections;
+using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
-    public partial class SchedulerControl
+    public partial class TimelineBase
     {
         private Point2D _mouseDownPoint;
 
@@ -72,15 +81,6 @@ namespace TimeDataViewer
             }
 
             e.Handled = ActualController.HandleMouseMove(this, e.ToMouseEventArgs(this));
-
-            
-            var MouseScreenPosition = e.GetPosition(this);
-
-            ActualModel.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
-
-            var mousePosition = ActualModel.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
-
-            AxisX.UpdateDynamicLabelPosition(mousePosition);
         }
 
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
