@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
@@ -64,6 +65,57 @@ namespace TimeDataViewer.Core
             }
 
             return new List<TimelineItem>();
+        }
+
+
+        public override void Render()
+        {            
+            if (Parent is not null)
+            {                
+                double heightY = 10;
+
+                MyRectList.Clear();
+                MyClippingRect = Parent.PlotArea;
+
+                for (var i = 0; i < Items.Count; i++)
+                {
+                    var item = Items[i];
+
+                    var d1 = Parent.FromLocalToAbsolute(new Point2D(item.Begin, item.LocalPosition.Y)).X;
+                    var d2 = Parent.FromLocalToAbsolute(new Point2D(item.End, item.LocalPosition.Y)).X;
+
+                    var widthX = d2 - d1;
+
+                    if (widthX == 0.0)
+                    {
+                        widthX = 10;
+                        //return;
+                    }
+
+                    var p0 = new Point2D(-widthX / 2.0, -heightY / 2.0);
+                    var p1 = new Point2D(widthX / 2.0, heightY / 2.0);
+                
+                    var offset = Parent.WindowOffset;
+
+                    var p = Parent.FromLocalToScreen(item.LocalPosition);
+                                        
+                    var rectangle = RectD.FromPoints(
+                        p0.X - offset.X + p.X, 
+                        p0.Y + offset.Y + p.Y, 
+                        p1.X - offset.X + p.X, 
+                        p1.Y + offset.Y + p.Y);
+                    
+                    MyRectList.Add(rectangle);
+                }
+            }   
+        }
+        
+        public RectD MyClippingRect { get; private set; }
+        public List<RectD> MyRectList { get; private set; } = new List<RectD>();
+
+        public override void MyOnRender()
+        {
+            MyRender?.Invoke(this, EventArgs.Empty);
         }
     }
 }

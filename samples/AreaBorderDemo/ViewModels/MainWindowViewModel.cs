@@ -30,7 +30,6 @@ using Avalonia.Input.TextInput;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media.Imaging;
-using TimeDataViewer.Models;
 using TimeDataViewer.Core;
 using Avalonia.Controls.Generators;
 
@@ -43,11 +42,11 @@ namespace AreaBorderDemo.ViewModels
         public MainWindowViewModel()
         {
 
-            CoreFactory factory = new CoreFactory();
+            //CoreFactory factory = new CoreFactory();
 
-            _area = factory.CreateArea();
+            //_area = factory.CreateArea();
 
-            _area.UpdateSize(400, 160);
+            //_area.UpdateSize(400, 160);
         }
 
         public PlotModel Area => _area;

@@ -38,109 +38,109 @@ namespace TimeDataViewer
 {
     public partial class Timeline
     {
-        private DispatcherTimer _timer;       
-        private bool _dirty = false;
-        private bool _complete = true;       
-        private int _iBegSave = 0;
-        private int _jBegSave = 0;
-        private readonly int _maxPacks = 10;
+        //private DispatcherTimer _timer;       
+        //private bool _dirty = false;
+        //private bool _complete = true;       
+        //private int _iBegSave = 0;
+        //private int _jBegSave = 0;
+        //private readonly int _maxPacks = 10;
 
-        private void SeriesInvalidateDataEvent(object? sender, EventArgs e)
-        {
-            SeriesInvalidateData();
-        }
+        //private void SeriesInvalidateDataEvent(object? sender, EventArgs e)
+        //{
+        //    SeriesInvalidateData();
+        //}
 
-        private void SeriesInvalidateData()
-        {
-            if (Series.All(s => s.DirtyItems) == true)
-            {
-                if (_complete == true)
-                {
-                    foreach (var item in Series)
-                    {
-                        item.DirtyItems = false;
-                    }
+        //private void SeriesInvalidateData()
+        //{
+        //    if (Series.All(s => s.DirtyItems) == true)
+        //    {
+        //        if (_complete == true)
+        //        {
+        //            foreach (var item in Series)
+        //            {
+        //                item.DirtyItems = false;
+        //            }
 
-                    SynchronizeProperties();
-                    SynchronizeSeries();
+        //            SynchronizeProperties();
+        //            SynchronizeSeries();
 
-                    _dirty = false;
-                    _complete = false;
-                    _iBegSave = 0;
-                    _jBegSave = 0;
+        //            _dirty = false;
+        //            _complete = false;
+        //            _iBegSave = 0;
+        //            _jBegSave = 0;
 
-                    _seriesViewModels = Series.Select(s => (Core.TimelineSeries)s.InternalSeries).ToList();
-                    _epoch = Epoch;
+        //            _seriesViewModels = Series.Select(s => (Core.TimelineSeries)s.InternalSeries).ToList();
+        //            _epoch = Epoch;
 
-                    _internalModel.Update(true);
+        //            _internalModel.Update(true);
                   
-                    _markers.Clear();
+        //            _markers.Clear();
 
-                    StartLazyUpdate();
-                }
-                else
-                {
-                    _dirty = true;
-                }
-            }
-        }
+        //            StartLazyUpdate();
+        //        }
+        //        else
+        //        {
+        //            _dirty = true;
+        //        }
+        //    }
+        //}
 
-        private void StartLazyUpdate()
-        {
-            if (_timer == null)
-            {
-                _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, new EventHandler(OnStartLazyUpdate));
-            }
+        //private void StartLazyUpdate()
+        //{
+        //    if (_timer == null)
+        //    {
+        //        _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(10), DispatcherPriority.Normal, new EventHandler(OnStartLazyUpdate));
+        //    }
 
-            if (_complete == false)
-            {
-                _timer.Start();
-            }
-        }
+        //    if (_complete == false)
+        //    {
+        //        _timer.Start();
+        //    }
+        //}
 
-        private void StopLazyUpdate()
-        {
-            _complete = true;
+        //private void StopLazyUpdate()
+        //{
+        //    _complete = true;
 
-            if(_dirty == true)
-            {
-                SeriesInvalidateData();
-            }
-        }
+        //    if(_dirty == true)
+        //    {
+        //        SeriesInvalidateData();
+        //    }
+        //}
 
-        private void OnStartLazyUpdate(object? sender, EventArgs args)
-        {
-            _timer.Stop();
-            LazyUpdateMarkers();
-        }
+        //private void OnStartLazyUpdate(object? sender, EventArgs args)
+        //{
+        //    _timer.Stop();
+        //    LazyUpdateMarkers();
+        //}
 
-        private void LazyUpdateMarkers()
-        {
-            int packs = 0;
+        //private void LazyUpdateMarkers()
+        //{
+        //    int packs = 0;
             
-            for (int i = _iBegSave; i < _seriesViewModels.Count; i++)
-            {
-                for (int j = _jBegSave; j < _seriesViewModels[i].Items.Count; j++)
-                {
-                    if (++packs > _maxPacks)
-                    {
-                        _iBegSave = i;
-                        _jBegSave = j;
+        //    for (int i = _iBegSave; i < _seriesViewModels.Count; i++)
+        //    {
+        //        for (int j = _jBegSave; j < _seriesViewModels[i].Items.Count; j++)
+        //        {
+        //            if (++packs > _maxPacks)
+        //            {
+        //                _iBegSave = i;
+        //                _jBegSave = j;
 
-                        StartLazyUpdate();
+        //                StartLazyUpdate();
 
-                        return;
-                    }
+        //                return;
+        //            }
 
-                    _markers.Add(_seriesViewModels[i].Items[j]);
-                }
+        //            _markers.Add(_seriesViewModels[i].Items[j]);
+        //        }
 
-                _jBegSave = 0;
-            }
+        //        _jBegSave = 0;
+        //    }
 
-            InvalidateVisual();
+        //    InvalidateVisual();
             
-            StopLazyUpdate();
-        }
+        //    StopLazyUpdate();
+        //}
     }
 }

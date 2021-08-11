@@ -40,17 +40,15 @@ using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
-    public abstract partial class TimelineBase : ItemsControl, IStyleable, IPlotView
+    public abstract partial class TimelineBase : TemplatedControl, IPlotView
     {
-        //private Canvas _canvas;
-        //private Panel _panel;
-        //private Canvas _overlays;
+        private DrawCanvas _drawCanvas;
+        private Panel _panel;
+        private Canvas _overlays;
         private ContentControl _zoomControl;
 
         // Invalidation flag (0: no update, 1: update visual elements).  
         private int _isPlotInvalidated;
-
-        Type IStyleable.StyleKey => typeof(ItemsControl);
 
         protected TimelineBase()
         {
@@ -119,6 +117,20 @@ namespace TimeDataViewer
             await AvaloniaLocator.Current.GetService<IClipboard>().SetTextAsync(text);
         }
 
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var actualSize = base.ArrangeOverride(finalSize);
+            if (actualSize.Width > 0 && actualSize.Height > 0)
+            {
+                //if (Interlocked.CompareExchange(ref _isPlotInvalidated, 0, 1) == 1)
+                {
+                    UpdateVisuals();
+                }
+            }
+
+            return actualSize;
+        }
+
         public void InvalidatePlot(bool updateData = true)
         {
             if (Width <= 0 || Height <= 0)
@@ -161,35 +173,26 @@ namespace TimeDataViewer
         // When overridden in a derived class, is invoked whenever application code or internal processes (such as a rebuilding layout pass)
         // call <see cref="M:System.Windows.Controls.Control.ApplyTemplate" /> . In simplest terms, this means the method is called 
         // just before a UI element displays in an application. For more information, see Remarks.
-        //protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-        //{
-        //    base.OnApplyTemplate(e);
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
 
-        //    _panel = e.NameScope.Find("PART_Panel") as Panel;
-        //    _panelX = e.NameScope.Find("PART_PanelX") as Panel;
-        //    _panelY = e.NameScope.Find("PART_PanelY") as Panel;
-        //    if (_panel == null)
-        //    {
-        //        return;
-        //    }
+            _panel = e.NameScope.Find("PART_Panel") as Panel;
+            if (_panel == null)
+            {
+                return;
+            }
 
-        //    _canvas = new Canvas() { Background = Brushes.Silver };
-        //    _fastCanvas = new IntervalBarDrawCanvas() { Background = Brushes.Transparent };
+            _drawCanvas = new DrawCanvas() { Background = Brushes.Transparent };
+         
+            _panel.Children.Add(_drawCanvas);
+        
+            _overlays = new Canvas { Name = "Overlays" };
+            _panel.Children.Add(_overlays);
 
-        //    _canvasX = new Canvas() { Background = Brushes.LightGreen };
-        //    _canvasY = new Canvas() { Background = Brushes.LightPink };
-
-        //    _panel.Children.Add(_canvas);
-        //    _panel.Children.Add(_fastCanvas);
-        //    _panelX.Children.Add(_canvasX);
-        //    _panelY.Children.Add(_canvasY);
-
-        //    _overlays = new Canvas { Name = "Overlays" };
-        //    _panel.Children.Add(_overlays);
-
-        //    _zoomControl = new ContentControl();
-        //    _overlays.Children.Add(_zoomControl);
-        //}
+            _zoomControl = new ContentControl();
+            _overlays.Children.Add(_zoomControl);
+        }
 
         // Provides the behavior for the Arrange pass of Silverlight layout.
         // Classes can override this method to define their own Arrange pass behavior.
@@ -221,7 +224,7 @@ namespace TimeDataViewer
         //    return element.IsEffectivelyVisible && element.TransformedBounds.HasValue;
         //}
 
-       
+
 
         // Gets the relevant parent.
         //private Control GetRelevantParent<T>(IVisual obj) where T : Control
@@ -246,47 +249,49 @@ namespace TimeDataViewer
         //    return (Control)container;
         //}
 
-        //private void UpdateVisuals()
-        //{
-        //    if (_canvas == null)
-        //    {
-        //        return;
-        //    }
+        private void UpdateVisuals()
+        {
+            if (_drawCanvas == null)
+            {
+                return;
+            }
 
-        //    if (IsVisibleToUser() == false)
-        //    {
-        //        return;
-        //    }
+            //if (IsVisibleToUser() == false)
+            //{
+            //    return;
+            //}
 
-        //    // Clear the canvas
-        //    _canvas.Children.Clear();
+            // Clear the canvas
+            _drawCanvas.Children.Clear();
 
-        //    if (ActualModel != null)
-        //    {
-        //        if (DisconnectCanvasWhileUpdating)
-        //        {
-        //            // TODO: profile... not sure if this makes any difference
-        //            var idx = _panel.Children.IndexOf(_canvas);
-        //            if (idx != -1)
-        //            {
-        //                _panel.Children.RemoveAt(idx);
-        //            }
+            if (ActualModel != null)
+            {
+                if (DisconnectCanvasWhileUpdating)
+                {
+                    // TODO: profile... not sure if this makes any difference
+                    var idx = _panel.Children.IndexOf(_drawCanvas);
+                    if (idx != -1)
+                    {
+                        _panel.Children.RemoveAt(idx);
+                    }
 
-        //            ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
-        //            MyRenderSeries(_canvas, _fastCanvas);
-        //            // reinsert the canvas again
-        //            if (idx != -1)
-        //            {
-        //                _panel.Children.Insert(idx, _canvas);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
-        //            MyRenderSeries(_canvas, _fastCanvas);
-        //        }
-        //    }
-        //}
+                    ((PlotModel)ActualModel).Render(_drawCanvas.Bounds.Width, _drawCanvas.Bounds.Height);
+                    MyRenderSeries(_drawCanvas);
+                    // reinsert the canvas again
+                    if (idx != -1)
+                    {
+                        _panel.Children.Insert(idx, _drawCanvas);
+                    }
+                }
+                else
+                {
+                    ((PlotModel)ActualModel).Render(_drawCanvas.Bounds.Width, _drawCanvas.Bounds.Height);
+                    MyRenderSeries(_drawCanvas);
+                }
+            }
+        }
+
+        protected abstract void MyRenderSeries(DrawCanvas drawCanvas);
 
         // Invokes the specified action on the dispatcher, if necessary.
         private static void BeginInvoke(Action action)

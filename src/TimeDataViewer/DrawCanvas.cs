@@ -46,7 +46,7 @@ namespace TimeDataViewer
 
         protected void CreateClippedRectangle(RectD clippingRectangle, Rect rect)
         {
-            if (SetClip(clippingRectangle))
+            //if (SetClip(clippingRectangle))
             {
                 _rects.Add(rect);
                 ResetClip();

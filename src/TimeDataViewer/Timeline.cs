@@ -46,8 +46,8 @@ namespace TimeDataViewer
     {    
         private readonly PlotModel _internalModel; 
         private readonly IPlotController _defaultController;
-        private readonly Canvas _canvas;
-        private ObservableCollection<Core.TimelineItem> _markers;
+        //private readonly Canvas _canvas;
+        //private ObservableCollection<Core.TimelineItem> _markers;
   
         private readonly TranslateTransform _schedulerTranslateTransform;
         private ObservableCollection<Series> _series;
@@ -72,11 +72,6 @@ namespace TimeDataViewer
             _series = new ObservableCollection<Series>();
             _schedulerTranslateTransform = new TranslateTransform();
 
-            _canvas = new Canvas()
-            {
-                RenderTransform = _schedulerTranslateTransform
-            };
-
             _popup = new Popup()
             {
                 //AllowsTransparency = true,
@@ -87,22 +82,13 @@ namespace TimeDataViewer
 
             TopLevelForToolTips?.Children.Add(_popup);
 
-            ItemTemplate = new CustomItemTemplate();
-
-            ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
-
             ClipToBounds = true;
-     //       SnapsToDevicePixels = true;
+            //       SnapsToDevicePixels = true;
 
-            Series.CollectionChanged += (s, e) => PassingLogicalTree(e);
-            Series.CollectionChanged += (s, e) => Series_CollectionChanged(s, e);
+            _series.CollectionChanged += OnSeriesChanged;
 
             EpochProperty.Changed.AddClassHandler<Timeline>((d, e) => d.EpochChanged(e));
             CurrentTimeProperty.Changed.AddClassHandler<Timeline>((d, e) => d.CurrentTimeChanged(e));
-
-            _markers = new ObservableCollection<Core.TimelineItem>();
-
-            Items = _markers;
         }
 
         public override PlotModel ActualModel => _internalModel;
@@ -117,7 +103,7 @@ namespace TimeDataViewer
 
         public RectI AbsoluteWindow => _internalModel.Window;
 
-        public RectI ScreenWindow => _internalModel.PlotArea;
+        public RectD ScreenWindow => _internalModel.PlotArea;
 
         public Point2I WindowOffset => _internalModel.WindowOffset;
 
@@ -172,12 +158,9 @@ namespace TimeDataViewer
             _internalModel.OnZoomChanged -= ZoomChangedEvent;      
         }
 
-        private void Series_CollectionChanged(object? s, NotifyCollectionChangedEventArgs e)
-        {           
-            foreach (var series in Series)
-            {
-                series.OnInvalidateData += SeriesInvalidateDataEvent;                              
-            }
+        private void OnSeriesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            SyncLogicalTree(e);
         }
 
         private void SynchronizeSeries()
@@ -185,13 +168,15 @@ namespace TimeDataViewer
             _internalModel.Series.Clear();
             foreach (var s in Series)
             {
-                _internalModel.Series.Add(s.CreateModel());
+                var model = s.CreateModel();
+                model.Parent = _internalModel;
+                _internalModel.Series.Add(model);
             }
         }
 
         private void ZoomChangedEvent(object? sender, EventArgs e)
         {
-            if (_canvas != null)
+            //if (_canvas != null)
             {
                 _schedulerTranslateTransform.X = _internalModel.WindowOffset.X;
                 _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
@@ -204,17 +189,18 @@ namespace TimeDataViewer
 
         private void DragChangedEvent(object? sender, EventArgs e)
         {
-            if (_canvas != null)
+            //if (_canvas != null)
             {
                 _schedulerTranslateTransform.X = _internalModel.WindowOffset.X;
                 _schedulerTranslateTransform.Y = _internalModel.WindowOffset.Y;
             }
         }
 
-
-        private void PassingLogicalTree(NotifyCollectionChangedEventArgs e)
+        private void SyncLogicalTree(NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems is not null)
+            // In order to get DataContext and binding to work with the series, axes and annotations
+            // we add the items to the logical tree
+            if (e.NewItems != null)
             {
                 foreach (var item in e.NewItems.OfType<ISetLogicalParent>())
                 {
@@ -224,7 +210,7 @@ namespace TimeDataViewer
                 VisualChildren.AddRange(e.NewItems.OfType<IVisual>());
             }
 
-            if (e.OldItems is not null)
+            if (e.OldItems != null)
             {
                 foreach (var item in e.OldItems.OfType<ISetLogicalParent>())
                 {
@@ -266,10 +252,10 @@ namespace TimeDataViewer
 
         private void UpdateVisuals(DrawingContext context)
         {
-            if (_canvas == null)
-            {
-                return;
-            }
+            //if (_canvas == null)
+            //{
+            //    return;
+            //}
 
             _internalModel.UpdateSize((int)Bounds.Width, (int)Bounds.Height);
 
@@ -354,9 +340,25 @@ namespace TimeDataViewer
 
         public override void Render(DrawingContext context)
         {
-            UpdateVisuals(context);
+            //UpdateVisuals(context);
 
             base.Render(context);                     
+        }
+
+        protected override void MyRenderSeries(DrawCanvas drawCanvas)
+        {
+            foreach (var item in Series.Where(s => s.IsVisible))
+            {
+                if (item is TimelineSeries timelineSeries)
+                {
+                    var series = (Core.TimelineSeries)timelineSeries.InternalSeries;
+
+                    drawCanvas.RenderTransform = _schedulerTranslateTransform;
+
+                    drawCanvas.CreateRenderIntervals(series.MyClippingRect,
+                        series.MyRectList, timelineSeries.FillBrush, timelineSeries.StrokeBrush);
+                }
+            }
         }
 
         private void DrawEpoch(DrawingContext context)

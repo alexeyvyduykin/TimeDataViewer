@@ -31,6 +31,7 @@ using Avalonia.Controls.Primitives;
 using TimeDataViewer.Views;
 using System.Threading.Tasks;
 using Core = TimeDataViewer.Core;
+using Avalonia.Utilities;
 
 namespace TimeDataViewer
 {
@@ -38,13 +39,12 @@ namespace TimeDataViewer
 
     public abstract class Series : ItemsControl
     {          
-        private BaseIntervalShape _intervalTemplate;
-       
-        public event EventHandler? OnInvalidateData;
+        //private BaseIntervalShape _intervalTemplate;
+        private readonly EventListener _eventListener;
 
-        public Series()
+        protected Series()
         {
-
+            _eventListener = new EventListener(OnCollectionChanged);
         }
 
         public Core.Series InternalSeries { get; protected set; }
@@ -53,14 +53,14 @@ namespace TimeDataViewer
 
         public bool DirtyItems { get; set; } = false;
 
-        public static readonly StyledProperty<BaseIntervalShape> IntervalTemplateProperty =
-            AvaloniaProperty.Register<Series, BaseIntervalShape>(nameof(IntervalTemplate));
+        //public static readonly StyledProperty<BaseIntervalShape> IntervalTemplateProperty =
+        //    AvaloniaProperty.Register<Series, BaseIntervalShape>(nameof(IntervalTemplate));
 
-        public BaseIntervalShape IntervalTemplate
-        {
-            get { return _intervalTemplate; }
-            set { SetAndRaise(IntervalTemplateProperty, ref _intervalTemplate, value); }
-        }
+        //public BaseIntervalShape IntervalTemplate
+        //{
+        //    get { return _intervalTemplate; }
+        //    set { SetAndRaise(IntervalTemplateProperty, ref _intervalTemplate, value); }
+        //}
 
         public static readonly StyledProperty<Control> TooltipProperty =    
             AvaloniaProperty.Register<Series, Control>(nameof(Tooltip), new IntervalTooltip());
@@ -71,22 +71,14 @@ namespace TimeDataViewer
             set { SetValue(TooltipProperty, value); }
         }
 
-        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
-        {
-            base.OnDetachedFromLogicalTree(e);
-
-            if (OnInvalidateData is not null)
-            {
-                foreach (var d in OnInvalidateData.GetInvocationList())
-                {
-                    OnInvalidateData -= (EventHandler)d;
-                }
-            }
-        }
-
         protected static void DataChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
         {
             ((Series)d).OnDataChanged();
+        }
+
+        protected static void AppearanceChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
+        {
+            ((Series)d).OnVisualChanged();
         }
 
         protected void OnDataChanged()
@@ -97,19 +89,39 @@ namespace TimeDataViewer
             }
         }
 
+        protected void OnVisualChanged()
+        {
+            if (Parent is Core.IPlotView pc)
+            {
+                pc.InvalidatePlot(false);
+            }
+        }
+
         protected override void ItemsChanged(AvaloniaPropertyChangedEventArgs e)
         {
             base.ItemsChanged(e);
+            SubscribeToCollectionChanged(e.OldValue as IEnumerable, e.NewValue as IEnumerable);
+            OnDataChanged();            
+        }
 
-            if (e.NewValue is not null && e.NewValue is IEnumerable items)
+        private void SubscribeToCollectionChanged(IEnumerable oldValue, IEnumerable newValue)
+        {
+            var collection = oldValue as INotifyCollectionChanged;
+            if (collection != null)
             {
-                if (DirtyItems == false)
-                {
-                    InternalSeries.UpdateData();                 
-                    DirtyItems = true;
-                    OnInvalidateData?.Invoke(this, EventArgs.Empty);                   
-                }
+                WeakSubscriptionManager.Unsubscribe(collection, "CollectionChanged", _eventListener);
             }
+
+            collection = newValue as INotifyCollectionChanged;
+            if (collection != null)
+            {
+                WeakSubscriptionManager.Subscribe(collection, "CollectionChanged", _eventListener);
+            }
+        }
+        
+        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        {
+            OnDataChanged();
         }
 
         protected virtual void SynchronizeProperties(Core.Series s)
@@ -124,9 +136,31 @@ namespace TimeDataViewer
             return new IntervalTooltipViewModel(marker);
         }
 
-        public virtual BaseShape CreateIntervalShape()
+        //public virtual BaseShape CreateIntervalShape()
+        //{
+        //    return IntervalTemplate.Clone();
+        //}
+
+        private class EventListener : IWeakSubscriber<NotifyCollectionChangedEventArgs>
         {
-            return IntervalTemplate.Clone();
+            /// <summary>
+            /// The delegate to forward to
+            /// </summary>
+            private readonly EventHandler<NotifyCollectionChangedEventArgs> onCollectionChanged;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="EventListener" /> class
+            /// </summary>
+            /// <param name="onCollectionChanged">The handler</param>
+            public EventListener(EventHandler<NotifyCollectionChangedEventArgs> onCollectionChanged)
+            {
+                this.onCollectionChanged = onCollectionChanged;
+            }
+
+            public void OnEvent(object sender, NotifyCollectionChangedEventArgs e)
+            {
+                onCollectionChanged(sender, e);
+            }
         }
     }
 }

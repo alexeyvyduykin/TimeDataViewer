@@ -40,12 +40,12 @@ namespace TimeDataViewer.Views
         {
             if(param is Core.TimelineItem ival)
             {
-                var shape = ival.SeriesControl.CreateIntervalShape(/*ival*/);
+                //var shape = ival.SeriesControl.CreateIntervalShape(/*ival*/);
 
-                if(shape is IControl)
-                {
-                    return (IControl)shape;
-                }
+                //if(shape is IControl)
+                //{
+                //    return (IControl)shape;
+                //}
 
                 //return new IntervalVisual() { DataContext = param };
             }

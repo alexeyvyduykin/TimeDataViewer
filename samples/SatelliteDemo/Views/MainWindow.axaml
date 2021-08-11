@@ -80,21 +80,21 @@
 
                             <sch:Timeline.Series>
                                 <sch:TimelineSeries Category="Rotation" Items="{Binding Rotations}" BeginField="BeginTime" EndField="EndTime">
-                                    <sch:TimelineSeries.IntervalTemplate>
+                                    <!--<sch:TimelineSeries.IntervalTemplate>
                                         <shapes:IntervalShape Background="Yellow"/>
-                                    </sch:TimelineSeries.IntervalTemplate>
+                                    </sch:TimelineSeries.IntervalTemplate>-->
                                 </sch:TimelineSeries>
 
                                 <sch:TimelineSeries Category="Observation" Items="{Binding Observations}" BeginField="BeginTime" EndField="EndTime">
-                                    <sch:TimelineSeries.IntervalTemplate>
+                                    <!--<sch:TimelineSeries.IntervalTemplate>
                                         <shapes:IntervalShape Background="Blue"/>
-                                    </sch:TimelineSeries.IntervalTemplate>
+                                    </sch:TimelineSeries.IntervalTemplate>-->
                                 </sch:TimelineSeries>
 
                                 <sch:TimelineSeries Category="Transmission" Items="{Binding Transmissions}" BeginField="BeginTime" EndField="EndTime">
-                                    <sch:TimelineSeries.IntervalTemplate>
+                                    <!--<sch:TimelineSeries.IntervalTemplate>
                                         <shapes:IntervalShape Background="Green"/>
-                                    </sch:TimelineSeries.IntervalTemplate>
+                                    </sch:TimelineSeries.IntervalTemplate>-->
                                 </sch:TimelineSeries>
 
                             </sch:Timeline.Series>

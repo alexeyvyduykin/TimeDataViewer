@@ -10,15 +10,11 @@ using System.Linq;
 namespace TimeDataViewer.Core
 {
     public partial class PlotModel : Model
-    {
-        private readonly object _syncRoot = new object(); 
+    {       
         private bool _isDataUpdated;
-        private int _width;
-        private int _height;
         private readonly TimeAxis _axisX = new TimeAxis();
         private readonly CategoryAxis _axisY = new CategoryAxis();
-        private readonly ObservableCollection<Series> _series = new ObservableCollection<Series>();
-        private RectI _plotArea;
+        private readonly ObservableCollection<Series> _series;       
         private Point2I _windowOffset;        
         private int _zoom = 0;
         private Point2D _dragPoint;
@@ -27,7 +23,9 @@ namespace TimeDataViewer.Core
         public event EventHandler OnZoomChanged;
 
         public PlotModel() 
-        {       
+        {
+            _series = new ObservableCollection<Series>();
+
             MinZoom = 0;
             MaxZoom = 100;
             ZoomScaleX = 1.0; // 30 %        
@@ -44,22 +42,20 @@ namespace TimeDataViewer.Core
 
         public ObservableCollection<Series> Series => _series;
         
-        public object SyncRoot => _syncRoot;
-
         /// <summary>
         /// Gets the total width of the plot (in device units).
         /// </summary>
-        public double Width => _width;
+        public double Width { get; private set; }
 
         /// <summary>
         /// Gets the total height of the plot (in device units).
         /// </summary>
-        public double Height => _height;
-   
+        public double Height { get; private set; }
+
         /// <summary>
         /// Gets the plot area. This area is used to draw the series (not including axes or legends).
         /// </summary>
-        public RectI PlotArea => _plotArea;
+        public RectD PlotArea { get; private set; }
 
         public double ZoomScaleX { get; init; }
 
@@ -231,12 +227,12 @@ namespace TimeDataViewer.Core
 
         public void UpdateSize(int width, int height)
         {
-            var center = FromScreenToLocal(_width / 2, _height / 2);
+            var center = FromScreenToLocal((int)Width / 2, (int)Height / 2);
     
-            _width = width;
-            _height = height;
+            Width = width;
+            Height = height;
 
-            _plotArea = new RectI(0, 0, _width, _height);
+            PlotArea = new RectD(0, 0, Width, Height);
 
             Window = CreateWindow(_zoom);
             _axisX.UpdateWindow(Window);
@@ -397,8 +393,8 @@ namespace TimeDataViewer.Core
             var xAbs = AxisX.FromLocalToAbsolute(pos.X);
             var yAbs = AxisY.FromLocalToAbsolute(pos.Y);
 
-            var offsetX = _width / 2 - xAbs;
-            var offsetY = _height / 2 - yAbs;
+            var offsetX = Width / 2 - xAbs;
+            var offsetY = Height / 2 - yAbs;
 
             return new Point2I((int)offsetX, (int)offsetY);
         }
@@ -409,18 +405,18 @@ namespace TimeDataViewer.Core
             var yOffset = offset.Y;
 
             xOffset = Math.Min(xOffset, 0);
-            xOffset = Math.Max(xOffset + Window.Width, _width) - Window.Width;
+            xOffset = Math.Max(xOffset + Window.Width, (int)Width) - Window.Width;
 
             yOffset = Math.Min(yOffset, 0);
-            yOffset = Math.Max(yOffset + Window.Height, _height) - Window.Height;
+            yOffset = Math.Max(yOffset + Window.Height, (int)Height) - Window.Height;
 
             return new Point2I(xOffset, yOffset);
         }
 
         private RectI CreateWindow(int zoom)
         {                                   
-            int w = _width * (1 + (int)(zoom * ZoomScaleX));
-            int h = _height * (1 + (int)(zoom * ZoomScaleY));
+            int w = (int)Width * (1 + (int)(zoom * ZoomScaleX));
+            int h = (int)Height * (1 + (int)(zoom * ZoomScaleY));
 
             return new RectI(0, 0, w, h);
         }
@@ -436,8 +432,8 @@ namespace TimeDataViewer.Core
             double bottom = y00 * Loc.Height / Abs.Height + Loc.Y;
             double left = x00 * Loc.Width / Abs.Width + Loc.X;
 
-            double w = _width * Loc.Width / Abs.Width;
-            double h = _height * Loc.Height / Abs.Height;
+            double w = Width * Loc.Width / Abs.Width;
+            double h = Height * Loc.Height / Abs.Height;
 
             if (w < 0 || h < 0)
             {

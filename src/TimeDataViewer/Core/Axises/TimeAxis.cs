@@ -109,7 +109,7 @@ namespace TimeDataViewer.Core
                 return string.Empty;
             }
 
-            return Epoch0.AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
+            return Epoch0.ToString();//AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
         }
 
         public void UpdateDynamicLabelPosition(Point2D point)
@@ -126,7 +126,7 @@ namespace TimeDataViewer.Core
             {
                 _dynamicLabel = new AxisLabelPosition()
                 {
-                    Label = string.Format("{0:HH:mm:ss}", Epoch0.AddSeconds(point.X)),
+                    Label = string.Format("{0:HH:mm:ss}", Epoch0),//.AddSeconds(point.X)),
                     Value = point.X
                 };
             }

@@ -33,6 +33,9 @@ namespace TimeDataViewer.Core
         {
             IsZoomEnabled = true;
             IsPanEnabled = true;
+
+            MinPixel = 0;
+            MaxPixel = 800; 
         }
 
         private AxisPosition _position;
