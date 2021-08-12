@@ -7,7 +7,6 @@ using System.Linq;
 using System.ComponentModel;
 using SatelliteDemo.SceneTimer;
 using TimeDataViewer;
-using Core = TimeDataViewer.Core;
 using Newtonsoft.Json;
 
 namespace SatelliteDemo.ViewModels
@@ -249,7 +248,7 @@ namespace SatelliteDemo.ViewModels
         public int EndScenario { get; set; }
     }
 
-    public class Rotation : Core.TimelineItem
+    public class Rotation
     {
         public string Category => "Rotation";
 
@@ -258,7 +257,7 @@ namespace SatelliteDemo.ViewModels
         public DateTime EndTime { get; set; }
     }
 
-    public class Observation : Core.TimelineItem
+    public class Observation
     {
         public string Category => "Observation";
 
@@ -267,7 +266,7 @@ namespace SatelliteDemo.ViewModels
         public DateTime EndTime { get; set; }
     }
 
-    public class Transmission : Core.TimelineItem
+    public class Transmission
     {
         public string Category => "Transmission";
 
