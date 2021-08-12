@@ -12,7 +12,7 @@ namespace TimeDataViewer.Core
         {
             // commands that can be triggered from mouse down events
             //ResetAt = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => HandleReset(view, args));
-            PanAt = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new MyPanManipulator(view), args));
+            PanAt = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new PanManipulator(view), args));
             //ZoomRectangle = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new ZoomRectangleManipulator(view), args));
             //    Track = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = false, PointsOnly = false }, args));
             //    SnapTrack = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = true, PointsOnly = false }, args));
@@ -78,14 +78,14 @@ namespace TimeDataViewer.Core
         // Zooms the view by the specified factor at the position specified in the <see cref="OxyMouseEventArgs" />.
         private static void HandleZoomAt(IPlotView view, OxyMouseEventArgs args, double delta)
         {
-            var m = new MyZoomStepManipulator(view) { Step = delta };
+            var m = new ZoomStepManipulator(view) { Step = delta };
             m.Started(args);
         }
 
         // Zooms the view by the mouse wheel delta in the specified <see cref="OxyKeyEventArgs" />.
         private static void HandleZoomByWheel(IPlotView view, OxyMouseWheelEventArgs args, double factor = 1)
         {
-            var m = new MyZoomStepManipulator(view) { Step = args.Delta * 0.001 * factor };
+            var m = new ZoomStepManipulator(view) { Step = args.Delta * 0.001 * factor };
             m.Started(args);
         }
 

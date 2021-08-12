@@ -8,11 +8,11 @@ using A = TimeDataViewer;
 
 namespace TimeDataViewer.Core
 {
-    public class TimelineItem 
+    public class TimelineItem : CategorizedItem
     {
         public TimelineItem()
         {
-            CategoryIndex = -1;
+           
         }
 
         public TimelineItem(double begin, double end) : this()
@@ -24,29 +24,5 @@ namespace TimeDataViewer.Core
         public double End { get; set; }
 
         public double Begin { get; set; }
-
-        // Gets or sets the index of the category.
-        public int CategoryIndex { get; set; }
-
-        // Gets the index of the category.
-        public int GetCategoryIndex(int defaultIndex)
-        {
-            if (CategoryIndex < 0)
-            {
-                return defaultIndex;
-            }
-
-            return CategoryIndex;
-        }
-
-        public A.Series? SeriesControl { get; set; }
-
-        public Point2D LocalPosition { get; set; }
-
-        //public int AbsolutePositionX { get; set; }
-
-        //public int AbsolutePositionY { get; set; }
-
-        public int ZIndex { get; set; }
     }
 }

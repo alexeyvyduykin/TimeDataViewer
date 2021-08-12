@@ -4,8 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:TimeDataViewer.ViewModels;assembly=TimeDataViewer"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"     
-             x:DataType="vm:IntervalTooltipViewModel" x:CompileBindings="False"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"                
              Background="Transparent"
              Opacity="0.777"
              >
@@ -38,7 +37,7 @@
 
     <UserControl.DataTemplates>
 
-        <DataTemplate DataType="{x:Type vm:IntervalTooltipViewModel}">
+        <!--<DataTemplate DataType="{x:Type vm:IntervalTooltipViewModel}">
             <Border Background="Black" CornerRadius="0">
                 <Grid ColumnDefinitions="80,Auto" RowDefinitions="24,24,24,24" 
                       Margin="5" ShowGridLines="False">
@@ -55,7 +54,7 @@
                     <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding End}" Classes="time"/>
                 </Grid>
             </Border>
-        </DataTemplate>
+        </DataTemplate>-->
 
     </UserControl.DataTemplates>
 

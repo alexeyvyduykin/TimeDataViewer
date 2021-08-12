@@ -34,14 +34,14 @@ using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
-    public class TimelineSeries : Series
+    public class TimelineSeries : Series, Core.IStackableSeries
     {
         static TimelineSeries()
         {
-          //  BarWidthProperty.Changed.AddClassHandler<TimelineSeries>(AppearanceChanged);
+            BarWidthProperty.Changed.AddClassHandler<TimelineSeries>(AppearanceChanged);
             FillBrushProperty.Changed.AddClassHandler<TimelineSeries>(AppearanceChanged);
             StrokeBrushProperty.Changed.AddClassHandler<TimelineSeries>(AppearanceChanged);
-            CategoryProperty.Changed.AddClassHandler<TimelineSeries>(DataChanged);
+            CategoryFieldProperty.Changed.AddClassHandler<TimelineSeries>(DataChanged);
             BeginFieldProperty.Changed.AddClassHandler<TimelineSeries>(DataChanged);
             EndFieldProperty.Changed.AddClassHandler<TimelineSeries>(DataChanged);
         }
@@ -50,6 +50,27 @@ namespace TimeDataViewer
         {
             InternalSeries = new Core.TimelineSeries();
         }
+        
+        public bool IsStacked => true;
+
+        public string StackGroup => string.Empty;
+
+        public static readonly StyledProperty<double> BarWidthProperty =    
+            AvaloniaProperty.Register<TimelineSeries, double>(nameof(BarWidth), 1.0);
+
+        public double BarWidth
+        {
+            get
+            {
+                return GetValue(BarWidthProperty);
+            }
+
+            set
+            {
+                SetValue(BarWidthProperty, value);
+            }
+        }
+
 
         public static readonly StyledProperty<string> BeginFieldProperty = 
             AvaloniaProperty.Register<TimelineSeries, string>(nameof(BeginField), string.Empty);
@@ -69,13 +90,13 @@ namespace TimeDataViewer
             set { SetValue(EndFieldProperty, value); }
         }
 
-        public static readonly StyledProperty<string> CategoryProperty = 
-            AvaloniaProperty.Register<TimelineSeries, string>(nameof(Category), string.Empty);
+        public static readonly StyledProperty<string> CategoryFieldProperty = 
+            AvaloniaProperty.Register<TimelineSeries, string>(nameof(CategoryField), string.Empty);
 
-        public string Category
+        public string CategoryField
         {
-            get { return GetValue(CategoryProperty); }
-            set { SetValue(CategoryProperty, value); }
+            get { return GetValue(CategoryFieldProperty); }
+            set { SetValue(CategoryFieldProperty, value); }
         }
 
         public static readonly StyledProperty<IBrush> FillBrushProperty =    
@@ -122,12 +143,22 @@ namespace TimeDataViewer
             var s = (Core.TimelineSeries)series;
 
             s.ItemsSource = Items;
-            //  s.BarWidth = BarWidth;
-            s.CategoryField = Category;
+            s.BarWidth = BarWidth;
+            s.CategoryField = CategoryField;
             s.BeginField = BeginField;
             s.EndField = EndField;
+        }
 
-            s.SeriesControl = this;
+        public override void MyRender(Canvas canvasPlot)
+        {
+            var series = ((Core.TimelineSeries)InternalSeries);
+            var rc = new CanvasRenderContext(canvasPlot);
+            var clippingRect = series.MyClippingRect;
+
+            foreach (var item in series.MyRectList)
+            {
+                rc.DrawClippedRectangleAsPolygon(clippingRect, item, FillBrush, ((SolidColorBrush)StrokeBrush).Color);
+            }
         }
     }
 }

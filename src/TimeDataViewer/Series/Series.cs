@@ -35,50 +35,52 @@ using Avalonia.Utilities;
 
 namespace TimeDataViewer
 {
-    public record Interval(double Left, double Right);
-
     public abstract class Series : ItemsControl
-    {          
-        //private BaseIntervalShape _intervalTemplate;
-        private readonly EventListener _eventListener;
+    {
+        public static readonly StyledProperty<Color> ColorProperty = 
+            AvaloniaProperty.Register<Series, Color>(nameof(Color), Colors.Transparent);
+
+        private readonly EventListener eventListener;
+
+        static Series()
+        {
+            IsVisibleProperty.Changed.AddClassHandler<Series>(AppearanceChanged);
+            BackgroundProperty.Changed.AddClassHandler<Series>(AppearanceChanged);
+            ColorProperty.Changed.AddClassHandler<Series>(AppearanceChanged);
+        }
+
+        public abstract void MyRender(Canvas canvasPlot);
 
         protected Series()
         {
-            _eventListener = new EventListener(OnCollectionChanged);
+            eventListener = new EventListener(OnCollectionChanged);
+        }
+
+        public Color Color
+        {
+            get
+            {
+                return GetValue(ColorProperty);
+            }
+
+            set
+            {
+                SetValue(ColorProperty, value);
+            }
         }
 
         public Core.Series InternalSeries { get; protected set; }
 
         public abstract Core.Series CreateModel();
 
-        public bool DirtyItems { get; set; } = false;
-
-        //public static readonly StyledProperty<BaseIntervalShape> IntervalTemplateProperty =
-        //    AvaloniaProperty.Register<Series, BaseIntervalShape>(nameof(IntervalTemplate));
-
-        //public BaseIntervalShape IntervalTemplate
-        //{
-        //    get { return _intervalTemplate; }
-        //    set { SetAndRaise(IntervalTemplateProperty, ref _intervalTemplate, value); }
-        //}
-
-        public static readonly StyledProperty<Control> TooltipProperty =    
-            AvaloniaProperty.Register<Series, Control>(nameof(Tooltip), new IntervalTooltip());
-
-        public Control Tooltip
+        protected static void AppearanceChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
         {
-            get { return GetValue(TooltipProperty); }
-            set { SetValue(TooltipProperty, value); }
+            ((Series)d).OnVisualChanged();
         }
 
         protected static void DataChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
         {
             ((Series)d).OnDataChanged();
-        }
-
-        protected static void AppearanceChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
-        {
-            ((Series)d).OnVisualChanged();
         }
 
         protected void OnDataChanged()
@@ -89,6 +91,13 @@ namespace TimeDataViewer
             }
         }
 
+        protected override void ItemsChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            base.ItemsChanged(e);
+            SubscribeToCollectionChanged(e.OldValue as IEnumerable, e.NewValue as IEnumerable);
+            OnDataChanged();
+        }
+
         protected void OnVisualChanged()
         {
             if (Parent is Core.IPlotView pc)
@@ -97,50 +106,51 @@ namespace TimeDataViewer
             }
         }
 
-        protected override void ItemsChanged(AvaloniaPropertyChangedEventArgs e)
+        protected override void OnAttachedToLogicalTree(global::Avalonia.LogicalTree.LogicalTreeAttachmentEventArgs e)
         {
-            base.ItemsChanged(e);
-            SubscribeToCollectionChanged(e.OldValue as IEnumerable, e.NewValue as IEnumerable);
-            OnDataChanged();            
+            base.OnAttachedToLogicalTree(e);
+            //BeginInit();
+            //EndInit();
         }
 
+        protected virtual void SynchronizeProperties(Core.Series s)
+        {
+            s.IsVisible = IsVisible;
+        }
+
+        /// <summary>
+        /// If the ItemsSource implements INotifyCollectionChanged update the visual when the collection changes.
+        /// </summary>
+        /// <param name="oldValue">The old ItemsSource</param>
+        /// <param name="newValue">The new ItemsSource</param>
         private void SubscribeToCollectionChanged(IEnumerable oldValue, IEnumerable newValue)
         {
             var collection = oldValue as INotifyCollectionChanged;
             if (collection != null)
             {
-                WeakSubscriptionManager.Unsubscribe(collection, "CollectionChanged", _eventListener);
+                WeakSubscriptionManager.Unsubscribe(collection, "CollectionChanged", eventListener);
             }
 
             collection = newValue as INotifyCollectionChanged;
             if (collection != null)
             {
-                WeakSubscriptionManager.Subscribe(collection, "CollectionChanged", _eventListener);
+                WeakSubscriptionManager.Subscribe(collection, "CollectionChanged", eventListener);
             }
         }
-        
+
+        /// <summary>
+        /// Invalidate the view when the collection changes
+        /// </summary>
+        /// <param name="sender">The sender</param>
+        /// <param name="notifyCollectionChangedEventArgs">The collection changed args</param>
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
             OnDataChanged();
         }
 
-        protected virtual void SynchronizeProperties(Core.Series s)
-        {
-         //   s.IsVisible = IsVisible;                        
-        }
-
-        public Timeline? Scheduler => (((ILogical)this).LogicalParent is Timeline scheduler) ? scheduler : null;
-
-        public virtual IntervalTooltipViewModel CreateTooltip(Core.TimelineItem marker)
-        {
-            return new IntervalTooltipViewModel(marker);
-        }
-
-        //public virtual BaseShape CreateIntervalShape()
-        //{
-        //    return IntervalTemplate.Clone();
-        //}
-
+        /// <summary>
+        /// Listens to and forwards any collection changed events
+        /// </summary>
         private class EventListener : IWeakSubscriber<NotifyCollectionChangedEventArgs>
         {
             /// <summary>

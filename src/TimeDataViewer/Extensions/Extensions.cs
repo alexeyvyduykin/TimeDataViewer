@@ -14,20 +14,20 @@ namespace TimeDataViewer
 {
     public static class Extensions
     {
-        public static bool IsEmpty(this RectD rect)
+        public static bool IsEmpty(this OxyRect rect)
         {
             return rect.Left == 0.0 && rect.Right == 0.0 && rect.Width == 0.0 && rect.Height == 0.0;
         }
 
-        public static bool IsEmpty(this Point2D point)
+        public static bool IsEmpty(this ScreenPoint point)
         {
             return point.X == 0.0 && point.Y == 0.0;
         }
 
-        public static Point2D GetCenter(this RectD rect)
-        {
-            return new(rect.X + rect.Width / 2, rect.Y - rect.Height / 2);
-        }
+        //public static ScreenPoint GetCenter(this OxyRect rect)
+        //{
+        //    return new ScreenPoint(rect.X + rect.Width / 2, rect.Y - rect.Height / 2);
+        //}
 
         public static void AddRange<T>(this ObservableCollection<T> arr, IEnumerable<T> values)
         {
@@ -37,20 +37,10 @@ namespace TimeDataViewer
             }
         }
 
-        public static Rect ToAvaloniaRect(this RectD rect)
-        {
-            return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
-        }
-
-        public static void ReplaceIntervals(this Core.TimelineSeries series, IEnumerable<Core.TimelineItem> ivals)
-        {
-            series.Items.Clear();
-          
-            foreach (var item in ivals)
-            {             
-                series.Items.Add(item);
-            }
-        }
+        //public static Rect ToAvaloniaRect(this OxyRect rect)
+        //{
+        //    return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
+        //}
 
         public static Core.OxyMouseWheelEventArgs ToMouseWheelEventArgs(this PointerWheelEventArgs e, IInputElement relativeTo)
         {
@@ -62,9 +52,9 @@ namespace TimeDataViewer
             };
         }
 
-        public static Point2D ToScreenPoint(this Point pt)
+        public static ScreenPoint ToScreenPoint(this Point pt)
         {
-            return new Point2D(pt.X, pt.Y);
+            return new ScreenPoint(pt.X, pt.Y);
         }
 
         public static Core.OxyMouseDownEventArgs ToMouseDownEventArgs(this PointerPressedEventArgs e, IInputElement relativeTo)

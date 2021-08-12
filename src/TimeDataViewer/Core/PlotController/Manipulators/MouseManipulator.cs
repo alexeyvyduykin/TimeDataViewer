@@ -14,7 +14,7 @@ namespace TimeDataViewer.Core
         {
         }
 
-        public Point2D StartPosition { get; protected set; }
+        public ScreenPoint StartPosition { get; protected set; }
 
         public override void Started(OxyMouseEventArgs e)
         {

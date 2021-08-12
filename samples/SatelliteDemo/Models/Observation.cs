@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Core = TimeDataViewer.Core;
 
 namespace SatelliteDemo.Models
 {
-    public class Observation
+    public class Observation : Core.TimelineItem
     {
+        public string Category => "Observation";
+
         public double BeginTime { get; set; }
 
         public double EndTime { get; set; }

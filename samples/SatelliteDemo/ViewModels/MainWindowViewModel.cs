@@ -5,7 +5,6 @@ using System.IO;
 using SatelliteDemo.Models;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TimeDataViewer.ViewModels;
 using System.ComponentModel;
 using SatelliteDemo.SceneTimer;
 using TimeDataViewer;
@@ -13,10 +12,16 @@ using Core = TimeDataViewer.Core;
 
 namespace SatelliteDemo.ViewModels
 {
+    public class Item
+    {
+        public string Label { get; set; }
+    }
+
     public class MainWindowViewModel : ViewModelBase
     {
         private DateTime _epoch;
-        private ObservableCollection<Satellite> _satellites;
+        private ObservableCollection<Satellite> _satellites; 
+        private ObservableCollection<Item> _labels;
         private Satellite _selected;
         private ObservableCollection<object> _newIntervals;
         private int _absolutePositionX;
@@ -60,14 +65,21 @@ namespace SatelliteDemo.ViewModels
 
             PropertyChanged += MainWindowViewModel_PropertyChanged;
 
-            _dict = new Dictionary<Satellite, IEnumerable<object>>();
+            //_dict = new Dictionary<Satellite, IEnumerable<object>>();
 
-            foreach (var sat in Satellites)
+            //foreach (var sat in Satellites)
+            //{
+            //    _dict.Add(sat, NewInit(sat));
+            //}
+
+            //NewIntervals = new ObservableCollection<object>(_dict[Selected]);
+
+            Labels = new ObservableCollection<Item>() 
             {
-                _dict.Add(sat, NewInit(sat));
-            }
-
-            NewIntervals = new ObservableCollection<object>(_dict[Selected]);
+                new() { Label = "Rotation" }, 
+                new() { Label = "Observation" },
+                new() { Label = "Transmission" } 
+            };
 
             _timer = new AcceleratedTimer();
 
@@ -90,46 +102,52 @@ namespace SatelliteDemo.ViewModels
         {
             if(e.PropertyName == nameof(Selected))
             {
-                NewIntervals = new ObservableCollection<object>(_dict[Selected]);
+                //NewIntervals = new ObservableCollection<object>(_dict[Selected]);
             }
         }
 
-        private IEnumerable<object> NewInit(Satellite satellite)
+        //private IEnumerable<object> NewInit(Satellite satellite)
+        //{
+        //    var ivals = new List<object>();
+
+        //    var series1 = new Core.TimelineSeries();// { Name = "Rotations" };
+
+        //    ivals.Add(series1);
+
+        //    series1.ReplaceIntervals(satellite.Rotations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime) { CategoryIndex = 0 }));
+
+        //    ivals.AddRange(series1.Items);
+
+        //    var series2 = new Core.TimelineSeries();// { Name = "Observations" };
+
+        //    ivals.Add(series2);
+
+        //    series2.ReplaceIntervals(satellite.Observations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime) { CategoryIndex = 1 }));
+
+        //    ivals.AddRange(series2.Items);
+
+        //    var series3 = new Core.TimelineSeries();// { Name = "Transmissions" };
+
+        //    ivals.Add(series3);
+
+        //    series3.ReplaceIntervals(satellite.Transmissions.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime) { CategoryIndex = 2 }));
+
+        //    ivals.AddRange(series3.Items);
+
+        //    return ivals;
+        //}
+
+        public ObservableCollection<Item> Labels
         {
-            var ivals = new List<object>();
-
-            var series1 = new Core.TimelineSeries();// { Name = "Rotations" };
-
-            ivals.Add(series1);
-
-            series1.ReplaceIntervals(satellite.Rotations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
-
-            ivals.AddRange(series1.Items);
-
-            var series2 = new Core.TimelineSeries();// { Name = "Observations" };
-
-            ivals.Add(series2);
-
-            series2.ReplaceIntervals(satellite.Observations.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
-
-            ivals.AddRange(series2.Items);
-
-            var series3 = new Core.TimelineSeries();// { Name = "Transmissions" };
-
-            ivals.Add(series3);
-
-            series3.ReplaceIntervals(satellite.Transmissions.Select(s => new Core.TimelineItem(s.BeginTime, s.EndTime)));
-
-            ivals.AddRange(series3.Items);
-
-            return ivals;
+            get => _labels;
+            set => RaiseAndSetIfChanged(ref _labels, value);
         }
 
-        public ObservableCollection<object> NewIntervals
-        {
-            get => _newIntervals;
-            set => RaiseAndSetIfChanged(ref _newIntervals, value);
-        }
+        //public ObservableCollection<object> NewIntervals
+        //{
+        //    get => _newIntervals;
+        //    set => RaiseAndSetIfChanged(ref _newIntervals, value);
+        //}
 
         public DateTime Epoch
         {

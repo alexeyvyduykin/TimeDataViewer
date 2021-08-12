@@ -12,7 +12,7 @@ namespace TimeDataViewer.Core
         /// <summary>
         /// Gets or sets the position of the mouse cursor.
         /// </summary>
-        public Point2D Position { get; set; }
+        public ScreenPoint Position { get; set; }
 
         /// <summary>
         /// Gets or sets the view where the event occurred.

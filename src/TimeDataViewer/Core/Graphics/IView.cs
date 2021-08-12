@@ -16,7 +16,7 @@ namespace TimeDataViewer.Core
         IController ActualController { get; }
 
         // Gets the coordinates of the client area of the view.
-        RectD ClientArea { get; }
+        OxyRect ClientArea { get; }
 
         // Sets the cursor type.
         void SetCursorType(CursorType cursorType);
@@ -25,6 +25,6 @@ namespace TimeDataViewer.Core
         void HideZoomRectangle();
 
         // Shows the zoom rectangle.
-        void ShowZoomRectangle(RectD rectangle);
+        void ShowZoomRectangle(OxyRect rectangle);
     }
 }

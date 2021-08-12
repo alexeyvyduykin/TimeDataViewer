@@ -7,115 +7,237 @@ using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
-    public class TimelineSeries : Series
+    public class TimelineSeries : CategorizedSeries, IStackableSeries
     {
-        public IList<TimelineItem> Items { get; private set; } = new List<TimelineItem>();
+        public TimelineSeries()
+        {
+            Items = new List<TimelineItem>();
+            BarWidth = 1;
+        }
 
-        public TimeDataViewer.Series SeriesControl{get;set;}
+        public double BarWidth { get; set; }
+
+        public bool IsStacked => true;
+
+        public string StackGroup => string.Empty;
+
+        public IList<TimelineItem> Items { get; private set; }
 
         public string CategoryField { get; set; }
 
-        public string BeginField { get; set; }
-
         public string EndField { get; set; }
 
-        public double MinTime() => (Items.Count == 0) ? 0.0 : Items.Min(s => s.Begin);
+        public string BeginField { get; set; }
 
-        public double MaxTime() => (Items.Count == 0) ? 0.0 : Items.Max(s => s.End);
+        protected internal IList<OxyRect> ActualBarRectangles { get; set; }
+
+        protected internal IList<TimelineItem> ValidItems { get; set; }
+
+        protected internal Dictionary<int, int> ValidItemsIndexInversion { get; set; }
+
+        // Checks if the specified value is valid.
+        public virtual bool IsValidPoint(double v, Axis yaxis)
+        {
+            return !double.IsNaN(v) && !double.IsInfinity(v);
+        }
+
+        public override void Render()
+        {
+            ActualBarRectangles = new List<OxyRect>();
+
+            if (ValidItems.Count == 0)
+            {
+                return;
+            }
+
+            var clippingRect = GetClippingRect();
+            var categoryAxis = GetCategoryAxis();
+
+            var actualBarWidth = GetActualBarWidth();
+            var stackIndex = categoryAxis.GetStackIndex(StackGroup);
+
+            _rectList.Clear();
+            _clippingRect = clippingRect;
+
+            for (var i = 0; i < ValidItems.Count; i++)
+            {
+                var item = ValidItems[i];
+
+                var categoryIndex = item.GetCategoryIndex(i);
+
+                double categoryValue = categoryAxis.GetCategoryValue(categoryIndex, stackIndex, actualBarWidth);
+
+                var p0 = Transform(item.Begin, categoryValue);
+                var p1 = Transform(item.End, categoryValue + actualBarWidth);
+                
+                var rectangle = OxyRect.Create(p0.X, p0.Y, p1.X, p1.Y);
+
+                ActualBarRectangles.Add(rectangle);
+
+                _rectList.Add(rectangle);
+
+                //rc.DrawClippedRectangleAsPolygon(
+                //    clippingRect,
+                //    rectangle,
+                //    item.Color.GetActualColor(ActualFillColor),
+                //    StrokeColor);
+            }
+        }
+        OxyRect _clippingRect;
+        List<OxyRect> _rectList = new List<OxyRect>();
+
+        public OxyRect MyClippingRect => _clippingRect;
+        public List<OxyRect> MyRectList => _rectList;
+
+        public override void MyOnRender()
+        {
+            MyRender?.Invoke(this, EventArgs.Empty);
+        }
+
+        // Gets or sets the width/height of the columns/bars (as a fraction of the available space).
+        internal override double GetBarWidth()
+        {
+            return BarWidth;
+        }
+
+        // Gets the items of this series.
+        protected internal override IList<CategorizedItem> GetItems()
+        {
+            return Items.Cast<CategorizedItem>().ToList();
+        }
+
+        // Check if the data series is using the specified axis.
+        protected internal override bool IsUsing(Axis axis)
+        {
+            return XAxis == axis || YAxis == axis;
+        }
+
+
+        // Updates the axis maximum and minimum values.     
+        protected internal override void UpdateAxisMaxMin()
+        {
+            XAxis.Include(MinX);
+            XAxis.Include(MaxX);
+        }
 
         protected internal override void UpdateData()
         {
             if (ItemsSource != null)
             {
-                if (ItemsSource is IEnumerable<TimelineItem> ivals)
-                {
-                    Items = new List<TimelineItem>(ivals);
-                }
-                else
-                {
-                    Items = UpdateItems();
-                }
-            }
-        }
-
-        private IList<TimelineItem> UpdateItems()
-        {
-            if (string.IsNullOrWhiteSpace(BeginField) == false && string.IsNullOrWhiteSpace(EndField) == false)
-            {
                 var list = new List<TimelineItem>();
-             
-                foreach (var item in ItemsSource)
+
+                Items.Clear();
+
+                var categoryAxis = GetCategoryAxis();
+        
+                if (string.IsNullOrWhiteSpace(BeginField) == false &&
+                    string.IsNullOrWhiteSpace(EndField) == false &&
+                    string.IsNullOrWhiteSpace(CategoryField) == false)
                 {
-                    var propertyInfoLeft = item.GetType().GetProperty(BeginField);
-                    var propertyInfoRight = item.GetType().GetProperty(EndField);
-
-                    var valueLeft = propertyInfoLeft?.GetValue(item, null);
-                    var valueRight = propertyInfoRight?.GetValue(item, null);
-
-                    if (valueLeft is not null && valueRight is not null && valueLeft is double left && valueRight is double right)
+                    foreach (var item in ItemsSource)
                     {
-                        list.Add(new TimelineItem(left, right)
+                        var propertyInfoLeft = item.GetType().GetProperty(BeginField);
+                        var propertyInfoRight = item.GetType().GetProperty(EndField);
+                        var propertyInfoCategory = item.GetType().GetProperty(CategoryField);
+
+                        var valueLeft = propertyInfoLeft?.GetValue(item, null);
+                        var valueRight = propertyInfoRight?.GetValue(item, null);
+                        var valueCategory = propertyInfoCategory?.GetValue(item, null);
+
+                        if (valueLeft is not null &&
+                            valueRight is not null &&
+                            valueLeft is double left &&
+                            valueRight is double right &&
+                            valueCategory is string category)
                         {
-                            ZIndex = 100,
-                            SeriesControl = SeriesControl
-                        });
+                            list.Add(new TimelineItem()
+                            {
+                                Begin = left,
+                                End = right,
+                                CategoryIndex = categoryAxis.ActualLabels.IndexOf(category)
+                            });
+                        }
                     }
                 }
-                return list;
+            
+                Items = new List<TimelineItem>(list);
+            }
+        }
+
+        // Updates the maximum and minimum values of the series.  
+        protected internal override void UpdateMaxMin()
+        {
+            base.UpdateMaxMin();
+
+            if (ValidItems == null || ValidItems.Count == 0)
+            {
+                return;
             }
 
-            return new List<TimelineItem>();
+            double minValue = double.MaxValue;
+            double maxValue = double.MinValue;
+
+            foreach (var item in ValidItems)
+            {
+                minValue = Math.Min(minValue, item.Begin);
+                minValue = Math.Min(minValue, item.End);
+                maxValue = Math.Max(maxValue, item.Begin);
+                maxValue = Math.Max(maxValue, item.End);
+            }
+
+            MinX = minValue;
+            MaxX = maxValue;
         }
 
-
-        public override void Render()
-        {            
-            if (Parent is not null)
-            {                
-                double heightY = 10;
-
-                MyRectList.Clear();
-                MyClippingRect = Parent.PlotArea;
-
-                for (var i = 0; i < Items.Count; i++)
-                {
-                    var item = Items[i];
-
-                    var d1 = Parent.FromLocalToAbsolute(new Point2D(item.Begin, item.LocalPosition.Y)).X;
-                    var d2 = Parent.FromLocalToAbsolute(new Point2D(item.End, item.LocalPosition.Y)).X;
-
-                    var widthX = d2 - d1;
-
-                    if (widthX == 0.0)
-                    {
-                        widthX = 10;
-                        //return;
-                    }
-
-                    var p0 = new Point2D(-widthX / 2.0, -heightY / 2.0);
-                    var p1 = new Point2D(widthX / 2.0, heightY / 2.0);
-                
-                    var offset = Parent.WindowOffset;
-
-                    var p = Parent.FromLocalToScreen(item.LocalPosition);
-                                        
-                    var rectangle = RectD.FromPoints(
-                        p0.X - offset.X + p.X, 
-                        p0.Y + offset.Y + p.Y, 
-                        p1.X - offset.X + p.X, 
-                        p1.Y + offset.Y + p.Y);
-                    
-                    MyRectList.Add(rectangle);
-                }
-            }   
-        }
-        
-        public RectD MyClippingRect { get; private set; }
-        public List<RectD> MyRectList { get; private set; } = new List<RectD>();
-
-        public override void MyOnRender()
+        protected internal override void UpdateValidData()
         {
-            MyRender?.Invoke(this, EventArgs.Empty);
+            ValidItems = new List<TimelineItem>();
+            ValidItemsIndexInversion = new Dictionary<int, int>();
+            var valueAxis = GetValueAxis();
+
+            for (var i = 0; i < Items.Count; i++)
+            {
+                var item = Items[i];
+                if (valueAxis.IsValidValue(item.Begin) && valueAxis.IsValidValue(item.End))
+                {
+                    ValidItemsIndexInversion.Add(ValidItems.Count, i);
+                    ValidItems.Add(item);
+                }
+            }
+        }
+
+        // Gets the actual width/height of the items of this series.
+        public override double GetActualBarWidth()
+        {
+            var categoryAxis = GetCategoryAxis();
+            return BarWidth / (1 + categoryAxis.GapWidth) / categoryAxis.GetMaxWidth();
+        }
+
+        public override CategoryAxis GetCategoryAxis()
+        {
+            var categoryAxis = YAxis as CategoryAxis;
+            if (categoryAxis == null)
+            {
+                throw new InvalidOperationException("No category axis defined.");
+            }
+
+            return categoryAxis;
+        }
+
+        // Gets the item at the specified index.
+        protected override object GetItem(int i)
+        {
+            if (ItemsSource != null || Items == null || Items.Count == 0)
+            {
+                return base.GetItem(i);
+            }
+
+            return Items[i];
+        }
+
+        private Axis GetValueAxis()
+        {
+            return XAxis;
         }
     }
 }

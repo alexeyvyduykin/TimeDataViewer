@@ -6,47 +6,47 @@ using System.Threading.Tasks;
 
 namespace TimeDataViewer.ViewModels
 {
-    public class IntervalTooltipViewModel : ViewModelBase
-    {       
-        private string _category;
-        private string _date;
-        private string _begin;
-        private string _end;
+    //public class IntervalTooltipViewModel : ViewModelBase
+    //{       
+    //    private string _category;
+    //    private string _date;
+    //    private string _begin;
+    //    private string _end;
 
-        public IntervalTooltipViewModel(Core.TimelineItem marker)
-        {        
-            var left = marker.Begin;
-            var right = marker.End;
-            var epoch = marker.SeriesControl.Scheduler.Epoch;
+    //    public IntervalTooltipViewModel(Core.TimelineItem marker)
+    //    {        
+    //        var left = marker.Begin;
+    //        var right = marker.End;
+    //        var epoch = marker.SeriesControl.Scheduler.Epoch;
 
-           // _category = series.Name;
-            _date = epoch.AddSeconds(left).ToShortDateString();
-            _begin = epoch.AddSeconds(left).ToLongTimeString();
-            _end = epoch.AddSeconds(right).ToLongTimeString();
-        }
+    //       // _category = series.Name;
+    //        _date = epoch.AddSeconds(left).ToShortDateString();
+    //        _begin = epoch.AddSeconds(left).ToLongTimeString();
+    //        _end = epoch.AddSeconds(right).ToLongTimeString();
+    //    }
 
-        public string Category
-        {
-            get => _category;
-            set => RaiseAndSetIfChanged(ref _category, value);
-        }
+    //    public string Category
+    //    {
+    //        get => _category;
+    //        set => RaiseAndSetIfChanged(ref _category, value);
+    //    }
 
-        public string Date
-        {
-            get => _date;
-            set => RaiseAndSetIfChanged(ref _date, value);
-        }
+    //    public string Date
+    //    {
+    //        get => _date;
+    //        set => RaiseAndSetIfChanged(ref _date, value);
+    //    }
 
-        public string Begin
-        {
-            get => _begin;
-            set => RaiseAndSetIfChanged(ref _begin, value);
-        }
+    //    public string Begin
+    //    {
+    //        get => _begin;
+    //        set => RaiseAndSetIfChanged(ref _begin, value);
+    //    }
 
-        public string End
-        {
-            get => _end;
-            set => RaiseAndSetIfChanged(ref _end, value);
-        }
-    }
+    //    public string End
+    //    {
+    //        get => _end;
+    //        set => RaiseAndSetIfChanged(ref _end, value);
+    //    }
+    //}
 }

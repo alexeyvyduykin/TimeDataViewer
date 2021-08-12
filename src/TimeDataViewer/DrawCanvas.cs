@@ -19,23 +19,61 @@ namespace TimeDataViewer
         private IBrush _brush;
         private Pen _pen;
         private List<Rect> _rects = new List<Rect>();
+        private Dictionary<TimelineSeries, IList<Rect>> _dict = new Dictionary<TimelineSeries, IList<Rect>>();
 
         public override void Render(DrawingContext context)
         {
             base.Render(context);
 
-            foreach (var item in _rects)
+            if (_dict.Count != 0)
             {
-                context.DrawRectangle(_brush, _pen, item);
+                foreach (var series in _dict.Keys)
+                {
+                    _brush = series.FillBrush;
+                    _pen = new Pen() { Brush = series.StrokeBrush };
+
+                    foreach (var item in _dict[series])
+                    {
+                        context.DrawRectangle(_brush, _pen, item);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var item in _rects)
+                {
+                    context.DrawRectangle(_brush, _pen, item);
+                }
             }
         }
 
-        public void CreateRenderIntervals(RectD clippingRectangle, IEnumerable<RectD> rects, IBrush fill, IBrush stroke)
+        public void RenderSeries(IEnumerable<Series> series)
+        {
+            _dict.Clear();
+
+            foreach (var s in series)
+            {
+                List<Rect> list = new List<Rect>();
+
+                var innserSeries = ((Core.TimelineSeries)s.InternalSeries);
+
+                foreach (var item in innserSeries.MyRectList)
+                {
+                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list);
+                }
+
+                _dict.Add((TimelineSeries)s, list);
+            }
+
+            InvalidateVisual();
+        }
+
+        public void RenderIntervals(OxyRect clippingRectangle, IEnumerable<OxyRect> rects, IBrush fill, IBrush stroke)
         {
             _brush = fill;
             _pen = new Pen() { Brush = stroke };
             _rects.Clear();
-
+        
             foreach (var item in rects)
             {
                 CreateClippedRectangle(clippingRectangle, ToRect(item));
@@ -44,9 +82,27 @@ namespace TimeDataViewer
             InvalidateVisual();
         }
 
-        protected void CreateClippedRectangle(RectD clippingRectangle, Rect rect)
+        protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect, IList<Rect> list)
         {
-            //if (SetClip(clippingRectangle))
+            if (SetClip(clippingRectangle))
+            {
+                list.Add(rect);
+                ResetClip();
+                return;
+            }
+
+            var clippedRect = ClipRect(rect, clippingRectangle);
+            if (clippedRect == null)
+            {
+                return;
+            }
+
+            list.Add(clippedRect.Value);
+        }
+
+        protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect)
+        {
+           // if (SetClip(clippingRectangle))
             {
                 _rects.Add(rect);
                 ResetClip();
@@ -62,13 +118,13 @@ namespace TimeDataViewer
             _rects.Add(clippedRect.Value);
         }
 
-        protected bool SetClip(RectD clippingRect)
+        protected bool SetClip(OxyRect clippingRect)
         {
             _clip = ToRect(clippingRect);
-            return false;// true;
+            return false;//true;
         }
 
-        protected static Rect? ClipRect(Rect rect, RectD clippingRectangle)
+        protected static Rect? ClipRect(Rect rect, OxyRect clippingRectangle)
         {
             if (rect.Right < clippingRectangle.Left)
             {
@@ -130,8 +186,8 @@ namespace TimeDataViewer
             _clip = null;
         }
 
-        protected static Rect ToRect(RectD r)
-        {
+        protected static Rect ToRect(OxyRect r)
+        {    
             return new Rect(r.Left, r.Top, r.Width, r.Height);
         }
     }

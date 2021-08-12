@@ -7,124 +7,87 @@ using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
-    //public class PanManipulator : MouseManipulator
-    //{
-    //    public PanManipulator(IPlotView plotView)
-    //        : base(plotView)
-    //    {
-    //    }
-
-    //    private Point2D PreviousPosition { get; set; }
-
-    //    private bool IsPanEnabled { get; set; }
-
-    //    public override void Completed(OxyMouseEventArgs e)
-    //    {
-    //        base.Completed(e);
-    //        if (!this.IsPanEnabled)
-    //        {
-    //            return;
-    //        }
-
-    //        this.View.SetCursorType(CursorType.Default);
-    //        e.Handled = true;
-    //    }
-
-    //    public override void Delta(OxyMouseEventArgs e)
-    //    {
-    //        base.Delta(e);
-    //        if (!this.IsPanEnabled)
-    //        {
-    //            return;
-    //        }
-
-    //        if (this.XAxis != null)
-    //        {
-    //            this.XAxis.Pan(this.PreviousPosition, e.Position);
-    //        }
-
-    //        if (this.YAxis != null)
-    //        {
-    //            this.YAxis.Pan(this.PreviousPosition, e.Position);
-    //        }
-
-    //        this.PlotView.InvalidatePlot(false);
-    //        this.PreviousPosition = e.Position;
-    //        e.Handled = true;
-    //    }
-
-    //    public override void Started(OxyMouseEventArgs e)
-    //    {
-    //        base.Started(e);
-    //        this.PreviousPosition = e.Position;
-
-    //        this.IsPanEnabled = (this.XAxis != null && this.XAxis.IsPanEnabled)
-    //                            || (this.YAxis != null && this.YAxis.IsPanEnabled);
-
-    //        if (this.IsPanEnabled)
-    //        {
-    //            this.View.SetCursorType(CursorType.Pan);
-    //            e.Handled = true;
-    //        }
-    //    }
-    //}
-
-    public class MyPanManipulator : MouseManipulator
+    public class PanManipulator : MouseManipulator
     {
-        public MyPanManipulator(IPlotView plotView) : base(plotView)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PanManipulator" /> class.
+        /// </summary>
+        /// <param name="plotView">The plot view.</param>
+        public PanManipulator(IPlotView plotView)
+            : base(plotView)
         {
         }
 
-        private Point2D PreviousPosition { get; set; }
+        /// <summary>
+        /// Gets or sets the previous position.
+        /// </summary>
+        private ScreenPoint PreviousPosition { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether panning is enabled.
+        /// </summary>
+        private bool IsPanEnabled { get; set; }
+
+        /// <summary>
+        /// Occurs when a manipulation is complete.
+        /// </summary>
+        /// <param name="e">The <see cref="OxyInputEventArgs" /> instance containing the event data.</param>
         public override void Completed(OxyMouseEventArgs e)
         {
             base.Completed(e);
-
-            View.SetCursorType(CursorType.Default);
-
-            if (PlotView is IPlotView scheduler)
+            if (!this.IsPanEnabled)
             {
-                if (scheduler.ActualModel.IsDragging == true)
-                {
-                    scheduler.ActualModel.EndDrag();
-                }
-
-                PreviousPosition = e.Position;
-                e.Handled = true;
+                return;
             }
 
+            this.View.SetCursorType(CursorType.Default);
             e.Handled = true;
         }
 
+        /// <summary>
+        /// Occurs when the input device changes position during a manipulation.
+        /// </summary>
+        /// <param name="e">The <see cref="OxyPlot.OxyMouseEventArgs" /> instance containing the event data.</param>
         public override void Delta(OxyMouseEventArgs e)
         {
             base.Delta(e);
-            
-            if (PlotView is Timeline scheduler && scheduler.ActualModel.IsDragging == true)
+            if (!this.IsPanEnabled)
             {
-                scheduler.ActualModel.Drag(e.Position);
-
-                scheduler.InvalidateVisual();
-
-                PreviousPosition = e.Position;
+                return;
             }
+
+            if (this.XAxis != null)
+            {
+                this.XAxis.Pan(this.PreviousPosition, e.Position);
+            }
+
+            if (this.YAxis != null)
+            {
+                this.YAxis.Pan(this.PreviousPosition, e.Position);
+            }
+
+            this.PlotView.InvalidatePlot(false);
+            this.PreviousPosition = e.Position;
+            e.Handled = true;
         }
 
+        /// <summary>
+        /// Occurs when an input device begins a manipulation on the plot.
+        /// </summary>
+        /// <param name="e">The <see cref="OxyPlot.OxyMouseEventArgs" /> instance containing the event data.</param>
         public override void Started(OxyMouseEventArgs e)
         {
             base.Started(e);
-           
-            if (PlotView is IPlotView scheduler && scheduler.ActualModel.IsDragging == false)
+            this.PreviousPosition = e.Position;
+
+            this.IsPanEnabled = (this.XAxis != null && this.XAxis.IsPanEnabled)
+                                || (this.YAxis != null && this.YAxis.IsPanEnabled);
+
+            if (this.IsPanEnabled)
             {
-                scheduler.ActualModel.BeginDrag(e.Position);
-
-                PreviousPosition = e.Position;
-
-                View.SetCursorType(CursorType.PanHorizontal);
-
+                this.View.SetCursorType(CursorType.Pan);
                 e.Handled = true;
-            }        
+            }
         }
     }
 }

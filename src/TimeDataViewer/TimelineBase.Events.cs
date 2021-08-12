@@ -42,7 +42,7 @@ namespace TimeDataViewer
 {
     public partial class TimelineBase
     {
-        private Point2D _mouseDownPoint;
+        private ScreenPoint _mouseDownPoint;
 
         protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {

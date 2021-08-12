@@ -11,7 +11,7 @@ namespace TimeDataViewer.Core
     {   
         public bool Handled { get; set; }
 
-        public Point2D Position { get; set; }
+        public ScreenPoint Position { get; set; }
     }
 
     public partial class PlotModel

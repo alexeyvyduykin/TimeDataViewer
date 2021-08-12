@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace TimeDataViewer.Core
 {
-    public record AxisInfo
-    {
-        public IList<AxisLabelPosition>? Labels { get; init; }
+    //public record AxisInfo
+    //{
+    //    public IList<AxisLabelPosition>? Labels { get; init; }
 
-        public string? MinLabel { get; init; }
+    //    public string? MinLabel { get; init; }
 
-        public string? MaxLabel { get; init; }
+    //    public string? MaxLabel { get; init; }
 
-        public AxisLabelPosition? DynamicLabel { get; init; }
+    //    public AxisLabelPosition? DynamicLabel { get; init; }
 
-        public AxisPosition Position { get; init; }
+    //    public AxisPosition Position { get; init; }
 
-        public double MinValue { get; init; }
+    //    public double MinValue { get; init; }
 
-        public double MaxValue { get; init; }
-    }
+    //    public double MaxValue { get; init; }
+    //}
 }

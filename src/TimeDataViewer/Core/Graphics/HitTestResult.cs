@@ -16,7 +16,7 @@ namespace TimeDataViewer.Core
         /// <param name="nearestHitPoint">The nearest hit point.</param>
         /// <param name="item">The item.</param>
         /// <param name="index">The index.</param>
-        public HitTestResult(UIElement element, Point2D nearestHitPoint, object item = null, double index = 0)
+        public HitTestResult(UIElement element, ScreenPoint nearestHitPoint, object item = null, double index = 0)
         {
             this.Element = element;
             this.NearestHitPoint = nearestHitPoint;
@@ -49,6 +49,6 @@ namespace TimeDataViewer.Core
         /// Gets the position of the nearest hit point.
         /// </summary>
         /// <value>The nearest hit point.</value>
-        public Point2D NearestHitPoint { get; private set; }
+        public ScreenPoint NearestHitPoint { get; private set; }
     }
 }

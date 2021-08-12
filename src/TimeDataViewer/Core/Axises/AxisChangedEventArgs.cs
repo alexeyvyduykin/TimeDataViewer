@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TimeDataViewer.Core
+{
+    public class AxisChangedEventArgs : EventArgs
+    {
+        public AxisChangedEventArgs(AxisChangeTypes changeType, double deltaMinimum, double deltaMaximum)
+        {
+            this.ChangeType = changeType;
+            this.DeltaMinimum = deltaMinimum;
+            this.DeltaMaximum = deltaMaximum;
+        }
+
+        // Gets the type of the change.
+        public AxisChangeTypes ChangeType { get; private set; }
+
+        // Gets the delta for the minimum.
+        public double DeltaMinimum { get; private set; }
+
+        // Gets the delta for the maximum.
+        public double DeltaMaximum { get; private set; }
+    }
+}

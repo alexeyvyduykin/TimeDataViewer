@@ -59,7 +59,7 @@
 
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Zoom: "/>
-                            <TextBlock Text="{Binding #timeline.Zoom}"/>
+                            <!--<TextBlock Text="{Binding #timeline.Zoom}"/>-->
                         </StackPanel>
                         
                         <Border Grid.Column="1" Margin="1">
@@ -68,41 +68,51 @@
                             </Border.Background>
                             <Slider TickFrequency="1"
                                     IsSnapToTickEnabled="True"
-                                    Padding="5,-15"
-                                    Value="{Binding #timeline.Zoom}"/>
+                                    Padding="5,-15"/>
+                                    <!--Value="{Binding #timeline.Zoom}"/>-->
                         </Border>                       
                     </Grid>
 
                     <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
-                        <sch:Timeline x:Name="timeline"
-                                      Epoch="{Binding $parent[Window].DataContext.Epoch}"
-                                      CurrentTime="{Binding $parent[Window].DataContext.CurrentTime}">
-
+                        <sch:Timeline>
+                            <sch:Timeline.Axises>
+                                <sch:CategoryAxis Position="Left"
+                                                  AbsoluteMinimum="-0.5"
+                                                  AbsoluteMaximum="2.5"
+                                                  Items="{Binding $parent[Window].DataContext.Labels}"
+                                                  LabelField="Label"/>
+                                <sch:LinearAxis Position="Bottom"  AbsoluteMinimum="0"/>
+                            </sch:Timeline.Axises>
                             <sch:Timeline.Series>
-                                <sch:TimelineSeries Category="Rotation" Items="{Binding Rotations}" BeginField="BeginTime" EndField="EndTime">
-                                    <!--<sch:TimelineSeries.IntervalTemplate>
-                                        <shapes:IntervalShape Background="Yellow"/>
-                                    </sch:TimelineSeries.IntervalTemplate>-->
-                                </sch:TimelineSeries>
+                                <sch:TimelineSeries BarWidth="0.5" 
+                                                    FillBrush="Blue"
+                                                    Items="{Binding Rotations}"    
+                                                    CategoryField="Category"
+                                                    BeginField="BeginTime"
+                                                    EndField="EndTime"/>
 
-                                <sch:TimelineSeries Category="Observation" Items="{Binding Observations}" BeginField="BeginTime" EndField="EndTime">
-                                    <!--<sch:TimelineSeries.IntervalTemplate>
-                                        <shapes:IntervalShape Background="Blue"/>
-                                    </sch:TimelineSeries.IntervalTemplate>-->
-                                </sch:TimelineSeries>
+                                <sch:TimelineSeries BarWidth="0.5" 
+                                                    FillBrush="Green"
+                                                    Items="{Binding Observations}"   
+                                                    CategoryField="Category"                                              
+                                                    BeginField="BeginTime"
+                                                    EndField="EndTime"/>
 
-                                <sch:TimelineSeries Category="Transmission" Items="{Binding Transmissions}" BeginField="BeginTime" EndField="EndTime">
-                                    <!--<sch:TimelineSeries.IntervalTemplate>
-                                        <shapes:IntervalShape Background="Green"/>
-                                    </sch:TimelineSeries.IntervalTemplate>-->
-                                </sch:TimelineSeries>
-
+                                <sch:TimelineSeries BarWidth="0.5" 
+                                                    FillBrush="LightCoral"
+                                                    Items="{Binding Transmissions}"  
+                                                    CategoryField="Category"                                                 
+                                                    BeginField="BeginTime"
+                                                    EndField="EndTime"/>
+                                
+                                
                             </sch:Timeline.Series>
-
-                        </sch:Timeline>
+                        
+                    </sch:Timeline>
+                        
                     </ContentControl>
                    
-                    <sch:SchedulerAxisXControl DataContext="{Binding #timeline}" Grid.Row="2"/>
+                    <!--<sch:SchedulerAxisXControl DataContext="{Binding #timeline}" Grid.Row="2"/>-->
               
                 </Grid>
             </Border>

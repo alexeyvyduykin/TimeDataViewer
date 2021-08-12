@@ -20,7 +20,7 @@ namespace TimeDataViewer.Core
 
         protected Axis YAxis { get; set; }
 
-        protected Point2D InverseTransform(double x, double y)
+        protected DataPoint InverseTransform(double x, double y)
         {
             if (this.XAxis != null)
             {
@@ -29,19 +29,19 @@ namespace TimeDataViewer.Core
 
             if (this.YAxis != null)
             {
-                return new Point2D(0, this.YAxis.InverseTransform(y));
+                return new DataPoint(0, this.YAxis.InverseTransform(y));
             }
 
-            return new Point2D();
+            return new DataPoint();
         }
 
-        protected void AssignAxes(Point2D position)
+        protected void AssignAxes(ScreenPoint position)
         {
             Axis xaxis;
             Axis yaxis;
             if (this.PlotView.ActualModel != null)
             {
-                this.PlotView.ActualModel.GetAxesFromPoint(position, out xaxis, out yaxis);
+                this.PlotView.ActualModel.GetAxesFromPoint(out xaxis, out yaxis);
             }
             else
             {

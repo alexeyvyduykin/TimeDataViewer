@@ -1,0 +1,149 @@
+﻿#nullable enable
+using System;
+using System.Globalization;
+
+namespace TimeDataViewer.Spatial
+{
+    public struct OxyRect
+    {
+        private readonly double height;
+        private readonly double left;
+        private readonly double top;
+        private readonly double width;
+
+        public OxyRect(double left, double top, double width, double height)
+        {
+            if (width < 0)
+            {
+                throw new ArgumentOutOfRangeException("width", "The width should not be negative.");
+            }
+
+            if (height < 0)
+            {
+                throw new ArgumentOutOfRangeException("height", "The height should not be negative.");
+            }
+
+            this.left = left;
+            this.top = top;
+            this.width = width;
+            this.height = height;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OxyRect" /> struct that is exactly large enough to contain the two specified points.
+        /// </summary>
+        /// <param name="p0">The first point that the new rectangle must contain.</param>
+        /// <param name="p1">The second point that the new rectangle must contain.</param>
+        public OxyRect(ScreenPoint p0, ScreenPoint p1)
+            : this(Math.Min(p0.X, p1.X), Math.Min(p0.Y, p1.Y), Math.Abs(p1.X - p0.X), Math.Abs(p1.Y - p0.Y))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OxyRect"/> struct by location and size.
+        /// </summary>
+        /// <param name="p0">The location.</param>
+        /// <param name="size">The size.</param>
+        public OxyRect(ScreenPoint p0, OxySize size)
+            : this(p0.X, p0.Y, size.Width, size.Height)
+        {
+        }
+
+        /// <summary>
+        /// Gets the y-axis value of the bottom of the rectangle.
+        /// </summary>
+        /// <value>The bottom.</value>
+        public double Bottom
+        {
+            get
+            {
+                return this.top + this.height;
+            }
+        }
+
+        /// <summary>
+        /// Gets the height of the rectangle.
+        /// </summary>
+        /// <value>The height.</value>
+        public double Height
+        {
+            get
+            {
+                return this.height;
+            }
+        }
+
+        /// <summary>
+        /// Gets the x-axis value of the left side of the rectangle.
+        /// </summary>
+        /// <value>The left.</value>
+        public double Left
+        {
+            get
+            {
+                return this.left;
+            }
+        }
+
+        /// <summary>
+        /// Gets the x-axis value of the right side of the rectangle.
+        /// </summary>
+        /// <value>The right.</value>
+        public double Right
+        {
+            get
+            {
+                return this.left + this.width;
+            }
+        }
+
+        /// <summary>
+        /// Gets the y-axis position of the top of the rectangle.
+        /// </summary>
+        /// <value>The top.</value>
+        public double Top
+        {
+            get
+            {
+                return this.top;
+            }
+        }
+
+        /// <summary>
+        /// Gets the width of the rectangle.
+        /// </summary>
+        /// <value>The width.</value>
+        public double Width
+        {
+            get
+            {
+                return this.width;
+            }
+        }
+
+        /// <summary>
+        /// Gets the center point of the rectangle.
+        /// </summary>
+        /// <value>The center.</value>
+        public ScreenPoint Center
+        {
+            get
+            {
+                return new ScreenPoint(this.left + (this.width * 0.5), this.top + (this.height * 0.5));
+            }
+        }
+
+        /// <summary>
+        /// Creates a rectangle from the specified corner coordinates.
+        /// </summary>
+        /// <param name="x0">The x0.</param>
+        /// <param name="y0">The y0.</param>
+        /// <param name="x1">The x1.</param>
+        /// <param name="y1">The y1.</param>
+        /// <returns>A rectangle.</returns>
+        public static OxyRect Create(double x0, double y0, double x1, double y1)
+        {
+            return new OxyRect(Math.Min(x0, x1), Math.Min(y0, y1), Math.Abs(x1 - x0), Math.Abs(y1 - y0));
+        }
+    }
+}

@@ -10,7 +10,7 @@ namespace TimeDataViewer.Core
     public partial class PlotModel
     {
         // Renders the plot with the specified rendering context.
-        public void Render(double width, double height)
+        void IPlotModel.Render(double width, double height)
         {
             RenderOverride(width, height);
         }
@@ -25,18 +25,18 @@ namespace TimeDataViewer.Core
                     Width = width;
                     Height = height;
 
-                    PlotArea = new RectD(0, 0, Width, Height);
+                    PlotArea = new OxyRect(0, 0, Width, Height);
 
-                    //UpdateAxisTransforms();
-                    //UpdateIntervals();
+                    UpdateAxisTransforms();
+                    UpdateIntervals();
 
-                    //foreach (var a in Axes)
-                    //{
-                    //    a.ResetCurrentValues();
-                    //}
+                    foreach (var a in this.Axises)
+                    {
+                        a.ResetCurrentValues();
+                    }
 
                     RenderSeries();
-                    //RenderAxises();
+                    RenderAxises();
                 }
                 catch (Exception)
                 {
@@ -45,17 +45,17 @@ namespace TimeDataViewer.Core
             }
         }
 
-        //private void RenderAxises()
-        //{
-        //    foreach (var item in Axes)
-        //    {
-        //        item.MyOnRender(this);
-        //    }
-        //}
+        private void RenderAxises()
+        {
+            foreach (var item in Axises)
+            {
+                item.MyOnRender(this);
+            }
+        }
 
         private void RenderSeries()
         {
-            foreach (var s in Series/*.Where(s => s.IsVisible)*/)
+            foreach (var s in Series.Where(s => s.IsVisible))
             {
                 s.Render();
                 s.MyOnRender();

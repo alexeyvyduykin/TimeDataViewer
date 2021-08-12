@@ -14,7 +14,7 @@ namespace TimeDataViewer.Core
         /// </summary>
         /// <param name="point">The point.</param>
         /// <param name="tolerance">The tolerance.</param>
-        public HitTestArguments(Point2D point, double tolerance)
+        public HitTestArguments(ScreenPoint point, double tolerance)
         {
             this.Point = point;
             this.Tolerance = tolerance;
@@ -23,7 +23,7 @@ namespace TimeDataViewer.Core
         /// <summary>
         /// Gets the point to hit test.
         /// </summary>
-        public Point2D Point { get; private set; }
+        public ScreenPoint Point { get; private set; }
 
         /// <summary>
         /// Gets the hit test tolerance.
