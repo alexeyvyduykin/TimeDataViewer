@@ -13,7 +13,7 @@ namespace TimeDataViewer.Core
             // commands that can be triggered from mouse down events
             //ResetAt = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => HandleReset(view, args));
             PanAt = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new PanManipulator(view), args));
-            //ZoomRectangle = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new ZoomRectangleManipulator(view), args));
+            ZoomRectangle = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new ZoomRectangleManipulator(view), args));
             //    Track = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = false, PointsOnly = false }, args));
             //    SnapTrack = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = true, PointsOnly = false }, args));
             //    PointsOnlyTrack = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = false, PointsOnly = true }, args));
@@ -35,7 +35,7 @@ namespace TimeDataViewer.Core
         public static IViewCommand<OxyMouseDownEventArgs> PanAt { get; private set; }
 
         // Gets the zoom rectangle command.     
-        //public static IViewCommand<OxyMouseDownEventArgs> ZoomRectangle { get; private set; }
+        public static IViewCommand<OxyMouseDownEventArgs> ZoomRectangle { get; private set; }
 
         // Gets the zoom by mouse wheel command.       
         public static IViewCommand<OxyMouseWheelEventArgs> ZoomWheel { get; private set; }

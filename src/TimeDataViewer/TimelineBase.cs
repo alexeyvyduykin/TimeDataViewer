@@ -142,10 +142,10 @@ namespace TimeDataViewer
                 return;
             }
 
-            _canvas = new Canvas() { Background = Brushes.Silver };
-            _drawCanvas = new DrawCanvas() { Background = Brushes.WhiteSmoke };
+            _canvas = new Canvas() { Background = Brushes.Transparent };
+            _drawCanvas = new DrawCanvas() { Background = Brushes.Transparent };
 
-            _canvasX = new Canvas() { Background = Brushes.LightGreen };
+            _canvasX = new Canvas() { Background = Brushes.Transparent };
      
             _panel.Children.Add(_canvas);
             _panel.Children.Add(_drawCanvas);

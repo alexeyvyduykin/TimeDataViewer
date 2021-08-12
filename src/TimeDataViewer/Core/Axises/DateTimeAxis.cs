@@ -9,15 +9,6 @@ using System.Linq;
 
 namespace TimeDataViewer.Core
 {
-    //public enum TimePeriod
-    //{
-    //    Hour,
-    //    Day,
-    //    Week,
-    //    Month,
-    //    Year,
-    //}
-
     public enum DateTimeIntervalType
     {
         Auto = 0,
@@ -34,61 +25,26 @@ namespace TimeDataViewer.Core
 
     public class DateTimeAxis : LinearAxis
     {
-        /// <summary>
-        /// The time origin.
-        /// </summary>
-        /// <remarks>This gives the same numeric date values as Excel</remarks>
         private static readonly DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-
-        /// <summary>
-        /// The maximum day value
-        /// </summary>
         private static readonly double MaxDayValue = (DateTime.MaxValue - TimeOrigin).TotalDays;
-
-        /// <summary>
-        /// The minimum day value
-        /// </summary>
         private static readonly double MinDayValue = (DateTime.MinValue - TimeOrigin).TotalDays;
+        private DateTimeIntervalType _actualIntervalType;
+        private DateTimeIntervalType _actualMinorIntervalType;
 
-        /// <summary>
-        /// The actual interval type.
-        /// </summary>
-        private DateTimeIntervalType actualIntervalType;
-
-        /// <summary>
-        /// The actual minor interval type.
-        /// </summary>
-        private DateTimeIntervalType actualMinorIntervalType;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref = "DateTimeAxis" /> class.
-        /// </summary>
         public DateTimeAxis()
         {
-            this.Position = AxisPosition.Bottom;
-            this.IntervalType = DateTimeIntervalType.Auto;
-            this.FirstDayOfWeek = DayOfWeek.Monday;
-            this.CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek;
+            Position = AxisPosition.Bottom;
+            IntervalType = DateTimeIntervalType.Auto;
+            FirstDayOfWeek = DayOfWeek.Monday;
+            CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek;
         }
 
-        /// <summary>
-        /// Gets or sets CalendarWeekRule.
-        /// </summary>
         public CalendarWeekRule CalendarWeekRule { get; set; }
 
-        /// <summary>
-        /// Gets or sets FirstDayOfWeek.
-        /// </summary>
         public DayOfWeek FirstDayOfWeek { get; set; }
 
-        /// <summary>
-        /// Gets or sets IntervalType.
-        /// </summary>
         public DateTimeIntervalType IntervalType { get; set; }
 
-        /// <summary>
-        /// Gets or sets MinorIntervalType.
-        /// </summary>
         public DateTimeIntervalType MinorIntervalType { get; set; }
 
         /// <summary>
@@ -139,19 +95,10 @@ namespace TimeDataViewer.Core
             return span.TotalDays + 1;
         }
 
-        /// <summary>
-        /// Gets the tick values.
-        /// </summary>
-        /// <param name="majorLabelValues">The major label values.</param>
-        /// <param name="majorTickValues">The major tick values.</param>
-        /// <param name="minorTickValues">The minor tick values.</param>
-        public override void GetTickValues(
-            out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
+        public override void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
         {
-            minorTickValues = this.CreateDateTimeTickValues(
-                this.ActualMinimum, this.ActualMaximum, this.ActualMinorStep, this.actualMinorIntervalType);
-            majorTickValues = this.CreateDateTimeTickValues(
-                this.ActualMinimum, this.ActualMaximum, this.ActualMajorStep, this.actualIntervalType);
+            minorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMinorStep, _actualMinorIntervalType);
+            majorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMajorStep, _actualIntervalType);
             majorLabelValues = majorTickValues;
         }
 
@@ -165,9 +112,9 @@ namespace TimeDataViewer.Core
         {
             var time = ToDateTime(x);
 
-            if (this.TimeZone != null)
+            if (TimeZone != null)
             {
-                time = TimeZoneInfo.ConvertTime(time, this.TimeZone);
+                time = TimeZoneInfo.ConvertTime(time, TimeZone);
             }
 
             return time;
@@ -176,64 +123,64 @@ namespace TimeDataViewer.Core
         internal override void UpdateIntervals(OxyRect plotArea)
         {
             base.UpdateIntervals(plotArea);
-            switch (this.actualIntervalType)
+            switch (_actualIntervalType)
             {
                 case DateTimeIntervalType.Years:
-                    this.ActualMinorStep = 31;
-                    this.actualMinorIntervalType = DateTimeIntervalType.Years;
-                    if (this.StringFormat == null)
+                    ActualMinorStep = 31;
+                    _actualMinorIntervalType = DateTimeIntervalType.Years;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "yyyy";
+                        ActualStringFormat = "yyyy";
                     }
 
                     break;
                 case DateTimeIntervalType.Months:
-                    this.actualMinorIntervalType = DateTimeIntervalType.Months;
-                    if (this.StringFormat == null)
+                    _actualMinorIntervalType = DateTimeIntervalType.Months;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "yyyy-MM-dd";
+                        ActualStringFormat = "yyyy-MM-dd";
                     }
 
                     break;
                 case DateTimeIntervalType.Weeks:
-                    this.actualMinorIntervalType = DateTimeIntervalType.Days;
-                    this.ActualMajorStep = 7;
-                    this.ActualMinorStep = 1;
-                    if (this.StringFormat == null)
+                    _actualMinorIntervalType = DateTimeIntervalType.Days;
+                    ActualMajorStep = 7;
+                    ActualMinorStep = 1;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "yyyy/ww";
+                        ActualStringFormat = "yyyy/ww";
                     }
 
                     break;
                 case DateTimeIntervalType.Days:
-                    this.ActualMinorStep = this.ActualMajorStep;
-                    if (this.StringFormat == null)
+                    ActualMinorStep = ActualMajorStep;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "yyyy-MM-dd";
+                        ActualStringFormat = "yyyy-MM-dd";
                     }
 
                     break;
                 case DateTimeIntervalType.Hours:
-                    this.ActualMinorStep = this.ActualMajorStep;
-                    if (this.StringFormat == null)
+                    ActualMinorStep = ActualMajorStep;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "HH:mm";
+                        ActualStringFormat = "HH:mm";
                     }
 
                     break;
                 case DateTimeIntervalType.Minutes:
-                    this.ActualMinorStep = this.ActualMajorStep;
-                    if (this.StringFormat == null)
+                    ActualMinorStep = ActualMajorStep;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "HH:mm";
+                        ActualStringFormat = "HH:mm";
                     }
 
                     break;
                 case DateTimeIntervalType.Seconds:
-                    this.ActualMinorStep = this.ActualMajorStep;
-                    if (this.StringFormat == null)
+                    ActualMinorStep = ActualMajorStep;
+                    if (StringFormat == null)
                     {
-                        this.ActualStringFormat = "HH:mm:ss";
+                        ActualStringFormat = "HH:mm:ss";
                     }
 
                     break;
@@ -241,10 +188,10 @@ namespace TimeDataViewer.Core
 
 
                 case DateTimeIntervalType.Milliseconds:
-                    this.ActualMinorStep = this.ActualMajorStep;
-                    if (this.ActualStringFormat == null)
+                    ActualMinorStep = ActualMajorStep;
+                    if (ActualStringFormat == null)
                     {
-                        this.ActualStringFormat = "HH:mm:ss.fff";
+                        ActualStringFormat = "HH:mm:ss.fff";
                     }
 
                     break;
@@ -261,41 +208,30 @@ namespace TimeDataViewer.Core
             return null;
         }
 
-        /// <summary>
-        /// Formats the value to be used on the axis.
-        /// </summary>
-        /// <param name="x">The value to format.</param>
-        /// <returns>The formatted value.</returns>
         protected override string FormatValueOverride(double x)
         {
             // convert the double value to a DateTime
             var time = ToDateTime(x);
 
             // If a time zone is specified, convert the time
-            if (this.TimeZone != null)
+            if (TimeZone != null)
             {
-                time = TimeZoneInfo.ConvertTime(time, this.TimeZone);
+                time = TimeZoneInfo.ConvertTime(time, TimeZone);
             }
 
-            string fmt = this.ActualStringFormat;
+            string fmt = ActualStringFormat;
             if (fmt == null)
             {
                 return time.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
             }
 
-            int week = this.GetWeek(time);
+            int week = GetWeek(time);
             fmt = fmt.Replace("ww", week.ToString("00"));
             fmt = fmt.Replace("w", week.ToString(CultureInfo.InvariantCulture));
             fmt = string.Concat("{0:", fmt, "}");
-            return string.Format(System.Globalization.CultureInfo.CurrentCulture/*this.ActualCulture*/, fmt, time);
+            return string.Format(System.Globalization.CultureInfo.CurrentCulture/*ActualCulture*/, fmt, time);
         }
 
-        /// <summary>
-        /// Calculates the actual interval.
-        /// </summary>
-        /// <param name="availableSize">Size of the available area.</param>
-        /// <param name="maxIntervalSize">Maximum length of the intervals.</param>
-        /// <returns>The calculate actual interval.</returns>
         protected override double CalculateActualInterval(double availableSize, double maxIntervalSize)
         {
             const double Year = 365.25;
@@ -307,7 +243,7 @@ namespace TimeDataViewer.Core
             const double Second = Minute / 60;
             const double MilliSecond = Second / 1000;
 
-            double range = Math.Abs(this.ActualMinimum - this.ActualMaximum);
+            double range = Math.Abs(ActualMinimum - ActualMaximum);
 
             var goodIntervals = new[]
                                     {   MilliSecond, 2 * MilliSecond, 10 * MilliSecond, 100 * MilliSecond,
@@ -337,86 +273,73 @@ namespace TimeDataViewer.Core
                 interval = nextInterval;
             }
 
-            this.actualIntervalType = this.IntervalType;
-            this.actualMinorIntervalType = this.MinorIntervalType;
+            _actualIntervalType = IntervalType;
+            _actualMinorIntervalType = MinorIntervalType;
 
-            if (this.IntervalType == DateTimeIntervalType.Auto)
+            if (IntervalType == DateTimeIntervalType.Auto)
             {
-                this.actualIntervalType = DateTimeIntervalType.Milliseconds;
+                _actualIntervalType = DateTimeIntervalType.Milliseconds;
 
                 if (interval >= 1.0 / 24 / 60 / 60)
                 {
-                    this.actualIntervalType = DateTimeIntervalType.Seconds;
+                    _actualIntervalType = DateTimeIntervalType.Seconds;
                 }
 
                 if (interval >= 1.0 / 24 / 60)
                 {
-                    this.actualIntervalType = DateTimeIntervalType.Minutes;
+                    _actualIntervalType = DateTimeIntervalType.Minutes;
                 }
 
                 if (interval >= 1.0 / 24)
                 {
-                    this.actualIntervalType = DateTimeIntervalType.Hours;
+                    _actualIntervalType = DateTimeIntervalType.Hours;
                 }
 
                 if (interval >= 1)
                 {
-                    this.actualIntervalType = DateTimeIntervalType.Days;
+                    _actualIntervalType = DateTimeIntervalType.Days;
                 }
 
                 if (interval >= 30)
                 {
-                    this.actualIntervalType = DateTimeIntervalType.Months;
+                    _actualIntervalType = DateTimeIntervalType.Months;
                 }
 
                 if (range >= 365.25)
                 {
-                    this.actualIntervalType = DateTimeIntervalType.Years;
+                    _actualIntervalType = DateTimeIntervalType.Years;
                 }
             }
 
-            if (this.actualIntervalType == DateTimeIntervalType.Months)
+            if (_actualIntervalType == DateTimeIntervalType.Months)
             {
                 double monthsRange = range / 30.5;
-                interval = this.CalculateActualInterval(availableSize, maxIntervalSize, monthsRange);
+                interval = CalculateActualInterval(availableSize, maxIntervalSize, monthsRange);
             }
 
-            if (this.actualIntervalType == DateTimeIntervalType.Years)
+            if (_actualIntervalType == DateTimeIntervalType.Years)
             {
                 double yearsRange = range / 365.25;
-                interval = this.CalculateActualInterval(availableSize, maxIntervalSize, yearsRange);
+                interval = CalculateActualInterval(availableSize, maxIntervalSize, yearsRange);
             }
 
-            if (this.actualMinorIntervalType == DateTimeIntervalType.Auto)
+            if (_actualMinorIntervalType == DateTimeIntervalType.Auto)
             {
-                switch (this.actualIntervalType)
+                _actualMinorIntervalType = _actualIntervalType switch
                 {
-                    case DateTimeIntervalType.Years:
-                        this.actualMinorIntervalType = DateTimeIntervalType.Months;
-                        break;
-                    case DateTimeIntervalType.Months:
-                        this.actualMinorIntervalType = DateTimeIntervalType.Days;
-                        break;
-                    case DateTimeIntervalType.Weeks:
-                        this.actualMinorIntervalType = DateTimeIntervalType.Days;
-                        break;
-                    case DateTimeIntervalType.Days:
-                        this.actualMinorIntervalType = DateTimeIntervalType.Hours;
-                        break;
-                    case DateTimeIntervalType.Hours:
-                        this.actualMinorIntervalType = DateTimeIntervalType.Minutes;
-                        break;
-                    default:
-                        this.actualMinorIntervalType = DateTimeIntervalType.Days;
-                        break;
-                }
+                    DateTimeIntervalType.Years => DateTimeIntervalType.Months,
+                    DateTimeIntervalType.Months => DateTimeIntervalType.Days,
+                    DateTimeIntervalType.Weeks => DateTimeIntervalType.Days,
+                    DateTimeIntervalType.Days => DateTimeIntervalType.Hours,
+                    DateTimeIntervalType.Hours => DateTimeIntervalType.Minutes,
+                    _ => DateTimeIntervalType.Days,
+                };
             }
 
             return interval;
         }
 
-        private IList<double> CreateDateTickValues(
-            double min, double max, double step, DateTimeIntervalType intervalType)
+        private IList<double> CreateDateTickValues(double min, double max, double step, DateTimeIntervalType intervalType)
         {
             var values = new List/*Collection*/<double>();
             var start = ToDateTime(min);
@@ -431,7 +354,7 @@ namespace TimeDataViewer.Core
                 case DateTimeIntervalType.Weeks:
 
                     // make sure the first tick is at the 1st day of a week
-                    start = start.AddDays(-(int)start.DayOfWeek + (int)this.FirstDayOfWeek);
+                    start = start.AddDays(-(int)start.DayOfWeek + (int)FirstDayOfWeek);
                     break;
                 case DateTimeIntervalType.Months:
 
@@ -497,35 +420,21 @@ namespace TimeDataViewer.Core
             return values;
         }
 
-        /// <summary>
-        /// Creates <see cref="DateTime" /> tick values.
-        /// </summary>
-        /// <param name="min">The min.</param>
-        /// <param name="max">The max.</param>
-        /// <param name="interval">The interval.</param>
-        /// <param name="intervalType">The interval type.</param>
-        /// <returns>A list of <see cref="DateTime" /> tick values.</returns>
-        private IList<double> CreateDateTimeTickValues(
-            double min, double max, double interval, DateTimeIntervalType intervalType)
+        private IList<double> CreateDateTimeTickValues(double min, double max, double interval, DateTimeIntervalType intervalType)
         {
             // If the step size is more than 7 days (e.g. months or years) we use a specialized tick generation method that adds tick values with uneven spacing...
             if (intervalType > DateTimeIntervalType.Days)
             {
-                return this.CreateDateTickValues(min, max, interval, intervalType);
+                return CreateDateTickValues(min, max, interval, intervalType);
             }
 
             // For shorter step sizes we use the method from Axis
-            return this.CreateTickValues(min, max, interval);
+            return CreateTickValues(min, max, interval);
         }
 
-        /// <summary>
-        /// Gets the week number for the specified date.
-        /// </summary>
-        /// <param name="date">The date.</param>
-        /// <returns>The week number for the current culture.</returns>
         private int GetWeek(DateTime date)
         {
-            return System.Globalization.CultureInfo.CurrentCulture/*this.ActualCulture*/.Calendar.GetWeekOfYear(date, this.CalendarWeekRule, this.FirstDayOfWeek);
+            return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(date, CalendarWeekRule, FirstDayOfWeek);
         }
     }
 

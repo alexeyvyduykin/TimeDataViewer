@@ -12,9 +12,13 @@
 
         <Setter Property="ZoomRectangleTemplate">
             <Setter.Value>
-                <ControlTemplate>
-                    <Rectangle Fill="#40FFFF00" Stroke="Black" StrokeDashArray="3,1" />
-                </ControlTemplate>
+                <ControlTemplate>                    
+                  <Rectangle Stroke="Black" StrokeDashArray="3,1">
+                    <Rectangle.Fill>
+                      <SolidColorBrush Color="LightBlue" Opacity="0.4"></SolidColorBrush>
+                    </Rectangle.Fill> 
+                  </Rectangle>                
+              </ControlTemplate>
             </Setter.Value>
         </Setter>
         <Setter Property="Template">

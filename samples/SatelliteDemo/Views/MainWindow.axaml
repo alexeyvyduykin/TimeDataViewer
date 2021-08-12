@@ -79,9 +79,14 @@
                                 <sch:CategoryAxis Position="Left"
                                                   AbsoluteMinimum="-0.5"
                                                   AbsoluteMaximum="2.5"
+                                                  IsZoomEnabled="False"
                                                   Items="{Binding $parent[Window].DataContext.Labels}"
                                                   LabelField="Label"/>
-                                <sch:LinearAxis Position="Bottom"  AbsoluteMinimum="0"/>
+                                <sch:DateTimeAxis Position="Bottom"    
+                                                  IntervalType="Auto"
+                                                  AbsoluteMinimum="{Binding BeginScenario}"
+                                                  AbsoluteMaximum="{Binding EndScenario}"
+                                                  FirstDateTime="{Binding Epoch}"/>
                             </sch:Timeline.Axises>
                             <sch:Timeline.Series>
                                 <sch:TimelineSeries BarWidth="0.5" 

@@ -66,7 +66,7 @@ namespace TimeDataViewer.Core
 
             if (this.YAxis != null)
             {
-    //            this.YAxis.ZoomAt(scale, current.Y);
+                this.YAxis.ZoomAt(scale, current.Y);
             }
 
             this.PlotView.InvalidatePlot(false);

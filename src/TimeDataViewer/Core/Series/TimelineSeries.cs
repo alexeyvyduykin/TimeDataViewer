@@ -140,20 +140,18 @@ namespace TimeDataViewer.Core
                         var propertyInfoRight = item.GetType().GetProperty(EndField);
                         var propertyInfoCategory = item.GetType().GetProperty(CategoryField);
 
-                        var valueLeft = propertyInfoLeft?.GetValue(item, null);
-                        var valueRight = propertyInfoRight?.GetValue(item, null);
+                        var left = propertyInfoLeft?.GetValue(item, null);
+                        var right = propertyInfoRight?.GetValue(item, null);
                         var valueCategory = propertyInfoCategory?.GetValue(item, null);
 
-                        if (valueLeft is not null &&
-                            valueRight is not null &&
-                            valueLeft is double left &&
-                            valueRight is double right &&
+                        if (left is not null &&
+                            right is not null &&                                               
                             valueCategory is string category)
-                        {
+                        {                                              
                             list.Add(new TimelineItem()
                             {
-                                Begin = left,
-                                End = right,
+                                Begin = Axis.ToDouble(left),
+                                End = Axis.ToDouble(right),
                                 CategoryIndex = categoryAxis.ActualLabels.IndexOf(category)
                             });
                         }
