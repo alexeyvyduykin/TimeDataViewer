@@ -30,9 +30,6 @@ namespace TimeDataViewer.Core
         /// </summary>
         public OxyRect LineExtents { get; set; }
 
-        /// <summary>
-        /// Gets or sets the plot model.
-        /// </summary>
         public PlotModel PlotModel { get; set; }
 
         /// <summary>
@@ -40,9 +37,6 @@ namespace TimeDataViewer.Core
         /// </summary>
         public ScreenPoint Position { get; set; }
 
-        /// <summary>
-        /// Gets or sets the series that is being tracked.
-        /// </summary>
         public Series Series { get; set; }
 
         /// <summary>
@@ -54,7 +48,7 @@ namespace TimeDataViewer.Core
         {
             get
             {
-                var xyas = this.Series as XYAxisSeries;
+                var xyas = Series as XYAxisSeries;
                 return xyas != null ? xyas.XAxis : null;
             }
         }
@@ -63,14 +57,14 @@ namespace TimeDataViewer.Core
         {
             get
             {
-                var xyas = this.Series as XYAxisSeries;
+                var xyas = Series as XYAxisSeries;
                 return xyas != null ? xyas.YAxis : null;
             }
         }
 
         public override string ToString()
         {
-            return this.Text != null ? this.Text.Trim() : string.Empty;
+            return Text != null ? Text.Trim() : string.Empty;
         }
     }
 }

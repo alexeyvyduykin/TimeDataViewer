@@ -8,15 +8,7 @@
     </Design.PreviewWith>
 
   <Style Selector="local|TrackerControl">
-    <Setter Property="Background" Value="#E0FFFFA0" />
-    <Setter Property="BorderBrush" Value="Black" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="LineStroke" Value="#80000000" />
-    <Setter Property="HorizontalLineVisibility" Value="true" />
-    <Setter Property="VerticalLineVisibility" Value="true" />
-    <Setter Property="Distance" Value="7" />
-    <Setter Property="CornerRadius" Value="0" />
-    <Setter Property="ShowPointer" Value="true" />
+    <Setter Property="Distance" Value="8" />
     <Setter Property="CanCenterHorizontally" Value="true" />
     <Setter Property="CanCenterVertically" Value="true" />
     <Setter Property="IsHitTestVisible" Value="false" />
@@ -26,23 +18,14 @@
           <Panel HorizontalAlignment="Stretch"
                  VerticalAlignment="Stretch"
                  ClipToBounds="False">
-            <Line Name="PART_HorizontalLine"
-                  IsVisible="{TemplateBinding HorizontalLineVisibility}"
-                  Stroke="{TemplateBinding LineStroke}"
-                  StrokeDashArray="{TemplateBinding LineDashArray}" />
-            <Line Name="PART_VerticalLine"
-                  IsVisible="{TemplateBinding VerticalLineVisibility}"
-                  Stroke="{TemplateBinding LineStroke}"
-                  StrokeDashArray="{TemplateBinding LineDashArray}" />
             <Panel Name="PART_ContentContainer"
                    ClipToBounds="False">
-              <Path Name="PART_Path"
-                    Fill="{TemplateBinding Background}"
-                    Stroke="{TemplateBinding BorderBrush}"
-                    StrokeThickness="1" />
+              <Border Name="PART_Border"
+                      Margin="{TemplateBinding MarginPointer}"/>
               <ContentPresenter Name="PART_Content"
                                 Content="{TemplateBinding Content}"
-                                HorizontalAlignment="Center" />
+                                HorizontalAlignment="Center">
+              </ContentPresenter>
             </Panel>
           </Panel>
         </ControlTemplate>
@@ -50,6 +33,17 @@
     </Setter>
   </Style>
 
+  <Style Selector="local|TrackerControl /template/ Border#PART_Border">
+    <Setter Property="BorderBrush" Value="Black"></Setter>
+    <Setter Property="BorderThickness" Value="1"></Setter>
+    <Setter Property="CornerRadius" Value="4"></Setter>
+    <Setter Property="Background">
+      <Setter.Value>
+        <SolidColorBrush Color="White" Opacity="0.6"></SolidColorBrush>
+      </Setter.Value>
+    </Setter>
+  </Style>
+    
   <Style Selector="local|Timeline">
         <Setter Property="Background" Value="White" />
 

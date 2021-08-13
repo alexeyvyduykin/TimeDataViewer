@@ -9,12 +9,12 @@ namespace TimeDataViewer.Core
 {
     public class TimelineSeries : CategorizedSeries, IStackableSeries
     {
-        public new const string DefaultTrackerFormatString = "{0}\n{1}: {2}\n{3}: {4}";
+        public new const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}";
 
         public TimelineSeries()
         {
             Items = new List<TimelineItem>();
-            this.TrackerFormatString = DefaultTrackerFormatString;
+            TrackerFormatString = DefaultTrackerFormatString;
             BarWidth = 1;
         }
 
@@ -46,17 +46,18 @@ namespace TimeDataViewer.Core
         /// <returns>A TrackerHitResult for the current hit.</returns>
         public override TrackerHitResult GetNearestPoint(ScreenPoint point, bool interpolate)
         {
-            for (int i = 0; i < this.ActualBarRectangles.Count; i++)
+            for (int i = 0; i < ActualBarRectangles.Count; i++)
             {
-                var r = this.ActualBarRectangles[i];
+                var r = ActualBarRectangles[i];
                 if (r.Contains(point))
                 {
-                    var item = (TimelineItem)this.GetItem(this.ValidItemsIndexInversion[i]);
+                    var item = Items[i];//GetItem(ValidItemsIndexInversion[i]);                   
                     var categoryIndex = item.GetCategoryIndex(i);
-                    double value = (this.ValidItems[i].Begin + this.ValidItems[i].End) / 2;
+                    double value = (ValidItems[i].Begin + ValidItems[i].End) / 2;
                     var dp = new DataPoint(categoryIndex, value);
-                    var categoryAxis = this.GetCategoryAxis();
-                    var valueAxis = this.GetValueAxis();
+                    var categoryAxis = GetCategoryAxis();
+                    var valueAxis = GetValueAxis();
+
                     return new TrackerHitResult
                     {
                         Series = this,
@@ -65,16 +66,15 @@ namespace TimeDataViewer.Core
                         Item = item,
                         Index = i,
                         Text = StringHelper.Format(
-                        System.Globalization.CultureInfo.CurrentCulture,//this.ActualCulture,
-                        this.TrackerFormatString,
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        TrackerFormatString,
                         item,
-                        "this.Title",//this.Title,
-                        /*categoryAxis.Title ??*/ DefaultCategoryAxisTitle,
-                        categoryAxis.FormatValue(categoryIndex),
-                        /*valueAxis.Title ??*/ DefaultValueAxisTitle,
-                        valueAxis.GetValue(this.Items[i].Begin),
-                        valueAxis.GetValue(this.Items[i].End),
-                        "this.Items[i].Title")//this.Items[i].Title)
+                        "Category",                               // {0}
+                        categoryAxis.FormatValue(categoryIndex),  // {1}
+                        "Begin",                                  // {2}
+                        valueAxis.GetValue(Items[i].Begin),       // {3}
+                        "End",                                    // {4}
+                        valueAxis.GetValue(Items[i].End))         // {5}                        
                     };
                 }
             }

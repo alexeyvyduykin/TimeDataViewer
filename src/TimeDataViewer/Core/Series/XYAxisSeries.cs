@@ -9,13 +9,9 @@ namespace TimeDataViewer.Core
 {
     public abstract class XYAxisSeries : ItemsSeries
     {
-        public const string DefaultTrackerFormatString = "{0}\n{1}: {2}\n{3}: {4}";
-        protected const string DefaultXAxisTitle = "X";
-        protected const string DefaultYAxisTitle = "Y";
-
         protected XYAxisSeries()
         {
-            this.TrackerFormatString = DefaultTrackerFormatString;
+            
         }
       
         // Gets or sets the maximum x-coordinate of the dataset.
@@ -51,7 +47,7 @@ namespace TimeDataViewer.Core
         // Gets the rectangle the series uses on the screen (screen coordinates).
         public OxyRect GetScreenRectangle()
         {
-            return this.GetClippingRect();
+            return GetClippingRect();
         }
 
         /// <summary>
@@ -61,7 +57,7 @@ namespace TimeDataViewer.Core
         /// <returns>A data point.</returns>
         public DataPoint InverseTransform(ScreenPoint p)
         {
-            return this.XAxis.InverseTransform(p.X, p.Y, this.YAxis);
+            return XAxis.InverseTransform(p.X, p.Y, YAxis);
         }
 
         /// <summary>
@@ -72,7 +68,7 @@ namespace TimeDataViewer.Core
         /// <returns>A screen point.</returns>
         public ScreenPoint Transform(double x, double y)
         {
-            return this.XAxis.Transform(x, y, this.YAxis);
+            return XAxis.Transform(x, y, YAxis);
         }
 
         /// <summary>
@@ -82,7 +78,7 @@ namespace TimeDataViewer.Core
         /// <returns>A screen point.</returns>
         public ScreenPoint Transform(DataPoint p)
         {
-            return this.XAxis.Transform(p.X, p.Y, this.YAxis);
+            return XAxis.Transform(p.X, p.Y, YAxis);
         }
 
         /// <summary>
@@ -99,13 +95,13 @@ namespace TimeDataViewer.Core
         /// </summary>
         protected internal override void EnsureAxes()
         {
-            this.XAxis = this.XAxisKey != null ?
-                         this.PlotModel.GetAxis(this.XAxisKey) :
-                         this.PlotModel.DefaultXAxis;
+            XAxis = XAxisKey != null ?
+                         PlotModel.GetAxis(XAxisKey) :
+                         PlotModel.DefaultXAxis;
 
-            this.YAxis = this.YAxisKey != null ?
-                         this.PlotModel.GetAxis(this.YAxisKey) :
-                         this.PlotModel.DefaultYAxis;
+            YAxis = YAxisKey != null ?
+                         PlotModel.GetAxis(YAxisKey) :
+                         PlotModel.DefaultYAxis;
         }
 
         /// <summary>
@@ -130,10 +126,10 @@ namespace TimeDataViewer.Core
         /// </summary>
         protected internal override void UpdateAxisMaxMin()
         {
-            this.XAxis.Include(this.MinX);
-            this.XAxis.Include(this.MaxX);
-            this.YAxis.Include(this.MinY);
-            this.YAxis.Include(this.MaxY);
+            XAxis.Include(MinX);
+            XAxis.Include(MaxX);
+            YAxis.Include(MinY);
+            YAxis.Include(MaxY);
         }
 
         /// <summary>
@@ -141,7 +137,7 @@ namespace TimeDataViewer.Core
         /// </summary>
         protected internal override void UpdateData()
         {
-            this.WindowStartIndex = 0;
+            WindowStartIndex = 0;
         }
 
         /// <summary>
@@ -149,7 +145,7 @@ namespace TimeDataViewer.Core
         /// </summary>
         protected internal override void UpdateMaxMin()
         {
-            this.MinX = this.MinY = this.MaxX = this.MaxY = double.NaN;
+            MinX = MinY = MaxX = MaxY = double.NaN;
         }
 
         /// <summary>
@@ -175,7 +171,7 @@ namespace TimeDataViewer.Core
         /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
         protected TrackerHitResult GetNearestInterpolatedPointInternal(List<DataPoint> points, ScreenPoint point)
         {
-            return this.GetNearestInterpolatedPointInternal(points, 0, point);
+            return GetNearestInterpolatedPointInternal(points, 0, point);
         }
 
         /// <summary>
@@ -188,7 +184,7 @@ namespace TimeDataViewer.Core
         /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
         protected TrackerHitResult GetNearestInterpolatedPointInternal(List<DataPoint> points, int startIdx, ScreenPoint point)
         {
-            if (this.XAxis == null || this.YAxis == null || points == null)
+            if (XAxis == null || YAxis == null || points == null)
             {
                 return null;
             }
@@ -203,13 +199,13 @@ namespace TimeDataViewer.Core
             {
                 var p1 = points[i];
                 var p2 = points[i + 1];
-                if (!this.IsValidPoint(p1) || !this.IsValidPoint(p2))
+                if (!IsValidPoint(p1) || !IsValidPoint(p2))
                 {
                     continue;
                 }
 
-                var sp1 = this.Transform(p1);
-                var sp2 = this.Transform(p2);
+                var sp1 = Transform(p1);
+                var sp2 = Transform(p2);
 
                 // Find the nearest point on the line segment.
                 var spl = ScreenPointHelper.FindPointOnLine(point, sp1, sp2);
@@ -226,7 +222,7 @@ namespace TimeDataViewer.Core
                 {
                     double segmentLength = (sp2 - sp1).Length;
                     double u = segmentLength > 0 ? (spl - sp1).Length / segmentLength : 0;
-                    dpn = this.InverseTransform(spl);
+                    dpn = InverseTransform(spl);
                     spn = spl;
                     minimumDistance = l2;
                     index = i + u;
@@ -235,7 +231,7 @@ namespace TimeDataViewer.Core
 
             if (minimumDistance < double.MaxValue)
             {
-                var item = this.GetItem((int)Math.Round(index));
+                var item = GetItem((int)Math.Round(index));
                 return new TrackerHitResult
                 {
                     Series = this,
@@ -258,7 +254,7 @@ namespace TimeDataViewer.Core
         /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
         protected TrackerHitResult GetNearestPointInternal(IEnumerable<DataPoint> points, ScreenPoint point)
         {
-            return this.GetNearestPointInternal(points, 0, point);
+            return GetNearestPointInternal(points, 0, point);
         }        /// <summary>
 
 
@@ -279,13 +275,13 @@ namespace TimeDataViewer.Core
             int i = 0;
             foreach (var p in points.Skip(startIdx))
             {
-                if (!this.IsValidPoint(p))
+                if (!IsValidPoint(p))
                 {
                     i++;
                     continue;
                 }
 
-                var sp = this.XAxis.Transform(p.x, p.y, this.YAxis);
+                var sp = XAxis.Transform(p.x, p.y, YAxis);
                 double d2 = (sp - point).LengthSquared;
 
                 if (d2 < minimumDistance)
@@ -301,7 +297,7 @@ namespace TimeDataViewer.Core
 
             if (minimumDistance < double.MaxValue)
             {
-                var item = this.GetItem((int)Math.Round(index));
+                var item = GetItem((int)Math.Round(index));
                 return new TrackerHitResult
                 {
                     Series = this,
@@ -324,8 +320,8 @@ namespace TimeDataViewer.Core
         protected virtual bool IsValidPoint(DataPoint pt)
         {
             return
-                this.XAxis != null && this.XAxis.IsValidValue(pt.X) &&
-                this.YAxis != null && this.YAxis.IsValidValue(pt.Y);
+                XAxis != null && XAxis.IsValidValue(pt.X) &&
+                YAxis != null && YAxis.IsValidValue(pt.Y);
         }
 
         /// <summary>
@@ -337,8 +333,8 @@ namespace TimeDataViewer.Core
         protected bool IsValidPoint(double x, double y)
         {
             return
-                this.XAxis != null && this.XAxis.IsValidValue(x) &&
-                this.YAxis != null && this.YAxis.IsValidValue(y);
+                XAxis != null && XAxis.IsValidValue(x) &&
+                YAxis != null && YAxis.IsValidValue(y);
         }
 
         /// <summary>
@@ -352,17 +348,17 @@ namespace TimeDataViewer.Core
                 throw new ArgumentNullException("points");
             }
 
-            this.IsXMonotonic = true;
+            IsXMonotonic = true;
 
             if (points.Count == 0)
             {
                 return;
             }
 
-            double minx = this.MinX;
-            double miny = this.MinY;
-            double maxx = this.MaxX;
-            double maxy = this.MaxY;
+            double minx = MinX;
+            double miny = MinY;
+            double maxx = MaxX;
+            double maxy = MaxY;
 
             if (double.IsNaN(minx))
             {
@@ -391,14 +387,14 @@ namespace TimeDataViewer.Core
                 double y = pt.Y;
 
                 // Check if the point is valid
-                if (!this.IsValidPoint(pt))
+                if (!IsValidPoint(pt))
                 {
                     continue;
                 }
 
                 if (x < lastX)
                 {
-                    this.IsXMonotonic = false;
+                    IsXMonotonic = false;
                 }
 
                 if (x < minx)
@@ -426,42 +422,42 @@ namespace TimeDataViewer.Core
 
             if (minx < double.MaxValue)
             {
-                //if (minx < this.XAxis.FilterMinValue)
+                //if (minx < XAxis.FilterMinValue)
                 //{
-                //    minx = this.XAxis.FilterMinValue;
+                //    minx = XAxis.FilterMinValue;
                 //}
 
-                this.MinX = minx;
+                MinX = minx;
             }
 
             if (miny < double.MaxValue)
             {
-                //if (miny < this.YAxis.FilterMinValue)
+                //if (miny < YAxis.FilterMinValue)
                 //{
-                //    miny = this.YAxis.FilterMinValue;
+                //    miny = YAxis.FilterMinValue;
                 //}
 
-                this.MinY = miny;
+                MinY = miny;
             }
 
             if (maxx > double.MinValue)
             {
-                //if (maxx > this.XAxis.FilterMaxValue)
+                //if (maxx > XAxis.FilterMaxValue)
                 //{
-                //    maxx = this.XAxis.FilterMaxValue;
+                //    maxx = XAxis.FilterMaxValue;
                 //}
 
-                this.MaxX = maxx;
+                MaxX = maxx;
             }
 
             if (maxy > double.MinValue)
             {
-                //if (maxy > this.YAxis.FilterMaxValue)
+                //if (maxy > YAxis.FilterMaxValue)
                 //{
-                //    maxy = this.YAxis.FilterMaxValue;
+                //    maxy = YAxis.FilterMaxValue;
                 //}
 
-                this.MaxY = maxy;
+                MaxY = maxy;
             }
         }
 
@@ -480,17 +476,17 @@ namespace TimeDataViewer.Core
                 throw new ArgumentNullException("items");
             }
 
-            this.IsXMonotonic = true;
+            IsXMonotonic = true;
 
             if (items.Count == 0)
             {
                 return;
             }
 
-            double minx = this.MinX;
-            double miny = this.MinY;
-            double maxx = this.MaxX;
-            double maxy = this.MaxY;
+            double minx = MinX;
+            double miny = MinY;
+            double maxx = MaxX;
+            double maxy = MaxY;
 
             if (double.IsNaN(minx))
             {
@@ -519,14 +515,14 @@ namespace TimeDataViewer.Core
                 double y = yf(item);
 
                 // Check if the point is valid
-                if (!this.IsValidPoint(x, y))
+                if (!IsValidPoint(x, y))
                 {
                     continue;
                 }
 
                 if (x < lastX)
                 {
-                    this.IsXMonotonic = false;
+                    IsXMonotonic = false;
                 }
 
                 if (x < minx)
@@ -554,22 +550,22 @@ namespace TimeDataViewer.Core
 
             if (minx < double.MaxValue)
             {
-                this.MinX = minx;
+                MinX = minx;
             }
 
             if (miny < double.MaxValue)
             {
-                this.MinY = miny;
+                MinY = miny;
             }
 
             if (maxx > double.MinValue)
             {
-                this.MaxX = maxx;
+                MaxX = maxx;
             }
 
             if (maxy > double.MinValue)
             {
-                this.MaxY = maxy;
+                MaxY = maxy;
             }
         }
 
@@ -590,17 +586,17 @@ namespace TimeDataViewer.Core
                 throw new ArgumentNullException("items");
             }
 
-            this.IsXMonotonic = true;
+            IsXMonotonic = true;
 
             if (items.Count == 0)
             {
                 return;
             }
 
-            double minx = this.MinX;
-            double miny = this.MinY;
-            double maxx = this.MaxX;
-            double maxy = this.MaxY;
+            double minx = MinX;
+            double miny = MinY;
+            double maxx = MaxX;
+            double maxy = MaxY;
 
             if (double.IsNaN(minx))
             {
@@ -631,14 +627,14 @@ namespace TimeDataViewer.Core
                 double y0 = ymin(item);
                 double y1 = ymax(item);
 
-                if (!this.IsValidPoint(x0, y0) || !this.IsValidPoint(x1, y1))
+                if (!IsValidPoint(x0, y0) || !IsValidPoint(x1, y1))
                 {
                     continue;
                 }
 
                 if (x0 < lastX0 || x1 < lastX1)
                 {
-                    this.IsXMonotonic = false;
+                    IsXMonotonic = false;
                 }
 
                 if (x0 < minx)
@@ -667,22 +663,22 @@ namespace TimeDataViewer.Core
 
             if (minx < double.MaxValue)
             {
-                this.MinX = minx;
+                MinX = minx;
             }
 
             if (miny < double.MaxValue)
             {
-                this.MinY = miny;
+                MinY = miny;
             }
 
             if (maxx > double.MinValue)
             {
-                this.MaxX = maxx;
+                MaxX = maxx;
             }
 
             if (maxy > double.MinValue)
             {
-                this.MaxY = maxy;
+                MaxY = maxy;
             }
         }
 
@@ -691,12 +687,12 @@ namespace TimeDataViewer.Core
         /// </summary>
         protected void VerifyAxes()
         {
-            if (this.XAxis == null)
+            if (XAxis == null)
             {
                 throw new InvalidOperationException("XAxis not defined.");
             }
 
-            if (this.YAxis == null)
+            if (YAxis == null)
             {
                 throw new InvalidOperationException("YAxis not defined.");
             }
@@ -713,7 +709,7 @@ namespace TimeDataViewer.Core
         /// <returns>The new window start index.</returns>
         public int UpdateWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int lastIndex)
         {
-            lastIndex = this.FindWindowStartIndex(items, xgetter, targetX, lastIndex);
+            lastIndex = FindWindowStartIndex(items, xgetter, targetX, lastIndex);
             if (lastIndex > 0)
             {
                 lastIndex--;

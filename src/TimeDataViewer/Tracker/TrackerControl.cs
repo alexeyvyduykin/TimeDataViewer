@@ -16,157 +16,22 @@ namespace TimeDataViewer
 {
     public class TrackerControl : ContentControl
     {
-        /// <summary>
-        /// Identifies the <see cref="HorizontalLineVisibility"/> dependency property.
-        /// </summary>
-        public static readonly StyledProperty<bool> HorizontalLineVisibilityProperty = AvaloniaProperty.Register<TrackerControl, bool>(nameof(HorizontalLineVisibility), true);
-
-        /// <summary>
-        /// Identifies the <see cref="VerticalLineVisibility"/> dependency property.
-        /// </summary>
-        public static readonly StyledProperty<bool> VerticalLineVisibilityProperty = AvaloniaProperty.Register<TrackerControl, bool>(nameof(VerticalLineVisibility), true);
-
-        /// <summary>
-        /// Identifies the <see cref="LineStroke"/> dependency property.
-        /// </summary>
-        public static readonly StyledProperty<IBrush> LineStrokeProperty = AvaloniaProperty.Register<TrackerControl, IBrush>(nameof(LineStroke));
-
-        /// <summary>
-        /// Identifies the <see cref="LineExtents"/> dependency property.
-        /// </summary>
         public static readonly StyledProperty<OxyRect> LineExtentsProperty = AvaloniaProperty.Register<TrackerControl, OxyRect>(nameof(LineExtents), new OxyRect());
-
-        /// <summary>
-        /// Identifies the <see cref="LineDashArray"/> dependency property.
-        /// </summary>
-        public static readonly StyledProperty<List<double>> LineDashArrayProperty = AvaloniaProperty.Register<TrackerControl, List<double>>(nameof(LineDashArray));
-
-        /// <summary>
-        /// Identifies the <see cref="ShowPointer"/> dependency property.
-        /// </summary>
-        public static readonly StyledProperty<bool> ShowPointerProperty = AvaloniaProperty.Register<TrackerControl, bool>(nameof(ShowPointer), true);
-
-        /// <summary>
-        /// Identifies the <see cref="CornerRadius"/> dependency property.
-        /// </summary>
-        public static readonly StyledProperty<double> CornerRadiusProperty = AvaloniaProperty.Register<TrackerControl, double>(nameof(CornerRadius), 0.0);
-
-        /// <summary>
-        /// Identifies the <see cref="Distance"/> dependency property.
-        /// </summary>
         public static readonly StyledProperty<double> DistanceProperty = AvaloniaProperty.Register<TrackerControl, double>(nameof(Distance), 7.0);
-
-        /// <summary>
-        /// Identifies the <see cref="CanCenterHorizontally"/> dependency property.
-        /// </summary>
         public static readonly StyledProperty<bool> CanCenterHorizontallyProperty = AvaloniaProperty.Register<TrackerControl, bool>(nameof(CanCenterHorizontally), true);
-
-        /// <summary>
-        /// Identifies the <see cref="CanCenterVertically"/> dependency property.
-        /// </summary>
         public static readonly StyledProperty<bool> CanCenterVerticallyProperty = AvaloniaProperty.Register<TrackerControl, bool>(nameof(CanCenterVertically), true);
-
-        /// <summary>
-        /// Identifies the <see cref="Position"/> dependency property.
-        /// </summary>
         public static readonly StyledProperty<ScreenPoint> PositionProperty = AvaloniaProperty.Register<TrackerControl, ScreenPoint>(nameof(Position), new ScreenPoint());
+        public static readonly StyledProperty<Thickness> MarginPointerProperty = AvaloniaProperty.Register<TrackerControl, Thickness>(nameof(MarginPointer), new Thickness());
 
-        /// <summary>
-        /// The path part string.
-        /// </summary>
-        private const string PartPath = "PART_Path";
-
-        /// <summary>
-        /// The content part string.
-        /// </summary>
         private const string PartContent = "PART_Content";
+        private const string PartContentContainer = "PART_ContentContainer"; 
+        private ContentPresenter _content;
+        private Panel contentContainer;    
 
-        /// <summary>
-        /// The content container part string.
-        /// </summary>
-        private const string PartContentContainer = "PART_ContentContainer";
-
-        /// <summary>
-        /// The horizontal line part string.
-        /// </summary>
-        private const string PartHorizontalLine = "PART_HorizontalLine";
-
-        /// <summary>
-        /// The vertical line part string.
-        /// </summary>
-        private const string PartVerticalLine = "PART_VerticalLine";
-
-        /// <summary>
-        /// The content.
-        /// </summary>
-        private ContentPresenter content;
-
-        /// <summary>
-        /// The horizontal line.
-        /// </summary>
-        private Line horizontalLine;
-
-        /// <summary>
-        /// The path.
-        /// </summary>
-        private Path path;
-
-        /// <summary>
-        /// The content container.
-        /// </summary>
-        private Panel contentContainer;
-
-        /// <summary>
-        /// The vertical line.
-        /// </summary>
-        private Line verticalLine;
-
-        /// <summary>
-        /// Initializes static members of the <see cref = "TrackerControl" /> class.
-        /// </summary>
         static TrackerControl()
         {
             ClipToBoundsProperty.OverrideDefaultValue<TrackerControl>(false);
             PositionProperty.Changed.AddClassHandler<TrackerControl>(PositionChanged);
-        }
-
-        public bool HorizontalLineVisibility
-        {
-            get
-            {
-                return GetValue(HorizontalLineVisibilityProperty);
-            }
-
-            set
-            {
-                SetValue(HorizontalLineVisibilityProperty, value);
-            }
-        }
-
-        public bool VerticalLineVisibility
-        {
-            get
-            {
-                return GetValue(VerticalLineVisibilityProperty);
-            }
-
-            set
-            {
-                SetValue(VerticalLineVisibilityProperty, value);
-            }
-        }
-
-        public IBrush LineStroke
-        {
-            get
-            {
-                return GetValue(LineStrokeProperty);
-            }
-
-            set
-            {
-                SetValue(LineStrokeProperty, value);
-            }
         }
 
         public OxyRect LineExtents
@@ -179,45 +44,6 @@ namespace TimeDataViewer
             set
             {
                 SetValue(LineExtentsProperty, value);
-            }
-        }
-
-        public List<double> LineDashArray
-        {
-            get
-            {
-                return GetValue(LineDashArrayProperty);
-            }
-
-            set
-            {
-                SetValue(LineDashArrayProperty, value);
-            }
-        }
-
-        public bool ShowPointer
-        {
-            get
-            {
-                return GetValue(ShowPointerProperty);
-            }
-
-            set
-            {
-                SetValue(ShowPointerProperty, value);
-            }
-        }
-
-        public double CornerRadius
-        {
-            get
-            {
-                return GetValue(CornerRadiusProperty);
-            }
-
-            set
-            {
-                SetValue(CornerRadiusProperty, value);
             }
         }
 
@@ -273,41 +99,38 @@ namespace TimeDataViewer
             }
         }
 
+        public Thickness MarginPointer
+        {
+            get
+            {
+                return GetValue(MarginPointerProperty);
+            }
+
+            set
+            {
+                SetValue(MarginPointerProperty, value);
+            }
+        }
+
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate(e);
-            path = e.NameScope.Get<Path>(PartPath);
-            content = e.NameScope.Get<ContentPresenter>(PartContent);
+            base.OnApplyTemplate(e);          
+            _content = e.NameScope.Get<ContentPresenter>(PartContent);
             contentContainer = e.NameScope.Get<Panel>(PartContentContainer);
-            horizontalLine = e.NameScope.Find<Line>(PartHorizontalLine);
-            verticalLine = e.NameScope.Find<Line>(PartVerticalLine);
 
             UpdatePositionAndBorder();
         }
 
-        /// <summary>
-        /// Called when the position is changed.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="System.Windows.DependencyPropertyChangedEventArgs" /> instance containing the event data.</param>
         private static void PositionChanged(AvaloniaObject sender, AvaloniaPropertyChangedEventArgs e)
         {
             ((TrackerControl)sender).OnPositionChanged(e);
         }
 
-        /// <summary>
-        /// Called when the position is changed.
-        /// </summary>
-        /// <param name="dependencyPropertyChangedEventArgs">The dependency property changed event args.</param>
-        // ReSharper disable once UnusedParameter.Local
         private void OnPositionChanged(AvaloniaPropertyChangedEventArgs dependencyPropertyChangedEventArgs)
         {
             UpdatePositionAndBorder();
         }
 
-        /// <summary>
-        /// Update the position and border of the tracker.
-        /// </summary>
         private void UpdatePositionAndBorder()
         {
             if (contentContainer == null)
@@ -332,11 +155,11 @@ namespace TimeDataViewer
             var canvasWidth = parent.Bounds.Width;
             var canvasHeight = parent.Bounds.Height;
 
-            content.Measure(new Size(canvasWidth, canvasHeight));
-            content.Arrange(new Rect(0, 0, content.DesiredSize.Width, content.DesiredSize.Height));
+            _content.Measure(new Size(canvasWidth, canvasHeight));
+            _content.Arrange(new Rect(0, 0, _content.DesiredSize.Width, _content.DesiredSize.Height));
 
-            var contentWidth = content.DesiredSize.Width;
-            var contentHeight = content.DesiredSize.Height;
+            var contentWidth = _content.DesiredSize.Width;
+            var contentHeight = _content.DesiredSize.Height;
 
             // Minimum allowed margins around the tracker
             const double MarginLimit = 10;
@@ -394,12 +217,9 @@ namespace TimeDataViewer
             var dx = ha == A.HorizontalAlignment.Center ? -0.5 : ha == A.HorizontalAlignment.Left ? 0 : -1;
             var dy = va == A.VerticalAlignment.Center ? -0.5 : va == A.VerticalAlignment.Top ? 0 : -1;
 
-            Thickness margin;
-            path.Data = ShowPointer
-                                 ? CreatePointerBorderGeometry(ha, va, contentWidth, contentHeight, out margin)
-                                 : CreateBorderGeometry(ha, va, contentWidth, contentHeight, out margin);
+            MarginPointer = CreateMargin(ha, va);
 
-            content.Margin = margin;
+            _content.Margin = MarginPointer;
 
             contentContainer.Measure(new Size(canvasWidth, canvasHeight));
             var contentSize = contentContainer.DesiredSize;
@@ -409,217 +229,17 @@ namespace TimeDataViewer
                 X = dx * contentSize.Width,
                 Y = dy * contentSize.Height
             };
-
-            var pos = Position;
-
-            if (horizontalLine != null)
-            {
-                if (LineExtents.Width > 0)
-                {
-                    horizontalLine.StartPoint = horizontalLine.StartPoint.WithX(LineExtents.Left);
-                    horizontalLine.EndPoint = horizontalLine.StartPoint.WithX(LineExtents.Right);
-                }
-                else
-                {
-                    horizontalLine.StartPoint = horizontalLine.StartPoint.WithX(0);
-                    horizontalLine.EndPoint = horizontalLine.StartPoint.WithX(canvasWidth);
-                }
-
-                horizontalLine.StartPoint = horizontalLine.StartPoint.WithY(pos.Y);
-                horizontalLine.EndPoint = horizontalLine.EndPoint.WithY(pos.Y);
-            }
-
-            if (verticalLine != null)
-            {
-                if (LineExtents.Width > 0)
-                {
-                    horizontalLine.StartPoint = horizontalLine.StartPoint.WithY(LineExtents.Top);
-                    horizontalLine.EndPoint = horizontalLine.StartPoint.WithY(LineExtents.Bottom);
-                }
-                else
-                {
-                    horizontalLine.StartPoint = horizontalLine.StartPoint.WithY(0);
-                    horizontalLine.EndPoint = horizontalLine.StartPoint.WithY(canvasHeight);
-                }
-
-                horizontalLine.StartPoint = horizontalLine.StartPoint.WithY(pos.X);
-                horizontalLine.EndPoint = horizontalLine.EndPoint.WithY(pos.X);
-            }
         }
 
-        /// <summary>
-        /// Create the border geometry.
-        /// </summary>
-        /// <param name="ha">The horizontal alignment.</param>
-        /// <param name="va">The vertical alignment.</param>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
-        /// <param name="margin">The margin.</param>
-        /// <returns>The border geometry.</returns>
-        private Geometry CreateBorderGeometry(
-            A.HorizontalAlignment ha, A.VerticalAlignment va, double width, double height, out Thickness margin)
+        private Thickness CreateMargin(A.HorizontalAlignment ha, A.VerticalAlignment va)
         {
             var m = Distance;
-            var rect = new Rect(
-                ha == A.HorizontalAlignment.Left ? m : 0, va == A.VerticalAlignment.Top ? m : 0, width, height);
-            margin = new Thickness(
+
+            return new Thickness(
                 ha == A.HorizontalAlignment.Left ? m : 0,
                 va == A.VerticalAlignment.Top ? m : 0,
                 ha == A.HorizontalAlignment.Right ? m : 0,
                 va == A.VerticalAlignment.Bottom ? m : 0);
-            return new RectangleGeometry(rect)/* { RadiusX = this.CornerRadius, RadiusY = this.CornerRadius }*/;
-        }
-
-        /// <summary>
-        /// Create a border geometry with a 'pointer'.
-        /// </summary>
-        /// <param name="ha">The horizontal alignment.</param>
-        /// <param name="va">The vertical alignment.</param>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
-        /// <param name="margin">The margin.</param>
-        /// <returns>The border geometry.</returns>
-        private Geometry CreatePointerBorderGeometry(
-            A.HorizontalAlignment ha, A.VerticalAlignment va, double width, double height, out Thickness margin)
-        {
-            Point[] points = null;
-            var m = Distance;
-            margin = new Thickness();
-
-            if (ha == A.HorizontalAlignment.Center && va == A.VerticalAlignment.Bottom)
-            {
-                double x0 = 0;
-                var x1 = width;
-                var x2 = (x0 + x1) / 2;
-                double y0 = 0;
-                var y1 = height;
-                margin = new Thickness(0, 0, 0, m);
-                points = new[]
-                    {
-                        new Point(x0, y0), new Point(x1, y0), new Point(x1, y1), new Point(x2 + (m / 2), y1),
-                        new Point(x2, y1 + m), new Point(x2 - (m / 2), y1), new Point(x0, y1)
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Center && va == A.VerticalAlignment.Top)
-            {
-                double x0 = 0;
-                var x1 = width;
-                var x2 = (x0 + x1) / 2;
-                var y0 = m;
-                var y1 = m + height;
-                margin = new Thickness(0, m, 0, 0);
-                points = new[]
-                    {
-                        new Point(x0, y0), new Point(x2 - (m / 2), y0), new Point(x2, 0), new Point(x2 + (m / 2), y0),
-                        new Point(x1, y0), new Point(x1, y1), new Point(x0, y1)
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Left && va == A.VerticalAlignment.Center)
-            {
-                var x0 = m;
-                var x1 = m + width;
-                double y0 = 0;
-                var y1 = height;
-                var y2 = (y0 + y1) / 2;
-                margin = new Thickness(m, 0, 0, 0);
-                points = new[]
-                    {
-                        new Point(0, y2), new Point(x0, y2 - (m / 2)), new Point(x0, y0), new Point(x1, y0),
-                        new Point(x1, y1), new Point(x0, y1), new Point(x0, y2 + (m / 2))
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Right && va == A.VerticalAlignment.Center)
-            {
-                double x0 = 0;
-                var x1 = width;
-                double y0 = 0;
-                var y1 = height;
-                var y2 = (y0 + y1) / 2;
-                margin = new Thickness(0, 0, m, 0);
-                points = new[]
-                    {
-                        new Point(x1 + m, y2), new Point(x1, y2 + (m / 2)), new Point(x1, y1), new Point(x0, y1),
-                        new Point(x0, y0), new Point(x1, y0), new Point(x1, y2 - (m / 2))
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Left && va == A.VerticalAlignment.Top)
-            {
-                m *= 0.67;
-                var x0 = m;
-                var x1 = m + width;
-                var y0 = m;
-                var y1 = m + height;
-                margin = new Thickness(m, m, 0, 0);
-                points = new[]
-                    {
-                        new Point(0, 0), new Point(m * 2, y0), new Point(x1, y0), new Point(x1, y1), new Point(x0, y1),
-                        new Point(x0, m * 2)
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Right && va == A.VerticalAlignment.Top)
-            {
-                m *= 0.67;
-                double x0 = 0;
-                var x1 = width;
-                var y0 = m;
-                var y1 = m + height;
-                margin = new Thickness(0, m, m, 0);
-                points = new[]
-                    {
-                        new Point(x1 + m, 0), new Point(x1, y0 + m), new Point(x1, y1), new Point(x0, y1),
-                        new Point(x0, y0), new Point(x1 - m, y0)
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Left && va == A.VerticalAlignment.Bottom)
-            {
-                m *= 0.67;
-                var x0 = m;
-                var x1 = m + width;
-                double y0 = 0;
-                var y1 = height;
-                margin = new Thickness(m, 0, 0, m);
-                points = new[]
-                    {
-                        new Point(0, y1 + m), new Point(x0, y1 - m), new Point(x0, y0), new Point(x1, y0),
-                        new Point(x1, y1), new Point(x0 + m, y1)
-                    };
-            }
-
-            if (ha == A.HorizontalAlignment.Right && va == A.VerticalAlignment.Bottom)
-            {
-                m *= 0.67;
-                double x0 = 0;
-                var x1 = width;
-                double y0 = 0;
-                var y1 = height;
-                margin = new Thickness(0, 0, m, m);
-                points = new[]
-                    {
-                        new Point(x1 + m, y1 + m), new Point(x1 - m, y1), new Point(x0, y1), new Point(x0, y0),
-                        new Point(x1, y0), new Point(x1, y1 - m)
-                    };
-            }
-
-            if (points == null)
-            {
-                return null;
-            }
-
-            var pc = new List<Point>(points.Length);
-            foreach (var p in points)
-            {
-                pc.Add(p);
-            }
-            var segments = new PathSegments();
-            segments.AddRange(pc.Select(p => new LineSegment { Point = p }));
-            var pf = new PathFigure { StartPoint = points[0], Segments = segments, IsClosed = true };
-            return new PathGeometry { Figures = new PathFigures { pf } };
         }
     }
 }

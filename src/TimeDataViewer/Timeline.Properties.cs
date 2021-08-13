@@ -101,67 +101,6 @@ namespace TimeDataViewer
             }
         }
 
-        //public static readonly StyledProperty<IList<Color>> DefaultColorsProperty = 
-        //    AvaloniaProperty.Register<Plot, IList<Color>>(nameof(DefaultColors), new[]
-        //    {
-        //        Color.FromRgb(0x4E, 0x9A, 0x06),
-        //            Color.FromRgb(0xC8, 0x8D, 0x00),
-        //            Color.FromRgb(0xCC, 0x00, 0x00),
-        //            Color.FromRgb(0x20, 0x4A, 0x87),
-        //            Colors.Red,
-        //            Colors.Orange,
-        //            Colors.Yellow,
-        //            Colors.Green,
-        //            Colors.Blue,
-        //            Colors.Indigo,
-        //            Colors.Violet
-        //    });
-
-        //public IList<Color> DefaultColors
-        //{
-        //    get
-        //    {
-        //        return GetValue(DefaultColorsProperty);
-        //    }
-
-        //    set
-        //    {
-        //        SetValue(DefaultColorsProperty, value);
-        //    }
-        //}
-
-        //public static readonly StyledProperty<double> AxisTierDistanceProperty = 
-        //    AvaloniaProperty.Register<Plot, double>(nameof(AxisTierDistance), 4d);
-
-        //public double AxisTierDistance
-        //{
-        //    get
-        //    {
-        //        return GetValue(AxisTierDistanceProperty);
-        //    }
-
-        //    set
-        //    {
-        //        SetValue(AxisTierDistanceProperty/*LegendTitleFontProperty*/, value);
-        //    }
-        //}
-
-        //public static readonly StyledProperty<Thickness> PlotMarginsProperty = 
-        //    AvaloniaProperty.Register<Plot, Thickness>(nameof(PlotMargins), new Thickness(double.NaN));
-
-        //public Thickness PlotMargins
-        //{
-        //    get
-        //    {
-        //        return GetValue(PlotMarginsProperty);
-        //    }
-
-        //    set
-        //    {
-        //        SetValue(PlotMarginsProperty, value);
-        //    }
-        //}
-
         public static readonly StyledProperty<int> InvalidateFlagProperty =
             AvaloniaProperty.Register<Timeline, int>(nameof(InvalidateFlag), 0);
 
