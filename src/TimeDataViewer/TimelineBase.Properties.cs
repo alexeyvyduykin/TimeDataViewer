@@ -31,6 +31,22 @@ namespace TimeDataViewer
 {
     public partial class TimelineBase
     {
+        public static readonly StyledProperty<ControlTemplate> DefaultTrackerTemplateProperty =    
+            AvaloniaProperty.Register<TimelineBase, ControlTemplate>(nameof(DefaultTrackerTemplate));
+
+        public ControlTemplate DefaultTrackerTemplate
+        {
+            get
+            {
+                return GetValue(DefaultTrackerTemplateProperty);
+            }
+
+            set
+            {
+                SetValue(DefaultTrackerTemplateProperty, value);
+            }
+        }
+
         public static readonly StyledProperty<ControlTemplate> ZoomRectangleTemplateProperty =
             AvaloniaProperty.Register<TimelineBase, ControlTemplate>(nameof(ZoomRectangleTemplate));
 

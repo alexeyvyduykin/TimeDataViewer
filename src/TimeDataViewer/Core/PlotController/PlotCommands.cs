@@ -15,7 +15,7 @@ namespace TimeDataViewer.Core
             PanAt = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new PanManipulator(view), args));
             ZoomRectangle = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new ZoomRectangleManipulator(view), args));
             //    Track = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = false, PointsOnly = false }, args));
-            //    SnapTrack = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = true, PointsOnly = false }, args));
+            SnapTrack = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = true, PointsOnly = false }, args));
             //    PointsOnlyTrack = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new TrackerManipulator(view) { Snap = false, PointsOnly = true }, args));
             ZoomWheel = new DelegatePlotCommand<OxyMouseWheelEventArgs>((view, controller, args) => HandleZoomByWheel(view, args));
             //ZoomWheelFine = new DelegatePlotCommand<OxyMouseWheelEventArgs>((view, controller, args) => HandleZoomByWheel(view, args, 0.1));
@@ -47,7 +47,7 @@ namespace TimeDataViewer.Core
         //  public static IViewCommand<OxyMouseDownEventArgs> Track { get; private set; }
 
         // Gets the snap tracker command.       
-        //  public static IViewCommand<OxyMouseDownEventArgs> SnapTrack { get; private set; }
+        public static IViewCommand<OxyMouseDownEventArgs> SnapTrack { get; private set; }
 
         // Gets the points only tracker command.     
         //  public static IViewCommand<OxyMouseDownEventArgs> PointsOnlyTrack { get; private set; }

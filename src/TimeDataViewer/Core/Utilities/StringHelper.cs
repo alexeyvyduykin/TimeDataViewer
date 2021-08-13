@@ -33,6 +33,38 @@ namespace TimeDataViewer.Core
             return string.Concat("{0:", input, "}");
         }
 
+        public static string Format(IFormatProvider provider, string formatString, object item, params object[] values)
+        {
+            // Replace items on the format {Property[:Formatstring]}
+            var s = FormattingExpression.Replace(
+                formatString,
+                delegate (Match match)
+                {
+                    var property = match.Groups["Property"].Value;
+                    if (property.Length > 0 && char.IsDigit(property[0]))
+                    {
+                        return match.Value;
+                    }
+
+                    var pi = item.GetType().GetRuntimeProperty(property);
+                    if (pi == null)
+                    {
+                        return string.Empty;
+                    }
+
+                    var v = pi.GetValue(item, null);
+                    var format = match.Groups["Format"].Value;
+
+                    var fs = "{0" + format + "}";
+                    return string.Format(provider, fs, v);
+                });
+
+            // Also apply the standard formatting
+            s = string.Format(provider, s, values);
+            return s;
+        }
+
+
         /// <summary>
         /// Formats each item in a sequence by the specified format string and property.
         /// </summary>

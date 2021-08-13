@@ -51,10 +51,13 @@ namespace TimeDataViewer
         private int _isPlotInvalidated;      
         private Canvas _overlays;
         private ContentControl _zoomControl;
+        private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
+        private IControl _currentTracker;
 
         protected TimelineBase()
         {
             DisconnectCanvasWhileUpdating = true;
+            _trackerDefinitions = new ObservableCollection<TrackerDefinition>();
             this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
         }
 
@@ -72,6 +75,17 @@ namespace TimeDataViewer
 
         // Gets the coordinates of the client area of the view.
         public OxyRect ClientArea => new OxyRect(0, 0, Bounds.Width, Bounds.Height);
+
+        public ObservableCollection<TrackerDefinition> TrackerDefinitions => _trackerDefinitions;
+        
+        public void HideTracker()
+        {
+            if (_currentTracker != null)
+            {
+                _overlays.Children.Remove(_currentTracker);
+                _currentTracker = null;
+            }
+        }
 
         public void HideZoomRectangle()
         {
@@ -142,6 +156,13 @@ namespace TimeDataViewer
                 return;
             }
 
+            _panel.PointerEnter += _panel_PointerEnter;
+            _panel.PointerLeave += _panel_PointerLeave;            
+            _panel.PointerWheelChanged += _panel_PointerWheelChanged;            
+            _panel.PointerPressed += _panel_PointerPressed;            
+            _panel.PointerMoved += _panel_PointerMoved;            
+            _panel.PointerReleased += _panel_PointerReleased;            
+
             _canvas = new Canvas() { Background = Brushes.Transparent };
             _drawCanvas = new DrawCanvas() { Background = Brushes.Transparent };
 
@@ -180,6 +201,46 @@ namespace TimeDataViewer
                 default:
                     Cursor = Cursor.Default;
                     break;
+            }
+        }
+
+        public void ShowTracker(TrackerHitResult trackerHitResult)
+        {
+            if (trackerHitResult == null)
+            {
+                HideTracker();
+                return;
+            }
+
+            var trackerTemplate = DefaultTrackerTemplate;
+            if (trackerHitResult.Series != null && !string.IsNullOrEmpty(trackerHitResult.Series.TrackerKey))
+            {
+                var match = TrackerDefinitions.FirstOrDefault(t => t.TrackerKey == trackerHitResult.Series.TrackerKey);
+                if (match != null)
+                {
+                    trackerTemplate = match.TrackerTemplate;
+                }
+            }
+
+            if (trackerTemplate == null)
+            {
+                HideTracker();
+                return;
+            }
+
+            var tracker = trackerTemplate.Build(new ContentControl());
+
+            // ReSharper disable once RedundantNameQualifier
+            if (!object.ReferenceEquals(tracker, _currentTracker))
+            {
+                HideTracker();
+                _overlays.Children.Add(tracker.Control);
+                _currentTracker = tracker.Control;
+            }
+
+            if (_currentTracker != null)
+            {
+                _currentTracker.DataContext = trackerHitResult;
             }
         }
 

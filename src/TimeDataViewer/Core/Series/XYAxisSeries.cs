@@ -9,8 +9,13 @@ namespace TimeDataViewer.Core
 {
     public abstract class XYAxisSeries : ItemsSeries
     {
+        public const string DefaultTrackerFormatString = "{0}\n{1}: {2}\n{3}: {4}";
+        protected const string DefaultXAxisTitle = "X";
+        protected const string DefaultYAxisTitle = "Y";
+
         protected XYAxisSeries()
         {
+            this.TrackerFormatString = DefaultTrackerFormatString;
         }
       
         // Gets or sets the maximum x-coordinate of the dataset.
@@ -160,6 +165,156 @@ namespace TimeDataViewer.Core
 
             return new OxyRect(minX, minY, maxX - minX, maxY - minY);
         }
+
+        /// <summary>
+        /// Gets the point on the curve that is nearest the specified point.
+        /// </summary>
+        /// <param name="points">The point list.</param>
+        /// <param name="point">The point.</param>
+        /// <returns>A tracker hit result if a point was found.</returns>
+        /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
+        protected TrackerHitResult GetNearestInterpolatedPointInternal(List<DataPoint> points, ScreenPoint point)
+        {
+            return this.GetNearestInterpolatedPointInternal(points, 0, point);
+        }
+
+        /// <summary>
+        /// Gets the point on the curve that is nearest the specified point.
+        /// </summary>
+        /// <param name="points">The point list.</param>
+        /// <param name="startIdx">The index to start from.</param>
+        /// <param name="point">The point.</param>
+        /// <returns>A tracker hit result if a point was found.</returns>
+        /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
+        protected TrackerHitResult GetNearestInterpolatedPointInternal(List<DataPoint> points, int startIdx, ScreenPoint point)
+        {
+            if (this.XAxis == null || this.YAxis == null || points == null)
+            {
+                return null;
+            }
+
+            var spn = default(ScreenPoint);
+            var dpn = default(DataPoint);
+            double index = -1;
+
+            double minimumDistance = double.MaxValue;
+
+            for (int i = startIdx; i + 1 < points.Count; i++)
+            {
+                var p1 = points[i];
+                var p2 = points[i + 1];
+                if (!this.IsValidPoint(p1) || !this.IsValidPoint(p2))
+                {
+                    continue;
+                }
+
+                var sp1 = this.Transform(p1);
+                var sp2 = this.Transform(p2);
+
+                // Find the nearest point on the line segment.
+                var spl = ScreenPointHelper.FindPointOnLine(point, sp1, sp2);
+
+                if (ScreenPoint.IsUndefined(spl))
+                {
+                    // P1 && P2 coincident
+                    continue;
+                }
+
+                double l2 = (point - spl).LengthSquared;
+
+                if (l2 < minimumDistance)
+                {
+                    double segmentLength = (sp2 - sp1).Length;
+                    double u = segmentLength > 0 ? (spl - sp1).Length / segmentLength : 0;
+                    dpn = this.InverseTransform(spl);
+                    spn = spl;
+                    minimumDistance = l2;
+                    index = i + u;
+                }
+            }
+
+            if (minimumDistance < double.MaxValue)
+            {
+                var item = this.GetItem((int)Math.Round(index));
+                return new TrackerHitResult
+                {
+                    Series = this,
+                    DataPoint = dpn,
+                    Position = spn,
+                    Item = item,
+                    Index = index
+                };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the nearest point.
+        /// </summary>
+        /// <param name="points">The points (data coordinates).</param>
+        /// <param name="point">The point (screen coordinates).</param>
+        /// <returns>A <see cref="TrackerHitResult" /> if a point was found, <c>null</c> otherwise.</returns>
+        /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
+        protected TrackerHitResult GetNearestPointInternal(IEnumerable<DataPoint> points, ScreenPoint point)
+        {
+            return this.GetNearestPointInternal(points, 0, point);
+        }        /// <summary>
+
+
+        /// Gets the nearest point.
+        /// </summary>
+        /// <param name="points">The points (data coordinates).</param>
+        /// <param name="startIdx">The index to start from.</param>
+        /// <param name="point">The point (screen coordinates).</param>
+        /// <returns>A <see cref="TrackerHitResult" /> if a point was found, <c>null</c> otherwise.</returns>
+        /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
+        protected TrackerHitResult GetNearestPointInternal(IEnumerable<DataPoint> points, int startIdx, ScreenPoint point)
+        {
+            var spn = default(ScreenPoint);
+            var dpn = default(DataPoint);
+            double index = -1;
+
+            double minimumDistance = double.MaxValue;
+            int i = 0;
+            foreach (var p in points.Skip(startIdx))
+            {
+                if (!this.IsValidPoint(p))
+                {
+                    i++;
+                    continue;
+                }
+
+                var sp = this.XAxis.Transform(p.x, p.y, this.YAxis);
+                double d2 = (sp - point).LengthSquared;
+
+                if (d2 < minimumDistance)
+                {
+                    dpn = p;
+                    spn = sp;
+                    minimumDistance = d2;
+                    index = i;
+                }
+
+                i++;
+            }
+
+            if (minimumDistance < double.MaxValue)
+            {
+                var item = this.GetItem((int)Math.Round(index));
+                return new TrackerHitResult
+                {
+                    Series = this,
+                    DataPoint = dpn,
+                    Position = spn,
+                    Item = item,
+                    Index = index
+                };
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Determines whether the specified point is valid.

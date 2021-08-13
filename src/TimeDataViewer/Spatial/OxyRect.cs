@@ -134,6 +134,27 @@ namespace TimeDataViewer.Spatial
         }
 
         /// <summary>
+        /// Determines whether the specified point is inside the rectangle.
+        /// </summary>
+        /// <param name="p">The point.</param>
+        /// <returns><c>true</c> if the rectangle contains the specified point; otherwise, <c>false</c>.</returns>
+        public bool Contains(ScreenPoint p)
+        {
+            return this.Contains(p.x, p.y);
+        }
+
+        /// <summary>
+        /// Determines whether the specified point is inside the rectangle.
+        /// </summary>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <returns><c>true</c> if the rectangle contains the specified point; otherwise, <c>false</c>.</returns>
+        public bool Contains(double x, double y)
+        {
+            return x >= this.Left && x <= this.Right && y >= this.Top && y <= this.Bottom;
+        }
+
+        /// <summary>
         /// Creates a rectangle from the specified corner coordinates.
         /// </summary>
         /// <param name="x0">The x0.</param>

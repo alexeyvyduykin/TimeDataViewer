@@ -8,6 +8,10 @@ namespace TimeDataViewer.Core
 {
     public abstract class CategorizedSeries : XYAxisSeries
     {
+        protected const string DefaultCategoryAxisTitle = "Category";
+
+        protected const string DefaultValueAxisTitle = "Value";
+
         /// <summary>
         /// Gets or sets the width/height of the columns/bars (as a fraction of the available space).
         /// </summary>

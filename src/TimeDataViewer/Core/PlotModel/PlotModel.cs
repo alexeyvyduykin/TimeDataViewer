@@ -22,6 +22,8 @@ namespace TimeDataViewer.Core
             Series = new ElementCollection<Series>(this);
         }
 
+        public event EventHandler<TrackerEventArgs> TrackerChanged;
+
         public IPlotView PlotView => (plotViewReference != null) ? (IPlotView)plotViewReference.Target : null;
 
         public ElementCollection<Axis> Axises { get; private set; }
@@ -93,6 +95,37 @@ namespace TimeDataViewer.Core
                 }
             }
         }
+
+        public Series GetSeriesFromPoint(ScreenPoint point, double limit = 100)
+        {
+            double mindist = double.MaxValue;
+            Series nearestSeries = null;
+            foreach (var series in this.Series.Reverse().Where(s => s.IsVisible))
+            {
+                var thr = series.GetNearestPoint(point, true) ?? series.GetNearestPoint(point, false);
+
+                if (thr == null)
+                {
+                    continue;
+                }
+
+                // find distance to this point on the screen
+                double dist = point.DistanceTo(thr.Position);
+                if (dist < mindist)
+                {
+                    nearestSeries = series;
+                    mindist = dist;
+                }
+            }
+
+            if (mindist < limit)
+            {
+                return nearestSeries;
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Updates all axes and series.
@@ -210,6 +243,32 @@ namespace TimeDataViewer.Core
             {
                 a.ZoomAtCenter(factor);
             }
+        }
+
+        /// <summary>
+        /// Raises the TrackerChanged event.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <remarks>
+        /// This method is public so custom implementations of tracker manipulators can invoke this method.
+        /// </remarks>
+        public void RaiseTrackerChanged(TrackerHitResult result)
+        {
+            var handler = this.TrackerChanged;
+            if (handler != null)
+            {
+                var args = new TrackerEventArgs { HitResult = result };
+                handler(this, args);
+            }
+        }
+
+        /// <summary>
+        /// Raises the TrackerChanged event.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        protected internal virtual void OnTrackerChanged(TrackerHitResult result)
+        {
+            this.RaiseTrackerChanged(result);
         }
 
         /// <summary>

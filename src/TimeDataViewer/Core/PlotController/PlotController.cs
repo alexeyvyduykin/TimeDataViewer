@@ -17,7 +17,7 @@ namespace TimeDataViewer.Core
             this.BindMouseDown(OxyMouseButton.Right, PlotCommands.PanAt);
 
             // Tracker bindings: LMB
-            //  this.BindMouseDown(OxyMouseButton.Left, PlotCommands.SnapTrack);
+            this.BindMouseDown(OxyMouseButton.Left, PlotCommands.SnapTrack);
 
             // Zoom in/out binding: XB1 / XB2 / mouse wheels / +/- keys
             this.BindMouseWheel(PlotCommands.ZoomWheel);
