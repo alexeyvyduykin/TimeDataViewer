@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Path = Avalonia.Controls.Shapes.Path;
 using Avalonia.Media.Immutable;
 using TimeDataViewer.Spatial;
+using Path = Avalonia.Controls.Shapes.Path;
 
 namespace TimeDataViewer
 {

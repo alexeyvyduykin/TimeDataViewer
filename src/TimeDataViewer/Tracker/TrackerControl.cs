@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
-using A = Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using TimeDataViewer.Spatial;
+using A = Avalonia.Layout;
 
 namespace TimeDataViewer
 {
@@ -24,9 +19,9 @@ namespace TimeDataViewer
         public static readonly StyledProperty<Thickness> MarginPointerProperty = AvaloniaProperty.Register<TrackerControl, Thickness>(nameof(MarginPointer), new Thickness());
 
         private const string PartContent = "PART_Content";
-        private const string PartContentContainer = "PART_ContentContainer"; 
+        private const string PartContentContainer = "PART_ContentContainer";
         private ContentPresenter _content;
-        private Panel contentContainer;    
+        private Panel contentContainer;
 
         static TrackerControl()
         {
@@ -114,7 +109,7 @@ namespace TimeDataViewer
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate(e);          
+            base.OnApplyTemplate(e);
             _content = e.NameScope.Get<ContentPresenter>(PartContent);
             contentContainer = e.NameScope.Get<Panel>(PartContentContainer);
 

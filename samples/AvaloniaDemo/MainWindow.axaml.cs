@@ -1,9 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using AvaloniaDemo.ViewModels;
-using System.Collections.Generic;
-using AvaloniaDemo.Models;
 
 namespace AvaloniaDemo
 {

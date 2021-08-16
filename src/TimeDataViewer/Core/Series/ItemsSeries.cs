@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
 
 namespace TimeDataViewer.Core
 {
     public abstract class ItemsSeries : Series
-    {  
+    {
         public IEnumerable ItemsSource { get; set; }
 
         protected internal override void UpdateValidData()

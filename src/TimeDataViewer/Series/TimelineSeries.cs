@@ -1,36 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Specialized;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Styling;
-using Avalonia.LogicalTree;
-using TimeDataViewer.ViewModels;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Templates;
-using Avalonia.Threading;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Metadata;
-using Avalonia.VisualTree;
-using TimeDataViewer.Shapes;
-using TimeDataViewer.Spatial;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Controls.Generators;
-using Avalonia.Controls.Primitives;
-using TimeDataViewer.Views;
-using System.Threading.Tasks;
-using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {
@@ -50,12 +20,12 @@ namespace TimeDataViewer
         {
             InternalSeries = new Core.TimelineSeries();
         }
-        
+
         public bool IsStacked => true;
 
         public string StackGroup => string.Empty;
 
-        public static readonly StyledProperty<double> BarWidthProperty =    
+        public static readonly StyledProperty<double> BarWidthProperty =
             AvaloniaProperty.Register<TimelineSeries, double>(nameof(BarWidth), 1.0);
 
         public double BarWidth
@@ -72,7 +42,7 @@ namespace TimeDataViewer
         }
 
 
-        public static readonly StyledProperty<string> BeginFieldProperty = 
+        public static readonly StyledProperty<string> BeginFieldProperty =
             AvaloniaProperty.Register<TimelineSeries, string>(nameof(BeginField), string.Empty);
 
         public string BeginField
@@ -81,7 +51,7 @@ namespace TimeDataViewer
             set { SetValue(BeginFieldProperty, value); }
         }
 
-        public static readonly StyledProperty<string> EndFieldProperty = 
+        public static readonly StyledProperty<string> EndFieldProperty =
             AvaloniaProperty.Register<TimelineSeries, string>(nameof(EndField), string.Empty);
 
         public string EndField
@@ -90,7 +60,7 @@ namespace TimeDataViewer
             set { SetValue(EndFieldProperty, value); }
         }
 
-        public static readonly StyledProperty<string> CategoryFieldProperty = 
+        public static readonly StyledProperty<string> CategoryFieldProperty =
             AvaloniaProperty.Register<TimelineSeries, string>(nameof(CategoryField), string.Empty);
 
         public string CategoryField
@@ -99,7 +69,7 @@ namespace TimeDataViewer
             set { SetValue(CategoryFieldProperty, value); }
         }
 
-        public static readonly StyledProperty<IBrush> FillBrushProperty =    
+        public static readonly StyledProperty<IBrush> FillBrushProperty =
             AvaloniaProperty.Register<TimelineSeries, IBrush>(nameof(FillBrush), Brushes.Red);
 
         public IBrush FillBrush
@@ -114,7 +84,7 @@ namespace TimeDataViewer
                 SetValue(FillBrushProperty, value);
             }
         }
-        
+
         public static readonly StyledProperty<IBrush> StrokeBrushProperty =
             AvaloniaProperty.Register<TimelineSeries, IBrush>(nameof(StrokeBrush), Brushes.Black);
 

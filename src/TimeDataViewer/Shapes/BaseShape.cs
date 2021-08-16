@@ -1,23 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Controls.Primitives;
-using System.Windows.Input;
-using Avalonia.Media;
-using System.Globalization;
-using System.Diagnostics;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using System.Collections.Specialized;
-using Avalonia.Controls.Shapes;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
-using Avalonia.LogicalTree;
-
-namespace TimeDataViewer.Shapes
+﻿namespace TimeDataViewer.Shapes
 {
     //public abstract class BaseShape : Control
     //{   

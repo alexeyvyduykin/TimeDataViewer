@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace SatelliteDemo
 {
     public class Serializer
-    {       
+    {
         private readonly JsonSerializerSettings _settings;
 
         public Serializer()
-        {        
+        {
             _settings = new JsonSerializerSettings()
             {
                 Formatting = Formatting.Indented,
                 TypeNameHandling = TypeNameHandling.Objects,
                 PreserveReferencesHandling = PreserveReferencesHandling.Objects,
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,           
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 NullValueHandling = NullValueHandling.Ignore,
             };
         }

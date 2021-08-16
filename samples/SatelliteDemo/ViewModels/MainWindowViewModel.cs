@@ -1,20 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
-using System.ComponentModel;
+using System.Text;
+using Newtonsoft.Json;
 using SatelliteDemo.SceneTimer;
 using TimeDataViewer.Core;
-using Newtonsoft.Json;
 
 namespace SatelliteDemo.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
         private DateTime _epoch;
-        private ObservableCollection<Satellite> _satellites; 
+        private ObservableCollection<Satellite> _satellites;
         private ObservableCollection<Item> _labels;
         private Satellite? _selected;
         private readonly AcceleratedTimer _timer;
@@ -51,7 +50,7 @@ namespace SatelliteDemo.ViewModels
 
                 Satellites.Add(sat);
             }
-          
+
             Selected = Satellites.FirstOrDefault();
 
             _timer = new AcceleratedTimer();
@@ -150,11 +149,11 @@ namespace SatelliteDemo.ViewModels
 
             foreach (var item in sat.Rotations.ToList().OrderBy(s => s.BeginTime))
             {
-                if(temp <= item.BeginTime)
+                if (temp <= item.BeginTime)
                 {
                     rotations.Add(item);
                     temp = item.EndTime;
-                }              
+                }
             }
 
             temp = DateTime.MinValue;

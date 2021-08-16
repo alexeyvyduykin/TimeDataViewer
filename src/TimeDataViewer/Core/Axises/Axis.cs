@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
-using System.Diagnostics;
 
 namespace TimeDataViewer.Core
 {
@@ -29,7 +24,7 @@ namespace TimeDataViewer.Core
     public abstract partial class Axis : PlotElement
     {
         protected static readonly Func<double, double> Exponent = x => Math.Floor(ThresholdRound(Math.Log(Math.Abs(x), 10)));
-        protected static readonly Func<double, double> Mantissa = x => ThresholdRound(x / Math.Pow(10, Exponent(x)));     
+        protected static readonly Func<double, double> Mantissa = x => ThresholdRound(x / Math.Pow(10, Exponent(x)));
         // Rounds a value if the difference between the rounded value and the original value is less than 1e-6.  
         protected static readonly Func<double, double> ThresholdRound = x => Math.Abs(Math.Round(x) - x) < 1e-6 ? Math.Round(x) : x;
 

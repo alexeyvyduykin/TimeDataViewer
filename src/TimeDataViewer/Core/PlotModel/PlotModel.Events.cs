@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
     public class InputEventArgs : EventArgs
-    {   
+    {
         public bool Handled { get; set; }
 
         public ScreenPoint Position { get; set; }
     }
 
     public partial class PlotModel
-    {     
+    {
         // The mouse hit tolerance.    
         private const double MouseHitTolerance = 10;
-       
+
         public event EventHandler<InputEventArgs> MouseDown;
 
         public event EventHandler<InputEventArgs> MouseMove;

@@ -3,9 +3,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using SatelliteDemo.ViewModels;
 using SatelliteDemo.Views;
-using TimeDataViewer;
-using TimeDataViewer.Core;
-using System.Collections.ObjectModel;
 
 namespace SatelliteDemo
 {
@@ -24,9 +21,9 @@ namespace SatelliteDemo
             //series.Items = new ObservableCollection<Interval>() { ival };
 
             //scheduler.Series = new ObservableCollection<Series>() { series };
-                 
+
             //var fdfd = scheduler.ItemCount;
-       
+
 
             //int h = 0;
 

@@ -1,42 +1,7 @@
-﻿using Avalonia.Media;
-using Avalonia;
+﻿using System;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
-using Avalonia.Threading;
-using Avalonia.VisualTree;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
-using Avalonia.LogicalTree;
-using System.ComponentModel;
-using Avalonia.Metadata;
-using Avalonia.Styling;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
 using TimeDataViewer.Spatial;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
-using TimeDataViewer.Core;
-using Avalonia.Controls.Generators;
-using System.Threading.Tasks;
-using TimeDataViewer.Views;
-using Avalonia.Collections;
-using Core = TimeDataViewer.Core;
 
 namespace TimeDataViewer
 {

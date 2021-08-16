@@ -1,11 +1,8 @@
 ﻿#nullable disable
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using TimeDataViewer.Spatial;
-using System.Collections.ObjectModel;
 using System.Linq;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
@@ -86,12 +83,12 @@ namespace TimeDataViewer.Core
                 }
 
                 if (axis.IsHorizontal())
-                {                        
-                    xaxis = axis;                    
+                {
+                    xaxis = axis;
                 }
                 else if (axis.IsVertical())
-                {                        
-                    yaxis = axis;                    
+                {
+                    yaxis = axis;
                 }
             }
         }
@@ -146,8 +143,8 @@ namespace TimeDataViewer.Core
 
                     var visibleSeries = Series.Where(s => s.IsVisible).ToArray();
 
-                        // Update data of the series
-                        if (updateData || _isDataUpdated == false)
+                    // Update data of the series
+                    if (updateData || _isDataUpdated == false)
                     {
                         foreach (var s in visibleSeries)
                         {
@@ -279,10 +276,10 @@ namespace TimeDataViewer.Core
         /// </returns>
         public override IEnumerable<UIElement> GetElements()
         {
-           // foreach (var axis in Axises.Reverse().Where(a => a.IsAxisVisible && a.Layer == AxisLayer.AboveSeries))
-           // {
-           //     yield return axis;
-           // }
+            // foreach (var axis in Axises.Reverse().Where(a => a.IsAxisVisible && a.Layer == AxisLayer.AboveSeries))
+            // {
+            //     yield return axis;
+            // }
 
             foreach (var s in Series.Reverse().Where(s => s.IsVisible))
             {
@@ -322,8 +319,8 @@ namespace TimeDataViewer.Core
             DefaultYAxis = Axises.FirstOrDefault(a => a.IsVertical() && a.IsXyAxis());
 
             if (DefaultYAxis == null)
-            {                    
-                DefaultYAxis = new CategoryAxis { Position = AxisPosition.Left };                
+            {
+                DefaultYAxis = new CategoryAxis { Position = AxisPosition.Left };
             }
 
             var areAxesRequired = Series.Any(s => s.IsVisible && s.AreAxesRequired());
@@ -331,7 +328,7 @@ namespace TimeDataViewer.Core
             if (areAxesRequired)
             {
                 if (!Axises.Contains(DefaultXAxis))
-                {            
+                {
                     if (DefaultXAxis != null)
                     {
                         Axises.Add(DefaultXAxis);
@@ -339,7 +336,7 @@ namespace TimeDataViewer.Core
                 }
 
                 if (!Axises.Contains(DefaultYAxis))
-                {             
+                {
                     if (DefaultYAxis != null)
                     {
                         Axises.Add(DefaultYAxis);

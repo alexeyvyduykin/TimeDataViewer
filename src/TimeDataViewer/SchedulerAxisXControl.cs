@@ -1,39 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
-using Avalonia.Input;
-using Avalonia.LogicalTree;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Avalonia.Metadata;
-using Avalonia.Styling;
-using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer.Core;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Controls.Primitives;
-using TimeDataViewer.Shapes;
-using System.Globalization;
-
-namespace TimeDataViewer
+﻿namespace TimeDataViewer
 {
     //public class SchedulerAxisXControl : UserControl
     //{
     //    private record Label(Point Position, string Text);
-        
+
     //    private readonly ObservableCollection<Label> _labels;
     //    private readonly Typeface _typeface;
     //    private double _tickSize;
@@ -60,7 +30,7 @@ namespace TimeDataViewer
     //        _foregroundDynamicLabel = new SolidColorBrush() { Color = Colors.Red };
 
     //        _typeface = new Typeface(new FontFamily("Consolas"), FontStyle.Normal, FontWeight.Normal);
-            
+
     //        _labelMargin = 0.0;
 
     //        _isDynamicLabel = false;
@@ -112,7 +82,7 @@ namespace TimeDataViewer
 
     //        _width = finalRect.Width;
     //        _height = finalRect.Height;
-      
+
     //        //_tickSize = _height / 5.0;
     //        //_labelFontSize = _height * 2.0 / 5.0 - 2.0 * _labelMargin;
 
@@ -218,7 +188,7 @@ namespace TimeDataViewer
 
     //        var offsetX = p.X - w / 2.0;
     //        var offsetY = p.Y + _labelMargin;
-         
+
     //        if (offsetX < 0)
     //        {
     //            offsetX = 0.0;

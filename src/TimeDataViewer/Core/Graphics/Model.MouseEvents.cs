@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TimeDataViewer.Core
 {
@@ -86,8 +82,8 @@ namespace TimeDataViewer.Core
         }
 
         protected virtual void OnMouseDown(object sender, OxyMouseDownEventArgs e)
-        {                
-            MouseDown?.Invoke(sender, e);            
+        {
+            MouseDown?.Invoke(sender, e);
         }
 
         protected virtual void OnMouseMove(object sender, OxyMouseEventArgs e)
@@ -96,8 +92,8 @@ namespace TimeDataViewer.Core
         }
 
         protected virtual void OnMouseUp(object sender, OxyMouseEventArgs e)
-        {                
-            MouseUp?.Invoke(sender, e);            
+        {
+            MouseUp?.Invoke(sender, e);
         }
 
         protected virtual void OnMouseEnter(object sender, OxyMouseEventArgs e)

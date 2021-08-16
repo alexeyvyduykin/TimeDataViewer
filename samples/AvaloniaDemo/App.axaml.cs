@@ -1,11 +1,11 @@
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Markup.Xaml;
-using Avalonia.Controls;
-using AvaloniaDemo.ViewModels;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
 using AvaloniaDemo.Models;
+using AvaloniaDemo.ViewModels;
 
 namespace AvaloniaDemo
 {
@@ -41,7 +41,7 @@ namespace AvaloniaDemo
                     Epoch = data.Epoch,
                     Interval1 = new ObservableCollection<TimeInterval>(data.Intervals[0].ToArray()),
                     Interval2 = new ObservableCollection<TimeInterval>(data.Intervals[1].ToArray()),
-                    Interval3 = new ObservableCollection<TimeInterval>(data.Intervals[2].ToArray()),                    
+                    Interval3 = new ObservableCollection<TimeInterval>(data.Intervals[2].ToArray()),
                 };
 
                 desktop.MainWindow = new MainWindow()

@@ -1,10 +1,6 @@
 ﻿#nullable enable
-using System;
-using System.Collections.Generic;
-using System.Text;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 

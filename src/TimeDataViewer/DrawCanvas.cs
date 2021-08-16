@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Media;
-using Path = Avalonia.Controls.Shapes.Path;
-using Avalonia.Media.Immutable;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
@@ -73,7 +66,7 @@ namespace TimeDataViewer
             _brush = fill;
             _pen = new Pen() { Brush = stroke };
             _rects.Clear();
-        
+
             foreach (var item in rects)
             {
                 CreateClippedRectangle(clippingRectangle, ToRect(item));
@@ -102,7 +95,7 @@ namespace TimeDataViewer
 
         protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect)
         {
-           // if (SetClip(clippingRectangle))
+            // if (SetClip(clippingRectangle))
             {
                 _rects.Add(rect);
                 ResetClip();
@@ -187,7 +180,7 @@ namespace TimeDataViewer
         }
 
         protected static Rect ToRect(OxyRect r)
-        {    
+        {
             return new Rect(r.Left, r.Top, r.Width, r.Height);
         }
     }

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using TimeDataViewer.Core;
-
-namespace TimeDataViewer.UnitTests.Core
+﻿namespace TimeDataViewer.UnitTests.Core
 {
     //public class AreaTests
     //{
@@ -143,9 +135,9 @@ namespace TimeDataViewer.UnitTests.Core
     //    {
     //        var area = CreateArea();
     //        var max = area.MaxZoom;
-            
+
     //        area.Zoom = max + 10;
-    
+
     //        Assert.Equal(max, area.Zoom);
     //    }
 

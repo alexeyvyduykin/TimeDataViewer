@@ -1,37 +1,14 @@
+using System;
+using System.Collections.ObjectModel;
+using AreaBorderDemo.ViewModels;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Linq;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.LogicalTree;
+using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Metadata;
 using Avalonia.Styling;
-using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
 using TimeDataViewer;
-using TimeDataViewer.Spatial;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Controls.Primitives;
-using Avalonia.Media.Imaging;
-using TimeDataViewer.Models;
 using TimeDataViewer.Core;
-using Avalonia.Controls.Generators;
-using AreaBorderDemo.ViewModels;
-using Avalonia.Visuals.Platform;
 
 namespace AreaBorderDemo.Views
 {
@@ -41,7 +18,7 @@ namespace AreaBorderDemo.Views
 
         private PlotModel _area;
         private TranslateTransform _transform;
-        private FrameControl _rect; 
+        private FrameControl _rect;
         private readonly Canvas _canvas;
         private Point2D _mouseDown;
 
@@ -53,15 +30,15 @@ namespace AreaBorderDemo.Views
 
             _canvas = new Canvas()
             {
-               // RenderTransform = _transform
+                // RenderTransform = _transform
             };
 
-           // ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
+            // ItemsPanel = new FuncTemplate<IPanel>(() => _canvas);
 
-           
+
 
             DataContextChanged += ContentPresenter_DataContextChanged;
-            
+
             LayoutUpdated += ContentPresenter_LayoutUpdated;
         }
 
@@ -72,7 +49,7 @@ namespace AreaBorderDemo.Views
                 _area = viewModel.Area;
 
                 _rect = CreateWindow();
-         
+
                 Items = new ObservableCollection<object>() { _rect };
             }
         }
@@ -149,15 +126,15 @@ namespace AreaBorderDemo.Views
                 {
                     _mouseDown = Point2D.Empty;
                 }
-                    
-                InvalidateVisual();                
+
+                InvalidateVisual();
             }
         }
 
         private void SchedulerControl_PointerMoved(object? sender, PointerEventArgs e)
         {
             var MouseScreenPosition = e.GetPosition(this);
-                
+
             _area.ZoomScreenPosition = new Point2I((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
 
             MousePosition = _area.FromScreenToLocal((int)MouseScreenPosition.X, (int)MouseScreenPosition.Y);
@@ -189,7 +166,7 @@ namespace AreaBorderDemo.Views
                     _isDragging = true;
                     _cursorBefore = base.Cursor;
                     Cursor = new Cursor(StandardCursorType.SizeWestEast);
-                    e.Pointer.Capture(this);                    
+                    e.Pointer.Capture(this);
                 }
 
                 var mouseCurrent = new Point2D(MouseScreenPosition.X, MouseScreenPosition.Y);
@@ -212,7 +189,7 @@ namespace AreaBorderDemo.Views
 
         public override void Render(DrawingContext context)
         {
-            
+
 
             using (context.PushPreTransform(_transform.Value))
             {
@@ -222,7 +199,7 @@ namespace AreaBorderDemo.Views
 
                 //base.Render(context);
             }
-            
+
         }
 
         private Pen _blackPen = new Pen() { Brush = new SolidColorBrush() { Color = Colors.Black }, Thickness = 5.0 };
@@ -236,10 +213,10 @@ namespace AreaBorderDemo.Views
         }
 
         private void DrawWindow(DrawingContext context)
-        {       
+        {
             _rect.Width = _area.Window.Width;
             _rect.Height = _area.Window.Height;
-            
+
             _rect.RenderTransform = _transform;
             //_rect.Margin = new Thickness(Bounds.Width / 2.0, Bounds.Height / 2.0);
 
@@ -249,8 +226,8 @@ namespace AreaBorderDemo.Views
         }
     }
 
-    internal static class Extensions 
-    {    
+    internal static class Extensions
+    {
         public static Rect ToRect(this RectI rect)
         {
             return new Rect(rect.X, rect.Y, rect.Width, rect.Height);

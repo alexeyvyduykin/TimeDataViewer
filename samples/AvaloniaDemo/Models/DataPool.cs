@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AvaloniaDemo.Models
 {
@@ -11,7 +9,7 @@ namespace AvaloniaDemo.Models
     public enum ETimePeriod { Day, Week, Month, Year }
 
     public class DataPool
-    {    
+    {
         private readonly Dictionary<ETimePeriod, Tuple<int, int>> _minSizeIntervals = new()
         {
             { ETimePeriod.Day, Tuple.Create(30 * 60/*30min*/, 9 * 60 * 60/*9h*/) },
@@ -35,7 +33,7 @@ namespace AvaloniaDemo.Models
         };
         private ETimePeriod _timePeriod;
         private int _begin, _end;
-        private int _lastValue;       
+        private int _lastValue;
         private readonly Dictionary<int, bool> _isFull = new();
         private readonly Random _random = new();
         private readonly int _specialDelta = 0;// для тестирования отступа от MinScreenValue=0
@@ -99,8 +97,8 @@ namespace AvaloniaDemo.Models
             {
                 double min = double.MaxValue;
                 foreach (var item in Intervals.Values)
-                {                                
-                    min = Math.Min(item.Min(s => s.Begin), min);                    
+                {
+                    min = Math.Min(item.Min(s => s.Begin), min);
                 }
 
                 return min;
@@ -142,7 +140,7 @@ namespace AvaloniaDemo.Models
         private void GenerateEpoch()
         {
             DateTime epoch = new DateTime(1990, 1, 1);
-            
+
             epoch = epoch.AddYears(_random.Next(0, 20));
 
             epoch = epoch.AddMonths(_random.Next(0, 11));
@@ -180,7 +178,9 @@ namespace AvaloniaDemo.Models
         private bool IsInner(TimeInterval ival, double value)
         {
             if (value <= ival.End && value >= ival.Begin)
+            {
                 return true;
+            }
 
             return false;
         }
@@ -196,7 +196,9 @@ namespace AvaloniaDemo.Models
                     temp += (ival.End - ival.Begin);
 
                     if (IsInner(ival, value) == true)
+                    {
                         return false;
+                    }
                 }
 
                 if (temp >= AllSeconds)
@@ -224,8 +226,9 @@ namespace AvaloniaDemo.Models
 
                 left = value - leftDir;
                 if (left < MinValue)
+                {
                     left = MinValue;
-
+                }
             } while (IsValid(stringIndex, left) == false);
 
             // int right;
@@ -237,8 +240,9 @@ namespace AvaloniaDemo.Models
 
                 right = value + rightDir;
                 if (right > MaxValue)
+                {
                     right = MaxValue;
-
+                }
             } while (IsValid(stringIndex, right) == false);
 
 

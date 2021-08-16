@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
@@ -116,7 +114,7 @@ namespace TimeDataViewer.Core
 
                 var p0 = Transform(item.Begin, categoryValue);
                 var p1 = Transform(item.End, categoryValue + actualBarWidth);
-                
+
                 var rectangle = OxyRect.Create(p0.X, p0.Y, p1.X, p1.Y);
 
                 ActualBarRectangles.Add(rectangle);
@@ -176,7 +174,7 @@ namespace TimeDataViewer.Core
                 Items.Clear();
 
                 var categoryAxis = GetCategoryAxis();
-        
+
                 if (string.IsNullOrWhiteSpace(BeginField) == false &&
                     string.IsNullOrWhiteSpace(EndField) == false &&
                     string.IsNullOrWhiteSpace(CategoryField) == false)
@@ -192,9 +190,9 @@ namespace TimeDataViewer.Core
                         var valueCategory = propertyInfoCategory?.GetValue(item, null);
 
                         if (left is not null &&
-                            right is not null &&                                               
+                            right is not null &&
                             valueCategory is string category)
-                        {                                              
+                        {
                             list.Add(new TimelineItem()
                             {
                                 Begin = Axis.ToDouble(left),
@@ -204,7 +202,7 @@ namespace TimeDataViewer.Core
                         }
                     }
                 }
-            
+
                 Items = new List<TimelineItem>(list);
             }
         }

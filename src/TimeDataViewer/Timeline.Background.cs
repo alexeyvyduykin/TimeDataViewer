@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using TimeDataViewer.Core;
-
-namespace TimeDataViewer
+﻿namespace TimeDataViewer
 {
     //public partial class Timeline
     //{
     //    private enum BackgroundMode { Hour, Day, Week, Month, Year }
     //    private readonly IBrush _brushFirst = new SolidColorBrush() { Color = Color.Parse("#BDBDBD") /*Colors.Silver*/ };
     //    private readonly IBrush _brushSecond = new SolidColorBrush() { Color = Color.Parse("#F5F5F5") /*Colors.WhiteSmoke*/ };         
-        
+
     //    //private VisualBrush _plotBackground;
 
     //    //public VisualBrush AreaBackground => _plotBackground;
@@ -132,7 +123,7 @@ namespace TimeDataViewer
     //    //    {
     //    //        throw new Exception();
     //    //    }
-          
+
     //    //    var grid = CreateGrid(count, AbsoluteWindow.Width, AbsoluteWindow.Height);
 
     //    //    grid.Width = AbsoluteWindow.Width;

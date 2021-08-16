@@ -3,41 +3,14 @@ using System.Collections;
 using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Styling;
-using Avalonia.LogicalTree;
-using TimeDataViewer.ViewModels;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Templates;
-using Avalonia.Threading;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Metadata;
-using Avalonia.VisualTree;
-using TimeDataViewer.Shapes;
-using TimeDataViewer.Spatial;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Controls.Generators;
-using Avalonia.Controls.Primitives;
-using TimeDataViewer.Views;
-using System.Threading.Tasks;
-using Core = TimeDataViewer.Core;
 using Avalonia.Utilities;
 
 namespace TimeDataViewer
 {
     public abstract class Series : ItemsControl
     {
-        public static readonly StyledProperty<Color> ColorProperty = 
+        public static readonly StyledProperty<Color> ColorProperty =
             AvaloniaProperty.Register<Series, Color>(nameof(Color), Colors.Transparent);
 
         private readonly EventListener eventListener;

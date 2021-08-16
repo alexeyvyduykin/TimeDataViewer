@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using AvaloniaDemo.ViewModels;
 using System.Collections;
+using AvaloniaDemo.ViewModels;
+using TimeDataViewer;
 
 namespace AvaloniaDemo.Views
 {

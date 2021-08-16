@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Avalonia.Controls;
+﻿using Avalonia;
 using Avalonia.Media;
-using Avalonia;
 
 namespace TimeDataViewer
 {
@@ -21,7 +17,7 @@ namespace TimeDataViewer
             FontSizeProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             IntervalLengthProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             IsAxisVisibleProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
-            KeyProperty.Changed.AddClassHandler<Axis>(DataChanged);     
+            KeyProperty.Changed.AddClassHandler<Axis>(DataChanged);
             MajorStepProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             MajorTickSizeProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             MaximumProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);

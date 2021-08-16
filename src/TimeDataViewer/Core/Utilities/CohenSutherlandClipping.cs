@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeDataViewer.Spatial;
+﻿using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
@@ -188,7 +183,7 @@ namespace TimeDataViewer.Core
                 // Now we move outside point to intersection point to clip
                 // and get ready for next pass.
                 if (outcodeOut == outcode0)
-                {                  
+                {
                     p0.x = x;
                     p0.y = y;
 
@@ -219,7 +214,7 @@ namespace TimeDataViewer.Core
                     }
                 }
                 else
-                {                   
+                {
                     p1.x = x;
                     p1.y = y;
 

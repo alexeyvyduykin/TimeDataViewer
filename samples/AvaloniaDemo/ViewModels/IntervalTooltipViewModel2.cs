@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeDataViewer.ViewModels;
-
-namespace AvaloniaDemo.ViewModels
+﻿namespace AvaloniaDemo.ViewModels
 {
     public class IntervalTooltipViewModel2 : IntervalTooltipViewModel
     {

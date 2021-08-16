@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using TimeDataViewer.Core;
-using System.Collections.ObjectModel;
-
-namespace TimeDataViewer.UnitTests
+﻿namespace TimeDataViewer.UnitTests
 {
     //public class SchedulerControlTests
     //{
     //    public record Rotation(double BeginTime, double EndTime, double Angle);
-        
+
     //    private SchedulerControl CreateScheduler()
     //    {
     //        return new SchedulerControl();
@@ -39,9 +30,9 @@ namespace TimeDataViewer.UnitTests
     //        series.LeftBindingPath = "BeginTime";
     //        series.RightBindingPath = "EndTime";
     //        series.Items = new ObservableCollection<Rotation>() { rotation };
-          
+
     //        scheduler.Series = new ObservableCollection<Series>() { series };
-      
+
     //        Assert.Equal(2, scheduler.ItemCount);
     //    }
 
@@ -52,7 +43,7 @@ namespace TimeDataViewer.UnitTests
     //        var series = new Series();
     //        var ival = new Interval(0.0, 1.0);
     //        series.Items = new ObservableCollection<Interval>() { ival };
-                   
+
     //        scheduler.Series = new ObservableCollection<Series>() { series };
 
     //        Assert.Equal(2, scheduler.ItemCount);

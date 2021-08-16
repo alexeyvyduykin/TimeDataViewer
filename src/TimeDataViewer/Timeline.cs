@@ -1,42 +1,13 @@
 #nullable enable
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
-using Avalonia.Threading;
 using Avalonia.LogicalTree;
-using System.ComponentModel;
-using Avalonia.Media;
-using Avalonia.Metadata;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using TimeDataViewer.Spatial;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Controls.Primitives;
-using Avalonia.Media.Imaging;
 using TimeDataViewer.Core;
-using Avalonia.Controls.Generators;
-using System.Threading.Tasks;
-using TimeDataViewer.Views;
-using Avalonia.Collections;
-using Core = TimeDataViewer.Core;
-using Avalonia.Input;
-using Avalonia.Input.Platform;
 
 namespace TimeDataViewer
 {
@@ -86,18 +57,18 @@ namespace TimeDataViewer
 
             //foreach (var item in Series.Where(s => s.IsVisible))
             //{                
-                //if (item is TimelineSeries series)
-                //{
-                //    var oxySeries = (Core.TimelineSeries)series.InternalSeries;
+            //if (item is TimelineSeries series)
+            //{
+            //    var oxySeries = (Core.TimelineSeries)series.InternalSeries;
 
-                //    drawCanvas.RenderIntervals(oxySeries.MyClippingRect,
-                //        oxySeries.MyRectList, series.FillBrush, series.StrokeBrush);
-                //}
-                //else
-                //{
-                //    //rc.SetToolTip(item.ToolTip);
-                //    item.MyRender(canvasPlot);
-                //}
+            //    drawCanvas.RenderIntervals(oxySeries.MyClippingRect,
+            //        oxySeries.MyRectList, series.FillBrush, series.StrokeBrush);
+            //}
+            //else
+            //{
+            //    //rc.SetToolTip(item.ToolTip);
+            //    item.MyRender(canvasPlot);
+            //}
             //}
 
             //rc.SetToolTip(null);

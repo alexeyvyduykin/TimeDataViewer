@@ -1,24 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Controls.Primitives;
-using System.Windows.Input;
-using Avalonia.Media;
-using System.Globalization;
-using System.Diagnostics;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Input;
-using System.Collections.Specialized;
-using Avalonia.Controls.Shapes;
-using TimeDataViewer.Spatial;
-using TimeDataViewer.ViewModels;
-using Avalonia.LogicalTree;
-using Core = TimeDataViewer.Core;
-
-namespace TimeDataViewer.Shapes
+﻿namespace TimeDataViewer.Shapes
 {
     //public class IntervalShape : BaseIntervalShape
     //{
@@ -30,7 +10,7 @@ namespace TimeDataViewer.Shapes
     //    {                               
     //        PointerEnter += IntervalVisual_PointerEnter;
     //        PointerLeave += IntervalVisual_PointerLeave;
-         
+
     //        _popupIsOpen = false;
 
     //        _scale = new ScaleTransform(1, 1);                
@@ -79,7 +59,7 @@ namespace TimeDataViewer.Shapes
     //            _popupIsOpen = false;
 
     //            Scheduler?.HideTooltip();
-                
+
     //            Cursor = new Cursor(StandardCursorType.Arrow);
 
     //            _scale.ScaleY = 1;
@@ -105,11 +85,11 @@ namespace TimeDataViewer.Shapes
     //            Cursor = new Cursor(StandardCursorType.Hand);
 
     //            _scale.ScaleY = 1.5;
-              
+
     //            InvalidateVisual();    
     //        }
     //    }
-        
+
     //    public override void Render(DrawingContext context)
     //    {
     //        if (Scheduler is not null && Marker is not null && Marker is Core.TimelineItem marker)
@@ -129,14 +109,14 @@ namespace TimeDataViewer.Shapes
     //        var p1 = new Point(_widthX / 2.0, HeightY / 2.0);
 
     //        var rect = new Rect(p0, p1);
-                        
+
     //        var brush = new SolidColorBrush() { Color = Background };
     //        var pen = new Pen(new SolidColorBrush() { Color = StrokeColor }, StrokeThickness);
 
     //        var offset = Scheduler.WindowOffset;
 
     //        var p = Scheduler.FromLocalToScreen(Marker.LocalPosition);
-            
+
     //        using (context.PushPreTransform(Matrix.CreateTranslation(-offset.X, offset.Y)))
     //        using (context.PushPreTransform(Matrix.CreateTranslation(p.X, p.Y)))
     //        using (context.PushPreTransform(_scale.Value))
@@ -150,7 +130,7 @@ namespace TimeDataViewer.Shapes
     //        var shape = new IntervalShape();
 
     //        shape.Background = Background;             
-                           
+
     //        return shape;
     //    }
     //}

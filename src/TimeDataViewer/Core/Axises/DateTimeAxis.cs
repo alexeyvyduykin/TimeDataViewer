@@ -1,11 +1,9 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Text;
-using TimeDataViewer.Spatial;
 using System.Globalization;
-using TimeDataViewer.ViewModels;
 using System.Linq;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
@@ -442,7 +440,7 @@ namespace TimeDataViewer.Core
     //{
     //    private AxisLabelPosition? _dynamicLabel;
     //    private DateTime _epoch0 = DateTime.MinValue;
-        
+
     //    public DateTimeAxis() 
     //    {
     //        Header = "X";
@@ -482,7 +480,7 @@ namespace TimeDataViewer.Core
     //    }
 
     //    public TimePeriod TimePeriodMode { get; set; }
-   
+
     //    private IList<AxisLabelPosition> CreateLabels()
     //    {
     //        var labs = new List<AxisLabelPosition>();
@@ -508,7 +506,7 @@ namespace TimeDataViewer.Core
     //        {
     //            value += delta;
     //        }
-            
+
     //        while (value <= MaxClientValue)
     //        {
     //            labs.Add(new AxisLabelPosition()
@@ -556,7 +554,7 @@ namespace TimeDataViewer.Core
     //    }
 
     //   // public override void UpdateFollowLabelPosition(MarkerViewModel marker) { }
-  
+
     //    public override AxisInfo AxisInfo
     //    {
     //        get

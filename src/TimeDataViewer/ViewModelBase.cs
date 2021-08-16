@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Reactive.Disposables;
+using System.Runtime.CompilerServices;
 
 namespace TimeDataViewer
 {
@@ -20,7 +20,7 @@ namespace TimeDataViewer
             get => _owner;
             set => RaiseAndSetIfChanged(ref _owner, value);
         }
-  
+
         public virtual string Name
         {
             get => _name;
@@ -32,24 +32,24 @@ namespace TimeDataViewer
         public virtual void MarkAsDirty() => _isDirty = true;
 
         public virtual void Invalidate() => _isDirty = false;
-                   
+
         public virtual object Copy(IDictionary<object, object> shared) => throw new NotImplementedException();
 
         public void RaisePropertyChanged(PropertyChangedEventArgs e) => PropertyChanged?.Invoke(this, e);
-         
+
         public void RaiseAndSetIfChanged<T>(ref T field, T value, [CallerMemberName] string? propertyName = default)
         {
             if (!Equals(field, value))
             {
                 field = value;
                 _isDirty = true;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));             
-            }         
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         protected void ObserveSelf(
-            PropertyChangedEventHandler handler, 
-            ref IDisposable? propertyDisposable, 
+            PropertyChangedEventHandler handler,
+            ref IDisposable? propertyDisposable,
             CompositeDisposable? mainDisposable)
         {
             if (propertyDisposable is { })

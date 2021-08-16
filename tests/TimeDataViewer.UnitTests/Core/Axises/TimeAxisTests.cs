@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using TimeDataViewer.Core;
-using TimeDataViewer.Spatial;
-
-namespace TimeDataViewer.UnitTests.Core.Axises
+﻿namespace TimeDataViewer.UnitTests.Core.Axises
 {
     //public class TimeAxisTests
     //{

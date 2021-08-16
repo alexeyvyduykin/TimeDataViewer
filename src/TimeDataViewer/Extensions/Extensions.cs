@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeDataViewer.Spatial;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Avalonia;
-using TimeDataViewer.ViewModels;
-using Core = TimeDataViewer.Core;
 using Avalonia.Input;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
 {

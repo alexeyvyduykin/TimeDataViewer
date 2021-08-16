@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
@@ -11,9 +9,9 @@ namespace TimeDataViewer.Core
     {
         protected XYAxisSeries()
         {
-            
+
         }
-      
+
         // Gets or sets the maximum x-coordinate of the dataset.
         public double MaxX { get; protected set; }
 
@@ -22,7 +20,7 @@ namespace TimeDataViewer.Core
 
         // Gets or sets the minimum x-coordinate of the dataset.
         public double MinX { get; protected set; }
-  
+
         // Gets or sets the minimum y-coordinate of the dataset.
         public double MinY { get; protected set; }
 
@@ -43,7 +41,7 @@ namespace TimeDataViewer.Core
         /// Gets or sets the last visible window start position in the data points collection.
         /// </summary>
         public int WindowStartIndex { get; set; }
-      
+
         // Gets the rectangle the series uses on the screen (screen coordinates).
         public OxyRect GetScreenRectangle()
         {
@@ -135,7 +133,7 @@ namespace TimeDataViewer.Core
         /// <summary>
         /// Updates the data.
         /// </summary>
-        protected internal override void UpdateData()
+        internal protected override void UpdateData()
         {
             WindowStartIndex = 0;
         }
@@ -154,10 +152,10 @@ namespace TimeDataViewer.Core
         /// <returns>The clipping rectangle.</returns>
         public OxyRect GetClippingRect()
         {
-            double minX = Math.Min(XAxis.ScreenMin.X, XAxis.ScreenMax.X);
-            double minY = Math.Min(YAxis.ScreenMin.Y, YAxis.ScreenMax.Y);
-            double maxX = Math.Max(XAxis.ScreenMin.X, XAxis.ScreenMax.X);
-            double maxY = Math.Max(YAxis.ScreenMin.Y, YAxis.ScreenMax.Y);
+            var minX = Math.Min(XAxis.ScreenMin.X, XAxis.ScreenMax.X);
+            var minY = Math.Min(YAxis.ScreenMin.Y, YAxis.ScreenMax.Y);
+            var maxX = Math.Max(XAxis.ScreenMin.X, XAxis.ScreenMax.X);
+            var maxY = Math.Max(YAxis.ScreenMin.Y, YAxis.ScreenMax.Y);
 
             return new OxyRect(minX, minY, maxX - minX, maxY - minY);
         }
@@ -193,9 +191,9 @@ namespace TimeDataViewer.Core
             var dpn = default(DataPoint);
             double index = -1;
 
-            double minimumDistance = double.MaxValue;
+            var minimumDistance = double.MaxValue;
 
-            for (int i = startIdx; i + 1 < points.Count; i++)
+            for (var i = startIdx; i + 1 < points.Count; i++)
             {
                 var p1 = points[i];
                 var p2 = points[i + 1];
@@ -216,12 +214,12 @@ namespace TimeDataViewer.Core
                     continue;
                 }
 
-                double l2 = (point - spl).LengthSquared;
+                var l2 = (point - spl).LengthSquared;
 
                 if (l2 < minimumDistance)
                 {
-                    double segmentLength = (sp2 - sp1).Length;
-                    double u = segmentLength > 0 ? (spl - sp1).Length / segmentLength : 0;
+                    var segmentLength = (sp2 - sp1).Length;
+                    var u = segmentLength > 0 ? (spl - sp1).Length / segmentLength : 0;
                     dpn = InverseTransform(spl);
                     spn = spl;
                     minimumDistance = l2;
@@ -271,8 +269,8 @@ namespace TimeDataViewer.Core
             var dpn = default(DataPoint);
             double index = -1;
 
-            double minimumDistance = double.MaxValue;
-            int i = 0;
+            var minimumDistance = double.MaxValue;
+            var i = 0;
             foreach (var p in points.Skip(startIdx))
             {
                 if (!IsValidPoint(p))
@@ -282,7 +280,7 @@ namespace TimeDataViewer.Core
                 }
 
                 var sp = XAxis.Transform(p.x, p.y, YAxis);
-                double d2 = (sp - point).LengthSquared;
+                var d2 = (sp - point).LengthSquared;
 
                 if (d2 < minimumDistance)
                 {
@@ -355,10 +353,10 @@ namespace TimeDataViewer.Core
                 return;
             }
 
-            double minx = MinX;
-            double miny = MinY;
-            double maxx = MaxX;
-            double maxy = MaxY;
+            var minx = MinX;
+            var miny = MinY;
+            var maxx = MaxX;
+            var maxy = MaxY;
 
             if (double.IsNaN(minx))
             {
@@ -380,11 +378,11 @@ namespace TimeDataViewer.Core
                 maxy = double.MinValue;
             }
 
-            double lastX = double.MinValue;
+            var lastX = double.MinValue;
             foreach (var pt in points)
             {
-                double x = pt.X;
-                double y = pt.Y;
+                var x = pt.X;
+                var y = pt.Y;
 
                 // Check if the point is valid
                 if (!IsValidPoint(pt))
@@ -483,10 +481,10 @@ namespace TimeDataViewer.Core
                 return;
             }
 
-            double minx = MinX;
-            double miny = MinY;
-            double maxx = MaxX;
-            double maxy = MaxY;
+            var minx = MinX;
+            var miny = MinY;
+            var maxx = MaxX;
+            var maxy = MaxY;
 
             if (double.IsNaN(minx))
             {
@@ -508,11 +506,11 @@ namespace TimeDataViewer.Core
                 maxy = double.MinValue;
             }
 
-            double lastX = double.MinValue;
+            var lastX = double.MinValue;
             foreach (var item in items)
             {
-                double x = xf(item);
-                double y = yf(item);
+                var x = xf(item);
+                var y = yf(item);
 
                 // Check if the point is valid
                 if (!IsValidPoint(x, y))
@@ -593,10 +591,10 @@ namespace TimeDataViewer.Core
                 return;
             }
 
-            double minx = MinX;
-            double miny = MinY;
-            double maxx = MaxX;
-            double maxy = MaxY;
+            var minx = MinX;
+            var miny = MinY;
+            var maxx = MaxX;
+            var maxy = MaxY;
 
             if (double.IsNaN(minx))
             {
@@ -618,14 +616,14 @@ namespace TimeDataViewer.Core
                 maxy = double.MinValue;
             }
 
-            double lastX0 = double.MinValue;
-            double lastX1 = double.MinValue;
+            var lastX0 = double.MinValue;
+            var lastX1 = double.MinValue;
             foreach (var item in items)
             {
-                double x0 = xmin(item);
-                double x1 = xmax(item);
-                double y0 = ymin(item);
-                double y1 = ymax(item);
+                var x0 = xmin(item);
+                var x1 = xmax(item);
+                var y0 = ymin(item);
+                var y1 = ymax(item);
 
                 if (!IsValidPoint(x0, y0) || !IsValidPoint(x1, y1))
                 {
@@ -731,10 +729,10 @@ namespace TimeDataViewer.Core
         /// </returns>
         protected int FindWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
         {
-            int lastguess = 0;
-            int start = 0;
-            int end = items.Count - 1;
-            int curGuess = initialGuess;
+            var lastguess = 0;
+            var start = 0;
+            var end = items.Count - 1;
+            var curGuess = initialGuess;
 
             while (start <= end)
             {
@@ -747,7 +745,7 @@ namespace TimeDataViewer.Core
                     return end;
                 }
 
-                double guessX = xgetter(items[curGuess]);
+                var guessX = xgetter(items[curGuess]);
                 if (guessX.Equals(targetX))
                 {
                     return curGuess;
@@ -775,8 +773,8 @@ namespace TimeDataViewer.Core
                     return lastguess;
                 }
 
-                double endX = xgetter(items[end]);
-                double startX = xgetter(items[start]);
+                var endX = xgetter(items[end]);
+                var startX = xgetter(items[start]);
 
                 var m = (end - start + 1) / (endX - startX);
                 curGuess = start + (int)((targetX - startX) * m);

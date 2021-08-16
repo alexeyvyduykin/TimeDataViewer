@@ -1,42 +1,19 @@
-﻿using Avalonia.Media;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
-using Avalonia.Controls.Templates;
-using Avalonia.Data;
-using Avalonia.LogicalTree;
-using System.ComponentModel;
-using Avalonia.Metadata;
-using Avalonia.Styling;
-using TimeDataViewer.ViewModels;
-using TimeDataViewer;
-using TimeDataViewer.Spatial;
-using System.Xml;
-using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Controls.Metadata;
-using Avalonia.Input.GestureRecognizers;
-using Avalonia.Input.TextInput;
-using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
 using TimeDataViewer.Core;
-using Avalonia.Controls.Generators;
-using System.Threading.Tasks;
-using TimeDataViewer.Views;
-using Avalonia.Collections;
-using Core = TimeDataViewer.Core;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
 {
@@ -46,9 +23,9 @@ namespace TimeDataViewer
         private Canvas _canvasX;
         private DrawCanvas _drawCanvas;
         private Panel _panel;
-        private Panel _panelX;  
+        private Panel _panelX;
         // Invalidation flag (0: no update, 1: update visual elements).  
-        private int _isPlotInvalidated;      
+        private int _isPlotInvalidated;
         private Canvas _overlays;
         private ContentControl _zoomControl;
         private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
@@ -77,7 +54,7 @@ namespace TimeDataViewer
         public OxyRect ClientArea => new OxyRect(0, 0, Bounds.Width, Bounds.Height);
 
         public ObservableCollection<TrackerDefinition> TrackerDefinitions => _trackerDefinitions;
-        
+
         public void HideTracker()
         {
             if (_currentTracker != null)
@@ -150,28 +127,28 @@ namespace TimeDataViewer
             base.OnApplyTemplate(e);
 
             _panel = e.NameScope.Find("PART_Panel") as Panel;
-            _panelX = e.NameScope.Find("PART_PanelX") as Panel;           
+            _panelX = e.NameScope.Find("PART_PanelX") as Panel;
             if (_panel == null)
             {
                 return;
             }
 
             _panel.PointerEnter += _panel_PointerEnter;
-            _panel.PointerLeave += _panel_PointerLeave;            
-            _panel.PointerWheelChanged += _panel_PointerWheelChanged;            
-            _panel.PointerPressed += _panel_PointerPressed;            
-            _panel.PointerMoved += _panel_PointerMoved;            
-            _panel.PointerReleased += _panel_PointerReleased;            
+            _panel.PointerLeave += _panel_PointerLeave;
+            _panel.PointerWheelChanged += _panel_PointerWheelChanged;
+            _panel.PointerPressed += _panel_PointerPressed;
+            _panel.PointerMoved += _panel_PointerMoved;
+            _panel.PointerReleased += _panel_PointerReleased;
 
             _canvas = new Canvas() { Background = Brushes.Transparent };
             _drawCanvas = new DrawCanvas() { Background = Brushes.Transparent };
 
             _canvasX = new Canvas() { Background = Brushes.Transparent };
-     
+
             _panel.Children.Add(_canvas);
             _panel.Children.Add(_drawCanvas);
             _panelX.Children.Add(_canvasX);
-            
+
             _overlays = new Canvas { Name = "Overlays" };
             _panel.Children.Add(_overlays);
 
@@ -357,7 +334,7 @@ namespace TimeDataViewer
 
                     ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
                     MyRenderSeries(_canvas, _drawCanvas);
-                    MyRenderAxisX(_canvasX, _canvas);                  
+                    MyRenderAxisX(_canvasX, _canvas);
                     // reinsert the canvas again
                     if (idx != -1)
                     {
@@ -368,7 +345,7 @@ namespace TimeDataViewer
                 {
                     ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
                     MyRenderSeries(_canvas, _drawCanvas);
-                    MyRenderAxisX(_canvasX, _canvas);                
+                    MyRenderAxisX(_canvasX, _canvas);
                 }
             }
         }

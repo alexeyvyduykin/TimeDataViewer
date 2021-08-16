@@ -1,7 +1,7 @@
+using System;
 using AreaBorderDemo.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using System;
 
 namespace AreaBorderDemo
 {

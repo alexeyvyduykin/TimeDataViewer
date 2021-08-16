@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System;
-using System.Globalization;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TimeDataViewer.Spatial

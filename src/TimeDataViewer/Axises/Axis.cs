@@ -1,11 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Core = TimeDataViewer.Core;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace TimeDataViewer
 {
@@ -84,7 +79,7 @@ namespace TimeDataViewer
             a.IsPanEnabled = IsPanEnabled;
             a.IsAxisVisible = IsAxisVisible;
             a.IsZoomEnabled = IsZoomEnabled;
-            a.Key = Key;         
+            a.Key = Key;
             a.MajorStep = MajorStep;
             a.MajorTickSize = MajorTickSize;
             a.MinorStep = MinorStep;

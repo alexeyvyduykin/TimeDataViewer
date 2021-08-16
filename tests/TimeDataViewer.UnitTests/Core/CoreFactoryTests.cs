@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using TimeDataViewer.Core;
-
-namespace TimeDataViewer.UnitTests.Core
+﻿namespace TimeDataViewer.UnitTests.Core
 {
     //public class CoreFactoryTests
     //{

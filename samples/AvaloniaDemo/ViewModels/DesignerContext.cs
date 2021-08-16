@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using AvaloniaDemo.Models;
-using TimeDataViewer.ViewModels;
 
 namespace AvaloniaDemo.ViewModels
 {
@@ -40,8 +35,8 @@ namespace AvaloniaDemo.ViewModels
 
     static class DesignerData
     {
-        public static ObservableCollection<TimeInterval> Interval1 = new() 
-        {         
+        public static ObservableCollection<TimeInterval> Interval1 = new()
+        {
             new TimeInterval(10, 30),
             new TimeInterval(45, 89),
             new TimeInterval(103, 243),

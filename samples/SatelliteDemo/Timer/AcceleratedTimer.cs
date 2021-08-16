@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace SatelliteDemo.SceneTimer
 {
     public class Timer
     {
         protected readonly Stopwatch _timer;
-        
+
         public virtual double CurrentTime => _timer.Elapsed.TotalSeconds;
 
         public bool IsRunning => _timer.IsRunning;
@@ -46,7 +43,7 @@ namespace SatelliteDemo.SceneTimer
         public AcceleratedTimer()
         {
             _normalElapsedTime = 0;
-            _acceleratedElapsedTime = 0.0; 
+            _acceleratedElapsedTime = 0.0;
             _accelerationStep = 1.0;
         }
 
@@ -90,7 +87,7 @@ namespace SatelliteDemo.SceneTimer
             _accelerationStep /= 2.0;
         }
 
-        public override void SetTime(double t) 
+        public override void SetTime(double t)
         {
             _acceleratedElapsedTime = t;
         }
