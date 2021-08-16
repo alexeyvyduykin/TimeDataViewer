@@ -1,11 +1,15 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:TimeDataViewer;assembly=TimeDataViewer">
-    <Design.PreviewWith>
-        <Border Padding="20">
-            <!-- Add Controls for Previewer Here -->
-        </Border>
-    </Design.PreviewWith>
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <!-- Add Controls for Previewer Here -->      
+    </Border>
+  </Design.PreviewWith>
+
+  <Styles.Resources>
+    <Color x:Key="timelineBackground">#282828</Color>
+  </Styles.Resources>
 
   <Style Selector="local|TrackerControl">
     <Setter Property="Distance" Value="8" />
@@ -44,8 +48,8 @@
     </Setter>
   </Style>
     
-  <Style Selector="local|Timeline">
-        <Setter Property="Background" Value="White" />
+  
+  <Style Selector="local|Timeline">       
 
     <Setter Property="DefaultTrackerTemplate">
       <Setter.Value>
@@ -61,17 +65,18 @@
     </Setter>
 
     <Setter Property="ZoomRectangleTemplate">
-            <Setter.Value>
-                <ControlTemplate>                    
-                  <Rectangle Stroke="Black" StrokeDashArray="3,1">
-                    <Rectangle.Fill>
-                      <SolidColorBrush Color="LightBlue" Opacity="0.4"></SolidColorBrush>
-                    </Rectangle.Fill> 
-                  </Rectangle>                
-              </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle Stroke="White" StrokeDashArray="5,5" StrokeThickness="1">
+            <Rectangle.Fill>
+              <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
+            </Rectangle.Fill>
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+      
+    <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
                     <Border Background="{TemplateBinding Background}"
@@ -85,5 +90,15 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    
+  </Style>
+  
+  <Style Selector="local|Timeline">
+    <Setter Property="Background">
+      <Setter.Value>
+        <SolidColorBrush Color="{StaticResource timelineBackground}"></SolidColorBrush>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
 </Styles>
