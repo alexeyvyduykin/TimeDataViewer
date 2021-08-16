@@ -32,8 +32,6 @@ namespace TimeDataViewer
             StringFormatProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             TicklineColorProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             UnitProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
-
-            BackgroundProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
         }
 
         public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =    
@@ -54,23 +52,6 @@ namespace TimeDataViewer
 
         public static readonly StyledProperty<double> AbsoluteMaximumProperty =   
             AvaloniaProperty.Register<Axis, double>(nameof(AbsoluteMaximum), double.MaxValue);
-
-        public static readonly StyledProperty<IBrush> BackgroundProperty =    
-            AvaloniaProperty.Register<Axis, IBrush>(nameof(Background), Brushes.Black);
-
-        public IBrush Background
-        {
-            get
-            {
-                return GetValue(BackgroundProperty);
-            }
-
-            set
-            {
-                SetValue(BackgroundProperty, value);
-            }
-        }
-
 
         public double AbsoluteMaximum
         {
