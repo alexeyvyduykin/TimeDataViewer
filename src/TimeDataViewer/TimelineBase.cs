@@ -323,6 +323,9 @@ namespace TimeDataViewer
 
             if (ActualModel != null)
             {
+                var rcAxis = new CanvasRenderContext(_canvasX);
+                var rcPlot = new CanvasRenderContext(_canvas);
+
                 if (DisconnectCanvasWhileUpdating)
                 {
                     // TODO: profile... not sure if this makes any difference
@@ -333,8 +336,8 @@ namespace TimeDataViewer
                     }
 
                     ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
-                    MyRenderSeries(_canvas, _drawCanvas);
-                    MyRenderAxisX(_canvasX, _canvas);
+                    RenderSeries(_canvas, _drawCanvas);
+                    RenderAxisX(rcAxis, rcPlot);
                     // reinsert the canvas again
                     if (idx != -1)
                     {
@@ -344,16 +347,15 @@ namespace TimeDataViewer
                 else
                 {
                     ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
-                    MyRenderSeries(_canvas, _drawCanvas);
-                    MyRenderAxisX(_canvasX, _canvas);
+                    RenderSeries(_canvas, _drawCanvas);
+                    RenderAxisX(rcAxis, rcPlot);
                 }
             }
         }
 
-        protected abstract void MyRenderAxisX(Canvas canvasAxis, Canvas canvasPlot);
-        protected abstract void MyRenderAxisY(Canvas canvasAxis, Canvas canvasPlot);
-
-        protected abstract void MyRenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas);
+        protected abstract void RenderAxisX(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);
+       
+        protected abstract void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas);
 
         // Invokes the specified action on the dispatcher, if necessary.
         private static void BeginInvoke(Action action)

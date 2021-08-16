@@ -36,6 +36,14 @@ namespace TimeDataViewer.Core
         // Gets the plot area. This area is used to draw the series (not including axes or legends).
         public OxyRect PlotArea { get; private set; }
 
+        public double PlotMarginLeft { get; set; }
+
+        public double PlotMarginTop { get; set; }
+
+        public double PlotMarginRight { get; set; }
+
+        public double PlotMarginBottom { get; set; }
+
         public Axis DefaultXAxis { get; private set; }
 
         public Axis DefaultYAxis { get; private set; }

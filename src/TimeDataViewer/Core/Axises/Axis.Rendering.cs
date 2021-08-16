@@ -32,7 +32,6 @@ namespace TimeDataViewer.Core
         List<ScreenPoint> _majorTickSegments;
         List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> _labels;
 
-
         public List<ScreenPoint> MyMinorSegments => _minorSegments;
         public List<ScreenPoint> MyMajorSegments => _majorSegments;
         public List<ScreenPoint> MyMinorTickSegments => _minorTickSegments;
@@ -69,12 +68,13 @@ namespace TimeDataViewer.Core
             switch (Position)
             {
                 case AxisPosition.Left:
-                    axisPosition = 30/*plotAreaLeft*/ - totalShift;
+                    axisPosition = plot.PlotMarginLeft - totalShift;
                     break;
                 case AxisPosition.Right:
                     throw new Exception();
                 case AxisPosition.Top:
-                    throw new Exception();
+                    axisPosition = plot.PlotMarginTop - totalShift;
+                    break;
                 case AxisPosition.Bottom:
                     axisPosition = totalShift;
                     break;
@@ -229,22 +229,22 @@ namespace TimeDataViewer.Core
                 {
                     case AxisPosition.Left:
                         pt = new ScreenPoint(axisPosition + a1 - AxisTickToLabelDistance, transformedValue);
-                        this.GetRotatedAlignments(-90, out ha, out va);
+                        GetRotatedAlignments(-90, out ha, out va);
 
                         break;
                     case AxisPosition.Right:
                         pt = new ScreenPoint(axisPosition + a1 + AxisTickToLabelDistance, transformedValue);
-                        this.GetRotatedAlignments(90, out ha, out va);
+                        GetRotatedAlignments(90, out ha, out va);
 
                         break;
                     case AxisPosition.Top:
                         pt = new ScreenPoint(transformedValue, axisPosition + a1 - AxisTickToLabelDistance);
-                        this.GetRotatedAlignments(0, out ha, out va);
+                        GetRotatedAlignments(0, out ha, out va);
 
                         break;
                     case AxisPosition.Bottom:
                         pt = new ScreenPoint(transformedValue, axisPosition + a1 + AxisTickToLabelDistance);
-                        this.GetRotatedAlignments(-180, out ha, out va);
+                        GetRotatedAlignments(-180, out ha, out va);
 
                         break;
                 }

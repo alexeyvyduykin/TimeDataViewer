@@ -133,6 +133,26 @@ namespace TimeDataViewer.Spatial
         }
 
         /// <summary>
+        /// Returns a rectangle that is expanded by the specified thickness, in all directions.
+        /// </summary>
+        /// <param name="t">The thickness to apply to the rectangle.</param>
+        /// <returns>The inflated <see cref="OxyRect" />.</returns>
+        public OxyRect Inflate(double left, double top, double right, double bottom)
+        {
+            return new OxyRect(this.left - left, this.top - top, this.width + left + right, this.height + top + bottom);
+        }
+
+        /// <summary>
+        /// Returns a rectangle that is shrunk by the specified thickness, in all directions.
+        /// </summary>
+        /// <param name="t">The thickness to apply to the rectangle.</param>
+        /// <returns>The deflated <see cref="OxyRect" />.</returns>
+        public OxyRect Deflate(double left, double top, double right, double bottom)
+        {
+            return new OxyRect(this.left + left, this.top + top, Math.Max(0, this.width - left - right), Math.Max(0, this.height - top - bottom));
+        }
+
+        /// <summary>
         /// Determines whether the specified point is inside the rectangle.
         /// </summary>
         /// <param name="p">The point.</param>

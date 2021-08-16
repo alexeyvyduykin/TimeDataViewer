@@ -29,29 +29,18 @@ namespace TimeDataViewer
             ((IPlotModel)_internalModel).AttachPlotView(this);
         }
 
-        protected override void MyRenderAxisX(Canvas canvasAxis, Canvas canvasPlot)
+        protected override void RenderAxisX(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
         {
             foreach (var item in Axises)
             {
-                if (item.Position == Core.AxisPosition.Bottom)
+                if (item.InternalAxis.IsHorizontal() == true)
                 {
-                    item.MyRender(canvasAxis, canvasPlot);
+                    item.Render(contextAxis, contextPlot);
                 }
             }
         }
 
-        protected override void MyRenderAxisY(Canvas canvasAxis, Canvas canvasPlot)
-        {
-            foreach (var item in Axises)
-            {
-                if (item.Position == Core.AxisPosition.Left)
-                {
-                    item.MyRender(canvasAxis, canvasPlot);
-                }
-            }
-        }
-
-        protected override void MyRenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas)
+        protected override void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas)
         {
             drawCanvas.RenderSeries(Series.Where(s => s.IsVisible).ToList());
 
@@ -149,7 +138,11 @@ namespace TimeDataViewer
         {
             var m = _internalModel;
 
-            //     m.PlotMargins = PlotMargins.ToOxyThickness();
+            m.PlotMarginLeft = PlotMargins.Left;
+            m.PlotMarginTop = PlotMargins.Top;
+            m.PlotMarginRight = PlotMargins.Right;
+            m.PlotMarginBottom = PlotMargins.Bottom;
+
             //     m.Padding = Padding.ToOxyThickness();
 
             //  m.DefaultColors = DefaultColors.Select(c => c.ToOxyColor()).ToArray();

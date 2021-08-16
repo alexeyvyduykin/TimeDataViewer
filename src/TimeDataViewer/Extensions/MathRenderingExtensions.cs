@@ -1,5 +1,7 @@
 ﻿using System;
 using TimeDataViewer.Spatial;
+using Avalonia;
+using Avalonia.Controls;
 
 namespace TimeDataViewer
 {
@@ -52,15 +54,11 @@ namespace TimeDataViewer
         /// <example>Subscript: H_{2}O
         /// Superscript: E=mc^{2}
         /// Both: A^{2}_{i,j}</example>
-        public static OxySize DrawMathText(
-            this CanvasRenderContext rc,
-            ScreenPoint pt,
-            string text,
-            Core.HorizontalAlignment ha,
-            Core.VerticalAlignment va,
-            OxySize? maxSize,
-            bool measure)
+        public static OxySize DrawMathText(this CanvasRenderContext rc, ScreenPoint pt, TextBlock textBlock,    
+            Core.HorizontalAlignment ha, Core.VerticalAlignment va, OxySize? maxSize, bool measure)
         {
+            var text = textBlock.Text;
+
             if (string.IsNullOrEmpty(text))
             {
                 return OxySize.Empty;
@@ -72,7 +70,7 @@ namespace TimeDataViewer
                 var y = pt.Y;
 
                 // Measure
-                var size = InternalDrawMathText(rc, x, y, 0, 0, text, true);
+                var size = InternalDrawMathText(rc, textBlock, x, y, 0, 0, true);
 
                 var dx = 0d;
                 var dy = 0d;
@@ -97,14 +95,14 @@ namespace TimeDataViewer
                         break;
                 }
 
-                InternalDrawMathText(rc, x, y, dx, dy, text, false);
+                InternalDrawMathText(rc, textBlock, x, y, dx, dy, false);
                 return measure ? size : OxySize.Empty;
             }
 
-            rc.DrawText(pt, text, ha, va, maxSize);
+            rc.DrawText(pt, textBlock, ha, va, maxSize);
             if (measure)
             {
-                return rc.MeasureText(text);
+                return rc.MeasureText(textBlock);
             }
 
             return OxySize.Empty;
@@ -127,26 +125,14 @@ namespace TimeDataViewer
         /// <example>Subscript: H_{2}O
         /// Superscript: E=mc^{2}
         /// Both: A^{2}_{i,j}</example>
-        public static void DrawMathText(
-            this CanvasRenderContext rc,
-            ScreenPoint pt,
-            string text,
-            Core.HorizontalAlignment ha,
-            Core.VerticalAlignment va,
-            OxySize? maxSize = null)
+        public static void DrawMathText(this CanvasRenderContext rc, ScreenPoint pt, TextBlock textBlock, 
+            Core.HorizontalAlignment ha, Core.VerticalAlignment va, OxySize? maxSize = null)
         {
-            DrawMathText(rc, pt, text, ha, va, maxSize, false);
+            DrawMathText(rc, pt, textBlock, ha, va, maxSize, false);
         }
 
         // Draws text with sub- and superscript items.
-        private static OxySize InternalDrawMathText(
-            CanvasRenderContext rc,
-            double x,
-            double y,
-            double dx,
-            double dy,
-            string s,
-            bool measureOnly)
+        private static OxySize InternalDrawMathText(CanvasRenderContext rc, TextBlock textBlock, double x, double y, double dx, double dy, bool measureOnly)
         {
             var i = 0;
             var cosAngle = Math.Round(Math.Cos(0.0), 5);
@@ -159,13 +145,16 @@ namespace TimeDataViewer
             var maximumY = y;
             var minimumY = y;
 
+            var fontSize = textBlock.FontSize;
+            var s = textBlock.Text;
+
             // http://en.wikipedia.org/wiki/Subscript_and_superscript
-            var superScriptYDisplacement = 12/*fontSize */* SuperAlignment;
+            var superScriptYDisplacement = fontSize * SuperAlignment;
 
-            var subscriptYDisplacement = 12/*fontSize */ * SubAlignment;
+            var subscriptYDisplacement = fontSize * SubAlignment;
 
-            var superscriptFontSize = 12/*fontSize */ * SuperSize;
-            var subscriptFontSize = 12/*fontSize */ * SubSize;
+            var superscriptFontSize = fontSize * SuperSize;
+            var subscriptFontSize = fontSize * SubSize;
 
             Func<double, double, string/*, double*/, OxySize> drawText = (xb, yb, text/*, fSize*/) =>
             {
@@ -173,10 +162,10 @@ namespace TimeDataViewer
                 {
                     var xr = x + ((xb - x + dx) * cosAngle) - ((yb - y + dy) * sinAngle);
                     var yr = y + ((xb - x + dx) * sinAngle) + ((yb - y + dy) * cosAngle);
-                    rc.DrawText(new ScreenPoint(xr, yr), text, Core.HorizontalAlignment.Left, Core.VerticalAlignment.Top, null);
+                    rc.DrawText(new ScreenPoint(xr, yr), textBlock, Core.HorizontalAlignment.Left, Core.VerticalAlignment.Top, null);
                 }
 
-                var flatSize = rc.MeasureText(text/*, fontFamily, fSize, fontWeight*/);
+                var flatSize = rc.MeasureText(textBlock);
                 return new OxySize(flatSize.Width, flatSize.Height);
             };
 

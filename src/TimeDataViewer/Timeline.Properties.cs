@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using Avalonia;
+using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Metadata;
 
 namespace TimeDataViewer
@@ -19,7 +20,7 @@ namespace TimeDataViewer
             DefaultFontSizeProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
             //   DefaultColorsProperty.Changed.AddClassHandler<Plot>(AppearanceChanged);
             //  AxisTierDistanceProperty.Changed.AddClassHandler<Plot>(AppearanceChanged);
-            // PlotMarginsProperty.Changed.AddClassHandler<Plot>(AppearanceChanged);              
+            PlotMarginsProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);              
             InvalidateFlagProperty.Changed.AddClassHandler<Timeline>((s, e) => s.InvalidateFlagChanged());
         }
 
@@ -73,6 +74,22 @@ namespace TimeDataViewer
             set
             {
                 SetValue(DefaultFontSizeProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Thickness> PlotMarginsProperty =    
+            AvaloniaProperty.Register<Timeline, Thickness>(nameof(PlotMargins), new Thickness());
+
+        public Thickness PlotMargins
+        {
+            get
+            {
+                return GetValue(PlotMarginsProperty);
+            }
+
+            set
+            {
+                SetValue(PlotMarginsProperty, value);
             }
         }
 

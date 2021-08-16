@@ -412,14 +412,9 @@ namespace TimeDataViewer
             Canvas.SetTop(e, rect.Top);
         }
 
-        public void DrawText(ScreenPoint p, string text, Core.HorizontalAlignment halign, Core.VerticalAlignment valign, OxySize? maxSize)
+        public void DrawText(ScreenPoint p, TextBlock textBlock, Core.HorizontalAlignment halign, Core.VerticalAlignment valign, OxySize? maxSize)
         {
-            var tb = CreateAndAdd<TextBlock>();
-            tb.Text = text;
-            tb.Foreground = GetCachedBrush(Colors.Black);
-            tb.FontFamily = "Segoe UI";
-            tb.FontSize = 12;
-            tb.FontWeight = FontWeight.Normal;
+            var tb = Add<TextBlock>(textBlock);
 
             double dx = 0;
             double dy = 0;
@@ -477,24 +472,16 @@ namespace TimeDataViewer
         }
 
         // Measures the size of the specified text.
-        public OxySize MeasureText(string text)
+        public OxySize MeasureText(TextBlock textBlock)
         {
-            if (string.IsNullOrEmpty(text))
+            if (string.IsNullOrEmpty(textBlock.Text))
             {
                 return OxySize.Empty;
             }
 
-            var tb = new TextBlock
-            {
-                Text = text,
-                FontFamily = "Segoe UI",
-                FontSize = 12,
-                FontWeight = FontWeight.Normal
-            };
+            textBlock.Measure(new Size(1000, 1000));
 
-            tb.Measure(new Size(1000, 1000));
-
-            return new OxySize(tb.DesiredSize.Width, tb.DesiredSize.Height);
+            return new OxySize(textBlock.DesiredSize.Width, textBlock.DesiredSize.Height);
         }
 
         // Sets the tool tip for the following items.
@@ -529,6 +516,20 @@ namespace TimeDataViewer
             _canvas.Children.Add(element);
 
             ApplyToolTip(element);
+            return element;
+        }
+
+        private T Add<T>(T element, double clipOffsetX = 0, double clipOffsetY = 0) where T : Control, new()
+        {
+            if (_clip != null)
+            {
+                element.Clip = new RectangleGeometry(new Rect(_clip.Value.X - clipOffsetX, _clip.Value.Y - clipOffsetY, _clip.Value.Width, _clip.Value.Height));
+            }
+
+            _canvas.Children.Add(element);
+
+            ApplyToolTip(element);
+
             return element;
         }
 

@@ -60,8 +60,7 @@ namespace TimeDataViewer
 
         protected void OnVisualChanged()
         {
-            var pc = Parent as Core.IPlotView;
-            if (pc != null)
+            if (Parent is Core.IPlotView pc)
             {
                 pc.InvalidatePlot(false);
             }
@@ -94,16 +93,13 @@ namespace TimeDataViewer
             a.StringFormat = StringFormat;
             //a.ToolTip = ToolTip.GetTip(this) != null ? ToolTip.GetTip(this).ToString() : null;
         }
-
-        public virtual void MyRender(Canvas canvasAxis, Canvas canvasPlot)
+        
+        public virtual void Render(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
         {
             if (InternalAxis == null)
             {
                 return;
             }
-
-            var rcAxis = new CanvasRenderContext(canvasAxis);
-            var rcPlot = new CanvasRenderContext(canvasPlot);
 
             var labels = InternalAxis.MyLabels;
             var minorSegments = InternalAxis.MyMinorSegments;
@@ -113,27 +109,33 @@ namespace TimeDataViewer
 
             if (MinorPen != null)
             {
-                rcPlot.DrawLineSegments(minorSegments, MinorPen);
+                contextPlot.DrawLineSegments(minorSegments, MinorPen);
             }
 
             if (MinorTickPen != null)
             {
-                rcAxis.DrawLineSegments(minorTickSegments, MinorTickPen);
+                contextAxis.DrawLineSegments(minorTickSegments, MinorTickPen);
             }
-
+        
             foreach (var (pt, text, ha, va) in labels)
             {
-                rcAxis.DrawMathText(pt, text, ha, va);
+                var label = DefaultLabelTemplate.Build(new ContentControl());
+
+                if (label.Control is TextBlock textBlock)
+                {
+                    textBlock.Text = text;
+                    contextAxis.DrawMathText(pt, textBlock, ha, va);
+                }
             }
 
             if (MajorPen != null)
             {
-                rcPlot.DrawLineSegments(majorSegments, MajorPen);
+                contextPlot.DrawLineSegments(majorSegments, MajorPen);
             }
 
             if (MajorTickPen != null)
             {
-                rcAxis.DrawLineSegments(majorTickSegments, MajorTickPen);
+                contextAxis.DrawLineSegments(majorTickSegments, MajorTickPen);
             }
         }
     }

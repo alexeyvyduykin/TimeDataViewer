@@ -42,6 +42,8 @@ namespace TimeDataViewer.Core
             }
         }
 
+
+
         private void RenderAxises()
         {
             foreach (var item in Axises)

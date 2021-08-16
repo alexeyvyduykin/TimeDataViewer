@@ -82,7 +82,7 @@
                                                   IsZoomEnabled="False"
                                                   Items="{Binding $parent[Window].DataContext.Labels}"
                                                   LabelField="Label"/>
-                                <sch:DateTimeAxis Position="Bottom"    
+                                <sch:DateTimeAxis Position="Top"    
                                                   IntervalType="Auto"
                                                   AbsoluteMinimum="{Binding BeginScenario}"
                                                   AbsoluteMaximum="{Binding EndScenario}"
