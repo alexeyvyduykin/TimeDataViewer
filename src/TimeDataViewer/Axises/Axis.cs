@@ -9,18 +9,10 @@ namespace TimeDataViewer
         public Core.Axis InternalAxis { get; protected set; }
         protected Pen AxislinePen { get; set; }
         protected Pen ExtraPen { get; set; }
-        protected Pen MajorPen { get; set; }
-        protected Pen MajorTickPen { get; set; }
-        protected Pen MinorPen { get; set; }
-        protected Pen MinorTickPen { get; set; }
         protected Pen ZeroPen { get; set; }
 
         protected Axis()
         {
-            MinorPen = new Pen() { Brush = new SolidColorBrush() { Color = Color.FromArgb(0x20, 0, 0, 0x00) }, Thickness = 1, DashStyle = DashStyle.Dot };
-            MajorPen = new Pen() { Brush = new SolidColorBrush() { Color = Color.FromArgb(0x40, 0, 0, 0) }, Thickness = 1 };
-            MinorTickPen = new Pen() { Brush = Brushes.Black, Thickness = 1 };
-            MajorTickPen = new Pen() { Brush = Brushes.Black, Thickness = 1 };
             ZeroPen = new Pen() { Brush = Brushes.Black, Thickness = 1 };
             ExtraPen = new Pen() { Brush = Brushes.Black, Thickness = 1, DashStyle = DashStyle.Dot };
             AxislinePen = new Pen() { Brush = Brushes.Black, Thickness = 1 };

@@ -50,22 +50,22 @@ namespace TimeDataViewer.Core
             MinimumMinorStep = 0;
             MinimumMajorStep = 0;
 
-            this.MinimumRange = 0;
-            this.MaximumRange = double.PositiveInfinity;
+            MinimumRange = 0;
+            MaximumRange = double.PositiveInfinity;
 
-            this.MinorTickSize = 4;
-            this.MajorTickSize = 7;
+            MinorTickSize = 4;
+            MajorTickSize = 7;
 
-            this.IsZoomEnabled = true;
-            this.IsPanEnabled = true;
+            IsZoomEnabled = true;
+            IsPanEnabled = true;
 
-            this.IntervalLength = 60;
+            IntervalLength = 60;
 
-            this.AxisDistance = 0;
-            this.AxisTickToLabelDistance = 4;
+            AxisDistance = 0;
+            AxisTickToLabelDistance = 4;
 
-            this.DataMaximum = double.NaN;
-            this.DataMinimum = double.NaN;
+            DataMaximum = double.NaN;
+            DataMinimum = double.NaN;
         }
 
         // Gets or sets the current view's maximum. This value is used when the user zooms or pans.
@@ -233,12 +233,12 @@ namespace TimeDataViewer.Core
         {
             get
             {
-                return this.position;
+                return position;
             }
 
             set
             {
-                this.position = value;
+                position = value;
             }
         }
 
@@ -372,7 +372,7 @@ namespace TimeDataViewer.Core
         /// <returns><c>true</c> if the axis is vertical; otherwise, <c>false</c> .</returns>
         public bool IsVertical()
         {
-            return this.position == AxisPosition.Left || this.position == AxisPosition.Right;
+            return position == AxisPosition.Left || position == AxisPosition.Right;
         }
 
         /// <summary>
@@ -388,51 +388,51 @@ namespace TimeDataViewer.Core
         /// <param name="cpt">The current point (screen coordinates).</param>
         public virtual void Pan(ScreenPoint ppt, ScreenPoint cpt)
         {
-            if (!this.IsPanEnabled)
+            if (!IsPanEnabled)
             {
                 return;
             }
 
-            bool isHorizontal = this.IsHorizontal();
+            bool isHorizontal = IsHorizontal();
 
             double dsx = isHorizontal ? cpt.X - ppt.X : cpt.Y - ppt.Y;
-            this.Pan(dsx);
+            Pan(dsx);
         }
 
         public virtual void Pan(double delta)
         {
-            if (!this.IsPanEnabled)
+            if (!IsPanEnabled)
             {
                 return;
             }
 
-            var oldMinimum = this.ActualMinimum;
-            var oldMaximum = this.ActualMaximum;
+            var oldMinimum = ActualMinimum;
+            var oldMaximum = ActualMaximum;
 
-            double dx = delta / this.Scale;
+            double dx = delta / Scale;
 
-            double newMinimum = this.ActualMinimum - dx;
-            double newMaximum = this.ActualMaximum - dx;
+            double newMinimum = ActualMinimum - dx;
+            double newMaximum = ActualMaximum - dx;
             if (newMinimum < AbsoluteMinimum)
             {
                 newMinimum = AbsoluteMinimum;
-                newMaximum = Math.Min(newMinimum + this.ActualMaximum - this.ActualMinimum, AbsoluteMaximum);
+                newMaximum = Math.Min(newMinimum + ActualMaximum - ActualMinimum, AbsoluteMaximum);
             }
 
             if (newMaximum > AbsoluteMaximum)
             {
                 newMaximum = AbsoluteMaximum;
-                newMinimum = Math.Max(newMaximum - (this.ActualMaximum - this.ActualMinimum), AbsoluteMinimum);
+                newMinimum = Math.Max(newMaximum - (ActualMaximum - ActualMinimum), AbsoluteMinimum);
             }
 
             ViewMinimum = newMinimum;
             ViewMaximum = newMaximum;
             UpdateActualMaxMin();
 
-            var deltaMinimum = this.ActualMinimum - oldMinimum;
-            var deltaMaximum = this.ActualMaximum - oldMaximum;
+            var deltaMinimum = ActualMinimum - oldMinimum;
+            var deltaMaximum = ActualMaximum - oldMaximum;
 
-            this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Pan, deltaMinimum, deltaMaximum));
+            OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Pan, deltaMinimum, deltaMaximum));
         }
 
         /// <summary>
@@ -440,17 +440,17 @@ namespace TimeDataViewer.Core
         /// </summary>
         public virtual void Reset()
         {
-            var oldMinimum = this.ActualMinimum;
-            var oldMaximum = this.ActualMaximum;
+            var oldMinimum = ActualMinimum;
+            var oldMaximum = ActualMaximum;
 
             ViewMinimum = double.NaN;
             ViewMaximum = double.NaN;
             UpdateActualMaxMin();
 
-            var deltaMinimum = this.ActualMinimum - oldMinimum;
-            var deltaMaximum = this.ActualMaximum - oldMaximum;
+            var deltaMinimum = ActualMinimum - oldMinimum;
+            var deltaMaximum = ActualMaximum - oldMaximum;
 
-            this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Reset, deltaMinimum, deltaMaximum));
+            OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Reset, deltaMinimum, deltaMaximum));
         }
 
         /// <summary>
@@ -460,13 +460,13 @@ namespace TimeDataViewer.Core
         public override string ToString()
         {
             return string.Format(System.Globalization.CultureInfo.CurrentCulture,
-                // this.ActualCulture,
+                // ActualCulture,
                 "{0}({1}, {2}, {3}, {4})",
-                this.GetType().Name,
-                this.Position,
-                this.ActualMinimum,
-                this.ActualMaximum,
-                this.ActualMajorStep);
+                GetType().Name,
+                Position,
+                ActualMinimum,
+                ActualMaximum,
+                ActualMajorStep);
         }
 
         /// <summary>
@@ -483,26 +483,26 @@ namespace TimeDataViewer.Core
                 throw new NullReferenceException("Y axis should not be null when transforming.");
             }
 
-            return new ScreenPoint(this.Transform(x), yaxis.Transform(y));
+            return new ScreenPoint(Transform(x), yaxis.Transform(y));
         }
 
         public virtual void Zoom(double newScale)
         {
-            var oldMinimum = this.ActualMinimum;
-            var oldMaximum = this.ActualMaximum;
+            var oldMinimum = ActualMinimum;
+            var oldMaximum = ActualMaximum;
 
-            double sx1 = this.Transform(this.ActualMaximum);
-            double sx0 = this.Transform(this.ActualMinimum);
+            double sx1 = Transform(ActualMaximum);
+            double sx0 = Transform(ActualMinimum);
 
             double sgn = Math.Sign(_scale);
-            double mid = (this.ActualMaximum + this.ActualMinimum) / 2;
+            double mid = (ActualMaximum + ActualMinimum) / 2;
 
-            double dx = (this.offset - mid) * _scale;
+            double dx = (offset - mid) * _scale;
             var newOffset = (dx / (sgn * newScale)) + mid;
-            this.SetTransform(sgn * newScale, newOffset);
+            SetTransform(sgn * newScale, newOffset);
 
-            double newMaximum = this.InverseTransform(sx1);
-            double newMinimum = this.InverseTransform(sx0);
+            double newMaximum = InverseTransform(sx1);
+            double newMinimum = InverseTransform(sx0);
 
             if (newMinimum < AbsoluteMinimum && newMaximum > AbsoluteMaximum)
             {
@@ -511,24 +511,24 @@ namespace TimeDataViewer.Core
             }
             else
             {
-                if (newMinimum < this.AbsoluteMinimum)
+                if (newMinimum < AbsoluteMinimum)
                 {
                     double d = newMaximum - newMinimum;
-                    newMinimum = this.AbsoluteMinimum;
-                    newMaximum = this.AbsoluteMinimum + d;
-                    if (newMaximum > this.AbsoluteMaximum)
+                    newMinimum = AbsoluteMinimum;
+                    newMaximum = AbsoluteMinimum + d;
+                    if (newMaximum > AbsoluteMaximum)
                     {
-                        newMaximum = this.AbsoluteMaximum;
+                        newMaximum = AbsoluteMaximum;
                     }
                 }
-                else if (newMaximum > this.AbsoluteMaximum)
+                else if (newMaximum > AbsoluteMaximum)
                 {
                     double d = newMaximum - newMinimum;
-                    newMaximum = this.AbsoluteMaximum;
-                    newMinimum = this.AbsoluteMaximum - d;
-                    if (newMinimum < this.AbsoluteMinimum)
+                    newMaximum = AbsoluteMaximum;
+                    newMinimum = AbsoluteMaximum - d;
+                    if (newMinimum < AbsoluteMinimum)
                     {
-                        newMinimum = this.AbsoluteMinimum;
+                        newMinimum = AbsoluteMinimum;
                     }
                 }
             }
@@ -537,78 +537,78 @@ namespace TimeDataViewer.Core
             ViewMinimum = newMinimum;
             UpdateActualMaxMin();
 
-            var deltaMinimum = this.ActualMinimum - oldMinimum;
-            var deltaMaximum = this.ActualMaximum - oldMaximum;
+            var deltaMinimum = ActualMinimum - oldMinimum;
+            var deltaMaximum = ActualMaximum - oldMaximum;
 
-            this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
+            OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
         }
 
         // Zooms the axis to the range [x0,x1].
         public virtual void Zoom(double x0, double x1)
         {
-            if (!this.IsZoomEnabled)
+            if (!IsZoomEnabled)
             {
                 return;
             }
 
-            var oldMinimum = this.ActualMinimum;
-            var oldMaximum = this.ActualMaximum;
+            var oldMinimum = ActualMinimum;
+            var oldMaximum = ActualMaximum;
 
-            double newMinimum = Math.Max(Math.Min(x0, x1), this.AbsoluteMinimum);
-            double newMaximum = Math.Min(Math.Max(x0, x1), this.AbsoluteMaximum);
+            double newMinimum = Math.Max(Math.Min(x0, x1), AbsoluteMinimum);
+            double newMaximum = Math.Min(Math.Max(x0, x1), AbsoluteMaximum);
 
             ViewMinimum = newMinimum;
             ViewMaximum = newMaximum;
             UpdateActualMaxMin();
 
-            var deltaMinimum = this.ActualMinimum - oldMinimum;
-            var deltaMaximum = this.ActualMaximum - oldMaximum;
+            var deltaMinimum = ActualMinimum - oldMinimum;
+            var deltaMaximum = ActualMaximum - oldMaximum;
 
-            this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
+            OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
         }
 
         public virtual void ZoomAt(double factor, double x)
         {
-            if (!this.IsZoomEnabled)
+            if (!IsZoomEnabled)
             {
                 return;
             }
 
-            var oldMinimum = this.ActualMinimum;
-            var oldMaximum = this.ActualMaximum;
+            var oldMinimum = ActualMinimum;
+            var oldMaximum = ActualMaximum;
 
-            double dx0 = (this.ActualMinimum - x) * _scale;
-            double dx1 = (this.ActualMaximum - x) * _scale;
+            double dx0 = (ActualMinimum - x) * _scale;
+            double dx1 = (ActualMaximum - x) * _scale;
             _scale *= factor;
 
             double newMinimum = (dx0 / _scale) + x;
             double newMaximum = (dx1 / _scale) + x;
 
-            if (newMaximum - newMinimum > this.MaximumRange)
+            if (newMaximum - newMinimum > MaximumRange)
             {
                 var mid = (newMinimum + newMaximum) * 0.5;
-                newMaximum = mid + (this.MaximumRange * 0.5);
-                newMinimum = mid - (this.MaximumRange * 0.5);
+                newMaximum = mid + (MaximumRange * 0.5);
+                newMinimum = mid - (MaximumRange * 0.5);
             }
 
-            if (newMaximum - newMinimum < this.MinimumRange)
+            if (newMaximum - newMinimum < MinimumRange)
             {
                 var mid = (newMinimum + newMaximum) * 0.5;
-                newMaximum = mid + (this.MinimumRange * 0.5);
-                newMinimum = mid - (this.MinimumRange * 0.5);
+                newMaximum = mid + (MinimumRange * 0.5);
+                newMinimum = mid - (MinimumRange * 0.5);
             }
 
-            newMinimum = Math.Max(newMinimum, this.AbsoluteMinimum);
-            newMaximum = Math.Min(newMaximum, this.AbsoluteMaximum);
+            newMinimum = Math.Max(newMinimum, AbsoluteMinimum);
+            newMaximum = Math.Min(newMaximum, AbsoluteMaximum);
 
             ViewMinimum = newMinimum;
             ViewMaximum = newMaximum;
             UpdateActualMaxMin();
 
-            var deltaMinimum = this.ActualMinimum - oldMinimum;
-            var deltaMaximum = this.ActualMaximum - oldMaximum;
+            var deltaMinimum = ActualMinimum - oldMinimum;
+            var deltaMaximum = ActualMaximum - oldMaximum;
 
-            this.OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
+            OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
         }
 
         /// <summary>
@@ -617,9 +617,9 @@ namespace TimeDataViewer.Core
         /// <param name="factor">The zoom factor.</param>
         public virtual void ZoomAtCenter(double factor)
         {
-            double sx = (this.Transform(this.ActualMaximum) + this.Transform(this.ActualMinimum)) * 0.5;
-            var x = this.InverseTransform(sx);
-            this.ZoomAt(factor, x);
+            double sx = (Transform(ActualMaximum) + Transform(ActualMinimum)) * 0.5;
+            var x = InverseTransform(sx);
+            ZoomAt(factor, x);
         }
 
         /// <summary>
@@ -628,13 +628,13 @@ namespace TimeDataViewer.Core
         /// <param name="value">The value.</param>
         public virtual void Include(double value)
         {
-            if (!this.IsValidValue(value))
+            if (!IsValidValue(value))
             {
                 return;
             }
 
-            this.DataMinimum = double.IsNaN(this.DataMinimum) ? value : Math.Min(this.DataMinimum, value);
-            this.DataMaximum = double.IsNaN(this.DataMaximum) ? value : Math.Max(this.DataMaximum, value);
+            DataMinimum = double.IsNaN(DataMinimum) ? value : Math.Min(DataMinimum, value);
+            DataMaximum = double.IsNaN(DataMaximum) ? value : Math.Max(DataMaximum, value);
         }
 
         /// <summary>
@@ -642,7 +642,7 @@ namespace TimeDataViewer.Core
         /// </summary>
         internal virtual void ResetDataMaxMin()
         {
-            this.DataMaximum = this.DataMinimum = this.ActualMaximum = this.ActualMinimum = double.NaN;
+            DataMaximum = DataMinimum = ActualMaximum = ActualMinimum = double.NaN;
         }
 
         /// <summary>
@@ -658,31 +658,31 @@ namespace TimeDataViewer.Core
                 // The user has zoomed/panned the axis, use the ViewMaximum value.
                 ActualMaximum = ViewMaximum;
             }
-            else if (!double.IsNaN(this.Maximum))
+            else if (!double.IsNaN(Maximum))
             {
                 // The Maximum value has been set
-                this.ActualMaximum = this.Maximum;
+                ActualMaximum = Maximum;
             }
             else
             {
                 // Calculate the actual maximum, including padding
-                this.ActualMaximum = this.CalculateActualMaximum();
+                ActualMaximum = CalculateActualMaximum();
             }
 
-            if (!double.IsNaN(this.ViewMinimum))
+            if (!double.IsNaN(ViewMinimum))
             {
-                this.ActualMinimum = this.ViewMinimum;
+                ActualMinimum = ViewMinimum;
             }
-            else if (!double.IsNaN(this.Minimum))
+            else if (!double.IsNaN(Minimum))
             {
-                this.ActualMinimum = this.Minimum;
+                ActualMinimum = Minimum;
             }
             else
             {
-                this.ActualMinimum = this.CalculateActualMinimum();
+                ActualMinimum = CalculateActualMinimum();
             }
 
-            this.CoerceActualMaxMin();
+            CoerceActualMaxMin();
         }
 
         /// <summary>
@@ -700,31 +700,31 @@ namespace TimeDataViewer.Core
         /// <param name="plotArea">The plot area rectangle.</param>
         internal virtual void UpdateIntervals(OxyRect plotArea)
         {
-            double labelSize = this.IntervalLength;
-            double length = this.IsHorizontal() ? plotArea.Width : plotArea.Height;
+            double labelSize = IntervalLength;
+            double length = IsHorizontal() ? plotArea.Width : plotArea.Height;
 
-            this.ActualMajorStep = !double.IsNaN(this.MajorStep)
-                                       ? this.MajorStep
-                                       : this.CalculateActualInterval(length, labelSize);
+            ActualMajorStep = !double.IsNaN(MajorStep)
+                                       ? MajorStep
+                                       : CalculateActualInterval(length, labelSize);
 
-            this.ActualMinorStep = !double.IsNaN(this.MinorStep)
-                                       ? this.MinorStep
-                                       : this.CalculateMinorInterval(this.ActualMajorStep);
+            ActualMinorStep = !double.IsNaN(MinorStep)
+                                       ? MinorStep
+                                       : CalculateMinorInterval(ActualMajorStep);
 
-            if (double.IsNaN(this.ActualMinorStep))
+            if (double.IsNaN(ActualMinorStep))
             {
-                this.ActualMinorStep = 2;
+                ActualMinorStep = 2;
             }
 
-            if (double.IsNaN(this.ActualMajorStep))
+            if (double.IsNaN(ActualMajorStep))
             {
-                this.ActualMajorStep = 10;
+                ActualMajorStep = 10;
             }
 
-            this.ActualMinorStep = Math.Max(this.ActualMinorStep, this.MinimumMinorStep);
-            this.ActualMajorStep = Math.Max(this.ActualMajorStep, this.MinimumMajorStep);
+            ActualMinorStep = Math.Max(ActualMinorStep, MinimumMinorStep);
+            ActualMajorStep = Math.Max(ActualMajorStep, MinimumMajorStep);
 
-            this.ActualStringFormat = this.StringFormat ?? this.GetDefaultStringFormat();
+            ActualStringFormat = StringFormat ?? GetDefaultStringFormat();
         }
 
         /// <summary>
@@ -747,13 +747,13 @@ namespace TimeDataViewer.Core
             ScreenMin = new ScreenPoint(a0, a1);
             ScreenMax = new ScreenPoint(a1, a0);
 
-            if (this.ActualMaximum - this.ActualMinimum < double.Epsilon)
+            if (ActualMaximum - ActualMinimum < double.Epsilon)
             {
-                this.ActualMaximum = this.ActualMinimum + 1;
+                ActualMaximum = ActualMinimum + 1;
             }
 
-            double max = this.PreTransform(this.ActualMaximum);
-            double min = this.PreTransform(this.ActualMinimum);
+            double max = PreTransform(ActualMaximum);
+            double min = PreTransform(ActualMinimum);
 
             double da = a0 - a1;
             double newOffset, newScale;
@@ -776,7 +776,7 @@ namespace TimeDataViewer.Core
                 newScale = 1;
             }
 
-            this.SetTransform(newScale, newOffset);
+            SetTransform(newScale, newOffset);
         }
 
         /// <summary>
@@ -821,96 +821,96 @@ namespace TimeDataViewer.Core
         protected virtual void CoerceActualMaxMin()
         {
             // Coerce actual minimum
-            if (double.IsNaN(this.ActualMinimum) || double.IsInfinity(this.ActualMinimum))
+            if (double.IsNaN(ActualMinimum) || double.IsInfinity(ActualMinimum))
             {
-                this.ActualMinimum = 0;
+                ActualMinimum = 0;
             }
 
             // Coerce actual maximum
-            if (double.IsNaN(this.ActualMaximum) || double.IsInfinity(this.ActualMaximum))
+            if (double.IsNaN(ActualMaximum) || double.IsInfinity(ActualMaximum))
             {
-                this.ActualMaximum = 100;
+                ActualMaximum = 100;
             }
 
-            if (this.AbsoluteMaximum - this.AbsoluteMinimum < this.MinimumRange)
+            if (AbsoluteMaximum - AbsoluteMinimum < MinimumRange)
             {
                 throw new InvalidOperationException("MinimumRange should be larger than AbsoluteMaximum-AbsoluteMinimum.");
             }
 
             // Coerce the minimum range
-            if (this.ActualMaximum - this.ActualMinimum < this.MinimumRange)
+            if (ActualMaximum - ActualMinimum < MinimumRange)
             {
-                if (this.ActualMinimum + this.MinimumRange < this.AbsoluteMaximum)
+                if (ActualMinimum + MinimumRange < AbsoluteMaximum)
                 {
-                    var average = (this.ActualMaximum + this.ActualMinimum) * 0.5;
-                    var delta = this.MinimumRange / 2;
-                    this.ActualMinimum = average - delta;
-                    this.ActualMaximum = average + delta;
+                    var average = (ActualMaximum + ActualMinimum) * 0.5;
+                    var delta = MinimumRange / 2;
+                    ActualMinimum = average - delta;
+                    ActualMaximum = average + delta;
 
-                    if (this.ActualMinimum < this.AbsoluteMinimum)
+                    if (ActualMinimum < AbsoluteMinimum)
                     {
-                        var diff = this.AbsoluteMinimum - this.ActualMinimum;
-                        this.ActualMinimum = this.AbsoluteMinimum;
-                        this.ActualMaximum += diff;
+                        var diff = AbsoluteMinimum - ActualMinimum;
+                        ActualMinimum = AbsoluteMinimum;
+                        ActualMaximum += diff;
                     }
 
-                    if (this.ActualMaximum > this.AbsoluteMaximum)
+                    if (ActualMaximum > AbsoluteMaximum)
                     {
-                        var diff = this.AbsoluteMaximum - this.ActualMaximum;
-                        this.ActualMaximum = this.AbsoluteMaximum;
-                        this.ActualMinimum += diff;
+                        var diff = AbsoluteMaximum - ActualMaximum;
+                        ActualMaximum = AbsoluteMaximum;
+                        ActualMinimum += diff;
                     }
                 }
                 else
                 {
-                    if (this.AbsoluteMaximum - this.MinimumRange > this.AbsoluteMinimum)
+                    if (AbsoluteMaximum - MinimumRange > AbsoluteMinimum)
                     {
-                        this.ActualMinimum = this.AbsoluteMaximum - this.MinimumRange;
-                        this.ActualMaximum = this.AbsoluteMaximum;
+                        ActualMinimum = AbsoluteMaximum - MinimumRange;
+                        ActualMaximum = AbsoluteMaximum;
                     }
                     else
                     {
-                        this.ActualMaximum = this.AbsoluteMaximum;
-                        this.ActualMinimum = this.AbsoluteMinimum;
+                        ActualMaximum = AbsoluteMaximum;
+                        ActualMinimum = AbsoluteMinimum;
                     }
                 }
             }
 
             // Coerce the maximum range
-            if (this.ActualMaximum - this.ActualMinimum > this.MaximumRange)
+            if (ActualMaximum - ActualMinimum > MaximumRange)
             {
-                if (this.ActualMinimum + this.MaximumRange < this.AbsoluteMaximum)
+                if (ActualMinimum + MaximumRange < AbsoluteMaximum)
                 {
-                    var average = (this.ActualMaximum + this.ActualMinimum) * 0.5;
-                    var delta = this.MaximumRange / 2;
-                    this.ActualMinimum = average - delta;
-                    this.ActualMaximum = average + delta;
+                    var average = (ActualMaximum + ActualMinimum) * 0.5;
+                    var delta = MaximumRange / 2;
+                    ActualMinimum = average - delta;
+                    ActualMaximum = average + delta;
 
-                    if (this.ActualMinimum < this.AbsoluteMinimum)
+                    if (ActualMinimum < AbsoluteMinimum)
                     {
-                        var diff = this.AbsoluteMinimum - this.ActualMinimum;
-                        this.ActualMinimum = this.AbsoluteMinimum;
-                        this.ActualMaximum += diff;
+                        var diff = AbsoluteMinimum - ActualMinimum;
+                        ActualMinimum = AbsoluteMinimum;
+                        ActualMaximum += diff;
                     }
 
-                    if (this.ActualMaximum > this.AbsoluteMaximum)
+                    if (ActualMaximum > AbsoluteMaximum)
                     {
-                        var diff = this.AbsoluteMaximum - this.ActualMaximum;
-                        this.ActualMaximum = this.AbsoluteMaximum;
-                        this.ActualMinimum += diff;
+                        var diff = AbsoluteMaximum - ActualMaximum;
+                        ActualMaximum = AbsoluteMaximum;
+                        ActualMinimum += diff;
                     }
                 }
                 else
                 {
-                    if (this.AbsoluteMaximum - this.MaximumRange > this.AbsoluteMinimum)
+                    if (AbsoluteMaximum - MaximumRange > AbsoluteMinimum)
                     {
-                        this.ActualMinimum = this.AbsoluteMaximum - this.MaximumRange;
-                        this.ActualMaximum = this.AbsoluteMaximum;
+                        ActualMinimum = AbsoluteMaximum - MaximumRange;
+                        ActualMaximum = AbsoluteMaximum;
                     }
                     else
                     {
-                        this.ActualMaximum = this.AbsoluteMaximum;
-                        this.ActualMinimum = this.AbsoluteMinimum;
+                        ActualMaximum = AbsoluteMaximum;
+                        ActualMinimum = AbsoluteMinimum;
                     }
                 }
             }
@@ -921,29 +921,29 @@ namespace TimeDataViewer.Core
                 throw new InvalidOperationException("AbsoluteMaximum should be larger than AbsoluteMinimum.");
             }
 
-            if (this.ActualMaximum <= this.ActualMinimum)
+            if (ActualMaximum <= ActualMinimum)
             {
-                this.ActualMaximum = this.ActualMinimum + 100;
+                ActualMaximum = ActualMinimum + 100;
             }
 
-            if (this.ActualMinimum < this.AbsoluteMinimum)
+            if (ActualMinimum < AbsoluteMinimum)
             {
-                this.ActualMinimum = this.AbsoluteMinimum;
+                ActualMinimum = AbsoluteMinimum;
             }
 
-            if (this.ActualMinimum > this.AbsoluteMaximum)
+            if (ActualMinimum > AbsoluteMaximum)
             {
-                this.ActualMinimum = this.AbsoluteMaximum;
+                ActualMinimum = AbsoluteMaximum;
             }
 
-            if (this.ActualMaximum < this.AbsoluteMinimum)
+            if (ActualMaximum < AbsoluteMinimum)
             {
-                this.ActualMaximum = this.AbsoluteMinimum;
+                ActualMaximum = AbsoluteMinimum;
             }
 
-            if (this.ActualMaximum > this.AbsoluteMaximum)
+            if (ActualMaximum > AbsoluteMaximum)
             {
-                this.ActualMaximum = this.AbsoluteMaximum;
+                ActualMaximum = AbsoluteMaximum;
             }
         }
 
@@ -960,20 +960,20 @@ namespace TimeDataViewer.Core
         /// <returns>The new actual maximum value of the axis.</returns>
         protected virtual double CalculateActualMaximum()
         {
-            var actualMaximum = this.DataMaximum;
-            double range = this.DataMaximum - this.DataMinimum;
+            var actualMaximum = DataMaximum;
+            double range = DataMaximum - DataMinimum;
 
             if (range < double.Epsilon)
             {
-                double zeroRange = this.DataMaximum > 0 ? this.DataMaximum : 1;
+                double zeroRange = DataMaximum > 0 ? DataMaximum : 1;
                 actualMaximum += zeroRange * 0.5;
             }
 
-            if (!double.IsNaN(this.DataMinimum) && !double.IsNaN(actualMaximum))
+            if (!double.IsNaN(DataMinimum) && !double.IsNaN(actualMaximum))
             {
-                double x1 = this.PreTransform(actualMaximum);
-                double x0 = this.PreTransform(this.DataMinimum);
-                //    double dx = this.MaximumPadding * (x1 - x0);
+                double x1 = PreTransform(actualMaximum);
+                double x0 = PreTransform(DataMinimum);
+                //    double dx = MaximumPadding * (x1 - x0);
                 return PostInverseTransform(x1 /*+ dx*/);
             }
 
@@ -986,19 +986,19 @@ namespace TimeDataViewer.Core
         /// <returns>The new actual minimum value of the axis.</returns>
         protected virtual double CalculateActualMinimum()
         {
-            var actualMinimum = this.DataMinimum;
-            double range = this.DataMaximum - this.DataMinimum;
+            var actualMinimum = DataMinimum;
+            double range = DataMaximum - DataMinimum;
 
             if (range < double.Epsilon)
             {
-                double zeroRange = this.DataMaximum > 0 ? this.DataMaximum : 1;
+                double zeroRange = DataMaximum > 0 ? DataMaximum : 1;
                 actualMinimum -= zeroRange * 0.5;
             }
 
-            if (!double.IsNaN(this.ActualMaximum))
+            if (!double.IsNaN(ActualMaximum))
             {
-                double x1 = this.PreTransform(this.ActualMaximum);
-                double x0 = this.PreTransform(actualMinimum);
+                double x1 = PreTransform(ActualMaximum);
+                double x0 = PreTransform(actualMinimum);
                 //  double dx = MinimumPadding * (x1 - x0);
                 return PostInverseTransform(x0 /*- dx*/);
             }
@@ -1014,8 +1014,8 @@ namespace TimeDataViewer.Core
         protected void SetTransform(double newScale, double newOffset)
         {
             _scale = newScale;
-            this.offset = newOffset;
-            this.OnTransformChanged(new EventArgs());
+            offset = newOffset;
+            OnTransformChanged(new EventArgs());
         }
 
         /// <summary>
@@ -1026,7 +1026,7 @@ namespace TimeDataViewer.Core
         /// <returns>The calculate actual interval.</returns>
         protected virtual double CalculateActualInterval(double availableSize, double maxIntervalSize)
         {
-            return this.CalculateActualInterval(availableSize, maxIntervalSize, this.ActualMaximum - this.ActualMinimum);
+            return CalculateActualInterval(availableSize, maxIntervalSize, ActualMaximum - ActualMinimum);
         }
 
         /// <summary>

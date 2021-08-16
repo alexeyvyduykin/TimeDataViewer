@@ -32,6 +32,10 @@ namespace TimeDataViewer
             StringFormatProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             TicklineColorProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             UnitProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
+            MinorPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
+            MajorPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
+            MinorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
+            MajorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
         }
 
         public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =    
@@ -47,6 +51,75 @@ namespace TimeDataViewer
             set
             {
                 SetValue(DefaultLabelTemplateProperty, value);
+            }
+        }
+
+
+        public static readonly StyledProperty<Pen> MinorPenProperty =    
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorPen), 
+                new Pen() { Thickness = 1, DashStyle = DashStyle.Dot, Brush = 
+                    new SolidColorBrush() { Color = Color.FromArgb(0x20, 0, 0, 0x00) } });
+
+        public Pen MinorPen
+        {
+            get
+            {
+                return GetValue(MinorPenProperty);
+            }
+
+            set
+            {
+                SetValue(MinorPenProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Pen> MajorPenProperty =    
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorPen), 
+                new Pen() { Thickness = 1, Brush = 
+                    new SolidColorBrush() { Color = Color.FromArgb(0x40, 0, 0, 0) } });
+
+        public Pen MajorPen
+        {
+            get
+            {
+                return GetValue(MajorPenProperty);
+            }
+
+            set
+            {
+                SetValue(MajorPenProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Pen> MinorTickPenProperty =    
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorTickPen), new Pen() { Brush = Brushes.Black, Thickness = 1 });
+
+        public Pen MinorTickPen
+        {
+            get
+            {
+                return GetValue(MinorTickPenProperty);
+            }
+
+            set
+            {
+                SetValue(MinorTickPenProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<Pen> MajorTickPenProperty =    
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorTickPen), new Pen() { Brush = Brushes.Black, Thickness = 1 });
+
+        public Pen MajorTickPen
+        {
+            get
+            {
+                return GetValue(MajorTickPenProperty);
+            }
+
+            set
+            {
+                SetValue(MajorTickPenProperty, value);
             }
         }
 
@@ -82,7 +155,6 @@ namespace TimeDataViewer
             }
         }
 
-
         public static readonly StyledProperty<double> AxisTickToLabelDistanceProperty =
             AvaloniaProperty.Register<Axis, double>(nameof(AxisTickToLabelDistance), 4.0);
 
@@ -114,8 +186,9 @@ namespace TimeDataViewer
                 SetValue(AxisTitleDistanceProperty, value);
             }
         }
-        public static readonly StyledProperty<double> AxisDistanceProperty =
-   AvaloniaProperty.Register<Axis, double>(nameof(AxisDistance), 0.0);
+       
+        public static readonly StyledProperty<double> AxisDistanceProperty =   
+            AvaloniaProperty.Register<Axis, double>(nameof(AxisDistance), 0.0);
 
         public double AxisDistance
         {
@@ -179,8 +252,8 @@ namespace TimeDataViewer
             }
         }
 
-        public static readonly StyledProperty<double> IntervalLengthProperty =
-   AvaloniaProperty.Register<Axis, double>(nameof(IntervalLength), 60.0);
+        public static readonly StyledProperty<double> IntervalLengthProperty =  
+            AvaloniaProperty.Register<Axis, double>(nameof(IntervalLength), 60.0);
 
         public double IntervalLength
         {
