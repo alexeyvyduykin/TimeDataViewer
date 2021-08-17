@@ -412,6 +412,28 @@ namespace TimeDataViewer
             Canvas.SetTop(e, rect.Top);
         }
 
+        public void DrawRectangle(OxyRect rect, IBrush? fill, IPen? stroke)
+        {
+            var e = CreateAndAdd<Rectangle>(rect.Left, rect.Top);
+
+            if (stroke != null)
+            {
+                e.Stroke = stroke.Brush;
+                e.StrokeThickness = stroke.Thickness;
+            }
+
+            if (fill != null)
+            {
+                e.Fill = fill;
+            }
+
+            e.Width = rect.Width;
+            e.Height = rect.Height;
+
+            Canvas.SetLeft(e, rect.Left);
+            Canvas.SetTop(e, rect.Top);
+        }
+
         public void DrawText(ScreenPoint p, TextBlock textBlock, Core.HorizontalAlignment halign, Core.VerticalAlignment valign, OxySize? maxSize)
         {
             var tb = Add<TextBlock>(textBlock);

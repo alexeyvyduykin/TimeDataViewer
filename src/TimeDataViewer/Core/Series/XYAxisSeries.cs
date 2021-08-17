@@ -420,41 +420,21 @@ namespace TimeDataViewer.Core
 
             if (minx < double.MaxValue)
             {
-                //if (minx < XAxis.FilterMinValue)
-                //{
-                //    minx = XAxis.FilterMinValue;
-                //}
-
                 MinX = minx;
             }
 
             if (miny < double.MaxValue)
             {
-                //if (miny < YAxis.FilterMinValue)
-                //{
-                //    miny = YAxis.FilterMinValue;
-                //}
-
                 MinY = miny;
             }
 
             if (maxx > double.MinValue)
             {
-                //if (maxx > XAxis.FilterMaxValue)
-                //{
-                //    maxx = XAxis.FilterMaxValue;
-                //}
-
                 MaxX = maxx;
             }
 
             if (maxy > double.MinValue)
             {
-                //if (maxy > YAxis.FilterMaxValue)
-                //{
-                //    maxy = YAxis.FilterMaxValue;
-                //}
-
                 MaxY = maxy;
             }
         }

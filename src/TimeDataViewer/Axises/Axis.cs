@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
 {
@@ -10,9 +11,10 @@ namespace TimeDataViewer
         protected Pen AxislinePen { get; set; }
         protected Pen ExtraPen { get; set; }
         protected Pen ZeroPen { get; set; }
-
+        protected Pen BlackPen { get; set; }
         protected Axis()
         {
+            BlackPen = new Pen() { Brush = Brushes.Black, Thickness = 1 };
             ZeroPen = new Pen() { Brush = Brushes.Black, Thickness = 1 };
             ExtraPen = new Pen() { Brush = Brushes.Black, Thickness = 1, DashStyle = DashStyle.Dot };
             AxislinePen = new Pen() { Brush = Brushes.Black, Thickness = 1 };
@@ -128,6 +130,24 @@ namespace TimeDataViewer
             if (MajorTickPen != null)
             {
                 contextAxis.DrawLineSegments(majorTickSegments, MajorTickPen);
+            }
+
+            if(MinMaxBrush != null && InternalAxis.IsHorizontal() == true)
+            {
+                var rect0 = InternalAxis.LeftRect;
+                var rect1 = InternalAxis.RightRect;
+
+                if (rect0.Width != 0)
+                {
+                    contextPlot.DrawRectangle(rect0, MinMaxBrush, null);
+                    contextPlot.DrawLine(rect0.Right, rect0.Top, rect0.Right, rect0.Bottom, BlackPen);
+                }
+
+                if (rect1.Width != 0)
+                {
+                    contextPlot.DrawRectangle(rect1, MinMaxBrush, null);
+                    contextPlot.DrawLine(rect1.Left, rect1.Top, rect1.Left, rect1.Bottom, BlackPen);
+                }
             }
         }
     }

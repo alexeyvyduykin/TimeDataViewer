@@ -157,7 +157,6 @@ namespace TimeDataViewer.Core
             return XAxis == axis || YAxis == axis;
         }
 
-
         // Updates the axis maximum and minimum values.     
         protected internal override void UpdateAxisMaxMin()
         {

@@ -105,7 +105,7 @@ namespace TimeDataViewer.Core
         {
             double mindist = double.MaxValue;
             Series nearestSeries = null;
-            foreach (var series in this.Series.Reverse().Where(s => s.IsVisible))
+            foreach (var series in Series.Reverse().Where(s => s.IsVisible))
             {
                 var thr = series.GetNearestPoint(point, true) ?? series.GetNearestPoint(point, false);
 
@@ -259,7 +259,7 @@ namespace TimeDataViewer.Core
         /// </remarks>
         public void RaiseTrackerChanged(TrackerHitResult result)
         {
-            var handler = this.TrackerChanged;
+            var handler = TrackerChanged;
             if (handler != null)
             {
                 var args = new TrackerEventArgs { HitResult = result };
@@ -273,7 +273,7 @@ namespace TimeDataViewer.Core
         /// <param name="result">The result.</param>
         protected internal virtual void OnTrackerChanged(TrackerHitResult result)
         {
-            this.RaiseTrackerChanged(result);
+            RaiseTrackerChanged(result);
         }
 
         /// <summary>

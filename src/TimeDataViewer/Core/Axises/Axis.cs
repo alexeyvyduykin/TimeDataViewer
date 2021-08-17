@@ -341,10 +341,6 @@ namespace TimeDataViewer.Core
             return (x - offset) * _scale;
         }
 
-        /// <summary>
-        /// Determines whether the axis is horizontal.
-        /// </summary>
-        /// <returns><c>true</c> if the axis is horizontal; otherwise, <c>false</c> .</returns>
         public bool IsHorizontal()
         {
             return position == AxisPosition.Top || position == AxisPosition.Bottom;
@@ -453,10 +449,6 @@ namespace TimeDataViewer.Core
             OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Reset, deltaMinimum, deltaMaximum));
         }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
             return string.Format(System.Globalization.CultureInfo.CurrentCulture,
@@ -637,9 +629,6 @@ namespace TimeDataViewer.Core
             DataMaximum = double.IsNaN(DataMaximum) ? value : Math.Max(DataMaximum, value);
         }
 
-        /// <summary>
-        /// Resets the <see cref="DataMaximum" /> and <see cref="DataMinimum" /> values.
-        /// </summary>
         internal virtual void ResetDataMaxMin()
         {
             DataMaximum = DataMinimum = ActualMaximum = ActualMinimum = double.NaN;
@@ -1006,11 +995,6 @@ namespace TimeDataViewer.Core
             return actualMinimum;
         }
 
-        /// <summary>
-        /// Sets the transform.
-        /// </summary>
-        /// <param name="newScale">The new scale.</param>
-        /// <param name="newOffset">The new offset.</param>
         protected void SetTransform(double newScale, double newOffset)
         {
             _scale = newScale;

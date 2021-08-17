@@ -36,6 +36,7 @@ namespace TimeDataViewer
             MajorPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             MinorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             MajorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
+            MinMaxBrushProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
         }
 
         public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =    
@@ -122,6 +123,24 @@ namespace TimeDataViewer
                 SetValue(MajorTickPenProperty, value);
             }
         }
+
+
+        public static readonly StyledProperty<IBrush> MinMaxBrushProperty =    
+            AvaloniaProperty.Register<Axis, IBrush>(nameof(MinMaxBrush), Brushes.Black);
+
+        public IBrush MinMaxBrush
+        {
+            get
+            {
+                return GetValue(MinMaxBrushProperty);
+            }
+
+            set
+            {
+                SetValue(MinMaxBrushProperty, value);
+            }
+        }
+
 
         public static readonly StyledProperty<double> AbsoluteMaximumProperty =   
             AvaloniaProperty.Register<Axis, double>(nameof(AbsoluteMaximum), double.MaxValue);
