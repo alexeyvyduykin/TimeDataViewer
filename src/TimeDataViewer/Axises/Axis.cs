@@ -132,23 +132,23 @@ namespace TimeDataViewer
                 contextAxis.DrawLineSegments(majorTickSegments, MajorTickPen);
             }
 
-            if(MinMaxBrush != null && InternalAxis.IsHorizontal() == true)
-            {
-                var rect0 = InternalAxis.LeftRect;
-                var rect1 = InternalAxis.RightRect;
+            //if(MinMaxBrush != null && InternalAxis.IsHorizontal() == true)
+            //{
+            //    var rect0 = InternalAxis.LeftRect;
+            //    var rect1 = InternalAxis.RightRect;
 
-                if (rect0.Width != 0)
-                {
-                    contextPlot.DrawRectangle(rect0, MinMaxBrush, null);
-                    contextPlot.DrawLine(rect0.Right, rect0.Top, rect0.Right, rect0.Bottom, BlackPen);
-                }
+            //    if (rect0.Width != 0)
+            //    {
+            //      //  contextPlot.DrawRectangle(rect0, MinMaxBrush, null);
+            //      //  contextPlot.DrawLine(rect0.Right, rect0.Top, rect0.Right, rect0.Bottom, BlackPen);
+            //    }
 
-                if (rect1.Width != 0)
-                {
-                    contextPlot.DrawRectangle(rect1, MinMaxBrush, null);
-                    contextPlot.DrawLine(rect1.Left, rect1.Top, rect1.Left, rect1.Bottom, BlackPen);
-                }
-            }
+            //    if (rect1.Width != 0)
+            //    {
+            //      //  contextPlot.DrawRectangle(rect1, MinMaxBrush, null);
+            //      //  contextPlot.DrawLine(rect1.Left, rect1.Top, rect1.Left, rect1.Bottom, BlackPen);
+            //    }
+            //}
         }
     }
 }

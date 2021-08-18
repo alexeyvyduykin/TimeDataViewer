@@ -20,6 +20,20 @@
     </Design.DataContext>
 -->
 
+    <Window.Styles>
+        <Style Selector="sch|Slider">
+
+            <Setter Property="Duration" Value="1"></Setter>
+
+            <Setter Property="MinMaxBrush">
+                <Setter.Value>
+                    <SolidColorBrush Color="Black" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
+
+        </Style>
+    </Window.Styles>
+    
     <Border Margin="5" BorderThickness="3" BorderBrush="Black">
         <Grid RowDefinitions="Auto, *" ColumnDefinitions="*" ShowGridLines="False">
 
@@ -74,47 +88,57 @@
                     </Grid>
 
                     <ContentControl Grid.Row="1" DataContext="{Binding Selected}">
+                        
                         <sch:Timeline>
+                            
                             <sch:Timeline.Axises>
+                                
                                 <sch:CategoryAxis Position="Left"
                                                   AbsoluteMinimum="-0.5"
                                                   AbsoluteMaximum="2.5"
                                                   IsZoomEnabled="False"
                                                   Items="{Binding $parent[Window].DataContext.Labels}"
                                                   LabelField="Label"/>
-                                <sch:DateTimeAxis Position="Top"    
+                                <sch:DateTimeAxis Position="Top"
                                                   IntervalType="Auto"
                                                   AbsoluteMinimum="{Binding BeginScenario}"
                                                   AbsoluteMaximum="{Binding EndScenario}"
                                                   FirstDateTime="{Binding Epoch}"/>
+                            
                             </sch:Timeline.Axises>
+                            
                             <sch:Timeline.Series>
-                                <sch:TimelineSeries BarWidth="0.5" 
+                              
+                                <sch:TimelineSeries BarWidth="0.5"
                                                     FillBrush="Blue"
-                                                    Items="{Binding Rotations}"    
+                                                    Items="{Binding Rotations}"
                                                     CategoryField="Category"
                                                     BeginField="BeginTime"
                                                     EndField="EndTime"/>
 
-                                <sch:TimelineSeries BarWidth="0.5" 
+                                <sch:TimelineSeries BarWidth="0.5"
                                                     FillBrush="Green"
-                                                    Items="{Binding Observations}"   
-                                                    CategoryField="Category"                                              
+                                                    Items="{Binding Observations}"
+                                                    CategoryField="Category"
                                                     BeginField="BeginTime"
                                                     EndField="EndTime"/>
 
-                                <sch:TimelineSeries BarWidth="0.5" 
+                                <sch:TimelineSeries BarWidth="0.5"
                                                     FillBrush="LightCoral"
-                                                    Items="{Binding Transmissions}"  
-                                                    CategoryField="Category"                                                 
+                                                    Items="{Binding Transmissions}"
+                                                    CategoryField="Category"
                                                     BeginField="BeginTime"
                                                     EndField="EndTime"/>
-                                
-                                
+
                             </sch:Timeline.Series>
-                        
-                    </sch:Timeline>
-                        
+                            
+                            <sch:Timeline.Slider>
+                                <sch:Slider Begin="{Binding Begin}"
+                                            Duration="{Binding Duration}"/>
+                            </sch:Timeline.Slider>
+                            
+                        </sch:Timeline>
+
                     </ContentControl>
                    
                     <!--<sch:SchedulerAxisXControl DataContext="{Binding #timeline}" Grid.Row="2"/>-->

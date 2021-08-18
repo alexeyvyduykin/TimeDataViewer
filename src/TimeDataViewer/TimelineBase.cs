@@ -338,6 +338,8 @@ namespace TimeDataViewer
                     ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
                     RenderSeries(_canvas, _drawCanvas);
                     RenderAxisX(rcAxis, rcPlot);
+                    RenderSlider(rcAxis, rcPlot);   
+                    
                     // reinsert the canvas again
                     if (idx != -1)
                     {
@@ -349,6 +351,7 @@ namespace TimeDataViewer
                     ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
                     RenderSeries(_canvas, _drawCanvas);
                     RenderAxisX(rcAxis, rcPlot);
+                    RenderSlider(rcAxis, rcPlot);
                 }
             }
         }
@@ -356,6 +359,9 @@ namespace TimeDataViewer
         protected abstract void RenderAxisX(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);
        
         protected abstract void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas);
+
+        protected abstract void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);
+
 
         // Invokes the specified action on the dispatcher, if necessary.
         private static void BeginInvoke(Action action)

@@ -23,7 +23,7 @@ namespace TimeDataViewer
 
             _series.CollectionChanged += OnSeriesChanged;
             _axises.CollectionChanged += OnAxesChanged;
-
+                               
             _defaultController = new PlotController();
             _internalModel = new PlotModel();
             ((IPlotModel)_internalModel).AttachPlotView(this);
@@ -63,6 +63,13 @@ namespace TimeDataViewer
             //rc.SetToolTip(null);
         }
 
+        protected override void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
+        {
+            // TODO: Remove update method from render and replace to UpdateModel (present correct not work) 
+            UpdateSlider();
+            Slider.Render(contextAxis, contextPlot);
+        }
+
         public override PlotModel ActualModel => _internalModel;
 
         public override IPlotController ActualController => _defaultController;
@@ -73,9 +80,11 @@ namespace TimeDataViewer
         {
             SynchronizeProperties();
             SynchronizeSeries();
-            SynchronizeAxes();
+            SynchronizeAxes();       
 
             base.UpdateModel(updateData);
+            
+            //UpdateSlider();
         }
 
         // Called when the visual appearance is changed.     
@@ -90,9 +99,9 @@ namespace TimeDataViewer
             ((Timeline)d).OnAppearanceChanged();
         }
 
-        private void OnAnnotationsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private static void SliderChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
         {
-            SyncLogicalTree(e);
+            ((Timeline)d).SyncLogicalTree(e);
         }
 
         private void OnAxesChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -133,6 +142,27 @@ namespace TimeDataViewer
             }
         }
 
+        private void SyncLogicalTree(AvaloniaPropertyChangedEventArgs e)
+        {
+            // In order to get DataContext and binding to work with the series, axes and annotations
+            // we add the items to the logical tree
+            if (e.NewValue != null)
+            {
+                ((ISetLogicalParent)e.NewValue).SetParent(this);
+
+                LogicalChildren.Add((ILogical)e.NewValue);
+                VisualChildren.Add((IVisual)e.NewValue);
+            }
+
+            if (e.OldValue != null)
+            {
+                ((ISetLogicalParent)e.OldValue).SetParent(null);
+
+                LogicalChildren.Remove((ILogical)e.OldValue);
+                VisualChildren.Remove((IVisual)e.OldValue);
+            }
+        }
+
         // Synchronize properties in the internal Plot model
         private void SynchronizeProperties()
         {
@@ -168,6 +198,11 @@ namespace TimeDataViewer
             {
                 _internalModel.Series.Add(s.CreateModel());
             }
+        }
+
+        private void UpdateSlider()
+        {
+            Slider.UpdateMinMax(ActualModel);
         }
     }
 }

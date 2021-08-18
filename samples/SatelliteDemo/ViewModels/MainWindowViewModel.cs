@@ -21,6 +21,8 @@ namespace SatelliteDemo.ViewModels
         private string _currentTimeString;
         private double _currentTime;
 
+        private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+
         public MainWindowViewModel()
         {
             Epoch = DateTime.Now;
@@ -177,22 +179,24 @@ namespace SatelliteDemo.ViewModels
                     temp = item.EndTime;
                 }
             }
+                 
+            var min = rotations.Min(s => ToTotalDays(s.BeginTime, Epoch));
+            min = Math.Min(observations.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
+            min = Math.Min(transmissions.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
 
-
-            var min = rotations.Min(s => ToDouble(s.BeginTime, Epoch));
-            min = Math.Min(observations.Min(s => ToDouble(s.BeginTime, Epoch)), min);
-            min = Math.Min(transmissions.Min(s => ToDouble(s.BeginTime, Epoch)), min);
-
-            var max = rotations.Max(s => ToDouble(s.EndTime, Epoch));
-            max = Math.Max(observations.Max(s => ToDouble(s.EndTime, Epoch)), max);
-            max = Math.Max(transmissions.Max(s => ToDouble(s.EndTime, Epoch)), max);
+            var max = rotations.Max(s => ToTotalDays(s.EndTime, Epoch));
+            max = Math.Max(observations.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
+            max = Math.Max(transmissions.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
 
             sat.Rotations = new List<Rotation>(rotations);
             sat.Observations = new List<Observation>(observations);
             sat.Transmissions = new List<Transmission>(transmissions);
 
-            sat.BeginScenario = (int)Math.Floor((Epoch.Date - new DateTime(1900, 1, 1)).TotalDays) + 2;
+            sat.BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin);      
             sat.EndScenario = sat.BeginScenario + 2;
+
+            sat.Begin = ToTotalDays(Epoch, TimeOrigin);
+            sat.Duration = 1.0;
         }
 
         public void OnReset()
@@ -220,10 +224,9 @@ namespace SatelliteDemo.ViewModels
             _timer.Faster();
         }
 
-        public static double ToDouble(DateTime value, DateTime timeOrigin)
-        {
-            var span = value - timeOrigin;
-            return span.TotalDays + 1;
+        public static double ToTotalDays(DateTime value, DateTime timeOrigin)
+        {       
+            return (value - timeOrigin).TotalDays + 1;
         }
     }
 
@@ -242,9 +245,13 @@ namespace SatelliteDemo.ViewModels
 
         public List<Transmission> Transmissions { get; set; } = new List<Transmission>();
 
-        public int BeginScenario { get; set; }
+        public double BeginScenario { get; set; }
 
-        public int EndScenario { get; set; }
+        public double EndScenario { get; set; }
+
+        public double Begin { get; set; }
+
+        public double Duration { get; set; }
     }
 
     public class Rotation : TimelineItem

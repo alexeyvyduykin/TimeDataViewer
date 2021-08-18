@@ -36,7 +36,6 @@ namespace TimeDataViewer
             MajorPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             MinorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
             MajorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
-            MinMaxBrushProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
         }
 
         public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =    
@@ -57,9 +56,7 @@ namespace TimeDataViewer
 
 
         public static readonly StyledProperty<Pen> MinorPenProperty =    
-            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorPen), 
-                new Pen() { Thickness = 1, DashStyle = DashStyle.Dot, Brush = 
-                    new SolidColorBrush() { Color = Color.FromArgb(0x20, 0, 0, 0x00) } });
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorPen), new Pen());
 
         public Pen MinorPen
         {
@@ -75,9 +72,7 @@ namespace TimeDataViewer
         }
 
         public static readonly StyledProperty<Pen> MajorPenProperty =    
-            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorPen), 
-                new Pen() { Thickness = 1, Brush = 
-                    new SolidColorBrush() { Color = Color.FromArgb(0x40, 0, 0, 0) } });
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorPen), new Pen());
 
         public Pen MajorPen
         {
@@ -93,7 +88,7 @@ namespace TimeDataViewer
         }
 
         public static readonly StyledProperty<Pen> MinorTickPenProperty =    
-            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorTickPen), new Pen() { Brush = Brushes.Black, Thickness = 1 });
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorTickPen), new Pen());
 
         public Pen MinorTickPen
         {
@@ -109,7 +104,7 @@ namespace TimeDataViewer
         }
 
         public static readonly StyledProperty<Pen> MajorTickPenProperty =    
-            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorTickPen), new Pen() { Brush = Brushes.Black, Thickness = 1 });
+            AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorTickPen), new Pen());
 
         public Pen MajorTickPen
         {
@@ -121,23 +116,6 @@ namespace TimeDataViewer
             set
             {
                 SetValue(MajorTickPenProperty, value);
-            }
-        }
-
-
-        public static readonly StyledProperty<IBrush> MinMaxBrushProperty =    
-            AvaloniaProperty.Register<Axis, IBrush>(nameof(MinMaxBrush), Brushes.Black);
-
-        public IBrush MinMaxBrush
-        {
-            get
-            {
-                return GetValue(MinMaxBrushProperty);
-            }
-
-            set
-            {
-                SetValue(MinMaxBrushProperty, value);
             }
         }
 

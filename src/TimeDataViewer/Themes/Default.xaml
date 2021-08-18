@@ -123,12 +123,6 @@
   <Style Selector="local|DateTimeAxis">
 
     <Setter Property="MajorTickSize" Value="0"></Setter>
-
-    <Setter Property="MinMaxBrush">
-      <Setter.Value>
-       <SolidColorBrush Color="Black" Opacity="0.2"/>
-      </Setter.Value>
-    </Setter>
       
     <Setter Property="MinorPen">
       <Setter.Value>
@@ -180,6 +174,18 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  
+  </Style>
+
+  
+  <Style Selector="local|Slider">
+    
+    <Setter Property="MinMaxBrush">
+      <Setter.Value>
+        <SolidColorBrush Color="Black" Opacity="0.2"/>
+      </Setter.Value>
+    </Setter>
+    
   </Style>
 
 </Styles>
