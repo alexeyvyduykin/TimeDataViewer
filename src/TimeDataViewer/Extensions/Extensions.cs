@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Input;
+using Avalonia.Layout;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
@@ -93,6 +94,28 @@ namespace TimeDataViewer
                 default:
                     return Core.OxyMouseButton.None;
             }
+        }
+
+        public static HorizontalAlignment ToAvalonia(this Core.HorizontalAlignment horizontal)
+        {
+            return horizontal switch
+            {
+                Core.HorizontalAlignment.Left => HorizontalAlignment.Left,
+                Core.HorizontalAlignment.Center => HorizontalAlignment.Center,
+                Core.HorizontalAlignment.Right => HorizontalAlignment.Right,
+                _ => HorizontalAlignment.Stretch,
+            };
+        }
+
+        public static VerticalAlignment ToAvalonia(this Core.VerticalAlignment vertical)
+        {
+            return vertical switch
+            {
+                Core.VerticalAlignment.Bottom => VerticalAlignment.Bottom,
+                Core.VerticalAlignment.Middle => VerticalAlignment.Center,
+                Core.VerticalAlignment.Top => VerticalAlignment.Top,
+                _ => VerticalAlignment.Stretch,
+            };
         }
     }
 }

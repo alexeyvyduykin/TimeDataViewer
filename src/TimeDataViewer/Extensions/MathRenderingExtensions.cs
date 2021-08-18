@@ -2,6 +2,7 @@
 using TimeDataViewer.Spatial;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 
 namespace TimeDataViewer
 {
@@ -54,8 +55,9 @@ namespace TimeDataViewer
         /// <example>Subscript: H_{2}O
         /// Superscript: E=mc^{2}
         /// Both: A^{2}_{i,j}</example>
-        public static OxySize DrawMathText(this CanvasRenderContext rc, ScreenPoint pt, TextBlock textBlock,    
-            Core.HorizontalAlignment ha, Core.VerticalAlignment va, OxySize? maxSize, bool measure)
+
+        public static OxySize DrawMathText(this CanvasRenderContext rc, 
+            ScreenPoint pt, TextBlock textBlock, OxySize? maxSize, bool measure)
         {
             var text = textBlock.Text;
 
@@ -75,22 +77,22 @@ namespace TimeDataViewer
                 var dx = 0d;
                 var dy = 0d;
 
-                switch (ha)
+                switch (textBlock.HorizontalAlignment)
                 {
-                    case Core.HorizontalAlignment.Right:
+                    case HorizontalAlignment.Right:
                         dx = -size.Width;
                         break;
-                    case Core.HorizontalAlignment.Center:
+                    case HorizontalAlignment.Center:
                         dx = -size.Width * 0.5;
                         break;
                 }
 
-                switch (va)
+                switch (textBlock.VerticalAlignment)
                 {
-                    case Core.VerticalAlignment.Bottom:
+                    case VerticalAlignment.Bottom:
                         dy = -size.Height;
                         break;
-                    case Core.VerticalAlignment.Middle:
+                    case VerticalAlignment.Center:
                         dy = -size.Height * 0.5;
                         break;
                 }
@@ -99,7 +101,7 @@ namespace TimeDataViewer
                 return measure ? size : OxySize.Empty;
             }
 
-            rc.DrawText(pt, textBlock, ha, va, maxSize);
+            rc.DrawText(pt, textBlock, maxSize);
             if (measure)
             {
                 return rc.MeasureText(textBlock);
@@ -107,6 +109,8 @@ namespace TimeDataViewer
 
             return OxySize.Empty;
         }
+
+
 
         /// <summary>
         /// Draws text containing sub- and superscript.
@@ -125,10 +129,9 @@ namespace TimeDataViewer
         /// <example>Subscript: H_{2}O
         /// Superscript: E=mc^{2}
         /// Both: A^{2}_{i,j}</example>
-        public static void DrawMathText(this CanvasRenderContext rc, ScreenPoint pt, TextBlock textBlock, 
-            Core.HorizontalAlignment ha, Core.VerticalAlignment va, OxySize? maxSize = null)
+        public static void DrawMathText(this CanvasRenderContext rc, ScreenPoint pt, TextBlock textBlock, OxySize? maxSize = null)
         {
-            DrawMathText(rc, pt, textBlock, ha, va, maxSize, false);
+            DrawMathText(rc, pt, textBlock, maxSize, false);
         }
 
         // Draws text with sub- and superscript items.
@@ -162,7 +165,9 @@ namespace TimeDataViewer
                 {
                     var xr = x + ((xb - x + dx) * cosAngle) - ((yb - y + dy) * sinAngle);
                     var yr = y + ((xb - x + dx) * sinAngle) + ((yb - y + dy) * cosAngle);
-                    rc.DrawText(new ScreenPoint(xr, yr), textBlock, Core.HorizontalAlignment.Left, Core.VerticalAlignment.Top, null);
+                    textBlock.HorizontalAlignment = HorizontalAlignment.Left;
+                    textBlock.VerticalAlignment = VerticalAlignment.Top;
+                    rc.DrawText(new ScreenPoint(xr, yr), textBlock, null);
                 }
 
                 var flatSize = rc.MeasureText(textBlock);

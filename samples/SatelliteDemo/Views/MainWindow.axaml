@@ -19,20 +19,6 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 -->
-
-    <Window.Styles>
-        <Style Selector="sch|Slider">
-
-            <Setter Property="Duration" Value="1"></Setter>
-
-            <Setter Property="MinMaxBrush">
-                <Setter.Value>
-                    <SolidColorBrush Color="Black" Opacity="0.2"/>
-                </Setter.Value>
-            </Setter>
-
-        </Style>
-    </Window.Styles>
     
     <Border Margin="5" BorderThickness="3" BorderBrush="Black">
         <Grid RowDefinitions="Auto, *" ColumnDefinitions="*" ShowGridLines="False">
@@ -134,7 +120,8 @@
                             
                             <sch:Timeline.Slider>
                                 <sch:Slider Begin="{Binding Begin}"
-                                            Duration="{Binding Duration}"/>
+                                            Duration="{Binding Duration}"
+                                            CurrentValue="{Binding $parent[Window].DataContext.CurrentTime}"/>
                             </sch:Timeline.Slider>
                             
                         </sch:Timeline>

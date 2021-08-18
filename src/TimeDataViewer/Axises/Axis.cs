@@ -118,7 +118,9 @@ namespace TimeDataViewer
                 if (label.Control is TextBlock textBlock)
                 {
                     textBlock.Text = text;
-                    contextAxis.DrawMathText(pt, textBlock, ha, va);
+                    textBlock.HorizontalAlignment = ha.ToAvalonia();
+                    textBlock.VerticalAlignment = va.ToAvalonia();
+                    contextAxis.DrawMathText(pt, textBlock);
                 }
             }
 

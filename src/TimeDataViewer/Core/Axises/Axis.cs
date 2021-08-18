@@ -267,7 +267,7 @@ namespace TimeDataViewer.Core
         /// size is distinct from the margin settings or the size which is actually rendered, as in: ActualWidth / ActualSize.  
         /// Actual rendered size may be smaller or larger than the desired size if the margins are set manually.
         /// </summary>
-        public OxySize DesiredSize { get; protected set; }
+        public OxySize DesiredSize { get; set; }
 
         /// <summary>
         /// Converts the value of the specified object to a double precision floating point number. DateTime objects are converted using DateTimeAxis.ToDouble and TimeSpan objects are converted using TimeSpanAxis.ToDouble

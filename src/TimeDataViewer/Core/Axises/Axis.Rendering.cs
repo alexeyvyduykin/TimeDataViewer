@@ -31,15 +31,12 @@ namespace TimeDataViewer.Core
         List<ScreenPoint> _majorSegments;
         List<ScreenPoint> _majorTickSegments;
         List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> _labels;
-        OxyRect _leftRect;
-        OxyRect _rightRect;
 
         public List<ScreenPoint> MyMinorSegments => _minorSegments;
         public List<ScreenPoint> MyMajorSegments => _majorSegments;
         public List<ScreenPoint> MyMinorTickSegments => _minorTickSegments;
         public List<ScreenPoint> MyMajorTickSegments => _majorTickSegments;
-        public OxyRect LeftRect => _leftRect;
-        public OxyRect RightRect => _rightRect;
+
         public List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> MyLabels => _labels;
 
         public EventHandler MyRender;
@@ -51,49 +48,7 @@ namespace TimeDataViewer.Core
             RenderPass(plot, 0);
             RenderPass(plot, 1);
 
-            if (IsHorizontal() == true)
-            {
-                RenderRect(plot);
-            }
-
             MyRender?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void RenderRect(PlotModel plot)
-        {
-            _leftRect = new OxyRect();
-            _rightRect = new OxyRect();
-
-            double h = plot.PlotArea.Height;
-
-            double min = double.MaxValue;
-            double max = double.MinValue;
-
-            foreach (XYAxisSeries item in plot.Series)
-            {
-                if (item.IsVisible == true)
-                {
-                    min = Math.Min(min, item.MinX);
-                    max = Math.Max(max, item.MaxX);
-                }
-            }
-
-            var p0 = Transform(ActualMinimum);
-            var p1 = Transform(min);
-            var p2 = Transform(max);
-            var p3 = Transform(ActualMaximum);
-            var w0 = p1 - p0;
-            var w1 = p3 - p2;
-
-            if (w0 > 0)
-            {
-                _leftRect = new OxyRect(p0, 0, p1 - p0, h);
-            }
-
-            if (w1 > 0)
-            {
-                _rightRect = new OxyRect(p2, 0, p3 - p2, h);
-            }
         }
 
         private void RenderPass(PlotModel plot, int pass)

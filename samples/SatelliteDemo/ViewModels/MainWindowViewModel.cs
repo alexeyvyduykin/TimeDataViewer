@@ -67,8 +67,9 @@ namespace SatelliteDemo.ViewModels
 
         private void TimerThreadElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            CurrentTime = _timer.CurrentTime;
-            var dt = Epoch.AddSeconds(CurrentTime);
+            var time = _timer.CurrentTime;                
+            CurrentTime = time;
+            var dt = Epoch.AddSeconds(time);
             CurrentTimeString = dt.ToLongDateString() + " " + dt.ToLongTimeString();
         }
 

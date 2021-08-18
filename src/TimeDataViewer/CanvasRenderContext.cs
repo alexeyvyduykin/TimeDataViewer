@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using TimeDataViewer.Spatial;
@@ -311,11 +312,105 @@ namespace TimeDataViewer
                 return;
             }
 
-            DrawLine(
-                new[] { new ScreenPoint(x0, y0), new ScreenPoint(x1, y1) },
-                ((ImmutableSolidColorBrush)pen.Brush).Color,
-                GetDashArray(pen.DashStyle),
-                aliased);
+            DrawLine(new[] { new ScreenPoint(x0, y0), new ScreenPoint(x1, y1) }, ((ImmutableSolidColorBrush)pen.Brush).Color, GetDashArray(pen.DashStyle), aliased);
+        }
+
+        public void DrawLine(Point p0, Point p1, Pen pen, bool aliased = true)
+        {
+            if (pen == null)
+            {
+                return;
+            }
+
+            if (1.0 < BalancedLineDrawingThicknessLimit)
+            {
+                DrawLineBalanced(new List<Point>() { p0, p1 }, pen, aliased);
+                return;
+            }
+
+            var e = CreateAndAdd<Line>();
+
+            e.Stroke = pen.Brush;
+            e.StrokeThickness = pen.Thickness;
+
+            e.StartPoint = ToPoint(p0, aliased);
+            e.EndPoint = ToPoint(p1, aliased);
+        }
+
+        private void DrawLineBalanced(IList<Point> points, Pen stroke, bool aliased)
+        {
+            // balance the number of points per polyline and the number of polylines
+            var numPointsPerPolyline = Math.Max(points.Count / _maxPolylinesPerLine, _minPointsPerPolyline);
+
+            var polyline = CreateAndAdd<Polyline>();
+            polyline.Stroke = stroke.Brush;
+            polyline.StrokeThickness = stroke.Thickness;   
+            var pc = new List<Point>(numPointsPerPolyline);
+
+            var n = points.Count;
+            double lineLength = 0;
+            var dashPatternLength = (stroke.DashStyle != null) ? stroke.DashStyle.Dashes.Sum() : 0;
+            var last = new Point();
+            for (int i = 0; i < n; i++)
+            {
+                var p = aliased ? ToPixelAlignedPoint(points[i]) : points[i];
+                pc.Add(p);
+
+                // alt. 1
+                if (stroke.DashStyle != null)
+                {
+                    if (i > 0)
+                    {
+                        var delta = p - last;
+                        var dist = Math.Sqrt((delta.X * delta.X) + (delta.Y * delta.Y));
+                        lineLength += dist;
+                    }
+
+                    last = p;
+                }
+
+                // use multiple polylines with limited number of points to improve Avalonia performance
+                if (pc.Count >= numPointsPerPolyline)
+                {
+                    polyline.Points = pc;
+
+                    if (i < n - 1)
+                    {
+                        // alt.2
+                        ////if (dashArray != null)
+                        ////{
+                        ////    lineLength += this.GetLength(polyline);
+                        ////}
+
+                        // start a new polyline at last point so there is no gap (it is not necessary to use the % operator)
+                        var dashOffset = dashPatternLength > 0 ? lineLength / 1.0/*thickness*/ : 0;
+                        polyline = CreateAndAdd<Polyline>();
+                        polyline.Stroke = stroke.Brush;
+                        polyline.StrokeThickness = stroke.Thickness;                        
+                        pc = new List<Point>(numPointsPerPolyline) { pc.Last() };
+                    }
+                }
+            }
+
+            if (pc.Count > 1 || n == 1)
+            {
+                polyline.Points = pc;
+            }
+        }
+
+
+        private static Point ToPoint(Point pt, bool aliased)
+        {
+            return aliased ? ToPixelAlignedPoint(pt) : pt;
+        }
+
+        private static Point ToPixelAlignedPoint(Point pt)
+        {
+            // adding 0.5 to get pixel boundary alignment, seems to work
+            // http://weblogs.asp.net/mschwarz/archive/2008/01/04/silverlight-rectangles-paths-and-line-comparison.aspx
+            // http://www.wynapse.com/Silverlight/Tutor/Silverlight_Rectangles_Paths_And_Lines_Comparison.aspx
+            // TODO: issue 10221 - should consider line thickness and logical to physical size of pixels
+            return new Point(0.5 + (int)pt.X, 0.5 + (int)pt.Y);
         }
 
         public void DrawLineSegments(IList<ScreenPoint> points, Pen pen, bool aliased = true)
@@ -434,14 +529,14 @@ namespace TimeDataViewer
             Canvas.SetTop(e, rect.Top);
         }
 
-        public void DrawText(ScreenPoint p, TextBlock textBlock, Core.HorizontalAlignment halign, Core.VerticalAlignment valign, OxySize? maxSize)
+        public void DrawText(ScreenPoint p, TextBlock textBlock, OxySize? maxSize)
         {
             var tb = Add<TextBlock>(textBlock);
 
             double dx = 0;
             double dy = 0;
 
-            if (maxSize != null || halign != Core.HorizontalAlignment.Left || valign != Core.VerticalAlignment.Top)
+            if (maxSize != null || textBlock.HorizontalAlignment != HorizontalAlignment.Left || textBlock.VerticalAlignment != VerticalAlignment.Top)
             {
                 tb.Measure(new Size(1000, 1000));
                 var size = tb.DesiredSize;
@@ -461,22 +556,22 @@ namespace TimeDataViewer
                     tb.Height = size.Height;
                 }
 
-                if (halign == Core.HorizontalAlignment.Center)
+                if (textBlock.HorizontalAlignment == HorizontalAlignment.Center)
                 {
                     dx = -size.Width / 2;
                 }
 
-                if (halign == Core.HorizontalAlignment.Right)
+                if (textBlock.HorizontalAlignment == HorizontalAlignment.Right)
                 {
                     dx = -size.Width;
                 }
 
-                if (valign == Core.VerticalAlignment.Middle)
+                if (textBlock.VerticalAlignment == VerticalAlignment.Center)
                 {
                     dy = -size.Height / 2;
                 }
 
-                if (valign == Core.VerticalAlignment.Bottom)
+                if (textBlock.VerticalAlignment == VerticalAlignment.Bottom)
                 {
                     dy = -size.Height;
                 }
@@ -492,6 +587,7 @@ namespace TimeDataViewer
             }
             tb.RenderTransformOrigin = new RelativePoint(0.0, 0.0, RelativeUnit.Relative);
         }
+
 
         // Measures the size of the specified text.
         public OxySize MeasureText(TextBlock textBlock)

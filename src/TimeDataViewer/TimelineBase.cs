@@ -19,7 +19,8 @@ namespace TimeDataViewer
 {
     public abstract partial class TimelineBase : TemplatedControl, IPlotView
     {
-        private Canvas _canvas;
+        private Canvas _canvasBack;
+        private Canvas _canvasFront;
         private Canvas _canvasX;
         private DrawCanvas _drawCanvas;
         private Panel _panel;
@@ -140,13 +141,15 @@ namespace TimeDataViewer
             _panel.PointerMoved += _panel_PointerMoved;
             _panel.PointerReleased += _panel_PointerReleased;
 
-            _canvas = new Canvas() { Background = Brushes.Transparent };
+            _canvasBack = new Canvas() { Background = Brushes.Transparent };
             _drawCanvas = new DrawCanvas() { Background = Brushes.Transparent };
+            _canvasFront = new Canvas() { Background = Brushes.Transparent };
 
             _canvasX = new Canvas() { Background = Brushes.Transparent };
 
-            _panel.Children.Add(_canvas);
+            _panel.Children.Add(_canvasBack);
             _panel.Children.Add(_drawCanvas);
+            _panel.Children.Add(_canvasFront);
             _panelX.Children.Add(_canvasX);
 
             _overlays = new Canvas { Name = "Overlays" };
@@ -307,7 +310,7 @@ namespace TimeDataViewer
 
         private void UpdateVisuals()
         {
-            if (_canvas == null)
+            if (_canvasBack == null || _canvasFront == null)
             {
                 return;
             }
@@ -318,40 +321,54 @@ namespace TimeDataViewer
             }
 
             // Clear the canvas
-            _canvas.Children.Clear();
+            _canvasBack.Children.Clear();
             _canvasX.Children.Clear();
+            _canvasFront.Children.Clear();
 
             if (ActualModel != null)
             {
                 var rcAxis = new CanvasRenderContext(_canvasX);
-                var rcPlot = new CanvasRenderContext(_canvas);
+                var rcPlotBack = new CanvasRenderContext(_canvasBack);
+                var rcPlotFront = new CanvasRenderContext(_canvasFront);
 
                 if (DisconnectCanvasWhileUpdating)
                 {
                     // TODO: profile... not sure if this makes any difference
-                    var idx = _panel.Children.IndexOf(_canvas);
-                    if (idx != -1)
+                    var idx0 = _panel.Children.IndexOf(_canvasBack);
+                    if (idx0 != -1)
                     {
-                        _panel.Children.RemoveAt(idx);
+                        _panel.Children.RemoveAt(idx0);
                     }
 
-                    ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
-                    RenderSeries(_canvas, _drawCanvas);
-                    RenderAxisX(rcAxis, rcPlot);
-                    RenderSlider(rcAxis, rcPlot);   
-                    
-                    // reinsert the canvas again
-                    if (idx != -1)
+                    var idx1 = _panel.Children.IndexOf(_canvasFront);
+                    if (idx1 != -1)
                     {
-                        _panel.Children.Insert(idx, _canvas);
+                        _panel.Children.RemoveAt(idx1);
+                    }
+
+
+                    ((IPlotModel)ActualModel).Render(_canvasBack.Bounds.Width, _canvasBack.Bounds.Height);
+                    RenderSeries(_canvasBack, _drawCanvas);
+                    RenderAxisX(rcAxis, rcPlotBack);
+                    RenderSlider(rcAxis, rcPlotFront);
+
+                    // reinsert the canvas again
+                    if (idx1 != -1)
+                    {
+                        _panel.Children.Insert(idx1, _canvasFront);
+                    }
+
+                    if (idx0 != -1)
+                    {
+                        _panel.Children.Insert(idx0, _canvasBack);
                     }
                 }
                 else
                 {
-                    ((IPlotModel)ActualModel).Render(_canvas.Bounds.Width, _canvas.Bounds.Height);
-                    RenderSeries(_canvas, _drawCanvas);
-                    RenderAxisX(rcAxis, rcPlot);
-                    RenderSlider(rcAxis, rcPlot);
+                    ((IPlotModel)ActualModel).Render(_canvasBack.Bounds.Width, _canvasBack.Bounds.Height);
+                    RenderSeries(_canvasBack, _drawCanvas);
+                    RenderAxisX(rcAxis, rcPlotBack);
+                    RenderSlider(rcAxis, rcPlotFront);
                 }
             }
         }

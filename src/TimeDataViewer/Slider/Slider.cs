@@ -7,6 +7,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using TimeDataViewer.Spatial;
@@ -16,50 +17,87 @@ namespace TimeDataViewer
 {
     public class Slider : Control
     {
-        public static readonly StyledProperty<double> CurrentPositionProperty = 
-            AvaloniaProperty.Register<Slider, double>(nameof(CurrentPosition), 0.0);
+        public static readonly StyledProperty<double> CurrentValueProperty = 
+            AvaloniaProperty.Register<Slider, double>(nameof(CurrentValue), 0.0);
         public static readonly StyledProperty<double> BeginProperty = 
             AvaloniaProperty.Register<Slider, double>(nameof(Begin), 0.0);
         public static readonly StyledProperty<double> DurationProperty = 
             AvaloniaProperty.Register<Slider, double>(nameof(Duration), 0.0);
-        public static readonly StyledProperty<IBrush> MinMaxBrushProperty =   
-            AvaloniaProperty.Register<Slider, IBrush>(nameof(MinMaxBrush), new SolidColorBrush());
+        public static readonly StyledProperty<IBrush> InactiveRangeBrushProperty =   
+            AvaloniaProperty.Register<Slider, IBrush>(nameof(InactiveRangeBrush), new SolidColorBrush());
+        public static readonly StyledProperty<IBrush> SliderBrushProperty =
+            AvaloniaProperty.Register<Slider, IBrush>(nameof(SliderBrush), new SolidColorBrush());
+        public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty = 
+            AvaloniaProperty.Register<Slider, ControlTemplate>(nameof(DefaultLabelTemplate));
 
         private OxyRect _leftRect;
         private OxyRect _rightRect;
+        private (Point p0, Point p1) _plotSlider;
+        private (Point p0, Point p1) _axisSlider;
+        private string _label;
+        private ScreenPoint _labelPoint;
 
         static Slider()
         {
             ClipToBoundsProperty.OverrideDefaultValue<Slider>(false);
+            BeginProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
             DurationProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
-            MinMaxBrushProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
+            CurrentValueProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
+            InactiveRangeBrushProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
+            SliderBrushProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
         }
-        
-        public IBrush MinMaxBrush
+
+        public ControlTemplate DefaultLabelTemplate
         {
             get
             {
-                return GetValue(MinMaxBrushProperty);
+                return GetValue(DefaultLabelTemplateProperty);
             }
 
             set
             {
-                SetValue(MinMaxBrushProperty, value);
+                SetValue(DefaultLabelTemplateProperty, value);
+            }
+        }
+
+        public IBrush InactiveRangeBrush
+        {
+            get
+            {
+                return GetValue(InactiveRangeBrushProperty);
+            }
+
+            set
+            {
+                SetValue(InactiveRangeBrushProperty, value);
+            }
+        }
+
+        public IBrush SliderBrush
+        {
+            get
+            {
+                return GetValue(SliderBrushProperty);
+            }
+
+            set
+            {
+                SetValue(SliderBrushProperty, value);
             }
         }
 
         private Pen BlackPen { get; set; } = new Pen() { Brush = Brushes.Black, Thickness = 1 };
         
-        public double CurrentPosition
+        public double CurrentValue
         {
             get
             {
-                return GetValue(CurrentPositionProperty);
+                return GetValue(CurrentValueProperty);
             }
 
             set
             {
-                SetValue(CurrentPositionProperty, value);
+                SetValue(CurrentValueProperty, value);
             }
         }
 
@@ -119,7 +157,8 @@ namespace TimeDataViewer
                 return;
             }
                 
-            double h = plotModel.PlotArea.Height;
+            double plotHeight = plotModel.PlotArea.Height;
+            double axisHeight = 30;//axisX.DesiredSize.Height;
 
             double min = double.MaxValue;
             double max = double.MinValue;
@@ -138,35 +177,60 @@ namespace TimeDataViewer
             var p2 = axisX.Transform(Begin + Duration);
             var p3 = axisX.Transform(axisX.AbsoluteMaximum);
 
+            var t0 = Begin + CurrentValue / 86400.0;
+            var x0 = axisX.Transform(t0);
+            _plotSlider = (new Point(x0, 0), new Point(x0, plotHeight));
+            _axisSlider = (new Point(x0, 15), new Point(x0, axisHeight));
+
+            _label = axisX.FormatValue(t0);
+            _labelPoint = new ScreenPoint(x0, 15);
+
             var w0 = p1 - p0;
             var w1 = p3 - p2;
 
             if (w0 > 0)
             {
-                _leftRect = new OxyRect(p0, 0, p1 - p0, h);
+                _leftRect = new OxyRect(p0, 0, p1 - p0, plotHeight);
             }
 
             if (w1 > 0)
             {
-                _rightRect = new OxyRect(p2, 0, p3 - p2, h);
+                _rightRect = new OxyRect(p2, 0, p3 - p2, plotHeight);
             }
         }
 
         public virtual void Render(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
         {
-            if (MinMaxBrush != null)
+            if (InactiveRangeBrush != null)
             {
                 if (_leftRect.Width != 0)
                 {
-                    contextPlot.DrawRectangle(_leftRect, MinMaxBrush, null);
+                    contextPlot.DrawRectangle(_leftRect, InactiveRangeBrush, null);
                     contextPlot.DrawLine(_leftRect.Right, _leftRect.Top, _leftRect.Right, _leftRect.Bottom, BlackPen);
                 }
 
                 if (_rightRect.Width != 0)
                 {
-                    contextPlot.DrawRectangle(_rightRect, MinMaxBrush, null);
+                    contextPlot.DrawRectangle(_rightRect, InactiveRangeBrush, null);
                     contextPlot.DrawLine(_rightRect.Left, _rightRect.Top, _rightRect.Left, _rightRect.Bottom, BlackPen);
                 }
+            }
+
+            if(SliderBrush != null)
+            {
+                var sliderPen = new Pen() { Brush = SliderBrush, Thickness = 2 };
+                
+                contextPlot.DrawLine(_plotSlider.p0, _plotSlider.p1, sliderPen);
+                
+                var label = DefaultLabelTemplate.Build(new ContentControl());
+
+                if (label.Control is TextBlock textBlock)
+                {
+                    textBlock.Text = _label;                    
+                    contextAxis.DrawMathText(_labelPoint, textBlock);
+                }
+
+                contextAxis.DrawLine(_axisSlider.p0, _axisSlider.p1, sliderPen);               
             }
         }
     }

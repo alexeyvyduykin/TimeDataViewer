@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Avalonia;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
 {
