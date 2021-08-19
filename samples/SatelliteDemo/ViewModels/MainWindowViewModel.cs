@@ -19,7 +19,7 @@ namespace SatelliteDemo.ViewModels
         private readonly AcceleratedTimer _timer;
         private readonly System.Timers.Timer _timerThread;
         private string _currentTimeString;
-        private double _currentTime;
+        private DateTime _currentTime;
 
         private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
@@ -68,7 +68,7 @@ namespace SatelliteDemo.ViewModels
         private void TimerThreadElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             var time = _timer.CurrentTime;                
-            CurrentTime = time;
+            CurrentTime = Epoch.AddSeconds(time);
             var dt = Epoch.AddSeconds(time);
             CurrentTimeString = dt.ToLongDateString() + " " + dt.ToLongTimeString();
         }
@@ -91,7 +91,7 @@ namespace SatelliteDemo.ViewModels
             set => RaiseAndSetIfChanged(ref _currentTimeString, value);
         }
 
-        public double CurrentTime
+        public DateTime CurrentTime
         {
             get => _currentTime;
             set => RaiseAndSetIfChanged(ref _currentTime, value);

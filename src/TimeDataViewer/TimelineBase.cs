@@ -24,7 +24,7 @@ namespace TimeDataViewer
         private Canvas _canvasX;
         private DrawCanvas _drawCanvas;
         private Panel _panel;
-        private Panel _panelX;
+        protected Panel _panelX;
         // Invalidation flag (0: no update, 1: update visual elements).  
         private int _isPlotInvalidated;
         private Canvas _overlays;

@@ -17,8 +17,8 @@ namespace TimeDataViewer
 {
     public class Slider : Control
     {
-        public static readonly StyledProperty<double> CurrentValueProperty = 
-            AvaloniaProperty.Register<Slider, double>(nameof(CurrentValue), 0.0);
+        public static readonly StyledProperty<DateTime> CurrentValueProperty = 
+            AvaloniaProperty.Register<Slider, DateTime>(nameof(CurrentValue));
         public static readonly StyledProperty<double> BeginProperty = 
             AvaloniaProperty.Register<Slider, double>(nameof(Begin), 0.0);
         public static readonly StyledProperty<double> DurationProperty = 
@@ -36,6 +36,7 @@ namespace TimeDataViewer
         private (Point p0, Point p1) _axisSlider;
         private string _label;
         private ScreenPoint _labelPoint;
+        private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
         static Slider()
         {
@@ -88,7 +89,7 @@ namespace TimeDataViewer
 
         private Pen BlackPen { get; set; } = new Pen() { Brush = Brushes.Black, Thickness = 1 };
         
-        public double CurrentValue
+        public DateTime CurrentValue
         {
             get
             {
@@ -158,6 +159,7 @@ namespace TimeDataViewer
             }
                 
             double plotHeight = plotModel.PlotArea.Height;
+            // HACK: Axis height bound make as property
             double axisHeight = 30;//axisX.DesiredSize.Height;
 
             double min = double.MaxValue;
@@ -177,7 +179,7 @@ namespace TimeDataViewer
             var p2 = axisX.Transform(Begin + Duration);
             var p3 = axisX.Transform(axisX.AbsoluteMaximum);
 
-            var t0 = Begin + CurrentValue / 86400.0;
+            var t0 = (CurrentValue - TimeOrigin).TotalDays + 1;//Begin + CurrentValue;
             var x0 = axisX.Transform(t0);
             _plotSlider = (new Point(x0, 0), new Point(x0, plotHeight));
             _axisSlider = (new Point(x0, 15), new Point(x0, axisHeight));

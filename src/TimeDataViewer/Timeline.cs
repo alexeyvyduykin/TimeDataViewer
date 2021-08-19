@@ -1,9 +1,12 @@
 #nullable enable
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
@@ -61,6 +64,78 @@ namespace TimeDataViewer
             //}
 
             //rc.SetToolTip(null);
+        }
+
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+
+            _panelX.PointerPressed += _panelX_PointerPressed;
+            _panelX.PointerMoved += _panelX_PointerMoved;
+            _panelX.PointerReleased += _panelX_PointerReleased;
+        }
+
+        private bool _isPressed = false;
+
+        private void _panelX_PointerReleased(object? sender, PointerReleasedEventArgs e)
+        {
+            _isPressed = false;
+        }
+
+        private void _panelX_PointerMoved(object? sender, PointerEventArgs e)
+        {
+            if(_isPressed == true)
+            {
+                base.OnPointerMoved(e);
+                if (e.Handled)
+                {
+                    return;
+                }
+
+                e.Pointer.Capture(_panelX);
+
+                var point = e.GetPosition(_panelX).ToScreenPoint();
+
+                foreach (var a in Axises)
+                {
+                    if (a.InternalAxis.IsHorizontal() == true && a is DateTimeAxis axis)
+                    {
+                        var value = axis.InternalAxis.InverseTransform(point.X);
+
+                        DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+
+                        Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                    }
+                }
+            }
+        }
+
+        private void _panelX_PointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+            if (e.Handled)
+            {
+                return;
+            }
+
+            Focus();
+            e.Pointer.Capture(_panelX);
+
+            var point = e.GetPosition(_panelX).ToScreenPoint();
+
+            foreach (var a in Axises)
+            {
+                if (a.InternalAxis.IsHorizontal() == true && a is DateTimeAxis axis)
+                {
+                    var value = axis.InternalAxis.InverseTransform(point.X);
+
+                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+                    
+                    Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+
+                    _isPressed = true;
+                }
+            }        
         }
 
         protected override void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)

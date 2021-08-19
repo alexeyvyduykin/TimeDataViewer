@@ -11,9 +11,6 @@ namespace TimeDataViewer
         private readonly ObservableCollection<Axis> _axises;
         private readonly ObservableCollection<Series> _series;
 
-        //private readonly Slider _slider;
-        //private readonly ObservableCollection<Slider> _sliders;
-
         static Timeline()
         {
             PaddingProperty.OverrideDefaultValue<Timeline>(new Thickness(8));
@@ -33,10 +30,6 @@ namespace TimeDataViewer
 
         [Content]
         public Collection<Series> Series => _series;
-
-        //public Collection<Slider> Sliders => _sliders;
-
-        //public Slider Slider => _slider;
 
         public static readonly StyledProperty<Slider> SliderProperty =    
             AvaloniaProperty.Register<Timeline, Slider>(nameof(Slider), null);
