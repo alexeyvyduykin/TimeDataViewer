@@ -22,8 +22,6 @@ namespace TimeDataViewer
             ColorProperty.Changed.AddClassHandler<Series>(AppearanceChanged);
         }
 
-        public abstract void MyRender(Canvas canvasPlot);
-
         protected Series()
         {
             eventListener = new EventListener(OnCollectionChanged);

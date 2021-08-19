@@ -8,11 +8,10 @@ namespace TimeDataViewer
 {
     public class DrawCanvas : Canvas
     {
-        private Rect? _clip;
-        private IBrush _brush;
-        private Pen _pen;
-        private List<Rect> _rects = new List<Rect>();
+        private Rect? _clip;       
+        private Pen _selectedPen = new Pen() { Brush = Brushes.Black, Thickness = 4 };
         private Dictionary<TimelineSeries, IList<Rect>> _dict = new Dictionary<TimelineSeries, IList<Rect>>();
+        private Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new Dictionary<TimelineSeries, IList<Rect>>();
 
         public override void Render(DrawingContext context)
         {
@@ -21,21 +20,24 @@ namespace TimeDataViewer
             if (_dict.Count != 0)
             {
                 foreach (var series in _dict.Keys)
-                {
-                    _brush = series.FillBrush;
-                    _pen = new Pen() { Brush = series.StrokeBrush };
+                {                 
+                    var pen = new Pen() { Brush = series.StrokeBrush };
 
                     foreach (var item in _dict[series])
-                    {
-                        context.DrawRectangle(_brush, _pen, item);
+                    {                  
+                        context.DrawRectangle(series.FillBrush, pen, item);
                     }
                 }
             }
-            else
+
+            if (_selectedDict.Count != 0)
             {
-                foreach (var item in _rects)
-                {
-                    context.DrawRectangle(_brush, _pen, item);
+                foreach (var series in _selectedDict.Keys)
+                {                  
+                    foreach (var item in _selectedDict[series])
+                    {
+                        context.DrawRectangle(series.FillBrush, _selectedPen, item);
+                    }
                 }
             }
         }
@@ -43,33 +45,28 @@ namespace TimeDataViewer
         public void RenderSeries(IEnumerable<Series> series)
         {
             _dict.Clear();
+            _selectedDict.Clear();
 
             foreach (var s in series)
             {
-                List<Rect> list = new List<Rect>();
+                List<Rect> list1 = new List<Rect>();
+                List<Rect> list2 = new List<Rect>();
 
                 var innserSeries = ((Core.TimelineSeries)s.InternalSeries);
 
                 foreach (var item in innserSeries.MyRectList)
                 {
-                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list);
+                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list1);
                 }
 
-                _dict.Add((TimelineSeries)s, list);
-            }
+                _dict.Add((TimelineSeries)s, list1);
 
-            InvalidateVisual();
-        }
+                foreach (var item in innserSeries.MySelectedRectList)
+                {
+                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list2);
+                }
 
-        public void RenderIntervals(OxyRect clippingRectangle, IEnumerable<OxyRect> rects, IBrush fill, IBrush stroke)
-        {
-            _brush = fill;
-            _pen = new Pen() { Brush = stroke };
-            _rects.Clear();
-
-            foreach (var item in rects)
-            {
-                CreateClippedRectangle(clippingRectangle, ToRect(item));
+                _selectedDict.Add((TimelineSeries)s, list2);
             }
 
             InvalidateVisual();
@@ -91,24 +88,6 @@ namespace TimeDataViewer
             }
 
             list.Add(clippedRect.Value);
-        }
-
-        protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect)
-        {
-            // if (SetClip(clippingRectangle))
-            {
-                _rects.Add(rect);
-                ResetClip();
-                return;
-            }
-
-            var clippedRect = ClipRect(rect, clippingRectangle);
-            if (clippedRect == null)
-            {
-                return;
-            }
-
-            _rects.Add(clippedRect.Value);
         }
 
         protected bool SetClip(OxyRect clippingRect)

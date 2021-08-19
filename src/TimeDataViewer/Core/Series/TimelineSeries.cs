@@ -8,7 +8,10 @@ namespace TimeDataViewer.Core
     public class TimelineSeries : CategorizedSeries, IStackableSeries
     {
         public new const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}";
-
+        private OxyRect _clippingRect;
+        private List<OxyRect> _rectList = new List<OxyRect>();
+        private List<OxyRect> _selectedRectList = new List<OxyRect>();
+        private int _selectedIndex = -1;
         public TimelineSeries()
         {
             Items = new List<TimelineItem>();
@@ -36,12 +39,7 @@ namespace TimeDataViewer.Core
 
         protected internal Dictionary<int, int> ValidItemsIndexInversion { get; set; }
 
-        /// <summary>
-        /// Gets the point in the dataset that is nearest the specified point.
-        /// </summary>
-        /// <param name="point">The point.</param>
-        /// <param name="interpolate">The interpolate.</param>
-        /// <returns>A TrackerHitResult for the current hit.</returns>
+        // Gets the point in the dataset that is nearest the specified point.
         public override TrackerHitResult GetNearestPoint(ScreenPoint point, bool interpolate)
         {
             for (int i = 0; i < ActualBarRectangles.Count; i++)
@@ -102,6 +100,7 @@ namespace TimeDataViewer.Core
             var stackIndex = categoryAxis.GetStackIndex(StackGroup);
 
             _rectList.Clear();
+            _selectedRectList.Clear();
             _clippingRect = clippingRect;
 
             for (var i = 0; i < ValidItems.Count; i++)
@@ -119,7 +118,14 @@ namespace TimeDataViewer.Core
 
                 ActualBarRectangles.Add(rectangle);
 
-                _rectList.Add(rectangle);
+                if (i != _selectedIndex)
+                {
+                    _rectList.Add(rectangle);
+                }
+                else
+                {
+                    _selectedRectList.Add(rectangle);
+                }
 
                 //rc.DrawClippedRectangleAsPolygon(
                 //    clippingRect,
@@ -128,15 +134,26 @@ namespace TimeDataViewer.Core
                 //    StrokeColor);
             }
         }
-        OxyRect _clippingRect;
-        List<OxyRect> _rectList = new List<OxyRect>();
 
         public OxyRect MyClippingRect => _clippingRect;
+
         public List<OxyRect> MyRectList => _rectList;
+
+        public List<OxyRect> MySelectedRectList => _selectedRectList;
 
         public override void MyOnRender()
         {
             MyRender?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void SelectIndex(int index)
+        {
+            _selectedIndex = index;
+        }
+
+        public void ResetSelecIndex()
+        {
+            _selectedIndex = -1;
         }
 
         // Gets or sets the width/height of the columns/bars (as a fraction of the available space).
@@ -265,6 +282,11 @@ namespace TimeDataViewer.Core
 
             return categoryAxis;
         }
+       
+        private Axis GetValueAxis()
+        {
+            return XAxis;
+        }
 
         // Gets the item at the specified index.
         protected override object GetItem(int i)
@@ -275,11 +297,6 @@ namespace TimeDataViewer.Core
             }
 
             return Items[i];
-        }
-
-        private Axis GetValueAxis()
-        {
-            return XAxis;
         }
     }
 }

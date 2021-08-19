@@ -46,24 +46,6 @@ namespace TimeDataViewer
         protected override void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas)
         {
             drawCanvas.RenderSeries(Series.Where(s => s.IsVisible).ToList());
-
-            //foreach (var item in Series.Where(s => s.IsVisible))
-            //{                
-            //if (item is TimelineSeries series)
-            //{
-            //    var oxySeries = (Core.TimelineSeries)series.InternalSeries;
-
-            //    drawCanvas.RenderIntervals(oxySeries.MyClippingRect,
-            //        oxySeries.MyRectList, series.FillBrush, series.StrokeBrush);
-            //}
-            //else
-            //{
-            //    //rc.SetToolTip(item.ToolTip);
-            //    item.MyRender(canvasPlot);
-            //}
-            //}
-
-            //rc.SetToolTip(null);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -107,6 +89,20 @@ namespace TimeDataViewer
                         Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
                         Slider.IsTracking = true;
                     }
+                }
+            }
+        }
+
+        public void SliderTo(double value)
+        {
+            foreach (var a in Axises)
+            {
+                if (a.InternalAxis.IsHorizontal() == true)
+                {
+                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+                    Slider.IsTracking = false;
+                    Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                    Slider.IsTracking = true;
                 }
             }
         }

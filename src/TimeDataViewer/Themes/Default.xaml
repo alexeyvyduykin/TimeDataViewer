@@ -52,8 +52,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-    
-  
+      
   <Style Selector="local|Timeline">         
 
     <Setter Property="DefaultTrackerTemplate">
@@ -178,7 +177,6 @@
     </Setter>
   
   </Style>
-
   
   <Style Selector="local|Slider">
     

@@ -20,6 +20,8 @@
             //  HoverTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = false, PointsOnly = false }, args));
             HoverSnapTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = true, PointsOnly = false }, args));
             //  HoverPointsOnlyTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = false, PointsOnly = true }, args));
+
+            Select = new DelegatePlotCommand<OxyMouseDownEventArgs>((view, controller, args) => controller.AddMouseManipulator(view, new SelectManipulator(view), args));
         }
 
         // Gets the reset axes command (for mouse events).     
@@ -42,6 +44,8 @@
 
         // Gets the snap tracker command.       
         public static IViewCommand<OxyMouseDownEventArgs> SnapTrack { get; private set; }
+
+        public static IViewCommand<OxyMouseDownEventArgs> Select { get; private set; }
 
         // Gets the points only tracker command.     
         //  public static IViewCommand<OxyMouseDownEventArgs> PointsOnlyTrack { get; private set; }

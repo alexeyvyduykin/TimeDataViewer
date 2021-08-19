@@ -10,6 +10,9 @@
             // Pan bindings: RMB
             this.BindMouseDown(OxyMouseButton.Right, PlotCommands.PanAt);
 
+            // Select bindings: LMB
+            this.BindMouseDown(OxyMouseButton.Left, PlotCommands.Select);
+
             // Tracker bindings:
             this.BindMouseEnter(PlotCommands.HoverSnapTrack);
 

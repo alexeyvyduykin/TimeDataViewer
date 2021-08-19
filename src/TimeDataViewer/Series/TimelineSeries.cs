@@ -118,17 +118,5 @@ namespace TimeDataViewer
             s.BeginField = BeginField;
             s.EndField = EndField;
         }
-
-        public override void MyRender(Canvas canvasPlot)
-        {
-            var series = ((Core.TimelineSeries)InternalSeries);
-            var rc = new CanvasRenderContext(canvasPlot);
-            var clippingRect = series.MyClippingRect;
-
-            foreach (var item in series.MyRectList)
-            {
-                rc.DrawClippedRectangleAsPolygon(clippingRect, item, FillBrush, ((SolidColorBrush)StrokeBrush).Color);
-            }
-        }
     }
 }

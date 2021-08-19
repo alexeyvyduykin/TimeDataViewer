@@ -82,7 +82,7 @@ namespace TimeDataViewer.Core
             {
                 return;
             }
-
+         
             var result = GetNearestHit(this.currentSeries, e.Position, this.Snap, this.PointsOnly);
             if (result != null)
             {

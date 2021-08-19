@@ -5,18 +5,18 @@ namespace TimeDataViewer.Core
 {
     public abstract class SelectableElement : Element
     {
-        private Selection selection;
+        private Selection? _selection;
 
         protected SelectableElement()
         {
-            this.Selectable = true;
-            this.SelectionMode = SelectionMode.All;
+            Selectable = true;
+            SelectionMode = SelectionMode.All;
         }
 
         /// <summary>
         /// Occurs when the selected items is changed.
         /// </summary>
-        public event EventHandler SelectionChanged;
+        public event EventHandler? SelectionChanged;
 
         /// <summary>
         /// Gets or sets a value indicating whether this element can be selected. The default is <c>true</c>.
@@ -36,7 +36,7 @@ namespace TimeDataViewer.Core
         /// <returns><c>true</c> if this element is selected; otherwise, <c>false</c>.</returns>
         public bool IsSelected()
         {
-            return this.selection != null;
+            return _selection != null;
         }
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace TimeDataViewer.Core
         /// <returns>Enumerator of item indices.</returns>
         public IEnumerable<int> GetSelectedItems()
         {
-            this.EnsureSelection();
-            return this.selection.GetSelectedItems();
+            EnsureSelection();
+            return _selection.GetSelectedItems();
         }
 
         /// <summary>
@@ -54,8 +54,8 @@ namespace TimeDataViewer.Core
         /// </summary>
         public void ClearSelection()
         {
-            this.selection = null;
-            this.OnSelectionChanged();
+            _selection = null;
+            OnSelectionChanged();
         }
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace TimeDataViewer.Core
         /// </summary>
         public void Unselect()
         {
-            this.selection = null;
-            this.OnSelectionChanged();
+            _selection = null;
+            OnSelectionChanged();
         }
 
         /// <summary>
@@ -74,17 +74,17 @@ namespace TimeDataViewer.Core
         /// <returns><c>true</c> if the item is selected; otherwise, <c>false</c>.</returns>
         public bool IsItemSelected(int index)
         {
-            if (this.selection == null)
+            if (_selection == null)
             {
                 return false;
             }
 
             if (index == -1)
             {
-                return this.selection.IsEverythingSelected();
+                return _selection.IsEverythingSelected();
             }
 
-            return this.selection.IsItemSelected(index);
+            return _selection.IsItemSelected(index);
         }
 
         /// <summary>
@@ -92,54 +92,50 @@ namespace TimeDataViewer.Core
         /// </summary>
         public void Select()
         {
-            this.selection = Selection.Everything;
-            this.OnSelectionChanged();
+            _selection = Selection.Everything;
+            OnSelectionChanged();
         }
 
         public void SelectItem(int index)
         {
-            if (this.SelectionMode == SelectionMode.All)
+            if (SelectionMode == SelectionMode.All)
             {
                 throw new InvalidOperationException("Use the Select() method when using SelectionMode.All");
             }
 
-            this.EnsureSelection();
-            if (this.SelectionMode == SelectionMode.Single)
+            EnsureSelection();
+            if (SelectionMode == SelectionMode.Single)
             {
-                this.selection.Clear();
+                _selection.Clear();
             }
 
-            this.selection.Select(index);
-            this.OnSelectionChanged();
+            _selection.Select(index);
+            OnSelectionChanged();
         }
 
         public void UnselectItem(int index)
         {
-            if (this.SelectionMode == SelectionMode.All)
+            if (SelectionMode == SelectionMode.All)
             {
                 throw new InvalidOperationException("Use the Unselect() method when using SelectionMode.All");
             }
 
-            this.EnsureSelection();
-            this.selection.Unselect(index);
-            this.OnSelectionChanged();
+            EnsureSelection();
+            _selection.Unselect(index);
+            OnSelectionChanged();
         }
 
         private void EnsureSelection()
         {
-            if (this.selection == null)
+            if (_selection == null)
             {
-                this.selection = new Selection();
+                _selection = new Selection();
             }
         }
 
         private void OnSelectionChanged(EventArgs args = null)
         {
-            var e = this.SelectionChanged;
-            if (e != null)
-            {
-                e(this, args);
-            }
+            SelectionChanged?.Invoke(this, args);
         }
     }
 }
