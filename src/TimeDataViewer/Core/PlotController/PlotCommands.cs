@@ -18,7 +18,7 @@
 
             // commands that can be triggered from mouse enter events
             //  HoverTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = false, PointsOnly = false }, args));
-            //  HoverSnapTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = true, PointsOnly = false }, args));
+            HoverSnapTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = true, PointsOnly = false }, args));
             //  HoverPointsOnlyTrack = new DelegatePlotCommand<OxyMouseEventArgs>((view, controller, args) => controller.AddHoverManipulator(view, new TrackerManipulator(view) { LockToInitialSeries = false, Snap = false, PointsOnly = true }, args));
         }
 
@@ -47,10 +47,10 @@
         //  public static IViewCommand<OxyMouseDownEventArgs> PointsOnlyTrack { get; private set; }
 
         // Gets the mouse hover tracker.    
-        //  public static IViewCommand<OxyMouseEventArgs> HoverTrack { get; private set; }
+        //public static IViewCommand<OxyMouseEventArgs> HoverTrack { get; private set; }
 
         // Gets the mouse hover snap tracker.   
-        //   public static IViewCommand<OxyMouseEventArgs> HoverSnapTrack { get; private set; }
+        public static IViewCommand<OxyMouseEventArgs> HoverSnapTrack { get; private set; }
 
         // Gets the mouse hover points only tracker.   
         //   public static IViewCommand<OxyMouseEventArgs> HoverPointsOnlyTrack { get; private set; }

@@ -4,16 +4,16 @@
     {
         public PlotController()
         {
-            // Zoom rectangle bindings: MMB / control RMB / control+alt LMB
+            // Zoom rectangle bindings: MMB
             this.BindMouseDown(OxyMouseButton.Middle, PlotCommands.ZoomRectangle);
 
-            // Pan bindings: RMB / alt LMB / Up/down/left/right keys (panning direction on axis is opposite of key as it is more intuitive)
+            // Pan bindings: RMB
             this.BindMouseDown(OxyMouseButton.Right, PlotCommands.PanAt);
 
-            // Tracker bindings: LMB
-            this.BindMouseDown(OxyMouseButton.Left, PlotCommands.SnapTrack);
+            // Tracker bindings:
+            this.BindMouseEnter(PlotCommands.HoverSnapTrack);
 
-            // Zoom in/out binding: XB1 / XB2 / mouse wheels / +/- keys
+            // Zoom in/out binding: mouse wheels
             this.BindMouseWheel(PlotCommands.ZoomWheel);
         }
     }
