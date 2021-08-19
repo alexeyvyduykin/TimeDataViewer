@@ -103,8 +103,9 @@ namespace TimeDataViewer
                         var value = axis.InternalAxis.InverseTransform(point.X);
 
                         DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-
+                        Slider.IsTracking = false;
                         Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                        Slider.IsTracking = true;
                     }
                 }
             }
@@ -129,10 +130,11 @@ namespace TimeDataViewer
                 {
                     var value = axis.InternalAxis.InverseTransform(point.X);
 
-                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                    
+                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);                    
+                    Slider.IsTracking = false;
                     Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-
+                    Slider.IsTracking = true;
+                                
                     _isPressed = true;
                 }
             }        

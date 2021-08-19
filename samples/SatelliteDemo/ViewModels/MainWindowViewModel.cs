@@ -201,7 +201,7 @@ namespace SatelliteDemo.ViewModels
         }
 
         public void OnReset()
-        {
+        {            
             _timer.Reset();
         }
 

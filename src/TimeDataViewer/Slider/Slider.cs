@@ -29,6 +29,8 @@ namespace TimeDataViewer
             AvaloniaProperty.Register<Slider, IBrush>(nameof(SliderBrush), new SolidColorBrush());
         public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty = 
             AvaloniaProperty.Register<Slider, ControlTemplate>(nameof(DefaultLabelTemplate));
+        public static readonly StyledProperty<bool> IsTrackingProperty =    
+            AvaloniaProperty.Register<Slider, bool>(nameof(IsTracking), true);
 
         private OxyRect _leftRect;
         private OxyRect _rightRect;
@@ -36,16 +38,30 @@ namespace TimeDataViewer
         private (Point p0, Point p1) _axisSlider;
         private string _label;
         private ScreenPoint _labelPoint;
-        private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+        private static DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+        private Core.Axis? _axisX;
 
         static Slider()
         {
             ClipToBoundsProperty.OverrideDefaultValue<Slider>(false);
             BeginProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
             DurationProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
-            CurrentValueProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
+            CurrentValueProperty.Changed.AddClassHandler<Slider>(CurrentValueChanged);
             InactiveRangeBrushProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
             SliderBrushProperty.Changed.AddClassHandler<Slider>(AppearanceChanged);
+        }
+
+        public bool IsTracking
+        {
+            get
+            {
+                return GetValue(IsTrackingProperty);
+            }
+
+            set
+            {
+                SetValue(IsTrackingProperty, value);
+            }
         }
 
         public ControlTemplate DefaultLabelTemplate
@@ -133,6 +149,27 @@ namespace TimeDataViewer
             ((Slider)d).OnVisualChanged();
         }
 
+        protected static void CurrentValueChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (((Slider)d).IsTracking == true)
+            {
+                var axisX = ((Slider)d)._axisX;
+
+                if (axisX != null)
+                {
+                    var newSliderValue = (DateTime)e.NewValue;
+
+                    var xc = axisX.ScreenMin.X + (axisX.ScreenMax.X - axisX.ScreenMin.X) / 2.0;
+
+                    var tnew = (newSliderValue - TimeOrigin).TotalDays + 1;
+                    var xnew = axisX.Transform(tnew);
+
+                    axisX.Pan(-xnew + xc);
+                }
+            }
+            ((Slider)d).OnVisualChanged();
+        }
+
         protected void OnVisualChanged()
         {
             if (Parent is Core.IPlotView pc)
@@ -152,6 +189,8 @@ namespace TimeDataViewer
             }
             
             plotModel.GetAxesFromPoint(out Core.Axis axisX, out _);
+
+            _axisX = axisX;
 
             if (axisX == null)
             {
