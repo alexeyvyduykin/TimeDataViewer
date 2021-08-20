@@ -8,6 +8,7 @@
     <PackageReference Include="Avalonia" Version="0.10.4" />
     <PackageReference Include="Avalonia.Desktop" Version="0.10.4" />
     <PackageReference Include="Avalonia.Diagnostics" Version="0.10.4" />
+    <PackageReference Include="ReactiveUI" Version="15.1.1" />
    </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\TimeDataViewer\TimeDataViewer.csproj" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using AvaloniaDemo.Models;
+using ReactiveUI;
 
 namespace AvaloniaDemo.ViewModels
 {
@@ -26,25 +27,25 @@ namespace AvaloniaDemo.ViewModels
         public DateTime Epoch
         {
             get => _epoch;
-            set => RaiseAndSetIfChanged(ref _epoch, value);
+            set => this.RaiseAndSetIfChanged(ref _epoch, value);
         }
 
         public ObservableCollection<TimeInterval> Interval1
         {
             get => _interval1;
-            set => RaiseAndSetIfChanged(ref _interval1, value);
+            set => this.RaiseAndSetIfChanged(ref _interval1, value);
         }
 
         public ObservableCollection<TimeInterval> Interval2
         {
             get => _interval2;
-            set => RaiseAndSetIfChanged(ref _interval2, value);
+            set => this.RaiseAndSetIfChanged(ref _interval2, value);
         }
 
         public ObservableCollection<TimeInterval> Interval3
         {
             get => _interval3;
-            set => RaiseAndSetIfChanged(ref _interval3, value);
+            set => this.RaiseAndSetIfChanged(ref _interval3, value);
         }
     }
 }

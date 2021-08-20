@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using ReactiveUI;
 using SatelliteDemo.SceneTimer;
 using TimeDataViewer.Core;
 
@@ -76,37 +77,37 @@ namespace SatelliteDemo.ViewModels
         public ObservableCollection<Item> Labels
         {
             get => _labels;
-            set => RaiseAndSetIfChanged(ref _labels, value);
+            set =>  this.RaiseAndSetIfChanged(ref _labels, value);
         }
 
         public DateTime Epoch
         {
             get => _epoch;
-            set => RaiseAndSetIfChanged(ref _epoch, value);
+            set => this.RaiseAndSetIfChanged(ref _epoch, value);
         }
 
         public string CurrentTimeString
         {
             get => _currentTimeString;
-            set => RaiseAndSetIfChanged(ref _currentTimeString, value);
+            set => this.RaiseAndSetIfChanged(ref _currentTimeString, value);
         }
 
         public DateTime CurrentTime
         {
             get => _currentTime;
-            set => RaiseAndSetIfChanged(ref _currentTime, value);
+            set => this.RaiseAndSetIfChanged(ref _currentTime, value);
         }
 
         public ObservableCollection<Satellite> Satellites
         {
             get => _satellites;
-            set => RaiseAndSetIfChanged(ref _satellites, value);
+            set => this.RaiseAndSetIfChanged(ref _satellites, value);
         }
 
         public Satellite? Selected
         {
             get => _selected;
-            set => RaiseAndSetIfChanged(ref _selected, value);
+            set => this.RaiseAndSetIfChanged(ref _selected, value);
         }
 
         private string GetJson(string path)
