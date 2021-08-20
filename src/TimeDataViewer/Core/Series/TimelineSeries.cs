@@ -35,7 +35,7 @@ namespace TimeDataViewer.Core
 
         public string? BeginField { get; set; }
 
-        protected internal IList<OxyRect> ActualBarRectangles { get; set; }
+        protected internal IList<OxyRect>? ActualBarRectangles { get; set; }
 
         protected internal IList<TimelineItem> ValidItems { get; set; }
 
@@ -44,6 +44,11 @@ namespace TimeDataViewer.Core
         // Gets the point in the dataset that is nearest the specified point.
         public override TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
         {
+            if(ActualBarRectangles == null)
+            {
+                return null;
+            }
+
             for (int i = 0; i < ActualBarRectangles.Count; i++)
             {
                 var r = ActualBarRectangles[i];
