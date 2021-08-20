@@ -9,7 +9,7 @@ namespace TimeDataViewer.Core
     public partial class PlotModel : Model, IPlotModel
     {
         // The plot view that renders this plot.    
-        private WeakReference plotViewReference;
+        private WeakReference _plotViewReference;
         // Flags if the data has been updated.  
         private bool _isDataUpdated;
 
@@ -21,7 +21,7 @@ namespace TimeDataViewer.Core
 
         public event EventHandler<TrackerEventArgs> TrackerChanged;
 
-        public IPlotView PlotView => (plotViewReference != null) ? (IPlotView)plotViewReference.Target : null;
+        public IPlotView PlotView => (_plotViewReference != null) ? (IPlotView)_plotViewReference.Target : null;
 
         public ElementCollection<Axis> Axises { get; private set; }
 
@@ -48,12 +48,6 @@ namespace TimeDataViewer.Core
 
         public Axis DefaultYAxis { get; private set; }
 
-        /// <summary>
-        /// Attaches this model to the specified plot view.
-        /// </summary>
-        /// <param name="plotView">The plot view.</param>
-        /// <remarks>Only one plot view can be attached to the plot model.
-        /// The plot model contains data (e.g. axis scaling) that is only relevant to the current plot view.</remarks>
         void IPlotModel.AttachPlotView(IPlotView plotView)
         {
             var currentPlotView = PlotView;
@@ -64,7 +58,7 @@ namespace TimeDataViewer.Core
                 throw new InvalidOperationException("This PlotModel is already in use by some other PlotView control.");
             }
 
-            plotViewReference = (plotView == null) ? null : new WeakReference(plotView);
+            _plotViewReference = (plotView == null) ? null : new WeakReference(plotView);
         }
 
         public void InvalidatePlot(bool updateData)
@@ -225,11 +219,6 @@ namespace TimeDataViewer.Core
             }
         }
 
-        /// <summary>
-        /// Pans all axes.
-        /// </summary>
-        /// <param name="dx">The horizontal distance to pan (screen coordinates).</param>
-        /// <param name="dy">The vertical distance to pan (screen coordinates).</param>
         public void PanAllAxes(double dx, double dy)
         {
             foreach (var a in Axises)
@@ -238,10 +227,6 @@ namespace TimeDataViewer.Core
             }
         }
 
-        /// <summary>
-        /// Zooms all axes.
-        /// </summary>
-        /// <param name="factor">The zoom factor.</param>
         public void ZoomAllAxes(double factor)
         {
             foreach (var a in Axises)
@@ -250,13 +235,6 @@ namespace TimeDataViewer.Core
             }
         }
 
-        /// <summary>
-        /// Raises the TrackerChanged event.
-        /// </summary>
-        /// <param name="result">The result.</param>
-        /// <remarks>
-        /// This method is public so custom implementations of tracker manipulators can invoke this method.
-        /// </remarks>
         public void RaiseTrackerChanged(TrackerHitResult result)
         {
             var handler = TrackerChanged;
@@ -267,10 +245,6 @@ namespace TimeDataViewer.Core
             }
         }
 
-        /// <summary>
-        /// Raises the TrackerChanged event.
-        /// </summary>
-        /// <param name="result">The result.</param>
         protected internal virtual void OnTrackerChanged(TrackerHitResult result)
         {
             RaiseTrackerChanged(result);

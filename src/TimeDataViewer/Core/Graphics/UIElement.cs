@@ -4,20 +4,11 @@ namespace TimeDataViewer.Core
 {
     public abstract class UIElement : SelectableElement
     {
-        /// <summary>
-        /// Occurs when a mouse button is pressed down on the model.
-        /// </summary>
-        public event EventHandler<OxyMouseDownEventArgs> MouseDown;
+        public event EventHandler<OxyMouseDownEventArgs>? MouseDown;
 
-        /// <summary>
-        /// Occurs when the mouse is moved on the plot element (only occurs after MouseDown).
-        /// </summary>
-        public event EventHandler<OxyMouseEventArgs> MouseMove;
+        public event EventHandler<OxyMouseEventArgs>? MouseMove;
 
-        /// <summary>
-        /// Occurs when the mouse button is released on the plot element.
-        /// </summary>
-        public event EventHandler<OxyMouseEventArgs> MouseUp;
+        public event EventHandler<OxyMouseEventArgs>? MouseUp;
 
         protected internal virtual void OnMouseDown(OxyMouseDownEventArgs e)
         {
@@ -34,11 +25,12 @@ namespace TimeDataViewer.Core
             MouseUp?.Invoke(this, e);
         }
 
-        public HitTestResult HitTest(HitTestArguments args)
+        public HitTestResult? HitTest(HitTestArguments args)
         {
-            return this.HitTestOverride(args);
+            return HitTestOverride(args);
         }
-        protected virtual HitTestResult HitTestOverride(HitTestArguments args)
+
+        protected virtual HitTestResult? HitTestOverride(HitTestArguments args)
         {
             return null;
         }

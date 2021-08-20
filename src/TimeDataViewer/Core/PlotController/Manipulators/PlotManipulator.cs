@@ -17,35 +17,31 @@ namespace TimeDataViewer.Core
 
         protected DataPoint InverseTransform(double x, double y)
         {
-            if (this.XAxis != null)
+            if (XAxis != null)
             {
-                return this.XAxis.InverseTransform(x, y, this.YAxis);
+                return XAxis.InverseTransform(x, y, YAxis);
             }
 
-            if (this.YAxis != null)
+            if (YAxis != null)
             {
-                return new DataPoint(0, this.YAxis.InverseTransform(y));
+                return new DataPoint(0, YAxis.InverseTransform(y));
             }
 
             return new DataPoint();
         }
 
-        protected void AssignAxes(ScreenPoint position)
+        protected void AssignAxes()
         {
-            Axis xaxis;
-            Axis yaxis;
-            if (this.PlotView.ActualModel != null)
+            Axis xaxis = null;
+            Axis yaxis = null;
+
+            if (PlotView.ActualModel != null)
             {
-                this.PlotView.ActualModel.GetAxesFromPoint(out xaxis, out yaxis);
-            }
-            else
-            {
-                xaxis = null;
-                yaxis = null;
+                PlotView.ActualModel.GetAxesFromPoint(out xaxis, out yaxis);
             }
 
-            this.XAxis = xaxis;
-            this.YAxis = yaxis;
+            XAxis = xaxis;
+            YAxis = yaxis;
         }
     }
 }

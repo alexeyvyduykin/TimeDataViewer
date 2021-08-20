@@ -8,10 +8,10 @@ namespace TimeDataViewer
 {
     public class DrawCanvas : Canvas
     {
-        private Rect? _clip;       
-        private Pen _selectedPen = new Pen() { Brush = Brushes.Black, Thickness = 4 };
-        private Dictionary<TimelineSeries, IList<Rect>> _dict = new Dictionary<TimelineSeries, IList<Rect>>();
-        private Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new Dictionary<TimelineSeries, IList<Rect>>();
+        private Rect? _clip;
+        private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };
+        private readonly Dictionary<TimelineSeries, IList<Rect>> _dict = new();
+        private readonly Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new();
 
         public override void Render(DrawingContext context)
         {
@@ -20,11 +20,11 @@ namespace TimeDataViewer
             if (_dict.Count != 0)
             {
                 foreach (var series in _dict.Keys)
-                {                 
+                {
                     var pen = new Pen() { Brush = series.StrokeBrush };
 
                     foreach (var item in _dict[series])
-                    {                  
+                    {
                         context.DrawRectangle(series.FillBrush, pen, item);
                     }
                 }
@@ -33,7 +33,7 @@ namespace TimeDataViewer
             if (_selectedDict.Count != 0)
             {
                 foreach (var series in _selectedDict.Keys)
-                {                  
+                {
                     foreach (var item in _selectedDict[series])
                     {
                         context.DrawRectangle(series.FillBrush, _selectedPen, item);

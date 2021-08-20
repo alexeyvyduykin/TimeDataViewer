@@ -18,10 +18,8 @@ namespace TimeDataViewer
         public static readonly StyledProperty<ScreenPoint> PositionProperty = AvaloniaProperty.Register<TrackerControl, ScreenPoint>(nameof(Position), new ScreenPoint());
         public static readonly StyledProperty<Thickness> MarginPointerProperty = AvaloniaProperty.Register<TrackerControl, Thickness>(nameof(MarginPointer), new Thickness());
 
-        private const string PartContent = "PART_Content";
-        private const string PartContentContainer = "PART_ContentContainer";
-        private ContentPresenter _content;
-        private Panel contentContainer;
+        private ContentPresenter? _content;
+        private Panel? _contentContainer;
 
         static TrackerControl()
         {
@@ -110,8 +108,8 @@ namespace TimeDataViewer
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
-            _content = e.NameScope.Get<ContentPresenter>(PartContent);
-            contentContainer = e.NameScope.Get<Panel>(PartContentContainer);
+            _content = e.NameScope.Get<ContentPresenter>("PART_Content");
+            _contentContainer = e.NameScope.Get<Panel>("PART_ContentContainer");
 
             UpdatePositionAndBorder();
         }
@@ -128,7 +126,7 @@ namespace TimeDataViewer
 
         private void UpdatePositionAndBorder()
         {
-            if (contentContainer == null)
+            if (_contentContainer == null || _content == null)
             {
                 return;
             }
@@ -216,10 +214,10 @@ namespace TimeDataViewer
 
             _content.Margin = MarginPointer;
 
-            contentContainer.Measure(new Size(canvasWidth, canvasHeight));
-            var contentSize = contentContainer.DesiredSize;
+            _contentContainer.Measure(new Size(canvasWidth, canvasHeight));
+            var contentSize = _contentContainer.DesiredSize;
 
-            contentContainer.RenderTransform = new TranslateTransform
+            _contentContainer.RenderTransform = new TranslateTransform
             {
                 X = dx * contentSize.Width,
                 Y = dy * contentSize.Height

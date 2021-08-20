@@ -25,12 +25,12 @@ namespace TimeDataViewer.Core
         private IList<double> _majorTickValues;
         private IList<double> _minorTickValues;
 
-        List<ScreenPoint> _extraSegments;
-        List<ScreenPoint> _minorSegments;
-        List<ScreenPoint> _minorTickSegments;
-        List<ScreenPoint> _majorSegments;
-        List<ScreenPoint> _majorTickSegments;
-        List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> _labels;
+        private List<ScreenPoint> _extraSegments;
+        private List<ScreenPoint> _minorSegments;
+        private List<ScreenPoint> _minorTickSegments;
+        private List<ScreenPoint> _majorSegments;
+        private List<ScreenPoint> _majorTickSegments;
+        private List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> _labels;
 
         public List<ScreenPoint> MyMinorSegments => _minorSegments;
         public List<ScreenPoint> MyMajorSegments => _majorSegments;
@@ -121,11 +121,9 @@ namespace TimeDataViewer.Core
             bool isHorizontal = IsHorizontal();
             bool cropGridlines = CropGridlines;
 
-            double a0;
-            double a1;
             _majorSegments = new List<ScreenPoint>();
             _majorTickSegments = new List<ScreenPoint>();
-            GetTickPositions(MajorTickSize, Position, out a0, out a1);
+            GetTickPositions(MajorTickSize, Position, out double a0, out double a1);
 
             var perpendicularAxis = IsHorizontal() ? plot.DefaultYAxis : plot.DefaultXAxis;
             var dontRenderZero = false;

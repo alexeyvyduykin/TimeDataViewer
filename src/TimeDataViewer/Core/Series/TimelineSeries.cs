@@ -5,13 +5,15 @@ using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
+    // TODO: Remove IStackableSeries interface
     public class TimelineSeries : CategorizedSeries, IStackableSeries
     {
-        public new const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}";
+        public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}";
         private OxyRect _clippingRect;
-        private List<OxyRect> _rectList = new List<OxyRect>();
-        private List<OxyRect> _selectedRectList = new List<OxyRect>();
+        private readonly List<OxyRect> _rectList = new();
+        private readonly List<OxyRect> _selectedRectList = new();
         private int _selectedIndex = -1;
+
         public TimelineSeries()
         {
             Items = new List<TimelineItem>();
@@ -27,11 +29,11 @@ namespace TimeDataViewer.Core
 
         public IList<TimelineItem> Items { get; private set; }
 
-        public string CategoryField { get; set; }
+        public string? CategoryField { get; set; }
 
-        public string EndField { get; set; }
+        public string? EndField { get; set; }
 
-        public string BeginField { get; set; }
+        public string? BeginField { get; set; }
 
         protected internal IList<OxyRect> ActualBarRectangles { get; set; }
 
@@ -40,7 +42,7 @@ namespace TimeDataViewer.Core
         protected internal Dictionary<int, int> ValidItemsIndexInversion { get; set; }
 
         // Gets the point in the dataset that is nearest the specified point.
-        public override TrackerHitResult GetNearestPoint(ScreenPoint point, bool interpolate)
+        public override TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
         {
             for (int i = 0; i < ActualBarRectangles.Count; i++)
             {
@@ -282,7 +284,7 @@ namespace TimeDataViewer.Core
 
             return categoryAxis;
         }
-       
+
         private Axis GetValueAxis()
         {
             return XAxis;

@@ -26,7 +26,7 @@ namespace TimeDataViewer
 
             _series.CollectionChanged += OnSeriesChanged;
             _axises.CollectionChanged += OnAxesChanged;
-                               
+
             _defaultController = new PlotController();
             _internalModel = new PlotModel();
             ((IPlotModel)_internalModel).AttachPlotView(this);
@@ -52,6 +52,12 @@ namespace TimeDataViewer
         {
             base.OnApplyTemplate(e);
 
+            if (_panelX == null)
+            {
+                return;
+            }
+
+            // TODO: replace from Timeline to TimelineBase
             _panelX.PointerPressed += _panelX_PointerPressed;
             _panelX.PointerMoved += _panelX_PointerMoved;
             _panelX.PointerReleased += _panelX_PointerReleased;
@@ -66,7 +72,7 @@ namespace TimeDataViewer
 
         private void _panelX_PointerMoved(object? sender, PointerEventArgs e)
         {
-            if(_isPressed == true)
+            if (_isPressed == true)
             {
                 base.OnPointerMoved(e);
                 if (e.Handled)
@@ -126,14 +132,14 @@ namespace TimeDataViewer
                 {
                     var value = axis.InternalAxis.InverseTransform(point.X);
 
-                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);                    
+                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
                     Slider.IsTracking = false;
                     Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
                     Slider.IsTracking = true;
-                                
+
                     _isPressed = true;
                 }
-            }        
+            }
         }
 
         protected override void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
@@ -153,10 +159,10 @@ namespace TimeDataViewer
         {
             SynchronizeProperties();
             SynchronizeSeries();
-            SynchronizeAxes();       
+            SynchronizeAxes();
 
             base.UpdateModel(updateData);
-            
+
             //UpdateSlider();
         }
 
@@ -177,12 +183,12 @@ namespace TimeDataViewer
             ((Timeline)d).SyncLogicalTree(e);
         }
 
-        private void OnAxesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnAxesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             SyncLogicalTree(e);
         }
 
-        private void OnSeriesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnSeriesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             SyncLogicalTree(e);
         }

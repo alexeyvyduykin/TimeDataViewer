@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using Avalonia;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Metadata;
 
 namespace TimeDataViewer
@@ -18,9 +17,7 @@ namespace TimeDataViewer
             CultureProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
             DefaultFontProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
             DefaultFontSizeProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
-            //   DefaultColorsProperty.Changed.AddClassHandler<Plot>(AppearanceChanged);
-            //  AxisTierDistanceProperty.Changed.AddClassHandler<Plot>(AppearanceChanged);
-            PlotMarginsProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);              
+            PlotMarginsProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
             InvalidateFlagProperty.Changed.AddClassHandler<Timeline>((s, e) => s.InvalidateFlagChanged());
 
             SliderProperty.Changed.AddClassHandler<Timeline>(SliderChanged);
@@ -31,8 +28,8 @@ namespace TimeDataViewer
         [Content]
         public Collection<Series> Series => _series;
 
-        public static readonly StyledProperty<Slider> SliderProperty =    
-            AvaloniaProperty.Register<Timeline, Slider>(nameof(Slider), null);
+        public static readonly StyledProperty<Slider> SliderProperty =
+            AvaloniaProperty.Register<Timeline, Slider>(nameof(Slider));
 
         public Slider Slider
         {
@@ -48,7 +45,7 @@ namespace TimeDataViewer
         }
 
         public static readonly StyledProperty<CultureInfo> CultureProperty =
-            AvaloniaProperty.Register<Timeline, CultureInfo>(nameof(Culture), null);
+            AvaloniaProperty.Register<Timeline, CultureInfo>(nameof(Culture));
 
         public CultureInfo Culture
         {
@@ -95,7 +92,7 @@ namespace TimeDataViewer
             }
         }
 
-        public static readonly StyledProperty<Thickness> PlotMarginsProperty =    
+        public static readonly StyledProperty<Thickness> PlotMarginsProperty =
             AvaloniaProperty.Register<Timeline, Thickness>(nameof(PlotMargins), new Thickness());
 
         public Thickness PlotMargins

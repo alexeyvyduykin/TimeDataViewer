@@ -13,7 +13,7 @@ namespace TimeDataViewer.Core
 
         public override void Started(OxyMouseEventArgs e)
         {
-            AssignAxes(e.Position);
+            AssignAxes();
             base.Started(e);
             StartPosition = e.Position;
         }

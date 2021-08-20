@@ -6,9 +6,9 @@ namespace TimeDataViewer.Core
     {
         public AxisChangedEventArgs(AxisChangeTypes changeType, double deltaMinimum, double deltaMaximum)
         {
-            this.ChangeType = changeType;
-            this.DeltaMinimum = deltaMinimum;
-            this.DeltaMaximum = deltaMaximum;
+            ChangeType = changeType;
+            DeltaMinimum = deltaMinimum;
+            DeltaMaximum = deltaMaximum;
         }
 
         // Gets the type of the change.

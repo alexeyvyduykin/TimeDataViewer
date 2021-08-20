@@ -4,7 +4,7 @@
     {
         public OxyMouseDownGesture(OxyMouseButton mouseButton)
         {
-            this.MouseButton = mouseButton;
+            MouseButton = mouseButton;
         }
 
         // Gets the mouse button.    
@@ -13,8 +13,7 @@
         // Indicates whether the current object is equal to another object of the same type.
         public override bool Equals(OxyInputGesture other)
         {
-            var mg = other as OxyMouseDownGesture;
-            return mg != null && mg.MouseButton == this.MouseButton;
+            return other is OxyMouseDownGesture mg && mg.MouseButton == MouseButton;
         }
     }
 }

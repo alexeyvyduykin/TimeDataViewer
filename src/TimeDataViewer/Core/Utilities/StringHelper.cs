@@ -8,16 +8,9 @@ namespace TimeDataViewer.Core
 {
     public static class StringHelper
     {
-        /// <summary>
-        /// The formatting expression.
-        /// </summary>
         private static readonly Regex FormattingExpression = new Regex("{(?<Property>.+?)(?<Format>\\:.*?)?}");
 
-        /// <summary>
-        /// Creates a valid format string on the form "{0:###}".
-        /// </summary>
-        /// <param name="input">The input format string.</param>
-        /// <returns>The corrected format string.</returns>
+        // Creates a valid format string on the form "{0:###}".
         public static string CreateValidFormatString(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -63,7 +56,6 @@ namespace TimeDataViewer.Core
             s = string.Format(provider, s, values);
             return s;
         }
-
 
         /// <summary>
         /// Formats each item in a sequence by the specified format string and property.

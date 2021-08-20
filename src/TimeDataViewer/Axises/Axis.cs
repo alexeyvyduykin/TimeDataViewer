@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
 {
@@ -87,7 +86,7 @@ namespace TimeDataViewer
             a.StringFormat = StringFormat;
             //a.ToolTip = ToolTip.GetTip(this) != null ? ToolTip.GetTip(this).ToString() : null;
         }
-        
+
         public virtual void Render(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
         {
             if (InternalAxis == null)
@@ -110,7 +109,7 @@ namespace TimeDataViewer
             {
                 contextAxis.DrawLineSegments(minorTickSegments, MinorTickPen);
             }
-        
+
             foreach (var (pt, text, ha, va) in labels)
             {
                 var label = DefaultLabelTemplate.Build(new ContentControl());

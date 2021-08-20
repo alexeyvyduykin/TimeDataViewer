@@ -1,42 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
-using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
-using Avalonia.VisualTree;
 using TimeDataViewer.Spatial;
-using A = Avalonia.Layout;
 
 namespace TimeDataViewer
 {
     public class Slider : Control
     {
-        public static readonly StyledProperty<DateTime> CurrentValueProperty = 
+        public static readonly StyledProperty<DateTime> CurrentValueProperty =
             AvaloniaProperty.Register<Slider, DateTime>(nameof(CurrentValue));
-        public static readonly StyledProperty<double> BeginProperty = 
+        public static readonly StyledProperty<double> BeginProperty =
             AvaloniaProperty.Register<Slider, double>(nameof(Begin), 0.0);
-        public static readonly StyledProperty<double> DurationProperty = 
+        public static readonly StyledProperty<double> DurationProperty =
             AvaloniaProperty.Register<Slider, double>(nameof(Duration), 0.0);
-        public static readonly StyledProperty<IBrush> InactiveRangeBrushProperty =   
+        public static readonly StyledProperty<IBrush> InactiveRangeBrushProperty =
             AvaloniaProperty.Register<Slider, IBrush>(nameof(InactiveRangeBrush), new SolidColorBrush());
         public static readonly StyledProperty<IBrush> SliderBrushProperty =
             AvaloniaProperty.Register<Slider, IBrush>(nameof(SliderBrush), new SolidColorBrush());
-        public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty = 
+        public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =
             AvaloniaProperty.Register<Slider, ControlTemplate>(nameof(DefaultLabelTemplate));
-        public static readonly StyledProperty<bool> IsTrackingProperty =    
+        public static readonly StyledProperty<bool> IsTrackingProperty =
             AvaloniaProperty.Register<Slider, bool>(nameof(IsTracking), true);
 
         private OxyRect _leftRect;
         private OxyRect _rightRect;
         private (Point p0, Point p1) _plotSlider;
         private (Point p0, Point p1) _axisSlider;
-        private string _label;
+        private string? _label;
         private ScreenPoint _labelPoint;
         private static DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
         private Core.Axis? _axisX;
@@ -104,7 +96,7 @@ namespace TimeDataViewer
         }
 
         private Pen BlackPen { get; set; } = new Pen() { Brush = Brushes.Black, Thickness = 1 };
-        
+
         public DateTime CurrentValue
         {
             get
@@ -143,7 +135,7 @@ namespace TimeDataViewer
                 SetValue(DurationProperty, value);
             }
         }
-        
+
         protected static void AppearanceChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
         {
             ((Slider)d).OnVisualChanged();
@@ -187,7 +179,7 @@ namespace TimeDataViewer
             {
                 return;
             }
-            
+
             plotModel.GetAxesFromPoint(out Core.Axis axisX, out _);
 
             _axisX = axisX;
@@ -196,7 +188,7 @@ namespace TimeDataViewer
             {
                 return;
             }
-                
+
             double plotHeight = plotModel.PlotArea.Height;
             // HACK: Axis height bound make as property
             double axisHeight = 30;//axisX.DesiredSize.Height;
@@ -257,21 +249,21 @@ namespace TimeDataViewer
                 }
             }
 
-            if(SliderBrush != null)
+            if (SliderBrush != null)
             {
                 var sliderPen = new Pen() { Brush = SliderBrush, Thickness = 2 };
-                
+
                 contextPlot.DrawLine(_plotSlider.p0, _plotSlider.p1, sliderPen);
-                
+
                 var label = DefaultLabelTemplate.Build(new ContentControl());
 
                 if (label.Control is TextBlock textBlock)
                 {
-                    textBlock.Text = _label;                    
+                    textBlock.Text = _label;
                     contextAxis.DrawMathText(_labelPoint, textBlock);
                 }
 
-                contextAxis.DrawLine(_axisSlider.p0, _axisSlider.p1, sliderPen);               
+                contextAxis.DrawLine(_axisSlider.p0, _axisSlider.p1, sliderPen);
             }
         }
     }

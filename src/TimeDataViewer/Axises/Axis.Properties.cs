@@ -38,7 +38,7 @@ namespace TimeDataViewer
             MajorTickPenProperty.Changed.AddClassHandler<Axis>(AppearanceChanged);
         }
 
-        public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =    
+        public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =
             AvaloniaProperty.Register<TimelineBase, ControlTemplate>(nameof(DefaultLabelTemplate));
 
         public ControlTemplate DefaultLabelTemplate
@@ -55,7 +55,7 @@ namespace TimeDataViewer
         }
 
 
-        public static readonly StyledProperty<Pen> MinorPenProperty =    
+        public static readonly StyledProperty<Pen> MinorPenProperty =
             AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorPen), new Pen());
 
         public Pen MinorPen
@@ -71,7 +71,7 @@ namespace TimeDataViewer
             }
         }
 
-        public static readonly StyledProperty<Pen> MajorPenProperty =    
+        public static readonly StyledProperty<Pen> MajorPenProperty =
             AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorPen), new Pen());
 
         public Pen MajorPen
@@ -87,7 +87,7 @@ namespace TimeDataViewer
             }
         }
 
-        public static readonly StyledProperty<Pen> MinorTickPenProperty =    
+        public static readonly StyledProperty<Pen> MinorTickPenProperty =
             AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MinorTickPen), new Pen());
 
         public Pen MinorTickPen
@@ -103,7 +103,7 @@ namespace TimeDataViewer
             }
         }
 
-        public static readonly StyledProperty<Pen> MajorTickPenProperty =    
+        public static readonly StyledProperty<Pen> MajorTickPenProperty =
             AvaloniaProperty.Register<TimelineBase, Pen>(nameof(MajorTickPen), new Pen());
 
         public Pen MajorTickPen
@@ -120,7 +120,7 @@ namespace TimeDataViewer
         }
 
 
-        public static readonly StyledProperty<double> AbsoluteMaximumProperty =   
+        public static readonly StyledProperty<double> AbsoluteMaximumProperty =
             AvaloniaProperty.Register<Axis, double>(nameof(AbsoluteMaximum), double.MaxValue);
 
         public double AbsoluteMaximum
@@ -183,8 +183,8 @@ namespace TimeDataViewer
                 SetValue(AxisTitleDistanceProperty, value);
             }
         }
-       
-        public static readonly StyledProperty<double> AxisDistanceProperty =   
+
+        public static readonly StyledProperty<double> AxisDistanceProperty =
             AvaloniaProperty.Register<Axis, double>(nameof(AxisDistance), 0.0);
 
         public double AxisDistance
@@ -249,7 +249,7 @@ namespace TimeDataViewer
             }
         }
 
-        public static readonly StyledProperty<double> IntervalLengthProperty =  
+        public static readonly StyledProperty<double> IntervalLengthProperty =
             AvaloniaProperty.Register<Axis, double>(nameof(IntervalLength), 60.0);
 
         public double IntervalLength

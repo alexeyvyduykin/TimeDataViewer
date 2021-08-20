@@ -13,7 +13,7 @@ namespace TimeDataViewer
         public static readonly StyledProperty<Color> ColorProperty =
             AvaloniaProperty.Register<Series, Color>(nameof(Color), Colors.Transparent);
 
-        private readonly EventListener eventListener;
+        private readonly EventListener _eventListener;
 
         static Series()
         {
@@ -24,7 +24,7 @@ namespace TimeDataViewer
 
         protected Series()
         {
-            eventListener = new EventListener(OnCollectionChanged);
+            _eventListener = new EventListener(OnCollectionChanged);
         }
 
         public Color Color
@@ -77,13 +77,6 @@ namespace TimeDataViewer
             }
         }
 
-        protected override void OnAttachedToLogicalTree(global::Avalonia.LogicalTree.LogicalTreeAttachmentEventArgs e)
-        {
-            base.OnAttachedToLogicalTree(e);
-            //BeginInit();
-            //EndInit();
-        }
-
         protected virtual void SynchronizeProperties(Core.Series s)
         {
             s.IsVisible = IsVisible;
@@ -99,22 +92,17 @@ namespace TimeDataViewer
             var collection = oldValue as INotifyCollectionChanged;
             if (collection != null)
             {
-                WeakSubscriptionManager.Unsubscribe(collection, "CollectionChanged", eventListener);
+                WeakSubscriptionManager.Unsubscribe(collection, "CollectionChanged", _eventListener);
             }
 
             collection = newValue as INotifyCollectionChanged;
             if (collection != null)
             {
-                WeakSubscriptionManager.Subscribe(collection, "CollectionChanged", eventListener);
+                WeakSubscriptionManager.Subscribe(collection, "CollectionChanged", _eventListener);
             }
         }
 
-        /// <summary>
-        /// Invalidate the view when the collection changes
-        /// </summary>
-        /// <param name="sender">The sender</param>
-        /// <param name="notifyCollectionChangedEventArgs">The collection changed args</param>
-        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
+        private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
         {
             OnDataChanged();
         }
@@ -124,23 +112,16 @@ namespace TimeDataViewer
         /// </summary>
         private class EventListener : IWeakSubscriber<NotifyCollectionChangedEventArgs>
         {
-            /// <summary>
-            /// The delegate to forward to
-            /// </summary>
-            private readonly EventHandler<NotifyCollectionChangedEventArgs> onCollectionChanged;
+            private readonly EventHandler<NotifyCollectionChangedEventArgs> _onCollectionChanged;
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="EventListener" /> class
-            /// </summary>
-            /// <param name="onCollectionChanged">The handler</param>
             public EventListener(EventHandler<NotifyCollectionChangedEventArgs> onCollectionChanged)
             {
-                this.onCollectionChanged = onCollectionChanged;
+                _onCollectionChanged = onCollectionChanged;
             }
 
             public void OnEvent(object sender, NotifyCollectionChangedEventArgs e)
             {
-                onCollectionChanged(sender, e);
+                _onCollectionChanged(sender, e);
             }
         }
     }

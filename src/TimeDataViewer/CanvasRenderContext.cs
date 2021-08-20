@@ -19,8 +19,8 @@ namespace TimeDataViewer
         private const int _minPointsPerPolyline = 16;
         private readonly Dictionary<Color, IBrush> _abrushCache = new Dictionary<Color, IBrush>();
         private readonly Canvas _canvas;
-        private Rect? _clip;
-        private string _currentToolTip;
+        private readonly Rect? _clip;
+        private readonly string _currentToolTip;
 
         public CanvasRenderContext(Canvas canvas)
         {
@@ -51,258 +51,6 @@ namespace TimeDataViewer
             SetStroke(e, stroke, dashArray, 0, aliased);
 
             e.Points = ToPointCollection(points, aliased);
-        }
-        public void DrawClippedLine(
-    OxyRect clippingRectangle,
-    IList<ScreenPoint> points,
-    double minDistSquared,
-    Color stroke,
-    double[] dashArray,
-    bool aliased,
-    List<ScreenPoint> outputBuffer = null,
-    Action<IList<ScreenPoint>> pointsRendered = null)
-        {
-            var n = points.Count;
-            if (n == 0)
-            {
-                return;
-            }
-
-            if (SetClip(clippingRectangle))
-            {
-                DrawLine(points, stroke, dashArray, aliased);
-                ResetClip();
-
-                if (outputBuffer != null)
-                {
-                    outputBuffer.Clear();
-                    outputBuffer.AddRange(points);
-                }
-
-                if (pointsRendered != null)
-                {
-                    pointsRendered(points);
-                }
-
-                return;
-            }
-
-            if (outputBuffer != null)
-            {
-                outputBuffer.Clear();
-            }
-            else
-            {
-                outputBuffer = new List<ScreenPoint>(n);
-            }
-
-            // draws the points in the output buffer and calls the callback (if specified)
-            Action drawLine = () =>
-            {
-                EnsureNonEmptyLineIsVisible(outputBuffer);
-                DrawLine(outputBuffer, stroke, dashArray, aliased);
-
-                // Execute the 'callback'
-                if (pointsRendered != null)
-                {
-                    pointsRendered(outputBuffer);
-                }
-            };
-
-            var clipping = new Core.CohenSutherlandClipping(clippingRectangle);
-            if (n == 1 && clipping.IsInside(points[0]))
-            {
-                outputBuffer.Add(points[0]);
-            }
-
-            int lastPointIndex = 0;
-            for (int i = 1; i < n; i++)
-            {
-                // Calculate the clipped version of previous and this point.
-                var sc0 = points[i - 1];
-                var sc1 = points[i];
-                bool isInside = clipping.ClipLine(ref sc0, ref sc1);
-
-                if (!isInside)
-                {
-                    // the line segment is outside the clipping rectangle
-                    // keep the previous coordinate for minimum distance comparison
-                    continue;
-                }
-
-                // length calculation (inlined for performance)
-                var dx = sc1.X - points[lastPointIndex].X;
-                var dy = sc1.Y - points[lastPointIndex].Y;
-
-                if ((dx * dx) + (dy * dy) > minDistSquared || outputBuffer.Count == 0 || i == n - 1)
-                {
-                    // point comparison inlined for performance
-                    // ReSharper disable CompareOfFloatsByEqualityOperator
-                    if (sc0.X != points[lastPointIndex].X || sc0.Y != points[lastPointIndex].Y || outputBuffer.Count == 0)
-                    // ReSharper restore disable CompareOfFloatsByEqualityOperator
-                    {
-                        outputBuffer.Add(new ScreenPoint(sc0.X, sc0.Y));
-                    }
-
-                    outputBuffer.Add(new ScreenPoint(sc1.X, sc1.Y));
-                    lastPointIndex = i;
-                }
-
-                if (clipping.IsInside(points[i]) || outputBuffer.Count == 0)
-                {
-                    continue;
-                }
-
-                // we are leaving the clipping region - render the line
-                drawLine();
-                outputBuffer.Clear();
-            }
-
-            if (outputBuffer.Count > 0)
-            {
-                drawLine();
-            }
-        }
-
-        public void DrawClippedLineSegments(
-    OxyRect clippingRectangle,
-    IList<ScreenPoint> points,
-    Color stroke,
-    double[] dashArray,
-    bool aliased)
-        {
-            if (SetClip(clippingRectangle))
-            {
-                DrawLineSegments(points, stroke, dashArray, aliased);
-                ResetClip();
-                return;
-            }
-
-            var clipping = new Core.CohenSutherlandClipping(clippingRectangle);
-
-            var clippedPoints = new List<ScreenPoint>(points.Count);
-            for (int i = 0; i + 1 < points.Count; i += 2)
-            {
-                var s0 = points[i];
-                var s1 = points[i + 1];
-                if (clipping.ClipLine(ref s0, ref s1))
-                {
-                    clippedPoints.Add(s0);
-                    clippedPoints.Add(s1);
-                }
-            }
-
-            DrawLineSegments(clippedPoints, stroke, dashArray, aliased);
-        }
-
-        public void DrawClippedRectangleAsPolygon(
-    OxyRect clippingRectangle,
-    OxyRect rect,
-    IBrush fill,
-    Color stroke)
-        {
-            if (SetClip(clippingRectangle))
-            {
-                DrawRectangleAsPolygon(rect, fill, stroke);
-                ResetClip();
-                return;
-            }
-
-            var clippedRect = ClipRect(rect, clippingRectangle);
-            if (clippedRect == null)
-            {
-                return;
-            }
-
-            DrawRectangleAsPolygon(clippedRect.Value, fill, stroke);
-        }
-
-        private static OxyRect? ClipRect(OxyRect rect, OxyRect clippingRectangle)
-        {
-            if (rect.Right < clippingRectangle.Left)
-            {
-                return null;
-            }
-
-            if (rect.Left > clippingRectangle.Right)
-            {
-                return null;
-            }
-
-            if (rect.Top > clippingRectangle.Bottom)
-            {
-                return null;
-            }
-
-            if (rect.Bottom < clippingRectangle.Top)
-            {
-                return null;
-            }
-
-            var width = rect.Width;
-            var left = rect.Left;
-            var top = rect.Top;
-            var height = rect.Height;
-
-            if (left + width > clippingRectangle.Right)
-            {
-                width = clippingRectangle.Right - left;
-            }
-
-            if (left < clippingRectangle.Left)
-            {
-                width = rect.Right - clippingRectangle.Left;
-                left = clippingRectangle.Left;
-            }
-
-            if (top < clippingRectangle.Top)
-            {
-                height = rect.Bottom - clippingRectangle.Top;
-                top = clippingRectangle.Top;
-            }
-
-            if (top + height > clippingRectangle.Bottom)
-            {
-                height = clippingRectangle.Bottom - top;
-            }
-
-            if (rect.Width <= 0 || rect.Height <= 0)
-            {
-                return null;
-            }
-
-            return new OxyRect(left, top, width, height);
-        }
-
-        public void DrawRectangleAsPolygon(OxyRect rect, IBrush fill, Color stroke)
-        {
-            var sp0 = new ScreenPoint(rect.Left, rect.Top);
-            var sp1 = new ScreenPoint(rect.Right, rect.Top);
-            var sp2 = new ScreenPoint(rect.Right, rect.Bottom);
-            var sp3 = new ScreenPoint(rect.Left, rect.Bottom);
-            DrawPolygon(new[] { sp0, sp1, sp2, sp3 }, fill, stroke, null, true);
-        }
-
-        private static void EnsureNonEmptyLineIsVisible(IList<ScreenPoint> pts)
-        {
-            // Check if the line contains two points and they are at the same point
-            if (pts.Count == 2)
-            {
-                if (pts[0].DistanceTo(pts[1]) < 1)
-                {
-                    // Modify to a small horizontal line to make sure it is being rendered
-                    pts[1] = new ScreenPoint(pts[0].X + 1, pts[0].Y);
-                    pts[0] = new ScreenPoint(pts[0].X - 1, pts[0].Y);
-                }
-            }
-
-            // Check if the line contains a single point
-            if (pts.Count == 1)
-            {
-                // Add a second point to make sure the line is being rendered as a small dot
-                pts.Add(new ScreenPoint(pts[0].X + 1, pts[0].Y));
-                pts[0] = new ScreenPoint(pts[0].X - 1, pts[0].Y);
-            }
         }
 
         public void DrawLine(double x0, double y0, double x1, double y1, Pen pen, bool aliased = true)
@@ -344,7 +92,7 @@ namespace TimeDataViewer
 
             var polyline = CreateAndAdd<Polyline>();
             polyline.Stroke = stroke.Brush;
-            polyline.StrokeThickness = stroke.Thickness;   
+            polyline.StrokeThickness = stroke.Thickness;
             var pc = new List<Point>(numPointsPerPolyline);
 
             var n = points.Count;
@@ -379,14 +127,14 @@ namespace TimeDataViewer
                         // alt.2
                         ////if (dashArray != null)
                         ////{
-                        ////    lineLength += this.GetLength(polyline);
+                        ////    lineLength += GetLength(polyline);
                         ////}
 
                         // start a new polyline at last point so there is no gap (it is not necessary to use the % operator)
                         var dashOffset = dashPatternLength > 0 ? lineLength / 1.0/*thickness*/ : 0;
                         polyline = CreateAndAdd<Polyline>();
                         polyline.Stroke = stroke.Brush;
-                        polyline.StrokeThickness = stroke.Thickness;                        
+                        polyline.StrokeThickness = stroke.Thickness;
                         pc = new List<Point>(numPointsPerPolyline) { pc.Last() };
                     }
                 }
@@ -397,7 +145,6 @@ namespace TimeDataViewer
                 polyline.Points = pc;
             }
         }
-
 
         private static Point ToPoint(Point pt, bool aliased)
         {
@@ -488,25 +235,6 @@ namespace TimeDataViewer
             }
         }
 
-        public void DrawPolygon(IList<ScreenPoint> points, IBrush fill, Color stroke, double[] dashArray, bool aliased)
-        {
-            var e = CreateAndAdd<Polygon>();
-            SetStroke(e, stroke, dashArray, 0, aliased);
-            e.Fill = fill;
-            e.Points = ToPointCollection(points, aliased);
-        }
-
-        public void DrawRectangle(OxyRect rect, IBrush fill, Color stroke)
-        {
-            var e = CreateAndAdd<Rectangle>(rect.Left, rect.Top);
-            SetStroke(e, stroke, null, 0, true);
-            e.Fill = fill;
-            e.Width = rect.Width;
-            e.Height = rect.Height;
-            Canvas.SetLeft(e, rect.Left);
-            Canvas.SetTop(e, rect.Top);
-        }
-
         public void DrawRectangle(OxyRect rect, IBrush? fill, IPen? stroke)
         {
             var e = CreateAndAdd<Rectangle>(rect.Left, rect.Top);
@@ -588,7 +316,6 @@ namespace TimeDataViewer
             tb.RenderTransformOrigin = new RelativePoint(0.0, 0.0, RelativeUnit.Relative);
         }
 
-
         // Measures the size of the specified text.
         public OxySize MeasureText(TextBlock textBlock)
         {
@@ -600,24 +327,6 @@ namespace TimeDataViewer
             textBlock.Measure(new Size(1000, 1000));
 
             return new OxySize(textBlock.DesiredSize.Width, textBlock.DesiredSize.Height);
-        }
-
-        // Sets the tool tip for the following items.
-        public void SetToolTip(string text)
-        {
-            _currentToolTip = text;
-        }
-
-        // Sets the clipping rectangle.
-        public bool SetClip(OxyRect clippingRect)
-        {
-            _clip = ToRect(clippingRect);
-            return true;
-        }
-
-        public void ResetClip()
-        {
-            _clip = null;
         }
 
         // Creates an element of the specified type and adds it to the canvas.
@@ -777,7 +486,7 @@ namespace TimeDataViewer
                         // alt.2
                         ////if (dashArray != null)
                         ////{
-                        ////    lineLength += this.GetLength(polyline);
+                        ////    lineLength += GetLength(polyline);
                         ////}
 
                         // start a new polyline at last point so there is no gap (it is not necessary to use the % operator)
@@ -809,12 +518,6 @@ namespace TimeDataViewer
             // http://www.wynapse.com/Silverlight/Tutor/Silverlight_Rectangles_Paths_And_Lines_Comparison.aspx
             // TODO: issue 10221 - should consider line thickness and logical to physical size of pixels
             return new Point(0.5 + (int)pt.X, 0.5 + (int)pt.Y);
-        }
-
-        // Converts an <see cref="RectD" /> to a <see cref="Rect" />.
-        private static Rect ToRect(OxyRect r)
-        {
-            return new Rect(r.Left, r.Top, r.Width, r.Height);
         }
 
         // Converts a <see cref="Point2D" /> to a <see cref="Point" />.

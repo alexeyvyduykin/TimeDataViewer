@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TimeDataViewer.Spatial;
+﻿using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer.Core
 {
     public class SelectManipulator : MouseManipulator
     {
         public SelectManipulator(IPlotView plotView) : base(plotView)
-        {               
-            
+        {
+
         }
 
         public override void Started(OxyMouseEventArgs e)
@@ -28,7 +23,7 @@ namespace TimeDataViewer.Core
 
             foreach (var item in PlotView.ActualModel.Series)
             {
-                if(item is TimelineSeries series)
+                if (item is TimelineSeries series)
                 {
                     series.ResetSelecIndex();
                 }
@@ -44,12 +39,12 @@ namespace TimeDataViewer.Core
 
             var result = GetNearestHit(currentSeries, e.Position);
             if (result != null)
-            {                    
+            {
                 if (currentSeries is TimelineSeries series)
                 {
                     series.SelectIndex((int)result.Index);
-                    
-                    if(PlotView is Timeline timeline)
+
+                    if (PlotView is Timeline timeline)
                     {
                         timeline.SliderTo(((TimelineItem)result.Item).Begin);
                     }

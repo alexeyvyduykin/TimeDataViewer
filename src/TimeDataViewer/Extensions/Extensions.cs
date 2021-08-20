@@ -19,11 +19,6 @@ namespace TimeDataViewer
             return point.X == 0.0 && point.Y == 0.0;
         }
 
-        //public static ScreenPoint GetCenter(this OxyRect rect)
-        //{
-        //    return new ScreenPoint(rect.X + rect.Width / 2, rect.Y - rect.Height / 2);
-        //}
-
         public static void AddRange<T>(this ObservableCollection<T> arr, IEnumerable<T> values)
         {
             foreach (var item in values)
@@ -32,17 +27,11 @@ namespace TimeDataViewer
             }
         }
 
-        //public static Rect ToAvaloniaRect(this OxyRect rect)
-        //{
-        //    return new Rect(rect.X, rect.Y, rect.Width, rect.Height);
-        //}
-
         public static Core.OxyMouseWheelEventArgs ToMouseWheelEventArgs(this PointerWheelEventArgs e, IInputElement relativeTo)
         {
             return new Core.OxyMouseWheelEventArgs
             {
                 Position = e.GetPosition(relativeTo).ToScreenPoint(),
-                //ModifierKeys = Keyboard.Instance.GetModifierKeys(),
                 Delta = (int)(e.Delta.Y + e.Delta.X) * 120
             };
         }
@@ -60,7 +49,6 @@ namespace TimeDataViewer
             {
                 ChangedButton = point.Properties.PointerUpdateKind.Convert(),
                 Position = e.GetPosition(relativeTo).ToScreenPoint(),
-                //ModifierKeys = e.KeyModifiers.ToModifierKeys()
             };
         }
         public static Core.OxyMouseEventArgs ToMouseReleasedEventArgs(this PointerReleasedEventArgs e, IInputElement relativeTo)
@@ -68,7 +56,6 @@ namespace TimeDataViewer
             return new Core.OxyMouseEventArgs
             {
                 Position = e.GetPosition(relativeTo).ToScreenPoint(),
-                //ModifierKeys = e.KeyModifiers.ToModifierKeys()
             };
         }
 
@@ -77,23 +64,18 @@ namespace TimeDataViewer
             return new Core.OxyMouseEventArgs
             {
                 Position = e.GetPosition(relativeTo).ToScreenPoint(),
-                //ModifierKeys = e.KeyModifiers.ToModifierKeys()
             };
         }
 
         public static Core.OxyMouseButton Convert(this PointerUpdateKind pointerUpdateKind)
         {
-            switch (pointerUpdateKind)
+            return pointerUpdateKind switch
             {
-                case PointerUpdateKind.LeftButtonPressed:
-                    return Core.OxyMouseButton.Left;
-                case PointerUpdateKind.MiddleButtonPressed:
-                    return Core.OxyMouseButton.Middle;
-                case PointerUpdateKind.RightButtonPressed:
-                    return Core.OxyMouseButton.Right;
-                default:
-                    return Core.OxyMouseButton.None;
-            }
+                PointerUpdateKind.LeftButtonPressed => Core.OxyMouseButton.Left,
+                PointerUpdateKind.MiddleButtonPressed => Core.OxyMouseButton.Middle,
+                PointerUpdateKind.RightButtonPressed => Core.OxyMouseButton.Right,
+                _ => Core.OxyMouseButton.None,
+            };
         }
 
         public static HorizontalAlignment ToAvalonia(this Core.HorizontalAlignment horizontal)

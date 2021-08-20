@@ -6,13 +6,13 @@ namespace TimeDataViewer.Core
     public abstract class ControllerBase : IController
     {
         // A synchronization object that is used when the actual model in the current view is <c>null</c>.      
-        private readonly object syncRoot = new object();
+        private readonly object _syncRoot = new();
 
         protected ControllerBase()
         {
-            this.InputCommandBindings = new List<InputCommandBinding>();
-            this.MouseDownManipulators = new List<ManipulatorBase<OxyMouseEventArgs>>();
-            this.MouseHoverManipulators = new List<ManipulatorBase<OxyMouseEventArgs>>();
+            InputCommandBindings = new List<InputCommandBinding>();
+            MouseDownManipulators = new List<ManipulatorBase<OxyMouseEventArgs>>();
+            MouseHoverManipulators = new List<ManipulatorBase<OxyMouseEventArgs>>();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace TimeDataViewer.Core
         // Handles mouse enter events.
         public virtual bool HandleMouseEnter(IView view, OxyMouseEventArgs args)
         {
-            lock (this.GetSyncRoot(view))
+            lock (GetSyncRoot(view))
             {
                 if (view.ActualModel != null)
                 {
@@ -50,15 +50,15 @@ namespace TimeDataViewer.Core
                     }
                 }
 
-                var command = this.GetCommand(new OxyMouseEnterGesture());
-                return this.HandleCommand(command, view, args);
+                var command = GetCommand(new OxyMouseEnterGesture());
+                return HandleCommand(command, view, args);
             }
         }
 
         // Handles mouse leave events.
         public virtual bool HandleMouseLeave(IView view, OxyMouseEventArgs args)
         {
-            lock (this.GetSyncRoot(view))
+            lock (GetSyncRoot(view))
             {
                 if (view.ActualModel != null)
                 {
@@ -69,10 +69,10 @@ namespace TimeDataViewer.Core
                     }
                 }
 
-                foreach (var m in this.MouseHoverManipulators.ToArray())
+                foreach (var m in MouseHoverManipulators.ToArray())
                 {
                     m.Completed(args);
-                    this.MouseHoverManipulators.Remove(m);
+                    MouseHoverManipulators.Remove(m);
                 }
 
                 return true;
@@ -88,16 +88,16 @@ namespace TimeDataViewer.Core
         // Handles mouse down events.
         public virtual bool HandleMouseDown(IView view, OxyMouseDownEventArgs args)
         {
-            lock (this.GetSyncRoot(view))
+            lock (GetSyncRoot(view))
             {
                 var hitargs = new HitTestArguments(args.Position, 10);
-                foreach (var result in this.HitTest(view, hitargs))
+                foreach (var result in HitTest(view, hitargs))
                 {
                     args.HitTestResult = result;
                     result.Element.OnMouseDown(args);
                     if (args.Handled)
                     {
-                        this.CurrentMouseEventElement = result.Element;
+                        CurrentMouseEventElement = result.Element;
                         return true;
                     }
                 }
@@ -111,19 +111,19 @@ namespace TimeDataViewer.Core
                     }
                 }
 
-                var command = this.GetCommand(new OxyMouseDownGesture(args.ChangedButton));
-                return this.HandleCommand(command, view, args);
+                var command = GetCommand(new OxyMouseDownGesture(args.ChangedButton));
+                return HandleCommand(command, view, args);
             }
         }
 
         // Handles mouse move events.
         public virtual bool HandleMouseMove(IView view, OxyMouseEventArgs args)
         {
-            lock (this.GetSyncRoot(view))
+            lock (GetSyncRoot(view))
             {
-                if (this.CurrentMouseEventElement != null)
+                if (CurrentMouseEventElement != null)
                 {
-                    this.CurrentMouseEventElement.OnMouseMove(args);
+                    CurrentMouseEventElement.OnMouseMove(args);
                     if (args.Handled)
                     {
                         return true;
@@ -139,12 +139,12 @@ namespace TimeDataViewer.Core
                     }
                 }
 
-                foreach (var m in this.MouseDownManipulators)
+                foreach (var m in MouseDownManipulators)
                 {
                     m.Delta(args);
                 }
 
-                foreach (var m in this.MouseHoverManipulators)
+                foreach (var m in MouseHoverManipulators)
                 {
                     m.Delta(args);
                 }
@@ -156,12 +156,12 @@ namespace TimeDataViewer.Core
         // Handles mouse up events.
         public virtual bool HandleMouseUp(IView view, OxyMouseEventArgs args)
         {
-            lock (this.GetSyncRoot(view))
+            lock (GetSyncRoot(view))
             {
-                if (this.CurrentMouseEventElement != null)
+                if (CurrentMouseEventElement != null)
                 {
-                    this.CurrentMouseEventElement.OnMouseUp(args);
-                    this.CurrentMouseEventElement = null;
+                    CurrentMouseEventElement.OnMouseUp(args);
+                    CurrentMouseEventElement = null;
                     if (args.Handled)
                     {
                         return true;
@@ -177,10 +177,10 @@ namespace TimeDataViewer.Core
                     }
                 }
 
-                foreach (var m in this.MouseDownManipulators.ToArray())
+                foreach (var m in MouseDownManipulators.ToArray())
                 {
                     m.Completed(args);
-                    this.MouseDownManipulators.Remove(m);
+                    MouseDownManipulators.Remove(m);
                 }
 
                 return true;
@@ -190,10 +190,10 @@ namespace TimeDataViewer.Core
         // Handles mouse wheel events.
         public virtual bool HandleMouseWheel(IView view, OxyMouseWheelEventArgs args)
         {
-            lock (this.GetSyncRoot(view))
+            lock (GetSyncRoot(view))
             {
-                var command = this.GetCommand(new OxyMouseWheelGesture());
-                return this.HandleCommand(command, view, args);
+                var command = GetCommand(new OxyMouseWheelGesture());
+                return HandleCommand(command, view, args);
             }
         }
 
@@ -203,7 +203,7 @@ namespace TimeDataViewer.Core
             ManipulatorBase<OxyMouseEventArgs> manipulator,
             OxyMouseDownEventArgs args)
         {
-            this.MouseDownManipulators.Add(manipulator);
+            MouseDownManipulators.Add(manipulator);
             manipulator.Started(args);
         }
 
@@ -213,35 +213,35 @@ namespace TimeDataViewer.Core
             ManipulatorBase<OxyMouseEventArgs> manipulator,
             OxyMouseEventArgs args)
         {
-            this.MouseHoverManipulators.Add(manipulator);
+            MouseHoverManipulators.Add(manipulator);
             manipulator.Started(args);
         }
 
         // Binds the specified command to the specified mouse gesture. Removes old bindings to the gesture.
         public virtual void Bind(OxyMouseDownGesture gesture, IViewCommand<OxyMouseDownEventArgs> command)
         {
-            this.BindCore(gesture, command);
+            BindCore(gesture, command);
         }
 
         // Binds the specified command to the specified mouse enter gesture. Removes old bindings to the gesture.
         public virtual void Bind(OxyMouseEnterGesture gesture, IViewCommand<OxyMouseEventArgs> command)
         {
-            this.BindCore(gesture, command);
+            BindCore(gesture, command);
         }
 
         // Binds the specified command to the specified mouse wheel gesture. Removes old bindings to the gesture.
         public virtual void Bind(OxyMouseWheelGesture gesture, IViewCommand<OxyMouseWheelEventArgs> command)
         {
-            this.BindCore(gesture, command);
+            BindCore(gesture, command);
         }
 
         // Unbinds the specified gesture.
         public virtual void Unbind(OxyInputGesture gesture)
         {
             // ReSharper disable once RedundantNameQualifier
-            foreach (var icb in this.InputCommandBindings.Where(icb => icb.Gesture.Equals(gesture)).ToArray())
+            foreach (var icb in InputCommandBindings.Where(icb => icb.Gesture.Equals(gesture)).ToArray())
             {
-                this.InputCommandBindings.Remove(icb);
+                InputCommandBindings.Remove(icb);
             }
         }
 
@@ -249,9 +249,9 @@ namespace TimeDataViewer.Core
         public virtual void Unbind(IViewCommand command)
         {
             // ReSharper disable once RedundantNameQualifier
-            foreach (var icb in this.InputCommandBindings.Where(icb => object.ReferenceEquals(icb.Command, command)).ToArray())
+            foreach (var icb in InputCommandBindings.Where(icb => object.ReferenceEquals(icb.Command, command)).ToArray())
             {
-                this.InputCommandBindings.Remove(icb);
+                InputCommandBindings.Remove(icb);
             }
         }
 
@@ -260,28 +260,28 @@ namespace TimeDataViewer.Core
         /// </summary>
         public virtual void UnbindAll()
         {
-            this.InputCommandBindings.Clear();
+            InputCommandBindings.Clear();
         }
 
         // Binds the specified command to the specified gesture. Removes old bindings to the gesture.
         protected void BindCore(OxyInputGesture gesture, IViewCommand command)
         {
-            var current = this.InputCommandBindings.FirstOrDefault(icb => icb.Gesture.Equals(gesture));
+            var current = InputCommandBindings.FirstOrDefault(icb => icb.Gesture.Equals(gesture));
             if (current != null)
             {
-                this.InputCommandBindings.Remove(current);
+                InputCommandBindings.Remove(current);
             }
 
             if (command != null)
             {
-                this.InputCommandBindings.Add(new InputCommandBinding(gesture, command));
+                InputCommandBindings.Add(new InputCommandBinding(gesture, command));
             }
         }
 
         // Gets the command for the specified <see cref="OxyInputGesture" />.
-        protected virtual IViewCommand GetCommand(OxyInputGesture gesture)
+        protected virtual IViewCommand? GetCommand(OxyInputGesture gesture)
         {
-            var binding = this.InputCommandBindings.FirstOrDefault(b => b.Gesture.Equals(gesture));
+            var binding = InputCommandBindings.FirstOrDefault(b => b.Gesture.Equals(gesture));
             if (binding == null)
             {
                 return null;
@@ -307,7 +307,7 @@ namespace TimeDataViewer.Core
         // Gets the synchronization object for the specified view.
         protected object GetSyncRoot(IView view)
         {
-            return view.ActualModel != null ? view.ActualModel.SyncRoot : this.syncRoot;
+            return view.ActualModel != null ? view.ActualModel.SyncRoot : _syncRoot;
         }
     }
 }

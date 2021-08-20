@@ -1,80 +1,25 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace TimeDataViewer.Spatial
 {
     public struct ScreenVector : IEquatable<ScreenVector>
     {
-        /// <summary>
-        /// The x-coordinate.
-        /// </summary>
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1307:AccessibleFieldsMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
-        // ReSharper disable once InconsistentNaming
-        internal double x;
+        internal double _x;
+        internal double _y;
 
-        /// <summary>
-        /// The y-coordinate.
-        /// </summary>
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1307:AccessibleFieldsMustBeginWithUpperCaseLetter", Justification = "Reviewed. Suppression is OK here.")]
-        // ReSharper disable once InconsistentNaming
-        internal double y;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ScreenVector" /> structure.
-        /// </summary>
-        /// <param name="x">The x-coordinate.</param>
-        /// <param name="y">The y-coordinate.</param>
         public ScreenVector(double x, double y)
         {
-            this.x = x;
-            this.y = y;
+            _x = x;
+            _y = y;
         }
 
-        /// <summary>
-        /// Gets the length.
-        /// </summary>
-        public double Length
-        {
-            get
-            {
-                return Math.Sqrt((this.x * this.x) + (this.y * this.y));
-            }
-        }
+        public double Length => Math.Sqrt((_x * _x) + (_y * _y));
 
-        /// <summary>
-        /// Gets the length squared.
-        /// </summary>
-        public double LengthSquared
-        {
-            get
-            {
-                return (this.x * this.x) + (this.y * this.y);
-            }
-        }
+        public double LengthSquared => (_x * _x) + (_y * _y);
 
-        /// <summary>
-        /// Gets the x-coordinate.
-        /// </summary>
-        /// <value>The x-coordinate.</value>
-        public double X
-        {
-            get
-            {
-                return this.x;
-            }
-        }
+        public double X => _x;
 
-        /// <summary>
-        /// Gets the y-coordinate.
-        /// </summary>
-        /// <value>The y-coordinate.</value>
-        public double Y
-        {
-            get
-            {
-                return this.y;
-            }
-        }
+        public double Y => _y;
 
         /// <summary>
         /// Implements the operator *.
@@ -84,7 +29,7 @@ namespace TimeDataViewer.Spatial
         /// <returns>The result of the operator.</returns>
         public static ScreenVector operator *(ScreenVector v, double d)
         {
-            return new ScreenVector(v.x * d, v.y * d);
+            return new ScreenVector(v._x * d, v._y * d);
         }
 
         /// <summary>
@@ -95,7 +40,7 @@ namespace TimeDataViewer.Spatial
         /// <returns>The result of the operation.</returns>
         public static ScreenVector operator +(ScreenVector v, ScreenVector d)
         {
-            return new ScreenVector(v.x + d.x, v.y + d.y);
+            return new ScreenVector(v._x + d._x, v._y + d._y);
         }
 
         /// <summary>
@@ -106,7 +51,7 @@ namespace TimeDataViewer.Spatial
         /// <returns>The result of operation.</returns>
         public static ScreenVector operator -(ScreenVector v, ScreenVector d)
         {
-            return new ScreenVector(v.x - d.x, v.y - d.y);
+            return new ScreenVector(v._x - d._x, v._y - d._y);
         }
 
         /// <summary>
@@ -116,39 +61,27 @@ namespace TimeDataViewer.Spatial
         /// <returns>The result of operation.</returns>
         public static ScreenVector operator -(ScreenVector v)
         {
-            return new ScreenVector(-v.x, -v.y);
+            return new ScreenVector(-v._x, -v._y);
         }
 
-        /// <summary>
-        /// Normalizes this vector.
-        /// </summary>
         public void Normalize()
         {
-            double l = Math.Sqrt((this.x * this.x) + (this.y * this.y));
+            double l = Math.Sqrt((_x * _x) + (_y * _y));
             if (l > 0)
             {
-                this.x /= l;
-                this.y /= l;
+                _x /= l;
+                _y /= l;
             }
         }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
         public override string ToString()
         {
-            return this.x + " " + this.y;
+            return _x + " " + _y;
         }
 
-        /// <summary>
-        /// Determines whether this instance and another specified <see cref="T:ScreenVector" /> object have the same value.
-        /// </summary>
-        /// <param name="other">The point to compare to this instance.</param>
-        /// <returns><c>true</c> if the value of the <paramref name="other" /> parameter is the same as the value of this instance; otherwise, <c>false</c>.</returns>
         public bool Equals(ScreenVector other)
         {
-            return this.x.Equals(other.x) && this.y.Equals(other.y);
+            return _x.Equals(other._x) && _y.Equals(other._y);
         }
     }
 }

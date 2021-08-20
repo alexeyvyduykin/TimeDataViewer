@@ -5,13 +5,13 @@ namespace TimeDataViewer.Core
 {
     public abstract class ItemsSeries : Series
     {
-        public IEnumerable ItemsSource { get; set; }
+        public IEnumerable? ItemsSource { get; set; }
 
         protected internal override void UpdateValidData()
         {
         }
 
-        protected static object GetItem(IEnumerable itemsSource, int index)
+        protected static object? GetItem(IEnumerable? itemsSource, int index)
         {
             if (itemsSource == null || index < 0)
             {
@@ -33,9 +33,9 @@ namespace TimeDataViewer.Core
             return itemsSource.Cast<object>().FirstOrDefault(item => i++ == index);
         }
 
-        protected virtual object GetItem(int i)
+        protected virtual object? GetItem(int i)
         {
-            return GetItem(this.ItemsSource, i);
+            return GetItem(ItemsSource, i);
         }
     }
 }

@@ -12,9 +12,6 @@ namespace TimeDataViewer.Core
 
     public partial class PlotModel
     {
-        // The mouse hit tolerance.    
-        private const double MouseHitTolerance = 10;
-
         public event EventHandler<InputEventArgs> MouseDown;
 
         public event EventHandler<InputEventArgs> MouseMove;
@@ -37,7 +34,7 @@ namespace TimeDataViewer.Core
         {
             if (!e.Handled)
             {
-                this.OnMouseMove(sender, e);
+                OnMouseMove(sender, e);
             }
         }
 
@@ -45,7 +42,7 @@ namespace TimeDataViewer.Core
         {
             if (!e.Handled)
             {
-                this.OnMouseUp(sender, e);
+                OnMouseUp(sender, e);
             }
         }
 
@@ -53,7 +50,7 @@ namespace TimeDataViewer.Core
         {
             if (!e.Handled)
             {
-                this.OnMouseEnter(sender, e);
+                OnMouseEnter(sender, e);
             }
         }
 
@@ -61,35 +58,23 @@ namespace TimeDataViewer.Core
         {
             if (!e.Handled)
             {
-                this.OnMouseLeave(sender, e);
+                OnMouseLeave(sender, e);
             }
         }
 
         protected virtual void OnMouseDown(object sender, InputEventArgs e)
         {
-            var handler = this.MouseDown;
-            if (handler != null)
-            {
-                handler(sender, e);
-            }
+            MouseDown?.Invoke(sender, e);
         }
 
         protected virtual void OnMouseMove(object sender, InputEventArgs e)
         {
-            var handler = this.MouseMove;
-            if (handler != null)
-            {
-                handler(sender, e);
-            }
+            MouseMove?.Invoke(sender, e);
         }
 
         protected virtual void OnMouseUp(object sender, InputEventArgs e)
         {
-            var handler = this.MouseUp;
-            if (handler != null)
-            {
-                handler(sender, e);
-            }
+            MouseUp?.Invoke(sender, e);
         }
 
         protected virtual void OnMouseEnter(object sender, InputEventArgs e)

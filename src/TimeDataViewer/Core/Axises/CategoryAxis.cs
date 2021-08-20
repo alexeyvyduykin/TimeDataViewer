@@ -11,52 +11,52 @@ namespace TimeDataViewer.Core
     /// The range of the axis will be from -0.5 to 4.5 (excluding padding).</remarks>
     public class CategoryAxis : LinearAxis
     {
-        private readonly List<string> labels = new List<string>();
-        private readonly List<string> itemsSourceLabels = new List<string>();
+        private readonly List<string> _labels = new();
+        private readonly List<string> _itemsSourceLabels = new();
 
         // The current offset of the bars (not used for stacked bar series).
         // <remarks>These offsets are modified during rendering.</remarks>
-        private double[] currentBarOffset;
+        private double[] _currentBarOffset;
 
         /// <summary>
         /// The current max value per StackIndex and Label.
         /// </summary>
         /// <remarks>These values are modified during rendering.</remarks>
-        private double[,] currentMaxValue;
+        private double[,] _currentMaxValue;
 
         /// <summary>
         /// The current min value per StackIndex and Label.
         /// </summary>
         /// <remarks>These values are modified during rendering.</remarks>
-        private double[,] currentMinValue;
+        private double[,] _currentMinValue;
 
         /// <summary>
         /// The base value per StackIndex and Label for positive values of stacked bar series.
         /// </summary>
         /// <remarks>These values are modified during rendering.</remarks>
-        private double[,] currentPositiveBaseValues;
+        private double[,] _currentPositiveBaseValues;
 
         /// <summary>
         /// The base value per StackIndex and Label for negative values of stacked bar series.
         /// </summary>
         /// <remarks>These values are modified during rendering.</remarks>
-        private double[,] currentNegativeBaseValues;
+        private double[,] _currentNegativeBaseValues;
 
         /// <summary>
         /// The maximum stack index.
         /// </summary>
-        private int maxStackIndex;
+        private int _maxStackIndex;
 
         /// <summary>
         /// The maximal width of all labels.
         /// </summary>
-        private double maxWidth;
+        private double _maxWidth;
 
         public CategoryAxis()
         {
-            this.Position = AxisPosition.Bottom;
-            this.MajorStep = 1;
-            this.GapWidth = 1;
+            Position = AxisPosition.Bottom;
+            MajorStep = 1;
+            GapWidth = 1;
         }
 
         /// <summary>
@@ -81,22 +81,13 @@ namespace TimeDataViewer.Core
         /// </summary>
         public string LabelField { get; set; }
 
-        /// <summary>
-        /// Gets the list of category labels.
-        /// </summary>
-        public List<string> Labels
-        {
-            get
-            {
-                return this.labels;
-            }
-        }
+        public List<string> Labels => _labels;
 
         public List<string> ActualLabels
         {
             get
             {
-                return ItemsSource != null ? itemsSourceLabels : labels;
+                return ItemsSource != null ? _itemsSourceLabels : _labels;
             }
         }
 
@@ -126,7 +117,7 @@ namespace TimeDataViewer.Core
         /// <returns>The maximum width.</returns>
         public double GetMaxWidth()
         {
-            return this.maxWidth;
+            return _maxWidth;
         }
 
         /// <summary>
@@ -138,8 +129,8 @@ namespace TimeDataViewer.Core
         /// <returns>The get category value.</returns>
         public double GetCategoryValue(int categoryIndex, int stackIndex, double actualBarWidth)
         {
-            var offsetBegin = this.StackedBarOffset[stackIndex, categoryIndex];
-            var offsetEnd = this.StackedBarOffset[stackIndex + 1, categoryIndex];
+            var offsetBegin = StackedBarOffset[stackIndex, categoryIndex];
+            var offsetEnd = StackedBarOffset[stackIndex + 1, categoryIndex];
             return categoryIndex - 0.5 + ((offsetEnd + offsetBegin - actualBarWidth) * 0.5);
         }
 
@@ -150,7 +141,7 @@ namespace TimeDataViewer.Core
         /// <returns>The get category value.</returns>
         public double GetCategoryValue(int categoryIndex)
         {
-            return categoryIndex - 0.5 + this.BarOffset[categoryIndex];
+            return categoryIndex - 0.5 + BarOffset[categoryIndex];
         }
 
         /// <summary>
@@ -165,7 +156,7 @@ namespace TimeDataViewer.Core
             base.GetTickValues(out majorLabelValues, out majorTickValues, out minorTickValues);
             minorTickValues.Clear();
 
-            if (!this.IsTickCentered)
+            if (!IsTickCentered)
             {
                 // Subtract 0.5 from the label values to get the tick values.
                 // Add one extra tick at the end.
@@ -187,7 +178,7 @@ namespace TimeDataViewer.Core
         /// <returns>The value.</returns>
         public override object GetValue(double x)
         {
-            return this.FormatValue(x);
+            return FormatValue(x);
         }
 
         /// <summary>
@@ -197,7 +188,7 @@ namespace TimeDataViewer.Core
         /// <returns>The offset.</returns>
         public double GetCurrentBarOffset(int categoryIndex)
         {
-            return this.currentBarOffset[categoryIndex];
+            return _currentBarOffset[categoryIndex];
         }
 
         /// <summary>
@@ -207,7 +198,7 @@ namespace TimeDataViewer.Core
         /// <param name="delta">The offset increase.</param>
         public void IncreaseCurrentBarOffset(int categoryIndex, double delta)
         {
-            this.currentBarOffset[categoryIndex] += delta;
+            _currentBarOffset[categoryIndex] += delta;
         }
 
         /// <summary>
@@ -219,7 +210,7 @@ namespace TimeDataViewer.Core
         /// <returns>The current base value.</returns>
         public double GetCurrentBaseValue(int stackIndex, int categoryIndex, bool negativeValue)
         {
-            return negativeValue ? this.currentNegativeBaseValues[stackIndex, categoryIndex] : this.currentPositiveBaseValues[stackIndex, categoryIndex];
+            return negativeValue ? _currentNegativeBaseValues[stackIndex, categoryIndex] : _currentPositiveBaseValues[stackIndex, categoryIndex];
         }
 
         /// <summary>
@@ -233,11 +224,11 @@ namespace TimeDataViewer.Core
         {
             if (negativeValue)
             {
-                this.currentNegativeBaseValues[stackIndex, categoryIndex] = newValue;
+                _currentNegativeBaseValues[stackIndex, categoryIndex] = newValue;
             }
             else
             {
-                this.currentPositiveBaseValues[stackIndex, categoryIndex] = newValue;
+                _currentPositiveBaseValues[stackIndex, categoryIndex] = newValue;
             }
         }
 
@@ -249,7 +240,7 @@ namespace TimeDataViewer.Core
         /// <returns>The current value.</returns>
         public double GetCurrentMaxValue(int stackIndex, int categoryIndex)
         {
-            return this.currentMaxValue[stackIndex, categoryIndex];
+            return _currentMaxValue[stackIndex, categoryIndex];
         }
 
         /// <summary>
@@ -260,7 +251,7 @@ namespace TimeDataViewer.Core
         /// <param name="newValue">The new value.</param>
         public void SetCurrentMaxValue(int stackIndex, int categoryIndex, double newValue)
         {
-            this.currentMaxValue[stackIndex, categoryIndex] = newValue;
+            _currentMaxValue[stackIndex, categoryIndex] = newValue;
         }
 
         /// <summary>
@@ -271,7 +262,7 @@ namespace TimeDataViewer.Core
         /// <returns>The current value.</returns>
         public double GetCurrentMinValue(int stackIndex, int categoryIndex)
         {
-            return this.currentMinValue[stackIndex, categoryIndex];
+            return _currentMinValue[stackIndex, categoryIndex];
         }
 
         /// <summary>
@@ -282,7 +273,7 @@ namespace TimeDataViewer.Core
         /// <param name="newValue">The new value.</param>
         public void SetCurrentMinValue(int stackIndex, int categoryIndex, double newValue)
         {
-            this.currentMinValue[stackIndex, categoryIndex] = newValue;
+            _currentMinValue[stackIndex, categoryIndex] = newValue;
         }
 
         /// <summary>
@@ -292,7 +283,7 @@ namespace TimeDataViewer.Core
         /// <returns>The stack index.</returns>
         public int GetStackIndex(string stackGroup)
         {
-            return this.StackIndexMapping[stackGroup];
+            return StackIndexMapping[stackGroup];
         }
 
         /// <summary>
@@ -301,22 +292,22 @@ namespace TimeDataViewer.Core
         internal override void UpdateActualMaxMin()
         {
             // Update the DataMinimum/DataMaximum from the number of categories
-            this.Include(-0.5);
+            Include(-0.5);
 
-            var actualLabels = this.ActualLabels;
+            var actualLabels = ActualLabels;
 
             if (actualLabels.Count > 0)
             {
-                this.Include((actualLabels.Count - 1) + 0.5);
+                Include((actualLabels.Count - 1) + 0.5);
             }
             else
             {
-                this.Include(0.5);
+                Include(0.5);
             }
 
             base.UpdateActualMaxMin();
 
-            this.MinorStep = 1;
+            MinorStep = 1;
         }
 
         /// <summary>
@@ -328,21 +319,21 @@ namespace TimeDataViewer.Core
         {
             base.UpdateFromSeries(series);
 
-            this.UpdateLabels(series);
+            UpdateLabels(series);
 
-            var actualLabels = this.ActualLabels;
+            var actualLabels = ActualLabels;
             if (actualLabels.Count == 0)
             {
-                this.TotalWidthPerCategory = null;
-                this.maxWidth = double.NaN;
-                this.BarOffset = null;
-                this.StackedBarOffset = null;
-                this.StackIndexMapping = null;
+                TotalWidthPerCategory = null;
+                _maxWidth = double.NaN;
+                BarOffset = null;
+                StackedBarOffset = null;
+                StackIndexMapping = null;
 
                 return;
             }
 
-            this.TotalWidthPerCategory = new double[actualLabels.Count];
+            TotalWidthPerCategory = new double[actualLabels.Count];
 
             var usedSeries = series.Where(s => s.IsUsing(this)).ToList();
 
@@ -363,7 +354,7 @@ namespace TimeDataViewer.Core
                         stackedSeries.SelectMany(s => ((CategorizedSeries)s).GetItems()).Any(
                             item => item.GetCategoryIndex(k++) == i))
                     {
-                        this.TotalWidthPerCategory[i] += maxBarWidth;
+                        TotalWidthPerCategory[i] += maxBarWidth;
                     }
                 }
 
@@ -378,20 +369,20 @@ namespace TimeDataViewer.Core
                 {
                     int j = 0;
                     var numberOfItems = s.GetItems().Count(item => item.GetCategoryIndex(j++) == i);
-                    this.TotalWidthPerCategory[i] += s.GetBarWidth() * numberOfItems;
+                    TotalWidthPerCategory[i] += s.GetBarWidth() * numberOfItems;
                 }
             }
 
-            this.maxWidth = this.TotalWidthPerCategory.Max();
+            _maxWidth = TotalWidthPerCategory.Max();
 
             // Calculate BarOffset and StackedBarOffset
-            this.BarOffset = new double[actualLabels.Count];
-            this.StackedBarOffset = new double[stackIndices.Count + 1, actualLabels.Count];
+            BarOffset = new double[actualLabels.Count];
+            StackedBarOffset = new double[stackIndices.Count + 1, actualLabels.Count];
 
-            var factor = 0.5 / (1 + this.GapWidth) / this.maxWidth;
+            var factor = 0.5 / (1 + GapWidth) / _maxWidth;
             for (var i = 0; i < actualLabels.Count; i++)
             {
-                this.BarOffset[i] = 0.5 - (this.TotalWidthPerCategory[i] * factor);
+                BarOffset[i] = 0.5 - (TotalWidthPerCategory[i] * factor);
             }
 
             for (var j = 0; j <= stackIndices.Count; j++)
@@ -406,22 +397,22 @@ namespace TimeDataViewer.Core
                         continue;
                     }
 
-                    this.StackedBarOffset[j, i] = this.BarOffset[i];
+                    StackedBarOffset[j, i] = BarOffset[i];
                     if (j < stackIndices.Count)
                     {
-                        this.BarOffset[i] += stackRankBarWidth[j] / (1 + this.GapWidth) / this.maxWidth;
+                        BarOffset[i] += stackRankBarWidth[j] / (1 + GapWidth) / _maxWidth;
                     }
                 }
             }
 
             stackIndices.Sort();
-            this.StackIndexMapping = new Dictionary<string, int>();
+            StackIndexMapping = new Dictionary<string, int>();
             for (var i = 0; i < stackIndices.Count; i++)
             {
-                this.StackIndexMapping.Add(stackIndices[i], i);
+                StackIndexMapping.Add(stackIndices[i], i);
             }
 
-            this.maxStackIndex = stackIndices.Count;
+            _maxStackIndex = stackIndices.Count;
         }
 
         /// <summary>
@@ -431,26 +422,26 @@ namespace TimeDataViewer.Core
         protected internal override void ResetCurrentValues()
         {
             base.ResetCurrentValues();
-            this.currentBarOffset = this.BarOffset != null ? this.BarOffset.ToArray() : null;
-            var actualLabels = this.ActualLabels;
-            if (this.maxStackIndex > 0)
+            _currentBarOffset = BarOffset != null ? BarOffset.ToArray() : null;
+            var actualLabels = ActualLabels;
+            if (_maxStackIndex > 0)
             {
-                this.currentPositiveBaseValues = new double[this.maxStackIndex, actualLabels.Count];
-                this.currentPositiveBaseValues.Fill2D(double.NaN);
-                this.currentNegativeBaseValues = new double[this.maxStackIndex, actualLabels.Count];
-                this.currentNegativeBaseValues.Fill2D(double.NaN);
+                _currentPositiveBaseValues = new double[_maxStackIndex, actualLabels.Count];
+                _currentPositiveBaseValues.Fill2D(double.NaN);
+                _currentNegativeBaseValues = new double[_maxStackIndex, actualLabels.Count];
+                _currentNegativeBaseValues.Fill2D(double.NaN);
 
-                this.currentMaxValue = new double[this.maxStackIndex, actualLabels.Count];
-                this.currentMaxValue.Fill2D(double.NaN);
-                this.currentMinValue = new double[this.maxStackIndex, actualLabels.Count];
-                this.currentMinValue.Fill2D(double.NaN);
+                _currentMaxValue = new double[_maxStackIndex, actualLabels.Count];
+                _currentMaxValue.Fill2D(double.NaN);
+                _currentMinValue = new double[_maxStackIndex, actualLabels.Count];
+                _currentMinValue.Fill2D(double.NaN);
             }
             else
             {
-                this.currentPositiveBaseValues = null;
-                this.currentNegativeBaseValues = null;
-                this.currentMaxValue = null;
-                this.currentMinValue = null;
+                _currentPositiveBaseValues = null;
+                _currentNegativeBaseValues = null;
+                _currentMaxValue = null;
+                _currentMinValue = null;
             }
         }
 
@@ -462,7 +453,7 @@ namespace TimeDataViewer.Core
         protected override string FormatValueOverride(double x)
         {
             var index = (int)x;
-            var actualLabels = this.ActualLabels;
+            var actualLabels = ActualLabels;
             if (index >= 0 && index < actualLabels.Count)
             {
                 return actualLabels[index];
@@ -477,15 +468,14 @@ namespace TimeDataViewer.Core
         /// <param name="series">The list of series which are rendered</param>
         private void UpdateLabels(IEnumerable<Series> series)
         {
-            if (this.ItemsSource != null)
+            if (ItemsSource != null)
             {
-                this.itemsSourceLabels.Clear();
-                this.itemsSourceLabels.AddRange(ItemsSource.Format(this.LabelField, this.StringFormat,
-                    System.Globalization.CultureInfo.CurrentCulture));
+                _itemsSourceLabels.Clear();
+                _itemsSourceLabels.AddRange(ItemsSource.Format(LabelField, StringFormat, CultureInfo.CurrentCulture));
                 return;
             }
 
-            if (this.Labels.Count == 0)
+            if (Labels.Count == 0)
             {
                 // auto-create labels
                 // TODO: should not modify Labels collection
@@ -499,83 +489,13 @@ namespace TimeDataViewer.Core
                     if (s is CategorizedSeries bsb)
                     {
                         int max = bsb.GetItems().Count;
-                        while (this.Labels.Count < max)
+                        while (Labels.Count < max)
                         {
-                            this.Labels.Add((this.Labels.Count + 1).ToString(CultureInfo.InvariantCulture));
+                            Labels.Add((Labels.Count + 1).ToString(CultureInfo.InvariantCulture));
                         }
                     }
                 }
             }
         }
     }
-
-    //public class CategoryAxis : Axis
-    //{
-    //    private AxisInfo? _axisInfo;
-    //    private bool _dirty = true; 
-    //    private readonly Dictionary<string, Point2D> _targetMarkers;
-
-    //    public CategoryAxis()
-    //    {
-    //        _targetMarkers = new Dictionary<string, Point2D>();
-    //        Header = "Y";
-    //        Position = AxisPosition.Left;          
-    //        IsDynamicLabelEnable = true; 
-    //    }
-
-    //    private IList<AxisLabelPosition> CreateLabels()
-    //    {
-    //        var list = new List<AxisLabelPosition>();
-
-    //        foreach (var item in _targetMarkers)
-    //        {
-    //            list.Add(new AxisLabelPosition()
-    //            {
-    //                Value = IsHorizontal() ? item.Value.X : item.Value.Y,
-    //                Label = item.Key,
-    //            });
-    //        }
-
-    //        return list;
-    //    }
-
-    //    //public override void UpdateFollowLabelPosition(MarkerViewModel marker)
-    //    //{
-    //    //    if (_targetMarkers.ContainsKey(marker.Name) == false)
-    //    //    {
-    //    //        _targetMarkers.Add(marker.Name, new Point2D());
-    //    //    }
-
-    //    //    _targetMarkers[marker.Name] = marker.LocalPosition;
-
-    //    //    _dirty = true;
-
-    //    //    Invalidate();
-    //    //}
-
-    //    private AxisInfo CreateAxisInfo()
-    //    {
-    //        return new AxisInfo()
-    //        {
-    //            Labels = CreateLabels(),
-    //            Position = Position,
-    //            MinValue = MinClientValue,
-    //            MaxValue = MaxClientValue,                                 
-    //        };
-    //    }
-
-    //    public override AxisInfo AxisInfo
-    //    {
-    //        get
-    //        {
-    //            if (_dirty == true || _axisInfo == null)
-    //            {
-    //                _axisInfo = CreateAxisInfo();
-    //                _dirty = false;
-    //            }
-
-    //            return _axisInfo;
-    //        }
-    //    }
-    //}
 }

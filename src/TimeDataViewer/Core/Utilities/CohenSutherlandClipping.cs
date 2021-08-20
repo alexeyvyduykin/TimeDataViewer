@@ -8,61 +8,22 @@ namespace TimeDataViewer.Core
     /// <remarks>See http://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland</remarks>
     public class CohenSutherlandClipping
     {
-        /// <summary>
-        /// The bottom code.
-        /// </summary>
         private const int Bottom = 4; // 0100
-
-        /// <summary>
-        /// The inside code.
-        /// </summary>
         private const int Inside = 0; // 0000
-
-        /// <summary>
-        /// The left code.
-        /// </summary>
         private const int Left = 1; // 0001
-
-        /// <summary>
-        /// The right code.
-        /// </summary>
         private const int Right = 2; // 0010
-
-        /// <summary>
-        /// The top code.
-        /// </summary>
         private const int Top = 8; // 1000
+        private readonly double _xmax;
+        private readonly double _xmin;
+        private readonly double _ymax;
+        private readonly double _ymin;
 
-        /// <summary>
-        /// The x maximum.
-        /// </summary>
-        private readonly double xmax;
-
-        /// <summary>
-        /// The x minimum.
-        /// </summary>
-        private readonly double xmin;
-
-        /// <summary>
-        /// The y maximum.
-        /// </summary>
-        private readonly double ymax;
-
-        /// <summary>
-        /// The y minimum.
-        /// </summary>
-        private readonly double ymin;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CohenSutherlandClipping" /> class.
-        /// </summary>
-        /// <param name="rect">The clipping rectangle.</param>
         public CohenSutherlandClipping(OxyRect rect)
         {
-            this.xmin = rect.Left;
-            this.xmax = rect.Right;
-            this.ymin = rect.Top;
-            this.ymax = rect.Bottom;
+            _xmin = rect.Left;
+            _xmax = rect.Right;
+            _ymin = rect.Top;
+            _ymax = rect.Bottom;
         }
 
         /// <summary>
@@ -78,52 +39,52 @@ namespace TimeDataViewer.Core
             // compute out codes for P0, P1, and whatever point lies outside the clip rectangle
 
             // the following method is inlined manually
-            // int outcode0 = this.ComputeOutCode(p0.x, p0.y);           
+            // int outcode0 = ComputeOutCode(p0.x, p0.y);           
             int outcode0 = Inside; // initialized as being inside of clip window
 
-            if (p0.X < this.xmin)
+            if (p0.X < _xmin)
             {
                 // to the left of clip window
                 outcode0 |= Left;
             }
-            else if (p0.X > this.xmax)
+            else if (p0.X > _xmax)
             {
                 // to the right of clip window
                 outcode0 |= Right;
             }
 
-            if (p0.Y < this.ymin)
+            if (p0.Y < _ymin)
             {
                 // below the clip window
                 outcode0 |= Bottom;
             }
-            else if (p0.Y > this.ymax)
+            else if (p0.Y > _ymax)
             {
                 // above the clip window
                 outcode0 |= Top;
             }
 
             // the following method is inlined manually
-            // int outcode1 = this.ComputeOutCode(p1.x, p1.y);
+            // int outcode1 = ComputeOutCode(p1.x, p1.y);
             int outcode1 = Inside; // initialized as being inside of clip window
 
-            if (p1.X < this.xmin)
+            if (p1.X < _xmin)
             {
                 // to the left of clip window
                 outcode1 |= Left;
             }
-            else if (p1.X > this.xmax)
+            else if (p1.X > _xmax)
             {
                 // to the right of clip window
                 outcode1 |= Right;
             }
 
-            if (p1.Y < this.ymin)
+            if (p1.Y < _ymin)
             {
                 // below the clip window
                 outcode1 |= Bottom;
             }
-            else if (p1.Y > this.ymax)
+            else if (p1.Y > _ymax)
             {
                 // above the clip window
                 outcode1 |= Top;
@@ -158,56 +119,56 @@ namespace TimeDataViewer.Core
                 if ((outcodeOut & Top) != 0)
                 {
                     // point is above the clip rectangle
-                    x = p0.X + ((p1.X - p0.X) * (this.ymax - p0.Y) / (p1.Y - p0.Y));
-                    y = this.ymax;
+                    x = p0.X + ((p1.X - p0.X) * (_ymax - p0.Y) / (p1.Y - p0.Y));
+                    y = _ymax;
                 }
                 else if ((outcodeOut & Bottom) != 0)
                 {
                     // point is below the clip rectangle
-                    x = p0.X + ((p1.X - p0.X) * (this.ymin - p0.Y) / (p1.Y - p0.Y));
-                    y = this.ymin;
+                    x = p0.X + ((p1.X - p0.X) * (_ymin - p0.Y) / (p1.Y - p0.Y));
+                    y = _ymin;
                 }
                 else if ((outcodeOut & Right) != 0)
                 {
                     // point is to the right of clip rectangle
-                    y = p0.Y + ((p1.Y - p0.Y) * (this.xmax - p0.X) / (p1.X - p0.X));
-                    x = this.xmax;
+                    y = p0.Y + ((p1.Y - p0.Y) * (_xmax - p0.X) / (p1.X - p0.X));
+                    x = _xmax;
                 }
                 else if ((outcodeOut & Left) != 0)
                 {
                     // point is to the left of clip rectangle
-                    y = p0.Y + ((p1.Y - p0.Y) * (this.xmin - p0.X) / (p1.X - p0.X));
-                    x = this.xmin;
+                    y = p0.Y + ((p1.Y - p0.Y) * (_xmin - p0.X) / (p1.X - p0.X));
+                    x = _xmin;
                 }
 
                 // Now we move outside point to intersection point to clip
                 // and get ready for next pass.
                 if (outcodeOut == outcode0)
                 {
-                    p0.x = x;
-                    p0.y = y;
+                    p0._x = x;
+                    p0._y = y;
 
                     // the following code is inlined
-                    // outcode0 = this.ComputeOutCode(p0.x, p0.y);
+                    // outcode0 = ComputeOutCode(p0.x, p0.y);
                     outcode0 = Inside; // initialized as being inside of clip window
 
-                    if (p0.X < this.xmin)
+                    if (p0.X < _xmin)
                     {
                         // to the left of clip window
                         outcode0 |= Left;
                     }
-                    else if (p0.X > this.xmax)
+                    else if (p0.X > _xmax)
                     {
                         // to the right of clip window
                         outcode0 |= Right;
                     }
 
-                    if (p0.Y < this.ymin)
+                    if (p0.Y < _ymin)
                     {
                         // below the clip window
                         outcode0 |= Bottom;
                     }
-                    else if (p0.Y > this.ymax)
+                    else if (p0.Y > _ymax)
                     {
                         // above the clip window
                         outcode0 |= Top;
@@ -215,30 +176,30 @@ namespace TimeDataViewer.Core
                 }
                 else
                 {
-                    p1.x = x;
-                    p1.y = y;
+                    p1._x = x;
+                    p1._y = y;
 
                     // the following method is inlined manually
-                    // outcode1 = this.ComputeOutCode(p1.x, p1.y);
+                    // outcode1 = ComputeOutCode(p1.x, p1.y);
                     outcode1 = Inside; // initialized as being inside of clip window
 
-                    if (p1.X < this.xmin)
+                    if (p1.X < _xmin)
                     {
                         // to the left of clip window
                         outcode1 |= Left;
                     }
-                    else if (p1.X > this.xmax)
+                    else if (p1.X > _xmax)
                     {
                         // to the right of clip window
                         outcode1 |= Right;
                     }
 
-                    if (p1.Y < this.ymin)
+                    if (p1.Y < _ymin)
                     {
                         // below the clip window
                         outcode1 |= Bottom;
                     }
-                    else if (p1.Y > this.ymax)
+                    else if (p1.Y > _ymax)
                     {
                         // above the clip window
                         outcode1 |= Top;
@@ -249,29 +210,24 @@ namespace TimeDataViewer.Core
             return accept;
         }
 
-        /// <summary>
-        /// Determines whether the specified point is inside the rectangle.
-        /// </summary>
-        /// <param name="s">The point.</param>
-        /// <returns><c>true</c> if the specified point is inside; otherwise, <c>false</c>.</returns>
         public bool IsInside(ScreenPoint s)
         {
-            if (s.X < this.xmin)
+            if (s.X < _xmin)
             {
                 return false;
             }
 
-            if (s.X > this.xmax)
+            if (s.X > _xmax)
             {
                 return false;
             }
 
-            if (s.Y < this.ymin)
+            if (s.Y < _ymin)
             {
                 return false;
             }
 
-            if (s.Y > this.ymax)
+            if (s.Y > _ymax)
             {
                 return false;
             }

@@ -8,63 +8,31 @@ namespace TimeDataViewer.Core
     /// </summary>
     public class ReflectionPath
     {
-        /// <summary>
-        /// The path items.
-        /// </summary>
-        private readonly string[] items;
+        private readonly string[] _items;
+        private readonly PropertyInfo[] _infos;
+        private readonly Type[] _reflectedTypes;
 
-        /// <summary>
-        /// The property metadata.
-        /// </summary>
-        private readonly PropertyInfo[] infos;
-
-        /// <summary>
-        /// The reflected types.
-        /// </summary>
-        private readonly Type[] reflectedTypes;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReflectionPath"/> class.
-        /// </summary>
-        /// <param name="path">The reflection path.</param>
         public ReflectionPath(string path)
         {
-            this.items = path != null ? path.Split('.') : new string[0];
-            this.infos = new PropertyInfo[this.items.Length];
-            this.reflectedTypes = new Type[this.items.Length];
+            _items = path != null ? path.Split('.') : new string[0];
+            _infos = new PropertyInfo[_items.Length];
+            _reflectedTypes = new Type[_items.Length];
         }
 
-        /// <summary>
-        /// Gets the value for the specified instance.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns>
-        /// The value.
-        /// </returns>
-        /// <exception cref="System.InvalidOperationException">Could not find property.</exception>
-        public object GetValue(object instance)
+        public object? GetValue(object instance)
         {
-            object result;
-            if (this.TryGetValue(instance, out result))
+            if (TryGetValue(instance, out object? result))
             {
                 return result;
             }
 
-            throw new InvalidOperationException("Could not find property " + string.Join(".", this.items) + " in " + instance);
+            throw new InvalidOperationException("Could not find property " + string.Join(".", _items) + " in " + instance);
         }
 
-        /// <summary>
-        /// Tries to get the value for the specified instance.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="result">The result.</param>
-        /// <returns>
-        /// <c>true</c> if the value was found.
-        /// </returns>
-        public bool TryGetValue(object instance, out object result)
+        public bool TryGetValue(object instance, out object? result)
         {
             var current = instance;
-            for (int i = 0; i < this.items.Length; i++)
+            for (int i = 0; i < _items.Length; i++)
             {
                 if (current == null)
                 {
@@ -74,11 +42,11 @@ namespace TimeDataViewer.Core
 
                 var currentType = current.GetType();
 
-                var pi = this.infos[i];
-                if (pi == null || this.reflectedTypes[i] != currentType)
+                var pi = _infos[i];
+                if (pi == null || _reflectedTypes[i] != currentType)
                 {
-                    pi = this.infos[i] = currentType.GetRuntimeProperty(this.items[i]);
-                    this.reflectedTypes[i] = currentType;
+                    pi = _infos[i] = currentType.GetRuntimeProperty(_items[i]);
+                    _reflectedTypes[i] = currentType;
                 }
 
                 if (pi == null)

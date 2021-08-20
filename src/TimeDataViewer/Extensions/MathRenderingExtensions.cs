@@ -1,8 +1,7 @@
 ﻿using System;
-using TimeDataViewer.Spatial;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer
 {
@@ -16,24 +15,12 @@ namespace TimeDataViewer
             SuperSize = 0.62;
         }
 
-        /// <summary>
-        /// Gets or sets the subscript alignment.
-        /// </summary>
         private static double SubAlignment { get; set; }
 
-        /// <summary>
-        /// Gets or sets the subscript size.
-        /// </summary>
         private static double SubSize { get; set; }
 
-        /// <summary>
-        /// Gets or sets the superscript alignment.
-        /// </summary>
         private static double SuperAlignment { get; set; }
 
-        /// <summary>
-        /// Gets or sets the superscript size.
-        /// </summary>
         private static double SuperSize { get; set; }
 
         /// <summary>
@@ -55,8 +42,7 @@ namespace TimeDataViewer
         /// <example>Subscript: H_{2}O
         /// Superscript: E=mc^{2}
         /// Both: A^{2}_{i,j}</example>
-
-        public static OxySize DrawMathText(this CanvasRenderContext rc, 
+        public static OxySize DrawMathText(this CanvasRenderContext rc,
             ScreenPoint pt, TextBlock textBlock, OxySize? maxSize, bool measure)
         {
             var text = textBlock.Text;
@@ -109,8 +95,6 @@ namespace TimeDataViewer
 
             return OxySize.Empty;
         }
-
-
 
         /// <summary>
         /// Draws text containing sub- and superscript.

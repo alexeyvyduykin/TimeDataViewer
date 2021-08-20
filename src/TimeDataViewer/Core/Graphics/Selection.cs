@@ -9,24 +9,18 @@ namespace TimeDataViewer.Core
         /// <summary>
         /// Static instance representing everything (all items and all features) selected.
         /// </summary>
-        private static readonly Selection EverythingSelection = new Selection();
+        private static readonly Selection EverythingSelection = new();
 
         /// <summary>
         /// The selection (cannot use HashSet{T} in PCL)
         /// </summary>
-        private readonly Dictionary<SelectionItem, bool> selection = new Dictionary<SelectionItem, bool>();
+        private readonly Dictionary<SelectionItem, bool> _selection = new();
 
         /// <summary>
         /// Gets the everything selected.
         /// </summary>
         /// <value>The everything.</value>
-        public static Selection Everything
-        {
-            get
-            {
-                return EverythingSelection;
-            }
-        }
+        public static Selection Everything => EverythingSelection;
 
         /// <summary>
         /// Determines whether everything is selected.
@@ -45,7 +39,7 @@ namespace TimeDataViewer.Core
         /// <returns>Enumerator of indices.</returns>
         public IEnumerable<int> GetSelectedItems()
         {
-            return this.selection.Keys.Select(si => si.Index);
+            return _selection.Keys.Select(si => si.Index);
         }
 
         /// <summary>
@@ -56,16 +50,13 @@ namespace TimeDataViewer.Core
         public IEnumerable<int> GetSelectedItems(Enum feature)
         {
             // ReSharper disable RedundantNameQualifier
-            return this.selection.Keys.Where(si => object.Equals(si.Feature, feature)).Select(si => si.Index);
+            return _selection.Keys.Where(si => object.Equals(si.Feature, feature)).Select(si => si.Index);
             // ReSharper restore RedundantNameQualifier
         }
 
-        /// <summary>
-        /// Clears the selected items.
-        /// </summary>
         public void Clear()
         {
-            this.selection.Clear();
+            _selection.Clear();
         }
 
         /// <summary>
@@ -76,13 +67,13 @@ namespace TimeDataViewer.Core
         /// <returns><c>true</c> if the item is selected; otherwise, <c>false</c>.</returns>
         public bool IsItemSelected(int index, Enum feature = null)
         {
-            if (this.IsEverythingSelected())
+            if (IsEverythingSelected())
             {
                 return true;
             }
 
             var si = new SelectionItem(index, feature);
-            return this.selection.ContainsKey(si);
+            return _selection.ContainsKey(si);
         }
 
         /// <summary>
@@ -93,7 +84,7 @@ namespace TimeDataViewer.Core
         public void Select(int index, Enum feature = null)
         {
             var si = new SelectionItem(index, feature);
-            this.selection[si] = true;
+            _selection[si] = true;
         }
 
         /// <summary>
@@ -104,92 +95,49 @@ namespace TimeDataViewer.Core
         public void Unselect(int index, Enum feature = null)
         {
             var si = new SelectionItem(index, feature);
-            if (!this.selection.ContainsKey(si))
+            if (!_selection.ContainsKey(si))
             {
                 throw new InvalidOperationException("Item " + index + " and feature " + feature + " is not selected. Cannot unselect.");
             }
 
-            this.selection.Remove(si);
+            _selection.Remove(si);
         }
 
-        /// <summary>
-        /// Represents an item in a <see cref="Selection" />.
-        /// </summary>
         public struct SelectionItem : IEquatable<SelectionItem>
         {
-            /// <summary>
-            /// The index
-            /// </summary>
-            private readonly int index;
+            private readonly int _index;
 
-            /// <summary>
-            /// The feature
-            /// </summary>
-            private readonly Enum feature;
+            private readonly Enum _feature;
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="SelectionItem" /> struct.
-            /// </summary>
-            /// <param name="index">The index.</param>
-            /// <param name="feature">The feature.</param>
             public SelectionItem(int index, Enum feature)
             {
-                this.index = index;
-                this.feature = feature;
+                _index = index;
+                _feature = feature;
             }
 
-            /// <summary>
-            /// Gets the index.
-            /// </summary>
-            /// <value>The index.</value>
-            public int Index
-            {
-                get
-                {
-                    return this.index;
-                }
-            }
+            public int Index => _index;
 
-            /// <summary>
-            /// Gets the feature.
-            /// </summary>
-            /// <value>The feature.</value>
-            public Enum Feature
-            {
-                get
-                {
-                    return this.feature;
-                }
-            }
+            public Enum Feature => _feature;
 
-            /// <summary>
-            /// Indicates whether the current object is equal to another object of the same type.
-            /// </summary>
-            /// <param name="other">An object to compare with this object.</param>
-            /// <returns><c>true</c> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <c>false</c>.</returns>
             public bool Equals(SelectionItem other)
             {
                 // ReSharper disable RedundantNameQualifier
-                return other.index == this.index && object.Equals(other.feature, this.feature);
+                return other._index == _index && object.Equals(other._feature, _feature);
                 // ReSharper restore RedundantNameQualifier
             }
 
-            /// <summary>
-            /// Returns a hash code for this instance.
-            /// </summary>
-            /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
             public override int GetHashCode()
             {
-                if (this.feature == null)
+                if (_feature == null)
                 {
-                    return this.index.GetHashCode();
+                    return _index.GetHashCode();
                 }
 
                 // http://msdn.microsoft.com/en-us/library/system.object.gethashcode.aspx
                 // http://stackoverflow.com/questions/2890040/implementing-gethashcode
                 // http://stackoverflow.com/questions/508126/what-is-the-correct-implementation-for-gethashcode-for-entity-classes
                 // http://stackoverflow.com/questions/70303/how-do-you-implement-gethashcode-for-structure-with-two-string
-                return this.index.GetHashCode() ^ this.feature.GetHashCode();
+                return _index.GetHashCode() ^ _feature.GetHashCode();
             }
         }
     }

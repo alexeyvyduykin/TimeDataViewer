@@ -68,7 +68,7 @@ namespace SatelliteDemo.ViewModels
 
         private void TimerThreadElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            var time = _timer.CurrentTime;                
+            var time = _timer.CurrentTime;
             CurrentTime = Epoch.AddSeconds(time);
             var dt = Epoch.AddSeconds(time);
             CurrentTimeString = dt.ToLongDateString() + " " + dt.ToLongTimeString();
@@ -77,7 +77,7 @@ namespace SatelliteDemo.ViewModels
         public ObservableCollection<Item> Labels
         {
             get => _labels;
-            set =>  this.RaiseAndSetIfChanged(ref _labels, value);
+            set => this.RaiseAndSetIfChanged(ref _labels, value);
         }
 
         public DateTime Epoch
@@ -181,7 +181,7 @@ namespace SatelliteDemo.ViewModels
                     temp = item.EndTime;
                 }
             }
-                 
+
             var min = rotations.Min(s => ToTotalDays(s.BeginTime, Epoch));
             min = Math.Min(observations.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
             min = Math.Min(transmissions.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
@@ -194,7 +194,7 @@ namespace SatelliteDemo.ViewModels
             sat.Observations = new List<Observation>(observations);
             sat.Transmissions = new List<Transmission>(transmissions);
 
-            sat.BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin);      
+            sat.BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin);
             sat.EndScenario = sat.BeginScenario + 2;
 
             sat.Begin = ToTotalDays(Epoch, TimeOrigin);
@@ -202,7 +202,7 @@ namespace SatelliteDemo.ViewModels
         }
 
         public void OnReset()
-        {            
+        {
             _timer.Reset();
         }
 
@@ -227,7 +227,7 @@ namespace SatelliteDemo.ViewModels
         }
 
         public static double ToTotalDays(DateTime value, DateTime timeOrigin)
-        {       
+        {
             return (value - timeOrigin).TotalDays + 1;
         }
     }

@@ -49,18 +49,12 @@ namespace TimeDataViewer.Core
             return _selection.GetSelectedItems();
         }
 
-        /// <summary>
-        /// Clears the selection.
-        /// </summary>
         public void ClearSelection()
         {
             _selection = null;
             OnSelectionChanged();
         }
 
-        /// <summary>
-        /// Unselects all items in this element.
-        /// </summary>
         public void Unselect()
         {
             _selection = null;

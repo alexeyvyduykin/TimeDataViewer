@@ -4,9 +4,7 @@ namespace TimeDataViewer.Core
 {
     public partial class Model
     {
-        private const double MouseHitTolerance = 10;
-
-        private UIElement currentMouseEventElement;
+        private UIElement _currentMouseEventElement;
 
         public event EventHandler<OxyMouseDownEventArgs> MouseDown;
 
@@ -40,9 +38,9 @@ namespace TimeDataViewer.Core
 
         public virtual void HandleMouseMove(object sender, OxyMouseEventArgs e)
         {
-            if (currentMouseEventElement != null)
+            if (_currentMouseEventElement != null)
             {
-                currentMouseEventElement.OnMouseMove(e);
+                _currentMouseEventElement.OnMouseMove(e);
             }
 
             if (!e.Handled)
@@ -53,10 +51,10 @@ namespace TimeDataViewer.Core
 
         public virtual void HandleMouseUp(object sender, OxyMouseEventArgs e)
         {
-            if (currentMouseEventElement != null)
+            if (_currentMouseEventElement != null)
             {
-                currentMouseEventElement.OnMouseUp(e);
-                currentMouseEventElement = null;
+                _currentMouseEventElement.OnMouseUp(e);
+                _currentMouseEventElement = null;
             }
 
             if (!e.Handled)

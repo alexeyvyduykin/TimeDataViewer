@@ -20,11 +20,6 @@ namespace TimeDataViewer.Core
         /// </summary>
         public double Index { get; set; }
 
-        /// <summary>
-        /// Gets or sets the horizontal/vertical line extents.
-        /// </summary>
-        public OxyRect LineExtents { get; set; }
-
         public PlotModel PlotModel { get; set; }
 
         /// <summary>
@@ -34,28 +29,11 @@ namespace TimeDataViewer.Core
 
         public Series Series { get; set; }
 
-        /// <summary>
-        /// Gets or sets the text shown in the tracker.
-        /// </summary>
         public string Text { get; set; }
 
-        public Axis XAxis
-        {
-            get
-            {
-                var xyas = Series as XYAxisSeries;
-                return xyas != null ? xyas.XAxis : null;
-            }
-        }
+        public Axis? XAxis => Series is XYAxisSeries xyas ? xyas.XAxis : null;
 
-        public Axis YAxis
-        {
-            get
-            {
-                var xyas = Series as XYAxisSeries;
-                return xyas != null ? xyas.YAxis : null;
-            }
-        }
+        public Axis? YAxis => Series is XYAxisSeries xyas ? xyas.YAxis : null;
 
         public override string ToString()
         {

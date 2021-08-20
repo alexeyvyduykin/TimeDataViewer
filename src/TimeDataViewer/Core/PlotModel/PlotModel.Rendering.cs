@@ -27,7 +27,7 @@ namespace TimeDataViewer.Core
                     UpdateAxisTransforms();
                     UpdateIntervals();
 
-                    foreach (var a in this.Axises)
+                    foreach (var a in Axises)
                     {
                         a.ResetCurrentValues();
                     }
@@ -41,8 +41,6 @@ namespace TimeDataViewer.Core
                 }
             }
         }
-
-
 
         private void RenderAxises()
         {

@@ -5,7 +5,7 @@ namespace TimeDataViewer.Core
 {
     public abstract class Series : PlotElement
     {
-        public EventHandler MyRender;
+        public EventHandler? MyRender;
 
         public abstract void MyOnRender();
 
@@ -20,7 +20,7 @@ namespace TimeDataViewer.Core
 
         // Gets or sets the key for the tracker to use on this series. The default is <c>null</c>.                                                                                                                                                                         
         // This key may be used by the plot view to show a custom tracker for the series.                                                     
-        public string TrackerKey { get; set; }
+        public string? TrackerKey { get; set; }
 
         // Renders the series on the specified render context.
         public abstract void Render();
@@ -49,14 +49,14 @@ namespace TimeDataViewer.Core
         // Updates the maximum and minimum values of the series.      
         protected internal abstract void UpdateMaxMin();
 
-        public virtual TrackerHitResult GetNearestPoint(ScreenPoint point, bool interpolate)
+        public virtual TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
         {
             return null;
         }
 
-        protected override HitTestResult HitTestOverride(HitTestArguments args)
+        protected override HitTestResult? HitTestOverride(HitTestArguments args)
         {
-            var thr = this.GetNearestPoint(args.Point, true) ?? this.GetNearestPoint(args.Point, false);
+            var thr = GetNearestPoint(args.Point, true) ?? GetNearestPoint(args.Point, false);
 
             if (thr != null)
             {

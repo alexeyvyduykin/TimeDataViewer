@@ -4,8 +4,8 @@
     {
         public InputCommandBinding(OxyInputGesture gesture, IViewCommand command)
         {
-            this.Gesture = gesture;
-            this.Command = command;
+            Gesture = gesture;
+            Command = command;
         }
 
         // Gets the gesture. 

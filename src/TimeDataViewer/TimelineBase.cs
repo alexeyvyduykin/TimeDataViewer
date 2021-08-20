@@ -23,14 +23,14 @@ namespace TimeDataViewer
         private Canvas _canvasFront;
         private Canvas _canvasX;
         private DrawCanvas _drawCanvas;
-        private Panel _panel;
-        protected Panel _panelX;
+        private Panel? _panel;
+        protected Panel? _panelX;
         // Invalidation flag (0: no update, 1: update visual elements).  
         private int _isPlotInvalidated;
         private Canvas _overlays;
         private ContentControl _zoomControl;
         private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
-        private IControl _currentTracker;
+        private IControl? _currentTracker;
 
         protected TimelineBase()
         {
@@ -129,7 +129,7 @@ namespace TimeDataViewer
 
             _panel = e.NameScope.Find("PART_Panel") as Panel;
             _panelX = e.NameScope.Find("PART_PanelX") as Panel;
-            if (_panel == null)
+            if (_panel == null || _panelX == null)
             {
                 return;
             }
@@ -310,7 +310,7 @@ namespace TimeDataViewer
 
         private void UpdateVisuals()
         {
-            if (_canvasBack == null || _canvasFront == null)
+            if (_canvasBack == null || _canvasFront == null || _panel == null)
             {
                 return;
             }
@@ -374,7 +374,7 @@ namespace TimeDataViewer
         }
 
         protected abstract void RenderAxisX(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);
-       
+
         protected abstract void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas);
 
         protected abstract void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);

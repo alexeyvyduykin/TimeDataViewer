@@ -28,9 +28,9 @@ namespace TimeDataViewer.Core
         // Rounds a value if the difference between the rounded value and the original value is less than 1e-6.  
         protected static readonly Func<double, double> ThresholdRound = x => Math.Abs(Math.Round(x) - x) < 1e-6 ? Math.Round(x) : x;
 
-        private double offset;
+        private double _offset;
         private double _scale;
-        private AxisPosition position;
+        private AxisPosition _position;
 
         protected Axis()
         {
@@ -224,7 +224,7 @@ namespace TimeDataViewer.Core
         /// <summary>
         /// Gets the offset. This is used to transform between data and screen coordinates.
         /// </summary>
-        public double Offset => offset;
+        public double Offset => _offset;
 
         /// <summary>
         /// Gets or sets the position of the axis. The default value is <see cref="AxisPosition.Left"/>.
@@ -233,12 +233,12 @@ namespace TimeDataViewer.Core
         {
             get
             {
-                return position;
+                return _position;
             }
 
             set
             {
-                position = value;
+                _position = value;
             }
         }
 
@@ -328,7 +328,7 @@ namespace TimeDataViewer.Core
         /// <returns>The value.</returns>
         public double InverseTransform(double sx)
         {
-            return (sx / _scale) + offset;
+            return (sx / _scale) + _offset;
         }
 
         /// <summary>
@@ -338,12 +338,12 @@ namespace TimeDataViewer.Core
         /// <returns>The transformed value (screen coordinate).</returns>
         public double Transform(double x)
         {
-            return (x - offset) * _scale;
+            return (x - _offset) * _scale;
         }
 
         public bool IsHorizontal()
         {
-            return position == AxisPosition.Top || position == AxisPosition.Bottom;
+            return _position == AxisPosition.Top || _position == AxisPosition.Bottom;
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace TimeDataViewer.Core
         /// <returns><c>true</c> if the axis is vertical; otherwise, <c>false</c> .</returns>
         public bool IsVertical()
         {
-            return position == AxisPosition.Left || position == AxisPosition.Right;
+            return _position == AxisPosition.Left || _position == AxisPosition.Right;
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace TimeDataViewer.Core
             double sgn = Math.Sign(_scale);
             double mid = (ActualMaximum + ActualMinimum) / 2;
 
-            double dx = (offset - mid) * _scale;
+            double dx = (_offset - mid) * _scale;
             var newOffset = (dx / (sgn * newScale)) + mid;
             SetTransform(sgn * newScale, newOffset);
 
@@ -998,7 +998,7 @@ namespace TimeDataViewer.Core
         protected void SetTransform(double newScale, double newOffset)
         {
             _scale = newScale;
-            offset = newOffset;
+            _offset = newOffset;
             OnTransformChanged(new EventArgs());
         }
 
