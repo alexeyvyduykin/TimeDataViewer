@@ -7,7 +7,6 @@ using System.Text;
 using Newtonsoft.Json;
 using ReactiveUI;
 using SatelliteDemo.SceneTimer;
-using TimeDataViewer.Core;
 
 namespace SatelliteDemo.ViewModels
 {
@@ -256,7 +255,7 @@ namespace SatelliteDemo.ViewModels
         public double Duration { get; set; }
     }
 
-    public class Rotation : TimelineItem
+    public class Rotation
     {
         public string Category => "Rotation";
 
@@ -265,7 +264,7 @@ namespace SatelliteDemo.ViewModels
         public DateTime EndTime { get; set; }
     }
 
-    public class Observation : TimelineItem
+    public class Observation
     {
         public string Category => "Observation";
 
@@ -274,7 +273,7 @@ namespace SatelliteDemo.ViewModels
         public DateTime EndTime { get; set; }
     }
 
-    public class Transmission : TimelineItem
+    public class Transmission
     {
         public string Category => "Transmission";
 
