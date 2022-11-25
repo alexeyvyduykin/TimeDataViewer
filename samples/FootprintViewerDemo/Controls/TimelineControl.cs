@@ -51,7 +51,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
     private IControl? _currentTracker;
 
-    private readonly PlotModel _internalModel;
+    private readonly PlotModel _plotModel;
     private readonly IPlotController _defaultController;
 
     private readonly ObservableCollection<TimeDataViewer.Axis> _axises;
@@ -71,8 +71,16 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _axises.CollectionChanged += OnAxesChanged;
 
         _defaultController = new PlotController();
-        _internalModel = new PlotModel();
-        ((IPlotModel)_internalModel).AttachPlotView(this);
+
+        _plotModel = new PlotModel() 
+        {        
+            PlotMarginLeft = 0,           
+            PlotMarginTop = 30,        
+            PlotMarginRight = 0,        
+            PlotMarginBottom = 0
+        };
+
+        ((IPlotModel)_plotModel).AttachPlotView(this);
 
         InitData();
     }
@@ -222,7 +230,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Gets the actual model in the view.
     Model IView.ActualModel => ActualModel;
 
-    public PlotModel ActualModel => _internalModel;
+    public PlotModel ActualModel => _plotModel;
 
     public IPlotController ActualController => _defaultController;
 
@@ -406,7 +414,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // The ActualModel.Update will be called (updates all series data).
     protected void UpdateModel(bool updateData = true)
     {
-        SynchronizeProperties();
         SynchronizeSeries();
         SynchronizeAxes();
 
@@ -719,40 +726,23 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         }
     }
 
-    // Synchronize properties in the internal Plot model
-    private void SynchronizeProperties()
-    {
-        var m = _internalModel;
-
-        m.PlotMarginLeft = PlotMargins.Left;
-        m.PlotMarginTop = PlotMargins.Top;
-        m.PlotMarginRight = PlotMargins.Right;
-        m.PlotMarginBottom = PlotMargins.Bottom;
-
-        //     m.Padding = Padding.ToOxyThickness();
-
-        //  m.DefaultColors = DefaultColors.Select(c => c.ToOxyColor()).ToArray();
-
-        //   m.AxisTierDistance = AxisTierDistance;
-    }
-
     // Synchronizes the axes in the internal model.      
     private void SynchronizeAxes()
     {
-        _internalModel.Axises.Clear();
+        _plotModel.Axises.Clear();
         foreach (var a in Axises)
         {
-            _internalModel.Axises.Add(a.CreateModel());
+            _plotModel.Axises.Add(a.CreateModel());
         }
     }
 
     // Synchronizes the series in the internal model.       
     private void SynchronizeSeries()
     {
-        _internalModel.Series.Clear();
+        _plotModel.Series.Clear();
         foreach (var s in Series)
         {
-            _internalModel.Series.Add(s.CreateModel());
+            _plotModel.Series.Add(s.CreateModel());
         }
     }
 

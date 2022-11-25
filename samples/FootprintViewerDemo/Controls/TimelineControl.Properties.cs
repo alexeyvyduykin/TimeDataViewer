@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
+using Avalonia;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml.Templates;
-using Avalonia;
-using Avalonia.Metadata;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using TimeDataViewer;
 
 namespace FootprintViewerDemo.Controls;
@@ -22,7 +15,6 @@ public partial class TimelineControl
         CultureProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
         DefaultFontProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
         DefaultFontSizeProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
-        PlotMarginsProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
         InvalidateFlagProperty.Changed.AddClassHandler<TimelineControl>((s, e) => s.InvalidateFlagChanged());
 
         SliderProperty.Changed.AddClassHandler<TimelineControl>(SliderChanged);
@@ -204,22 +196,6 @@ public partial class TimelineControl
         set
         {
             SetValue(DefaultFontSizeProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<Thickness> PlotMarginsProperty =
-        AvaloniaProperty.Register<TimelineControl, Thickness>(nameof(PlotMargins), new Thickness());
-
-    public Thickness PlotMargins
-    {
-        get
-        {
-            return GetValue(PlotMarginsProperty);
-        }
-
-        set
-        {
-            SetValue(PlotMarginsProperty, value);
         }
     }
 

@@ -102,9 +102,4 @@
         </Setter>
     </Style>
 
-    <Style Selector="controls|TimelineControl">
-        <Setter Property="PlotMargins" Value="0,30,0,0"></Setter>
-    </Style>
-
-
 </Styles>
