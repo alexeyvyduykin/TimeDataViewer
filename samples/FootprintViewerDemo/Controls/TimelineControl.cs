@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -47,16 +46,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private Canvas? _ovarlayCanvas;
     private ContentControl? _zoomControl;
 
-   // private Canvas _canvasBack;
-  //  private Canvas _canvasFront;
-   // private Canvas _canvasX;
-   // private DrawCanvas _drawCanvas;
-  //  private Panel? _panel;
-  //  protected Panel? _panelX;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
-  //  private Canvas _overlays;
-  //  private ContentControl _zoomControl;
     private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
     private IControl? _currentTracker;
 
@@ -65,6 +56,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     private readonly ObservableCollection<TimeDataViewer.Axis> _axises;
     private readonly ObservableCollection<TimeDataViewer.Series> _series;
+    private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
     public TimelineControl()
     {
@@ -115,13 +107,13 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
         var epoch = min.Date;
 
-        var beginScenario = 0.0;// Selected.BeginScenario;
-        var endScenario = 2 * 86400.0;// Selected.EndScenario;
-
-        var begin = 0.0; //Selected.Begin;
-        var duration = 2 * 86400.0;//Selected.Duration;
-
         var axises = new List<TimeDataViewer.CategoryAxis>();
+
+        var beginScenario = ToTotalDays(epoch.Date, TimeOrigin) - 1;
+        var endScenario = beginScenario + 3;
+
+        var begin = ToTotalDays(epoch, TimeOrigin);
+        var duration = 1.0;
 
         _axises.Add(new TimeDataViewer.CategoryAxis()
         {
@@ -198,11 +190,16 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         //    EndField = "EndTime"
         //});
 
-        Slider = new TimeDataViewer.Slider() 
-        {        
-            Begin = begin,        
+        Slider = new TimeDataViewer.Slider()
+        {
+            Begin = begin,
             Duration = duration
         };
+    }
+
+    public static double ToTotalDays(DateTime value, DateTime timeOrigin)
+    {
+        return (value - timeOrigin).TotalDays + 1;
     }
 
     private Interval CreateInterval(Footprint footprint, DateTime epoch)
@@ -249,36 +246,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         _zoomControl.IsVisible = false;
     }
-
-    //public void PanAllAxes(Vector delta)
-    //{
-    //    if (ActualModel != null)
-    //    {
-    //        ActualModel.PanAllAxes(delta.X, delta.Y);
-    //    }
-
-    //    InvalidatePlot(false);
-    //}
-
-    //public void ZoomAllAxes(double factor)
-    //{
-    //    if (ActualModel != null)
-    //    {
-    //        ActualModel.ZoomAllAxes(factor);
-    //    }
-
-    //    InvalidatePlot(false);
-    //}
-
-    //public void ResetAllAxes()
-    //{
-    //    if (ActualModel != null)
-    //    {
-    //        ActualModel.ResetAllAxes();
-    //    }
-
-    //    InvalidatePlot(false);
-    //}
 
     // Invalidate the PlotView (not blocking the UI thread)
     public void InvalidatePlot(bool updateData = true)
@@ -448,7 +415,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             ((IPlotModel)ActualModel).Update(updateData);
         }
 
-        //UpdateSlider();
+        UpdateSlider();
     }
 
     // Determines whether the plot is currently visible to the user.

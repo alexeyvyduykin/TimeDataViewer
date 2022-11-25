@@ -42,11 +42,11 @@ public class MainWindowViewModel : ViewModelBase
             new() { Label = "Satellite5" }
         };
 
-        BeginScenario = 0.0;// Selected.BeginScenario;
-        EndScenario = 2 * 86400.0;// Selected.EndScenario;
+        BeginScenario = 0.0;
+        EndScenario = 2 * 86400.0;
 
-        Begin = 0.0; //Selected.Begin;
-        Duration = 2 * 86400.0;//Selected.Duration;
+        Begin = 0.0;
+        Duration = 1;
 
         _satellites
             .Connect()
@@ -133,16 +133,11 @@ public class MainWindowViewModel : ViewModelBase
 
         Epoch = min.Date;
 
-        //  BeginScenario = min.TimeOfDay.TotalSeconds;
-        //  EndScenario = max.TimeOfDay.TotalSeconds + 86400.0;
+        BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin) - 1;
+        EndScenario = BeginScenario + 3;
 
-        // if (BeginScenario == 0.0)
-        //  {
-        //  Epoch = Epoch.AddDays(-1);
-
-        //  BeginScenario += 86400.0;
-        //  EndScenario += 86400.0;
-        // }
+        Begin = ToTotalDays(Epoch, TimeOrigin);
+        Duration = 1.0;
 
         _footprints.Edit(innerList =>
         {
