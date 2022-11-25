@@ -1,0 +1,110 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:FootprintViewerDemo.Controls"        
+        xmlns:base="clr-namespace:TimeDataViewer;assembly=TimeDataViewer">
+    <Design.PreviewWith>
+        <Border Padding="20" Width="600" Height="400">
+            <!-- Add Controls for Previewer Here -->
+            
+            <controls:TimelineControl BorderBrush="Red"
+                                      BorderThickness="2"/>
+                        
+        </Border>
+    </Design.PreviewWith>
+
+    <Styles.Resources>
+        <Color x:Key="timelineBackground">#424242</Color>
+        <!-- (0.259, 0.259, 0.259) -->
+        <Color x:Key="axisLabelForeground">#C3C3C3</Color>
+        <!-- (0.765, 0.765, 0.765) -->
+        <Color x:Key="axisBackgound">#292929</Color>
+        <!-- (0.161, 0.161, 0.161) -->
+        <Color x:Key="axisGrid">#2A2A2A</Color>
+        <!-- (0.165, 0.165, 0.165) -->
+        <Color x:Key="sliderBackground">#5680C2</Color>
+        <!-- (0.337, 0.502, 0.761) -->
+        <Color x:Key="sliderForeground">#FFFFFF</Color>
+        <!-- (1.000, 1.000, 1.000) -->
+    </Styles.Resources>
+
+    <!-- Add Styles Here -->
+
+    <Style Selector="controls|TimelineControl">
+
+        <Setter Property="DefaultTrackerTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <base:TrackerControl Position="{Binding Position}"
+                                          LineExtents="{Binding PlotModel.PlotArea}">
+                        <base:TrackerControl.Content>
+                            <TextBlock Text="{Binding Text}" Margin="7" />
+                        </base:TrackerControl.Content>
+                    </base:TrackerControl>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Setter Property="ZoomRectangleTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Stroke="White" StrokeDashArray="5,5" StrokeThickness="1">
+                        <Rectangle.Fill>
+                            <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid RowDefinitions="30,*">
+                            <Panel Name="PART_AxisXPanel">
+                                <Canvas Name="PART_AxisXCanvas"
+                                        Background="Transparent"/>
+                            </Panel>
+                            <Panel Grid.Row="1" Name="PART_BasePanel">
+                                <Canvas Name="PART_BackCanvas"
+                                        Background="Transparent"/>
+                                <base:DrawCanvas Name="PART_DrawCanvas"
+                                                 Background="Transparent"/>
+                                <Canvas Name="PART_FrontCanvas"
+                                        Background="Transparent"/>
+                                <Canvas Name="PART_OverlayCanvas">
+                                    <ContentControl Name="PART_ZoomControl"/>
+                                </Canvas>
+                            </Panel>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        
+    </Style>
+
+    <Style Selector="controls|TimelineControl /template/ Panel#PART_AxisXPanel">
+        <Setter Property="Background">
+            <Setter.Value>
+                <SolidColorBrush Color="{StaticResource axisBackgound}"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|TimelineControl /template/ Panel#PART_BasePanel">
+        <Setter Property="Background">
+            <Setter.Value>
+                <SolidColorBrush Color="{StaticResource timelineBackground}"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="controls|TimelineControl">
+        <Setter Property="PlotMargins" Value="0,30,0,0"></Setter>
+    </Style>
+
+
+</Styles>

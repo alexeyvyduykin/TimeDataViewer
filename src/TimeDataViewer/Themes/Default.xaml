@@ -3,17 +3,23 @@
         xmlns:local="using:TimeDataViewer">
   <Design.PreviewWith>
     <Border Padding="20">
-      <!-- Add Controls for Previewer Here -->      
+      <!-- Add Controls for Previewer Here -->
     </Border>
   </Design.PreviewWith>
 
-  <Styles.Resources>    
-    <Color x:Key="timelineBackground">#424242</Color> <!-- (0.259, 0.259, 0.259) -->
-    <Color x:Key="axisLabelForeground">#C3C3C3</Color> <!-- (0.765, 0.765, 0.765) -->    
-    <Color x:Key="axisBackgound">#292929</Color> <!-- (0.161, 0.161, 0.161) -->
-    <Color x:Key="axisGrid">#2A2A2A</Color> <!-- (0.165, 0.165, 0.165) -->
-    <Color x:Key="sliderBackground">#5680C2</Color> <!-- (0.337, 0.502, 0.761) -->
-    <Color x:Key="sliderForeground">#FFFFFF</Color> <!-- (1.000, 1.000, 1.000) -->
+  <Styles.Resources>
+    <Color x:Key="timelineBackground">#424242</Color>
+    <!-- (0.259, 0.259, 0.259) -->
+    <Color x:Key="axisLabelForeground">#C3C3C3</Color>
+    <!-- (0.765, 0.765, 0.765) -->
+    <Color x:Key="axisBackgound">#292929</Color>
+    <!-- (0.161, 0.161, 0.161) -->
+    <Color x:Key="axisGrid">#2A2A2A</Color>
+    <!-- (0.165, 0.165, 0.165) -->
+    <Color x:Key="sliderBackground">#5680C2</Color>
+    <!-- (0.337, 0.502, 0.761) -->
+    <Color x:Key="sliderForeground">#FFFFFF</Color>
+    <!-- (1.000, 1.000, 1.000) -->
   </Styles.Resources>
 
   <Style Selector="local|TrackerControl">
@@ -52,8 +58,8 @@
       </Setter.Value>
     </Setter>
   </Style>
-      
-  <Style Selector="local|Timeline">         
+
+  <Style Selector="local|Timeline">
 
     <Setter Property="DefaultTrackerTemplate">
       <Setter.Value>
@@ -86,11 +92,7 @@
           <Border Background="{TemplateBinding Background}"
                   BorderBrush="{TemplateBinding BorderBrush}"
                   BorderThickness="{TemplateBinding BorderThickness}">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
+            <Grid RowDefinitions="30,*">
               <Panel Name="PART_PanelX"/>
               <Panel Grid.Row="1" Name="PART_Panel" />
             </Grid>
@@ -98,7 +100,7 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    
+
   </Style>
 
   <Style Selector="local|Timeline /template/ Panel#PART_PanelX">
@@ -120,11 +122,11 @@
   <Style Selector="local|Timeline">
     <Setter Property="PlotMargins" Value="0,30,0,0"></Setter>
   </Style>
-    
+
   <Style Selector="local|DateTimeAxis">
 
     <Setter Property="MajorTickSize" Value="0"></Setter>
-      
+
     <Setter Property="MinorPen">
       <Setter.Value>
         <Pen>
@@ -170,16 +172,16 @@
         <ControlTemplate>
           <TextBlock Foreground="{StaticResource axisLabelForeground}"
                      FontFamily="Segoe UI"
-                     FontSize="12"        
+                     FontSize="12"
                      FontWeight="Normal"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-  
+
   </Style>
-  
+
   <Style Selector="local|Slider">
-    
+
     <Setter Property="InactiveRangeBrush">
       <Setter.Value>
         <SolidColorBrush Color="Black" Opacity="0.2"/>

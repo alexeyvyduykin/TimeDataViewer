@@ -95,7 +95,7 @@ namespace TimeDataViewer.Core
         {
             ActualBarRectangles = new List<OxyRect>();
 
-            if (ValidItems.Count == 0)
+            if (ValidItems == null || ValidItems.Count == 0)
             {
                 return;
             }

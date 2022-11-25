@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:FootprintViewerDemo.ViewModels"
         xmlns:models="using:FootprintViewerDemo.Models"
+        xmlns:controls="using:FootprintViewerDemo.Controls"
         xmlns:vmd="using:FootprintViewerDemo.Designer"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,7 +12,7 @@
         xmlns:views="clr-namespace:FootprintViewerDemo.Views"
         xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
         xmlns:sys="clr-namespace:System;assembly=netstandard"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="850"
         x:Class="FootprintViewerDemo.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
@@ -22,7 +23,7 @@
     </Design.DataContext>
 
     <Panel>
-        <Grid RowDefinitions="Auto,*"
+        <Grid RowDefinitions="Auto,*,400"
               ColumnDefinitions="*,240">
 
             <ListBox Items="{Binding Satellites}"
@@ -103,7 +104,7 @@
             </sch:Timeline>
 
             <ListBox Grid.Column="1"
-                     Grid.RowSpan="2"
+                     Grid.RowSpan="3"
                      Items="{Binding Footprints}"
                      Margin="8">
                 <ListBox.ItemTemplate>
@@ -120,6 +121,22 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <controls:TimelineControl Grid.Row="2"
+                                      Margin="8">
+
+                <controls:TimelineControl.Series>
+
+                    <sch:TimelineSeries BarWidth="0.5"
+                                        FillBrush="Yellow"
+                                        Items="{Binding Intervals5}"
+                                        CategoryField="Category"
+                                        BeginField="BeginTime"
+                                        EndField="EndTime"/>
+
+                </controls:TimelineControl.Series>
+
+            </controls:TimelineControl>
 
         </Grid>
     </Panel>

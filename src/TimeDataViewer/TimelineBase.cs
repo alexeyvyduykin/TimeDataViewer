@@ -127,8 +127,8 @@ namespace TimeDataViewer
         {
             base.OnApplyTemplate(e);
 
-            _panel = e.NameScope.Find("PART_Panel") as Panel;
-            _panelX = e.NameScope.Find("PART_PanelX") as Panel;
+            _panel = e.NameScope.Find<Panel>("PART_Panel");
+            _panelX = e.NameScope.Find<Panel>("PART_PanelX");
             if (_panel == null || _panelX == null)
             {
                 return;

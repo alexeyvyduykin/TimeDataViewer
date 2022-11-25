@@ -20,5 +20,6 @@
         <StyleInclude Source="avares://Material.Avalonia/Material.Avalonia.Templates.xaml" />
         
         <StyleInclude Source="resm:TimeDataViewer.Themes.Default.xaml?assembly=TimeDataViewer"/>
+        <StyleInclude Source="avares://FootprintViewerDemo/Styles/TimelineControl.axaml"/>
     </Application.Styles>
 </Application>
