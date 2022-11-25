@@ -3,52 +3,50 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using DynamicData;
 using FootprintViewerDemo.Models;
-using Newtonsoft.Json;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace FootprintViewerDemo.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    private DateTime _epoch;
-    private ObservableCollection<ItemViewModel> _labels;
-    private Satellite? _selected;
-    private DateTime _currentTime;
-    private readonly SourceList<Satellite> _satellites = new();
-    private readonly ReadOnlyObservableCollection<Satellite> _items;
+    private readonly SourceList<string> _satellites = new();
+    private readonly ReadOnlyObservableCollection<string> _items;
+    private readonly SourceList<Footprint> _footprints = new();
+    private readonly ReadOnlyObservableCollection<FootprintViewModel> _footprintItems;
+    private readonly ReadOnlyObservableCollection<Interval> _items1;
+    private readonly ReadOnlyObservableCollection<Interval> _items2;
+    private readonly ReadOnlyObservableCollection<Interval> _items3;
+    private readonly ReadOnlyObservableCollection<Interval> _items4;
+    private readonly ReadOnlyObservableCollection<Interval> _items5;
+
     private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
     public MainWindowViewModel()
     {
-        Epoch = DateTime.Now;
+        Epoch = DateTime.Now.Date;
 
         Labels = new ObservableCollection<ItemViewModel>()
         {
-            new() { Label = "Rotation" },
-            new() { Label = "Observation" },
-            new() { Label = "Transmission" }
+            new() { Label = "Satellite1" },
+            new() { Label = "Satellite2" },
+            new() { Label = "Satellite3" },
+            new() { Label = "Satellite4" },
+            new() { Label = "Satellite5" }
         };
 
-        var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
-        var path1 = Path.GetFullPath(Path.Combine(root, @"..\..\..\Assets", "satellite1.json"));
-        var path2 = Path.GetFullPath(Path.Combine(root, @"..\..\..\Assets", "satellite2.json"));
-        var path3 = Path.GetFullPath(Path.Combine(root, @"..\..\..\Assets", "satellite3.json"));
-        var path4 = Path.GetFullPath(Path.Combine(root, @"..\..\..\Assets", "satellite4.json"));
+        BeginScenario = 0.0;// Selected.BeginScenario;
+        EndScenario = 2 * 86400.0;// Selected.EndScenario;
 
-        var json1 = GetJson(path1);
-        var json2 = GetJson(path2);
-        var json3 = GetJson(path3);
-        var json4 = GetJson(path4);
-
-        var jsons = new List<string>() { json1, json2, json3, json4 };
-        var satellites = jsons
-            .Select(s => CreateSatelliteFromJson(s, Epoch))
-            .ToList();
+        Begin = 0.0; //Selected.Begin;
+        Duration = 2 * 86400.0;//Selected.Duration;
 
         _satellites
             .Connect()
@@ -57,40 +55,156 @@ public class MainWindowViewModel : ViewModelBase
             .DisposeMany()
             .Subscribe();
 
+        _footprints
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Transform(s => new FootprintViewModel(s))
+            .Bind(out _footprintItems)
+            .DisposeMany()
+            .Subscribe();
+
+        _footprints
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(s => Equals(s.SatelliteName, "Satellite1"))
+            .Transform(s => CreateInterval(s))
+            .Bind(out _items1)
+            .DisposeMany()
+            .Subscribe();
+
+        _footprints
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(s => Equals(s.SatelliteName, "Satellite2"))
+            .Transform(s => CreateInterval(s))
+            .Bind(out _items2)
+            .DisposeMany()
+            .Subscribe();
+
+        _footprints
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(s => Equals(s.SatelliteName, "Satellite3"))
+            .Transform(s => CreateInterval(s))
+            .Bind(out _items3)
+            .DisposeMany()
+            .Subscribe();
+
+        _footprints
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(s => Equals(s.SatelliteName, "Satellite4"))
+            .Transform(s => CreateInterval(s))
+            .Bind(out _items4)
+            .DisposeMany()
+            .Subscribe();
+
+        _footprints
+            .Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Filter(s => Equals(s.SatelliteName, "Satellite5"))
+            .Transform(s => CreateInterval(s))
+            .Bind(out _items5)
+            .DisposeMany()
+            .Subscribe();
+
+        Update = ReactiveCommand.CreateFromTask(UpdateImpl, outputScheduler: RxApp.MainThreadScheduler);
+
+        Selected = Satellites.FirstOrDefault();
+
+        Observable.StartAsync(UpdateImpl, RxApp.MainThreadScheduler);
+    }
+
+    public ReactiveCommand<Unit, Unit> Update { get; }
+
+    private async Task UpdateImpl()
+    {
+        var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+        var path = Path.GetFullPath(Path.Combine(root, @"..\..\..\Assets", "Footprints.json"));
+
+        var serializer = new FootprintSerializer(path);
+        var res = await serializer.GetValuesAsync();
+        var list = res.Cast<Footprint>().ToList();
+
+        var min = list.Select(s => s.Begin).Min();
+        var max = list.Select(s => s.Begin).Max();
+
+        var satellites = list.Select(s => s.SatelliteName!).Distinct().ToList() ?? new List<string>();
+
+        Epoch = min.Date;
+
+        //  BeginScenario = min.TimeOfDay.TotalSeconds;
+        //  EndScenario = max.TimeOfDay.TotalSeconds + 86400.0;
+
+        // if (BeginScenario == 0.0)
+        //  {
+        //  Epoch = Epoch.AddDays(-1);
+
+        //  BeginScenario += 86400.0;
+        //  EndScenario += 86400.0;
+        // }
+
+        _footprints.Edit(innerList =>
+        {
+            innerList.Clear();
+            innerList.AddRange(list);
+        });
+
         _satellites.Edit(innerList =>
         {
             innerList.Clear();
             innerList.AddRange(satellites);
         });
-
-        Selected = Satellites.FirstOrDefault();
     }
 
-    public ObservableCollection<ItemViewModel> Labels
+    private Interval CreateInterval(Footprint footprint)
     {
-        get => _labels;
-        set => this.RaiseAndSetIfChanged(ref _labels, value);
+        var secs = footprint.Begin.TimeOfDay.TotalSeconds;
+
+        var date = Epoch.Date;
+
+        return new Interval()
+        {
+            Category = footprint.SatelliteName,
+            BeginTime = date.AddSeconds(secs),
+            EndTime = date.AddSeconds(secs + footprint.Duration)
+        };
     }
 
-    public DateTime Epoch
-    {
-        get => _epoch;
-        set => this.RaiseAndSetIfChanged(ref _epoch, value);
-    }
+    [Reactive]
+    public ObservableCollection<ItemViewModel> Labels { get; set; }
 
-    public DateTime CurrentTime
-    {
-        get => _currentTime;
-        set => this.RaiseAndSetIfChanged(ref _currentTime, value);
-    }
+    [Reactive]
+    public DateTime Epoch { get; set; }
 
-    public ReadOnlyObservableCollection<Satellite> Satellites => _items;
+    [Reactive]
+    public double BeginScenario { get; set; }
 
-    public Satellite? Selected
-    {
-        get => _selected;
-        set => this.RaiseAndSetIfChanged(ref _selected, value);
-    }
+    [Reactive]
+    public double EndScenario { get; set; }
+
+    [Reactive]
+    public double Begin { get; set; } = 0.0;
+
+    [Reactive]
+    public double Duration { get; set; } = 86400.0;
+
+    public ReadOnlyObservableCollection<string> Satellites => _items;
+
+    public ReadOnlyObservableCollection<FootprintViewModel> Footprints => _footprintItems;
+
+    public ReadOnlyObservableCollection<Interval> Intervals1 => _items1;
+
+    public ReadOnlyObservableCollection<Interval> Intervals2 => _items2;
+
+    public ReadOnlyObservableCollection<Interval> Intervals3 => _items3;
+
+    public ReadOnlyObservableCollection<Interval> Intervals4 => _items4;
+
+    public ReadOnlyObservableCollection<Interval> Intervals5 => _items5;
+
+    [Reactive]
+    public string? Selected { get; set; }
 
     private string GetJson(string path)
     {
@@ -99,88 +213,88 @@ public class MainWindowViewModel : ViewModelBase
         return sr.ReadToEnd();
     }
 
-    private Satellite CreateSatelliteFromJson(string json, DateTime epoch)
-    {
-        var definition = new
-        {
-            Name = "",
-            Rotations = new[] { new { BeginTime = 0.0, EndTime = 0.0 } },
-            Observations = new[] { new { BeginTime = 0.0, EndTime = 0.0 } },
-            Transmissions = new[] { new { BeginTime = 0.0, EndTime = 0.0 } }
-        };
+    //private Satellite CreateSatelliteFromJson(string json, DateTime epoch)
+    //{
+    //    var definition = new
+    //    {
+    //        Name = "",
+    //        Rotations = new[] { new { BeginTime = 0.0, EndTime = 0.0 } },
+    //        Observations = new[] { new { BeginTime = 0.0, EndTime = 0.0 } },
+    //        Transmissions = new[] { new { BeginTime = 0.0, EndTime = 0.0 } }
+    //    };
 
-        var obj = JsonConvert.DeserializeAnonymousType(json, definition);
+    //    var obj = JsonConvert.DeserializeAnonymousType(json, definition);
 
-        var sat = new Satellite()
-        {
-            Name = obj.Name,
-            Rotations = obj.Rotations.Select(s => new Rotation() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList(),
-            Observations = obj.Observations.Select(s => new Observation() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList(),
-            Transmissions = obj.Transmissions.Select(s => new Transmission() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList()
-        };
+    //    var sat = new Satellite()
+    //    {
+    //        Name = obj.Name,
+    //        Rotations = obj.Rotations.Select(s => new Rotation() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList(),
+    //        Observations = obj.Observations.Select(s => new Observation() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList(),
+    //        Transmissions = obj.Transmissions.Select(s => new Transmission() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList()
+    //    };
 
-        InvalidateIntervals(sat);
+    //    InvalidateIntervals(sat);
 
-        return sat;
-    }
+    //    return sat;
+    //}
 
-    private void InvalidateIntervals(Satellite sat)
-    {
-        List<Rotation> rotations = new List<Rotation>();
-        List<Observation> observations = new List<Observation>();
-        List<Transmission> transmissions = new List<Transmission>();
+    //private void InvalidateIntervals(Satellite sat)
+    //{
+    //    List<Rotation> rotations = new List<Rotation>();
+    //    List<Observation> observations = new List<Observation>();
+    //    List<Transmission> transmissions = new List<Transmission>();
 
-        DateTime temp = DateTime.MinValue;
+    //    DateTime temp = DateTime.MinValue;
 
-        foreach (var item in sat.Rotations.ToList().OrderBy(s => s.BeginTime))
-        {
-            if (temp <= item.BeginTime)
-            {
-                rotations.Add(item);
-                temp = item.EndTime;
-            }
-        }
+    //    foreach (var item in sat.Rotations.ToList().OrderBy(s => s.BeginTime))
+    //    {
+    //        if (temp <= item.BeginTime)
+    //        {
+    //            rotations.Add(item);
+    //            temp = item.EndTime;
+    //        }
+    //    }
 
-        temp = DateTime.MinValue;
+    //    temp = DateTime.MinValue;
 
-        foreach (var item in sat.Observations.ToList().OrderBy(s => s.BeginTime))
-        {
-            if (temp <= item.BeginTime)
-            {
-                observations.Add(item);
-                temp = item.EndTime;
-            }
-        }
+    //    foreach (var item in sat.Observations.ToList().OrderBy(s => s.BeginTime))
+    //    {
+    //        if (temp <= item.BeginTime)
+    //        {
+    //            observations.Add(item);
+    //            temp = item.EndTime;
+    //        }
+    //    }
 
-        temp = DateTime.MinValue;
+    //    temp = DateTime.MinValue;
 
-        foreach (var item in sat.Transmissions.ToList().OrderBy(s => s.BeginTime))
-        {
-            if (temp <= item.BeginTime)
-            {
-                transmissions.Add(item);
-                temp = item.EndTime;
-            }
-        }
+    //    foreach (var item in sat.Transmissions.ToList().OrderBy(s => s.BeginTime))
+    //    {
+    //        if (temp <= item.BeginTime)
+    //        {
+    //            transmissions.Add(item);
+    //            temp = item.EndTime;
+    //        }
+    //    }
 
-        var min = rotations.Min(s => ToTotalDays(s.BeginTime, Epoch));
-        min = Math.Min(observations.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
-        min = Math.Min(transmissions.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
+    //    var min = rotations.Min(s => ToTotalDays(s.BeginTime, Epoch));
+    //    min = Math.Min(observations.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
+    //    min = Math.Min(transmissions.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
 
-        var max = rotations.Max(s => ToTotalDays(s.EndTime, Epoch));
-        max = Math.Max(observations.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
-        max = Math.Max(transmissions.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
+    //    var max = rotations.Max(s => ToTotalDays(s.EndTime, Epoch));
+    //    max = Math.Max(observations.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
+    //    max = Math.Max(transmissions.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
 
-        sat.Rotations = new List<Rotation>(rotations);
-        sat.Observations = new List<Observation>(observations);
-        sat.Transmissions = new List<Transmission>(transmissions);
+    //    sat.Rotations = new List<Rotation>(rotations);
+    //    sat.Observations = new List<Observation>(observations);
+    //    sat.Transmissions = new List<Transmission>(transmissions);
 
-        sat.BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin);
-        sat.EndScenario = sat.BeginScenario + 2;
+    //    sat.BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin);
+    //    sat.EndScenario = sat.BeginScenario + 2;
 
-        sat.Begin = ToTotalDays(Epoch, TimeOrigin);
-        sat.Duration = 1.0;
-    }
+    //    sat.Begin = ToTotalDays(Epoch, TimeOrigin);
+    //    sat.Duration = 1.0;
+    //}
 
     public static double ToTotalDays(DateTime value, DateTime timeOrigin)
     {

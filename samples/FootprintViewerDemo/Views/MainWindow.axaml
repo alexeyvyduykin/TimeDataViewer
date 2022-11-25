@@ -13,6 +13,7 @@
         xmlns:sys="clr-namespace:System;assembly=netstandard"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FootprintViewerDemo.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="FootprintViewerDemo">
 
@@ -21,75 +22,104 @@
     </Design.DataContext>
 
     <Panel>
-        <Grid RowDefinitions="Auto,*,60">
+        <Grid RowDefinitions="Auto,*"
+              ColumnDefinitions="*,240">
 
             <ListBox Items="{Binding Satellites}"
                      SelectedItem="{Binding Selected}"
                      HorizontalAlignment="Left"
+                     Width="120"
                      Margin="8">
                 <ListBox.DataTemplates>
-                    <DataTemplate x:DataType="models:Satellite">
-                        <TextBlock Text="{Binding Name}"/>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"/>
                     </DataTemplate>
                 </ListBox.DataTemplates>
             </ListBox>
 
-            <ContentControl Grid.Row="1"
-                            Margin="8"
-                            DataContext="{Binding Selected}">
+            <sch:Timeline Grid.Row="1"
+                          Margin="8">
 
-                <sch:Timeline>
+                <sch:Timeline.Axises>
 
-                    <sch:Timeline.Axises>
+                    <sch:CategoryAxis Position="Left"
+                                      AbsoluteMinimum="-0.5"
+                                      AbsoluteMaximum="4.5"
+                                      IsZoomEnabled="False"
+                                      Items="{Binding Labels}"
+                                      LabelField="Label"/>
+                    <sch:DateTimeAxis Position="Top"
+                                      IntervalType="Auto"
+                                      AbsoluteMinimum="{Binding BeginScenario}"
+                                      AbsoluteMaximum="{Binding EndScenario}"
+                                      FirstDateTime="{Binding Epoch}"/>
 
-                        <sch:CategoryAxis Position="Left"
-                                          AbsoluteMinimum="-0.5"
-                                          AbsoluteMaximum="2.5"
-                                          IsZoomEnabled="False"
-                                          Items="{Binding $parent[Window].DataContext.Labels}"
-                                          LabelField="Label"/>
-                        <sch:DateTimeAxis Position="Top"
-                                          IntervalType="Auto"
-                                          AbsoluteMinimum="{Binding BeginScenario}"
-                                          AbsoluteMaximum="{Binding EndScenario}"
-                                          FirstDateTime="{Binding Epoch}"/>
+                </sch:Timeline.Axises>
 
-                    </sch:Timeline.Axises>
+                <sch:Timeline.Series>
 
-                    <sch:Timeline.Series>
+                    <sch:TimelineSeries BarWidth="0.5"
+                                        FillBrush="LightCoral"
+                                        Items="{Binding Intervals1}"
+                                        CategoryField="Category"
+                                        BeginField="BeginTime"
+                                        EndField="EndTime"/>
 
-                        <sch:TimelineSeries BarWidth="0.5"
-                                            FillBrush="Blue"
-                                            Items="{Binding Rotations}"
-                                            CategoryField="Category"
-                                            BeginField="BeginTime"
-                                            EndField="EndTime"/>
+                    <sch:TimelineSeries BarWidth="0.5"
+                                        FillBrush="Green"
+                                        Items="{Binding Intervals2}"
+                                        CategoryField="Category"
+                                        BeginField="BeginTime"
+                                        EndField="EndTime"/>
 
-                        <sch:TimelineSeries BarWidth="0.5"
-                                            FillBrush="Green"
-                                            Items="{Binding Observations}"
-                                            CategoryField="Category"
-                                            BeginField="BeginTime"
-                                            EndField="EndTime"/>
+                    <sch:TimelineSeries BarWidth="0.5"
+                                        FillBrush="Blue"
+                                        Items="{Binding Intervals3}"
+                                        CategoryField="Category"
+                                        BeginField="BeginTime"
+                                        EndField="EndTime"/>
 
-                        <sch:TimelineSeries BarWidth="0.5"
-                                            FillBrush="LightCoral"
-                                            Items="{Binding Transmissions}"
-                                            CategoryField="Category"
-                                            BeginField="BeginTime"
-                                            EndField="EndTime"/>
+                    <sch:TimelineSeries BarWidth="0.5"
+                                        FillBrush="Red"
+                                        Items="{Binding Intervals4}"
+                                        CategoryField="Category"
+                                        BeginField="BeginTime"
+                                        EndField="EndTime"/>
 
-                    </sch:Timeline.Series>
+                    <sch:TimelineSeries BarWidth="0.5"
+                                        FillBrush="Yellow"
+                                        Items="{Binding Intervals5}"
+                                        CategoryField="Category"
+                                        BeginField="BeginTime"
+                                        EndField="EndTime"/>
 
-                    <sch:Timeline.Slider>
-                        <sch:Slider Begin="{Binding Begin}"
-                                    Duration="{Binding Duration}"
-                                    CurrentValue="{Binding $parent[Window].DataContext.CurrentTime}"/>
-                    </sch:Timeline.Slider>
+                </sch:Timeline.Series>
 
-                </sch:Timeline>
+                <sch:Timeline.Slider>
+                    <sch:Slider Begin="{Binding Begin}"
+                                Duration="{Binding Duration}"/>
+                </sch:Timeline.Slider>
 
-            </ContentControl>
+            </sch:Timeline>
+
+            <ListBox Grid.Column="1"
+                     Grid.RowSpan="2"
+                     Items="{Binding Footprints}"
+                     Margin="8">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:FootprintViewModel">
+                        <Border Background="Black"
+                                Padding="4">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text="{Binding SatelliteName}"/>
+                                <TextBlock Text="{Binding Begin}"/>
+                                <TextBlock Text="{Binding Duration, StringFormat={}{0} sec}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
 
         </Grid>
     </Panel>
