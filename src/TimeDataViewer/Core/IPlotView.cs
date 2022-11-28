@@ -1,17 +1,14 @@
-﻿namespace TimeDataViewer.Core
+﻿namespace TimeDataViewer.Core;
+
+public interface IPlotView : IView
 {
-    public interface IPlotView : IView
-    {
-        new PlotModel ActualModel { get; }
+    void HideTracker();
 
-        void HideTracker();
+    // Invalidates the plot (not blocking the UI thread)
+    void InvalidatePlot(bool updateData = true);
 
-        // Invalidates the plot (not blocking the UI thread)
-        void InvalidatePlot(bool updateData = true);
+    void ShowTracker(TrackerHitResult trackerHitResult);
 
-        void ShowTracker(TrackerHitResult trackerHitResult);
-
-        // Stores text on the clipboard.
-        void SetClipboardText(string text);
-    }
+    // Stores text on the clipboard.
+    void SetClipboardText(string text);
 }

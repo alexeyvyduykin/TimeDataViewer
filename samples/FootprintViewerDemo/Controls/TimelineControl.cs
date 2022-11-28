@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
@@ -16,9 +11,6 @@ using Avalonia.Input.Platform;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using DynamicData;
-using FootprintViewerDemo.Models;
-using FootprintViewerDemo.ViewModels;
 using TimeDataViewer;
 using TimeDataViewer.Core;
 using TimeDataViewer.Spatial;
@@ -49,11 +41,12 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private int _isPlotInvalidated;
     private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
     private IControl? _currentTracker;
-    private readonly PlotModel _plotModel;
+    private PlotModel? _plotModel;
     private readonly IPlotController _defaultController;
-    private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-    private double _begin;
-    private double _duration;
+    private readonly Pen _minorPen = new() { Brush = Brush.Parse("#2A2A2A") };
+    private readonly Pen _majorPen = new() { Brush = Brush.Parse("#2A2A2A") };
+    private readonly Pen _minorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
+    private readonly Pen _majorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
 
     public TimelineControl()
     {
@@ -62,213 +55,17 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
 
         _defaultController = new PlotController();
-
-        _plotModel = new PlotModel()
-        {
-            PlotMarginLeft = 0,
-            PlotMarginTop = 30,
-            PlotMarginRight = 0,
-            PlotMarginBottom = 0
-        };
-
-        ((IPlotModel)_plotModel).AttachPlotView(this);
-
-        InitData();
-    }
-
-    private void InitData()
-    {
-        var labels = new ObservableCollection<ItemViewModel>()
-            {
-                new() { Label = "Satellite1" },
-                new() { Label = "Satellite2" },
-                new() { Label = "Satellite3" },
-                new() { Label = "Satellite4" },
-                new() { Label = "Satellite5" }
-            };
-
-        var root = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
-        var path = Path.GetFullPath(Path.Combine(root, @"..\..\..\Assets", "Footprints.json"));
-
-        var serializer = new FootprintSerializer(path);
-        var res = Task.Run(async () => await serializer.GetValuesAsync()).Result;
-        var footprints = res.Cast<Footprint>().ToList();
-
-        var min = footprints.Select(s => s.Begin).Min();
-        var max = footprints.Select(s => s.Begin).Max();
-
-        var satellites = footprints.Select(s => s.SatelliteName!).Distinct().ToList() ?? new List<string>();
-
-        var epoch = min.Date;
-
-        var axises = new List<TimeDataViewer.CategoryAxis>();
-
-        var beginScenario = ToTotalDays(epoch.Date, _timeOrigin) - 1;
-        var endScenario = beginScenario + 3;
-
-        _begin = ToTotalDays(epoch, _timeOrigin);
-        _duration = 1.0;
-
-        var axisY = new TimeDataViewer.Core.CategoryAxis()
-        {
-            Position = AxisPosition.Left,
-            AbsoluteMinimum = -0.5,
-            AbsoluteMaximum = 4.5,
-            IsZoomEnabled = false,
-            LabelField = "Label",
-            IsTickCentered = false,
-            GapWidth = 1.0,
-            ItemsSource = labels
-        };
-        axisY.Labels.Clear();
-        axisY.Labels.AddRange(labels.Select(s => s.Label)!);
-
-        var axisX = new TimeDataViewer.Core.DateTimeAxis()
-        {
-            Position = AxisPosition.Top,
-            IntervalType = DateTimeIntervalType.Auto,
-            AbsoluteMinimum = beginScenario,
-            AbsoluteMaximum = endScenario,
-            CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek,
-            FirstDayOfWeek = DayOfWeek.Monday,
-            MinorIntervalType = DateTimeIntervalType.Auto,
-            Minimum = TimeDataViewer.Core.DateTimeAxis.ToDouble(epoch),
-            AxisDistance = 0.0,
-            AxisTickToLabelDistance = 4.0,
-            ExtraGridlines = null,
-            IntervalLength = 60.0,
-            IsPanEnabled = true,
-            IsAxisVisible = true,
-            IsZoomEnabled = true,
-            Key = null,
-            MajorStep = double.NaN,
-            MajorTickSize = 7.0,
-            MinorStep = double.NaN,
-            MinorTickSize = 4.0,
-            Maximum = double.NaN,
-            MinimumRange = 0.0,
-            MaximumRange = double.PositiveInfinity,
-            StringFormat = null
-        };
-
-        _plotModel.Axises.Add(axisY);
-        _plotModel.Axises.Add(axisX);
-
-        var items1 = footprints.Where(s => Equals(s.SatelliteName, "Satellite1")).Select(s => CreateInterval(s, epoch)).ToList();
-        var items2 = footprints.Where(s => Equals(s.SatelliteName, "Satellite2")).Select(s => CreateInterval(s, epoch)).ToList();
-        var items3 = footprints.Where(s => Equals(s.SatelliteName, "Satellite3")).Select(s => CreateInterval(s, epoch)).ToList();
-        var items4 = footprints.Where(s => Equals(s.SatelliteName, "Satellite4")).Select(s => CreateInterval(s, epoch)).ToList();
-        var items5 = footprints.Where(s => Equals(s.SatelliteName, "Satellite5")).Select(s => CreateInterval(s, epoch)).ToList();
-
-        var series1 = new TimeDataViewer.Core.TimelineSeries()
-        {
-            BarWidth = 0.5,
-            // FillBrush = Brushes.LightCoral,        
-            ItemsSource = items1,
-            CategoryField = "Category",
-            BeginField = "BeginTime",
-            EndField = "EndTime",
-            IsVisible = true,
-
-        };
-
-        var series2 = new TimeDataViewer.Core.TimelineSeries()
-        {
-            BarWidth = 0.5,
-            // FillBrush = Brushes.Green,        
-            ItemsSource = items2,
-            CategoryField = "Category",
-            BeginField = "BeginTime",
-            EndField = "EndTime",
-            IsVisible = true,
-
-        };
-
-        var series3 = new TimeDataViewer.Core.TimelineSeries()
-        {
-            BarWidth = 0.5,
-            // FillBrush = Brushes.Blue,        
-            ItemsSource = items3,
-            CategoryField = "Category",
-            BeginField = "BeginTime",
-            EndField = "EndTime",
-            IsVisible = true,
-
-        };
-
-        var series4 = new TimeDataViewer.Core.TimelineSeries()
-        {
-            BarWidth = 0.5,
-            // FillBrush = Brushes.Red,        
-            ItemsSource = items4,
-            CategoryField = "Category",
-            BeginField = "BeginTime",
-            EndField = "EndTime",
-            IsVisible = true,
-
-        };
-
-        var series5 = new TimeDataViewer.Core.TimelineSeries()
-        {
-            BarWidth = 0.5,
-            // FillBrush = Brushes.Yellow,        
-            ItemsSource = items5,
-            CategoryField = "Category",
-            BeginField = "BeginTime",
-            EndField = "EndTime",
-            IsVisible = true,
-
-        };
-
-        _plotModel.Series.Add(series1);
-        _plotModel.Series.Add(series2);
-        _plotModel.Series.Add(series3);
-        _plotModel.Series.Add(series4);
-        _plotModel.Series.Add(series5);
-
-        if (_slider != null)
-        {
-            _slider.Begin = _begin;
-            _slider.Duration = _duration;
-        }
-
-        InvalidatePlot(false);
-        InvalidatePlot(true);
-    }
-
-    public static double ToTotalDays(DateTime value, DateTime timeOrigin)
-    {
-        return (value - timeOrigin).TotalDays + 1;
-    }
-
-    private Interval CreateInterval(Footprint footprint, DateTime epoch)
-    {
-        var secs = footprint.Begin.TimeOfDay.TotalSeconds;
-
-        var date = epoch.Date;
-
-        return new Interval()
-        {
-            Category = footprint.SatelliteName,
-            BeginTime = date.AddSeconds(secs),
-            EndTime = date.AddSeconds(secs + footprint.Duration)
-        };
     }
 
     // Gets or sets a value indicating whether to disconnect the canvas while updating.
     public bool DisconnectCanvasWhileUpdating { get; set; }
 
-    // Gets the actual model in the view.
-    Model IView.ActualModel => ActualModel;
+    public PlotModel? ActualModel => _plotModel;
 
-    public PlotModel ActualModel => _plotModel;
-
-    public IPlotController ActualController => _defaultController;
-
-    IController IView.ActualController => ActualController;
+    public IController? ActualController => _defaultController;
 
     // Gets the coordinates of the client area of the view.
-    public OxyRect ClientArea => new OxyRect(0, 0, Bounds.Width, Bounds.Height);
+    public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
     public ObservableCollection<TrackerDefinition> TrackerDefinitions => _trackerDefinitions;
 
@@ -281,9 +78,27 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         }
     }
 
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+
+        if (DataContext is PlotModel plotModel)
+        {
+            _plotModel = plotModel;
+
+            ((IPlotModel)_plotModel).AttachPlotView(this);
+
+            InvalidatePlot(false);
+            InvalidatePlot(true);
+        }
+    }
+
     public void HideZoomRectangle()
     {
-        _zoomControl.IsVisible = false;
+        if (_zoomControl != null)
+        {
+            _zoomControl.IsVisible = false;
+        }
     }
 
     // Invalidate the PlotView (not blocking the UI thread)
@@ -346,27 +161,15 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public void SetCursorType(CursorType cursorType)
     {
-        switch (cursorType)
+        Cursor = cursorType switch
         {
-            case CursorType.Pan:
-                Cursor = new Cursor(StandardCursorType.Hand);
-                break;
-            case CursorType.PanHorizontal:
-                Cursor = new Cursor(StandardCursorType.SizeWestEast);
-                break;
-            case CursorType.ZoomRectangle:
-                Cursor = new Cursor(StandardCursorType.SizeAll);
-                break;
-            case CursorType.ZoomHorizontal:
-                Cursor = new Cursor(StandardCursorType.SizeWestEast);
-                break;
-            case CursorType.ZoomVertical:
-                Cursor = new Cursor(StandardCursorType.SizeNorthSouth);
-                break;
-            default:
-                Cursor = Cursor.Default;
-                break;
-        }
+            CursorType.Pan => new Cursor(StandardCursorType.Hand),
+            CursorType.PanHorizontal => new Cursor(StandardCursorType.SizeWestEast),
+            CursorType.ZoomRectangle => new Cursor(StandardCursorType.SizeAll),
+            CursorType.ZoomHorizontal => new Cursor(StandardCursorType.SizeWestEast),
+            CursorType.ZoomVertical => new Cursor(StandardCursorType.SizeNorthSouth),
+            _ => Cursor.Default,
+        };
     }
 
     public void ShowTracker(TrackerHitResult trackerHitResult)
@@ -399,7 +202,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         if (!object.ReferenceEquals(tracker, _currentTracker))
         {
             HideTracker();
-            _ovarlayCanvas.Children.Add(tracker.Control);
+            _ovarlayCanvas?.Children.Add(tracker.Control);
             _currentTracker = tracker.Control;
         }
 
@@ -411,18 +214,21 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public void ShowZoomRectangle(OxyRect r)
     {
-        _zoomControl.Width = r.Width;
-        _zoomControl.Height = r.Height;
-        Canvas.SetLeft(_zoomControl, r.Left);
-        Canvas.SetTop(_zoomControl, r.Top);
-        _zoomControl.Template = ZoomRectangleTemplate;
-        _zoomControl.IsVisible = true;
+        if (_zoomControl != null)
+        {
+            _zoomControl.Width = r.Width;
+            _zoomControl.Height = r.Height;
+            Canvas.SetLeft(_zoomControl, r.Left);
+            Canvas.SetTop(_zoomControl, r.Top);
+            _zoomControl.Template = ZoomRectangleTemplate;
+            _zoomControl.IsVisible = true;
+        }
     }
 
     // Stores text on the clipboard.
     public async void SetClipboardText(string text)
     {
-        await AvaloniaLocator.Current.GetService<IClipboard>().SetTextAsync(text);
+        await AvaloniaLocator.Current.GetService<IClipboard>()!.SetTextAsync(text);
     }
 
     // Provides the behavior for the Arrange pass of Silverlight layout.
@@ -466,7 +272,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     }
 
     // Called when the size of the control is changed.
-    private void OnSizeChanged(object sender, Size size)
+    private void OnSizeChanged(object _, Size size)
     {
         if (size.Height > 0 && size.Width > 0)
         {
@@ -475,7 +281,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     }
 
     // Gets the relevant parent.
-    private Control GetRelevantParent<T>(IVisual obj) where T : Control
+    private Control? GetRelevantParent<T>(IVisual obj) where T : Control
     {
         var container = obj.VisualParent;
 
@@ -494,12 +300,12 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             container = GetRelevantParent<T>(container);
         }
 
-        return (Control)container;
+        return (Control?)container;
     }
 
     private void UpdateVisuals()
     {
-        if (_backCanvas == null || _frontCanvas == null || _basePanel == null)
+        if (_backCanvas == null || _frontCanvas == null || _basePanel == null || _axisXCanvas == null || _drawCanvas == null)
         {
             return;
         }
@@ -577,23 +383,17 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     protected void RenderAxisX(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
     {
-        foreach (var item in _plotModel.Axises)
+        if (_plotModel != null)
         {
-            if (item.IsHorizontal() == true)
+            foreach (var item in _plotModel.Axises)
             {
-                RenderAxis(item, contextAxis, contextPlot);
+                if (item.IsHorizontal() == true)
+                {
+                    RenderAxis(item, contextAxis, contextPlot);
+                }
             }
         }
     }
-
-    private readonly Pen BlackPen = new() { Brush = Brushes.Black, Thickness = 1 };
-    private readonly Pen ZeroPen = new() { Brush = Brushes.Black, Thickness = 1 };
-    private readonly Pen ExtraPen = new() { Brush = Brushes.Black, Thickness = 1, DashStyle = DashStyle.Dot };
-    private readonly Pen AxislinePen = new() { Brush = Brushes.Black, Thickness = 1 };
-    private readonly Pen MinorPen = new() { Brush = Brush.Parse("#2A2A2A") };
-    private readonly Pen MajorPen = new() { Brush = Brush.Parse("#2A2A2A") };
-    private readonly Pen MinorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
-    private readonly Pen MajorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
 
     private void RenderAxis(TimeDataViewer.Core.Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
     {
@@ -608,14 +408,14 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         var majorSegments = internalAxis.MyMajorSegments;
         var majorTickSegments = internalAxis.MyMajorTickSegments;
 
-        if (MinorPen != null)
+        if (_minorPen != null)
         {
-            contextPlot.DrawLineSegments(minorSegments, MinorPen);
+            contextPlot.DrawLineSegments(minorSegments, _minorPen);
         }
 
-        if (MinorTickPen != null)
+        if (_minorTickPen != null)
         {
-            contextAxis.DrawLineSegments(minorTickSegments, MinorTickPen);
+            contextAxis.DrawLineSegments(minorTickSegments, _minorTickPen);
         }
 
         foreach (var (pt, text, ha, va) in labels)
@@ -631,14 +431,14 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             }
         }
 
-        if (MajorPen != null)
+        if (_majorPen != null)
         {
-            contextPlot.DrawLineSegments(majorSegments, MajorPen);
+            contextPlot.DrawLineSegments(majorSegments, _majorPen);
         }
 
-        if (MajorTickPen != null)
+        if (_majorTickPen != null)
         {
-            contextAxis.DrawLineSegments(majorTickSegments, MajorTickPen);
+            contextAxis.DrawLineSegments(majorTickSegments, _majorTickPen);
         }
 
         //if(MinMaxBrush != null && InternalAxis.IsHorizontal() == true)
@@ -660,21 +460,27 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         //}
     }
 
-    protected void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas)
+    protected void RenderSeries(Canvas _, DrawCanvas drawCanvas)
     {
-        drawCanvas.RenderSeries(_plotModel.Series.Where(s => s.IsVisible).ToList());
+        if (_plotModel != null)
+        {
+            drawCanvas.RenderSeries(_plotModel.Series.Where(s => s.IsVisible).ToList());
+        }
     }
 
     public void SliderTo(double value)
     {
-        foreach (var a in _plotModel.Axises)
+        if (_plotModel != null)
         {
-            if (a.IsHorizontal() == true && _slider != null)
+            foreach (var a in _plotModel.Axises)
             {
-                DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                _slider.IsTracking = false;
-                _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                _slider.IsTracking = true;
+                if (a.IsHorizontal() == true && _slider != null)
+                {
+                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+                    _slider.IsTracking = false;
+                    _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                    _slider.IsTracking = true;
+                }
             }
         }
     }
@@ -688,12 +494,9 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     private void UpdateSlider()
     {
-        if (_slider != null)
+        if (ActualModel != null)
         {
-            _slider.Begin = _begin;
-            _slider.Duration = _duration;
+            _slider?.UpdateMinMax(ActualModel);
         }
-
-        _slider?.UpdateMinMax(ActualModel);
     }
 }

@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using DynamicData;
 using FootprintViewerDemo.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using TimeDataViewer.Core;
 
 namespace FootprintViewerDemo.ViewModels;
 
@@ -26,8 +27,7 @@ public class MainWindowViewModel : ViewModelBase
     private readonly ReadOnlyObservableCollection<Interval> _items3;
     private readonly ReadOnlyObservableCollection<Interval> _items4;
     private readonly ReadOnlyObservableCollection<Interval> _items5;
-
-    private DateTime TimeOrigin { get; } = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+    private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
     public MainWindowViewModel()
     {
@@ -67,7 +67,7 @@ public class MainWindowViewModel : ViewModelBase
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(s => Equals(s.SatelliteName, "Satellite1"))
-            .Transform(s => CreateInterval(s))
+            .Transform(s => CreateInterval(s, Epoch))
             .Bind(out _items1)
             .DisposeMany()
             .Subscribe();
@@ -76,7 +76,7 @@ public class MainWindowViewModel : ViewModelBase
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(s => Equals(s.SatelliteName, "Satellite2"))
-            .Transform(s => CreateInterval(s))
+            .Transform(s => CreateInterval(s, Epoch))
             .Bind(out _items2)
             .DisposeMany()
             .Subscribe();
@@ -85,7 +85,7 @@ public class MainWindowViewModel : ViewModelBase
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(s => Equals(s.SatelliteName, "Satellite3"))
-            .Transform(s => CreateInterval(s))
+            .Transform(s => CreateInterval(s, Epoch))
             .Bind(out _items3)
             .DisposeMany()
             .Subscribe();
@@ -94,7 +94,7 @@ public class MainWindowViewModel : ViewModelBase
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(s => Equals(s.SatelliteName, "Satellite4"))
-            .Transform(s => CreateInterval(s))
+            .Transform(s => CreateInterval(s, Epoch))
             .Bind(out _items4)
             .DisposeMany()
             .Subscribe();
@@ -103,7 +103,7 @@ public class MainWindowViewModel : ViewModelBase
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
             .Filter(s => Equals(s.SatelliteName, "Satellite5"))
-            .Transform(s => CreateInterval(s))
+            .Transform(s => CreateInterval(s, Epoch))
             .Bind(out _items5)
             .DisposeMany()
             .Subscribe();
@@ -112,7 +112,8 @@ public class MainWindowViewModel : ViewModelBase
 
         Selected = Satellites.FirstOrDefault();
 
-        Observable.StartAsync(UpdateImpl, RxApp.MainThreadScheduler);
+        Observable.StartAsync(UpdateImpl, RxApp.MainThreadScheduler)
+            .Subscribe(s => PlotModel = CreatePlotModel());
     }
 
     public ReactiveCommand<Unit, Unit> Update { get; }
@@ -133,10 +134,10 @@ public class MainWindowViewModel : ViewModelBase
 
         Epoch = min.Date;
 
-        BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin) - 1;
+        BeginScenario = ToTotalDays(Epoch.Date, _timeOrigin) - 1;
         EndScenario = BeginScenario + 3;
 
-        Begin = ToTotalDays(Epoch, TimeOrigin);
+        Begin = ToTotalDays(Epoch, _timeOrigin);
         Duration = 1.0;
 
         _footprints.Edit(innerList =>
@@ -152,11 +153,103 @@ public class MainWindowViewModel : ViewModelBase
         });
     }
 
-    private Interval CreateInterval(Footprint footprint)
+    private PlotModel CreatePlotModel()
+    {
+        var plotModel = new PlotModel()
+        {
+            PlotMarginLeft = 0,
+            PlotMarginTop = 30,
+            PlotMarginRight = 0,
+            PlotMarginBottom = 0
+        };
+
+        plotModel.Axises.AddRange(new[]
+        {
+            CreateAxisY(Labels),
+            CreateAxisX(Epoch, BeginScenario, EndScenario)
+        });
+
+        plotModel.Series.AddRange(new[]
+        {
+            CreateSeries(Intervals1),
+            CreateSeries(Intervals2),
+            CreateSeries(Intervals3),
+            CreateSeries(Intervals4),
+            CreateSeries(Intervals5)
+        });
+
+        return plotModel;
+    }
+
+    private static Series CreateSeries(IEnumerable<Interval> intervals)
+    {
+        return new TimelineSeries()
+        {
+            BarWidth = 0.5,
+            ItemsSource = intervals,
+            CategoryField = "Category",
+            BeginField = "BeginTime",
+            EndField = "EndTime",
+            IsVisible = true
+        };
+    }
+
+    private static Axis CreateAxisY(IEnumerable<ItemViewModel> labels)
+    {
+        var axisY = new CategoryAxis()
+        {
+            Position = AxisPosition.Left,
+            AbsoluteMinimum = -0.5,
+            AbsoluteMaximum = 4.5,
+            IsZoomEnabled = false,
+            LabelField = "Label",
+            IsTickCentered = false,
+            GapWidth = 1.0,
+            ItemsSource = labels
+        };
+
+        axisY.Labels.Clear();
+        axisY.Labels.AddRange(labels.Select(s => s.Label)!);
+
+        return axisY;
+    }
+
+    private static Axis CreateAxisX(DateTime epoch, double begin, double end)
+    {
+        return new DateTimeAxis()
+        {
+            Position = AxisPosition.Top,
+            IntervalType = DateTimeIntervalType.Auto,
+            AbsoluteMinimum = begin,
+            AbsoluteMaximum = end,
+            CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek,
+            FirstDayOfWeek = DayOfWeek.Monday,
+            MinorIntervalType = DateTimeIntervalType.Auto,
+            Minimum = DateTimeAxis.ToDouble(epoch),
+            AxisDistance = 0.0,
+            AxisTickToLabelDistance = 4.0,
+            ExtraGridlines = null,
+            IntervalLength = 60.0,
+            IsPanEnabled = true,
+            IsAxisVisible = true,
+            IsZoomEnabled = true,
+            Key = null,
+            MajorStep = double.NaN,
+            MajorTickSize = 7.0,
+            MinorStep = double.NaN,
+            MinorTickSize = 4.0,
+            Maximum = double.NaN,
+            MinimumRange = 0.0,
+            MaximumRange = double.PositiveInfinity,
+            StringFormat = null
+        };
+    }
+
+    private static Interval CreateInterval(Footprint footprint, DateTime epoch)
     {
         var secs = footprint.Begin.TimeOfDay.TotalSeconds;
 
-        var date = Epoch.Date;
+        var date = epoch.Date;
 
         return new Interval()
         {
@@ -165,6 +258,14 @@ public class MainWindowViewModel : ViewModelBase
             EndTime = date.AddSeconds(secs + footprint.Duration)
         };
     }
+
+    private static double ToTotalDays(DateTime value, DateTime timeOrigin)
+    {
+        return (value - timeOrigin).TotalDays + 1;
+    }
+
+    [Reactive]
+    public PlotModel? PlotModel { get; set; }
 
     [Reactive]
     public ObservableCollection<ItemViewModel> Labels { get; set; }
@@ -184,6 +285,9 @@ public class MainWindowViewModel : ViewModelBase
     [Reactive]
     public double Duration { get; set; } = 86400.0;
 
+    [Reactive]
+    public string? Selected { get; set; }
+
     public ReadOnlyObservableCollection<string> Satellites => _items;
 
     public ReadOnlyObservableCollection<FootprintViewModel> Footprints => _footprintItems;
@@ -197,102 +301,4 @@ public class MainWindowViewModel : ViewModelBase
     public ReadOnlyObservableCollection<Interval> Intervals4 => _items4;
 
     public ReadOnlyObservableCollection<Interval> Intervals5 => _items5;
-
-    [Reactive]
-    public string? Selected { get; set; }
-
-    private string GetJson(string path)
-    {
-        using var fs = File.OpenRead(path);
-        using var sr = new StreamReader(fs, Encoding.UTF8);
-        return sr.ReadToEnd();
-    }
-
-    //private Satellite CreateSatelliteFromJson(string json, DateTime epoch)
-    //{
-    //    var definition = new
-    //    {
-    //        Name = "",
-    //        Rotations = new[] { new { BeginTime = 0.0, EndTime = 0.0 } },
-    //        Observations = new[] { new { BeginTime = 0.0, EndTime = 0.0 } },
-    //        Transmissions = new[] { new { BeginTime = 0.0, EndTime = 0.0 } }
-    //    };
-
-    //    var obj = JsonConvert.DeserializeAnonymousType(json, definition);
-
-    //    var sat = new Satellite()
-    //    {
-    //        Name = obj.Name,
-    //        Rotations = obj.Rotations.Select(s => new Rotation() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList(),
-    //        Observations = obj.Observations.Select(s => new Observation() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList(),
-    //        Transmissions = obj.Transmissions.Select(s => new Transmission() { BeginTime = epoch.AddSeconds(s.BeginTime), EndTime = epoch.AddSeconds(s.EndTime) }).ToList()
-    //    };
-
-    //    InvalidateIntervals(sat);
-
-    //    return sat;
-    //}
-
-    //private void InvalidateIntervals(Satellite sat)
-    //{
-    //    List<Rotation> rotations = new List<Rotation>();
-    //    List<Observation> observations = new List<Observation>();
-    //    List<Transmission> transmissions = new List<Transmission>();
-
-    //    DateTime temp = DateTime.MinValue;
-
-    //    foreach (var item in sat.Rotations.ToList().OrderBy(s => s.BeginTime))
-    //    {
-    //        if (temp <= item.BeginTime)
-    //        {
-    //            rotations.Add(item);
-    //            temp = item.EndTime;
-    //        }
-    //    }
-
-    //    temp = DateTime.MinValue;
-
-    //    foreach (var item in sat.Observations.ToList().OrderBy(s => s.BeginTime))
-    //    {
-    //        if (temp <= item.BeginTime)
-    //        {
-    //            observations.Add(item);
-    //            temp = item.EndTime;
-    //        }
-    //    }
-
-    //    temp = DateTime.MinValue;
-
-    //    foreach (var item in sat.Transmissions.ToList().OrderBy(s => s.BeginTime))
-    //    {
-    //        if (temp <= item.BeginTime)
-    //        {
-    //            transmissions.Add(item);
-    //            temp = item.EndTime;
-    //        }
-    //    }
-
-    //    var min = rotations.Min(s => ToTotalDays(s.BeginTime, Epoch));
-    //    min = Math.Min(observations.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
-    //    min = Math.Min(transmissions.Min(s => ToTotalDays(s.BeginTime, Epoch)), min);
-
-    //    var max = rotations.Max(s => ToTotalDays(s.EndTime, Epoch));
-    //    max = Math.Max(observations.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
-    //    max = Math.Max(transmissions.Max(s => ToTotalDays(s.EndTime, Epoch)), max);
-
-    //    sat.Rotations = new List<Rotation>(rotations);
-    //    sat.Observations = new List<Observation>(observations);
-    //    sat.Transmissions = new List<Transmission>(transmissions);
-
-    //    sat.BeginScenario = ToTotalDays(Epoch.Date, TimeOrigin);
-    //    sat.EndScenario = sat.BeginScenario + 2;
-
-    //    sat.Begin = ToTotalDays(Epoch, TimeOrigin);
-    //    sat.Duration = 1.0;
-    //}
-
-    public static double ToTotalDays(DateTime value, DateTime timeOrigin)
-    {
-        return (value - timeOrigin).TotalDays + 1;
-    }
 }
