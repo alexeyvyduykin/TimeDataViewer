@@ -1,14 +1,14 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:FootprintViewerDemo.Controls"        
+        xmlns:controls="using:FootprintViewerDemo.Controls"
         xmlns:base="clr-namespace:TimeDataViewer;assembly=TimeDataViewer">
     <Design.PreviewWith>
         <Border Padding="20" Width="600" Height="400">
             <!-- Add Controls for Previewer Here -->
-            
+
             <controls:TimelineControl BorderBrush="Red"
                                       BorderThickness="2"/>
-                        
+
         </Border>
     </Design.PreviewWith>
 
@@ -55,7 +55,7 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        
+
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -83,7 +83,18 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        
+
+        <Setter Property="DefaultLabelTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <TextBlock Foreground="{StaticResource axisLabelForeground}"
+                               FontFamily="Segoe UI"
+                               FontSize="12"
+                               FontWeight="Normal"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
     </Style>
 
     <Style Selector="controls|TimelineControl /template/ Panel#PART_AxisXPanel">

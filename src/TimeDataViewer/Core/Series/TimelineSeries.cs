@@ -184,8 +184,8 @@ namespace TimeDataViewer.Core
         // Updates the axis maximum and minimum values.     
         protected internal override void UpdateAxisMaxMin()
         {
-            XAxis.Include(MinX);
-            XAxis.Include(MaxX);
+            XAxis?.Include(MinX);
+            XAxis?.Include(MaxX);
         }
 
         protected internal override void UpdateData()
@@ -264,7 +264,7 @@ namespace TimeDataViewer.Core
             for (var i = 0; i < Items.Count; i++)
             {
                 var item = Items[i];
-                if (valueAxis.IsValidValue(item.Begin) && valueAxis.IsValidValue(item.End))
+                if (valueAxis != null && valueAxis.IsValidValue(item.Begin) && valueAxis.IsValidValue(item.End))
                 {
                     ValidItemsIndexInversion.Add(ValidItems.Count, i);
                     ValidItems.Add(item);
@@ -290,7 +290,7 @@ namespace TimeDataViewer.Core
             return categoryAxis;
         }
 
-        private Axis GetValueAxis()
+        private Axis? GetValueAxis()
         {
             return XAxis;
         }
