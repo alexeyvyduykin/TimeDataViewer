@@ -9,6 +9,7 @@ namespace FootprintViewerDemo.Controls;
 public partial class TimelineControl
 {
     private ScreenPoint _mouseDownPoint;
+    private bool _isPressed = false;
 
     private void _panel_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
@@ -102,5 +103,74 @@ public partial class TimelineControl
         }
 
         e.Handled = ActualController.HandleMouseLeave(this, e.ToMouseEventArgs(_basePanel));
+    }
+
+    private void _panelX_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        if (e.Handled)
+        {
+            return;
+        }
+
+        Focus();
+        e.Pointer.Capture(_axisXPanel);
+
+        var point = e.GetPosition(_axisXPanel).ToScreenPoint();
+
+        foreach (var a in _plotModel.Axises)
+        {
+            if (a.IsHorizontal() == true && _slider != null)
+            {
+                var value = a.InverseTransform(point.X);
+
+                DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+                _slider.IsTracking = false;
+                _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                _slider.IsTracking = true;
+
+                _isPressed = true;
+
+                // TODO: update only slider
+                UpdateVisuals();
+            }
+        }
+    }
+
+    private void _panelX_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        _isPressed = false;
+    }
+
+    private void _panelX_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (_isPressed == true)
+        {
+            base.OnPointerMoved(e);
+            if (e.Handled)
+            {
+                return;
+            }
+
+            e.Pointer.Capture(_axisXPanel);
+
+            var point = e.GetPosition(_axisXPanel).ToScreenPoint();
+
+            foreach (var a in _plotModel.Axises)
+            {
+                if (a.IsHorizontal() == true && _slider != null)
+                {
+                    var value = a.InverseTransform(point.X);
+
+                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+                    _slider.IsTracking = false;
+                    _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                    _slider.IsTracking = true;
+
+                    // TODO: update only slider
+                    UpdateVisuals();
+                }
+            }
+        }
     }
 }

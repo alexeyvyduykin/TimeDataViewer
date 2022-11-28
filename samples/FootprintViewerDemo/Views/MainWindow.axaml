@@ -38,7 +38,7 @@
                 </ListBox.DataTemplates>
             </ListBox>
 
-            <!--<sch:Timeline Grid.Row="1"
+            <sch:Timeline Grid.Row="1"
                           Margin="8">
 
                 <sch:Timeline.Axises>
@@ -101,7 +101,7 @@
                                 Duration="{Binding Duration}"/>
                 </sch:Timeline.Slider>
 
-            </sch:Timeline>-->
+            </sch:Timeline>
 
             <ListBox Grid.Column="1"
                      Grid.RowSpan="3"

@@ -13,7 +13,6 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
-using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -36,6 +35,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_AxisXCanvas = "PART_AxisXCanvas";
     private const string PART_OverlayCanvas = "PART_OverlayCanvas";
     private const string PART_ZoomControl = "PART_ZoomControl";
+    private const string PART_TimelineSlider = "PART_TimelineSlider";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
     private Canvas? _backCanvas;
@@ -44,6 +44,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private Canvas? _axisXCanvas;
     private Canvas? _ovarlayCanvas;
     private ContentControl? _zoomControl;
+    private TimeDataViewer.Slider? _slider;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
@@ -51,8 +52,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private readonly PlotModel _plotModel;
     private readonly IPlotController _defaultController;
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-
-    //  private TimeDataViewer.Slider? _slider;
+    private double _begin;
+    private double _duration;
 
     public TimelineControl()
     {
@@ -105,8 +106,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         var beginScenario = ToTotalDays(epoch.Date, _timeOrigin) - 1;
         var endScenario = beginScenario + 3;
 
-        var begin = ToTotalDays(epoch, _timeOrigin);
-        var duration = 1.0;
+        _begin = ToTotalDays(epoch, _timeOrigin);
+        _duration = 1.0;
 
         var axisY = new TimeDataViewer.Core.CategoryAxis()
         {
@@ -225,11 +226,11 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _plotModel.Series.Add(series4);
         _plotModel.Series.Add(series5);
 
-        Slider = new TimeDataViewer.Slider()
+        if (_slider != null)
         {
-            Begin = begin,
-            Duration = duration
-        };
+            _slider.Begin = _begin;
+            _slider.Duration = _duration;
+        }
 
         InvalidatePlot(false);
         InvalidatePlot(true);
@@ -312,8 +313,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         base.OnApplyTemplate(e);
 
-        base.OnApplyTemplate(e);
-
         _basePanel = e.NameScope.Find<Panel>(PART_BasePanel);
         _axisXPanel = e.NameScope.Find<Panel>(PART_AxisXPanel);
 
@@ -341,6 +340,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _ovarlayCanvas = e.NameScope.Find<Canvas>(PART_OverlayCanvas);
 
         _zoomControl = e.NameScope.Find<ContentControl>(PART_ZoomControl);
+
+        _slider = e.NameScope.Find<TimeDataViewer.Slider>(PART_TimelineSlider);
     }
 
     public void SetCursorType(CursorType cursorType)
@@ -444,8 +445,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // The ActualModel.Update will be called (updates all series data).
     protected void UpdateModel(bool updateData = true)
     {
-        //SynchronizeSeries();
-
         if (ActualModel != null)
         {
             ((IPlotModel)ActualModel).Update(updateData);
@@ -666,81 +665,16 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         drawCanvas.RenderSeries(_plotModel.Series.Where(s => s.IsVisible).ToList());
     }
 
-    private bool _isPressed = false;
-
-    private void _panelX_PointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        _isPressed = false;
-    }
-
-    private void _panelX_PointerMoved(object? sender, PointerEventArgs e)
-    {
-        if (_isPressed == true)
-        {
-            base.OnPointerMoved(e);
-            if (e.Handled)
-            {
-                return;
-            }
-
-            e.Pointer.Capture(_axisXPanel);
-
-            var point = e.GetPosition(_axisXPanel).ToScreenPoint();
-
-            foreach (var a in _plotModel.Axises)
-            {
-                if (a.IsHorizontal() == true && Slider != null)
-                {
-                    var value = a.InverseTransform(point.X);
-
-                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                    Slider.IsTracking = false;
-                    Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                    Slider.IsTracking = true;
-                }
-            }
-        }
-    }
-
     public void SliderTo(double value)
     {
         foreach (var a in _plotModel.Axises)
         {
-            if (a.IsHorizontal() == true && Slider != null)
+            if (a.IsHorizontal() == true && _slider != null)
             {
                 DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                Slider.IsTracking = false;
-                Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                Slider.IsTracking = true;
-            }
-        }
-    }
-
-    private void _panelX_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-        if (e.Handled)
-        {
-            return;
-        }
-
-        Focus();
-        e.Pointer.Capture(_axisXPanel);
-
-        var point = e.GetPosition(_axisXPanel).ToScreenPoint();
-
-        foreach (var a in _plotModel.Axises)
-        {
-            if (a.IsHorizontal() == true && Slider != null)
-            {
-                var value = a.InverseTransform(point.X);
-
-                DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                Slider.IsTracking = false;
-                Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                Slider.IsTracking = true;
-
-                _isPressed = true;
+                _slider.IsTracking = false;
+                _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                _slider.IsTracking = true;
             }
         }
     }
@@ -749,49 +683,17 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         // TODO: Remove update method from render and replace to UpdateModel (present correct not work) 
         UpdateSlider();
-        Slider?.Render(contextAxis, contextPlot);
-    }
-
-    // Called when the visual appearance is changed.     
-    protected void OnAppearanceChanged()
-    {
-        InvalidatePlot(false);
-    }
-
-    // Called when the visual appearance is changed.
-    private static void AppearanceChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
-    {
-        ((TimelineControl)d).OnAppearanceChanged();
-    }
-
-    private static void SliderChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
-    {
-        ((TimelineControl)d).SyncLogicalTree(e);
-    }
-
-    private void SyncLogicalTree(AvaloniaPropertyChangedEventArgs e)
-    {
-        // In order to get DataContext and binding to work with the series, axes and annotations
-        // we add the items to the logical tree
-        if (e.NewValue != null)
-        {
-            ((ISetLogicalParent)e.NewValue).SetParent(this);
-
-            LogicalChildren.Add((ILogical)e.NewValue);
-            VisualChildren.Add((IVisual)e.NewValue);
-        }
-
-        if (e.OldValue != null)
-        {
-            ((ISetLogicalParent)e.OldValue).SetParent(null);
-
-            LogicalChildren.Remove((ILogical)e.OldValue);
-            VisualChildren.Remove((IVisual)e.OldValue);
-        }
+        _slider?.Render(contextAxis, contextPlot);
     }
 
     private void UpdateSlider()
     {
-        Slider?.UpdateMinMax(ActualModel);
+        if (_slider != null)
+        {
+            _slider.Begin = _begin;
+            _slider.Duration = _duration;
+        }
+
+        _slider?.UpdateMinMax(ActualModel);
     }
 }

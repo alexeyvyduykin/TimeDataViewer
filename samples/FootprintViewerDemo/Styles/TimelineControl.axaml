@@ -79,6 +79,8 @@
                                     <ContentControl Name="PART_ZoomControl"/>
                                 </Canvas>
                             </Panel>
+                            <base:Slider x:Name="PART_TimelineSlider"
+                                         Grid.RowSpan="2"/>
                         </Grid>
                     </Border>
                 </ControlTemplate>

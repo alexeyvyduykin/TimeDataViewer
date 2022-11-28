@@ -1,19 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Markup.Xaml.Templates;
-using TimeDataViewer;
 
 namespace FootprintViewerDemo.Controls;
 
 public partial class TimelineControl
 {
-    static TimelineControl()
-    {
-        PaddingProperty.OverrideDefaultValue<TimelineControl>(new Thickness(8));
-        PaddingProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
-
-        SliderProperty.Changed.AddClassHandler<TimelineControl>(SliderChanged);
-    }
-
     public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =
         AvaloniaProperty.Register<TimelineControl, ControlTemplate>(nameof(DefaultLabelTemplate));
 
@@ -59,23 +50,6 @@ public partial class TimelineControl
         set
         {
             SetValue(ZoomRectangleTemplateProperty, value);
-        }
-    }
-
-
-    public static readonly StyledProperty<Slider> SliderProperty =
-        AvaloniaProperty.Register<TimelineControl, Slider>(nameof(Slider));
-
-    public Slider Slider
-    {
-        get
-        {
-            return GetValue(SliderProperty);
-        }
-
-        set
-        {
-            SetValue(SliderProperty, value);
         }
     }
 }
