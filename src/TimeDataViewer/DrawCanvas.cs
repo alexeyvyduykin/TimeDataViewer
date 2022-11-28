@@ -4,163 +4,219 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer
+namespace TimeDataViewer;
+
+public class DrawCanvas : Canvas
 {
-    public class DrawCanvas : Canvas
+    private Rect? _clip;
+    private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };
+    private readonly Dictionary<TimelineSeries, IList<Rect>> _dict = new();
+    private readonly Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new();
+
+    private readonly Dictionary<Core.TimelineSeries, IList<Rect>> _dict2 = new();
+    private readonly Dictionary<Core.TimelineSeries, IList<Rect>> _selectedDict2 = new();
+
+    private readonly IBrush _fillBrush = new SolidColorBrush(Colors.Red);
+
+    public override void Render(DrawingContext context)
     {
-        private Rect? _clip;
-        private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };
-        private readonly Dictionary<TimelineSeries, IList<Rect>> _dict = new();
-        private readonly Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new();
+        base.Render(context);
 
-        public override void Render(DrawingContext context)
+        if (_dict.Count != 0)
         {
-            base.Render(context);
-
-            if (_dict.Count != 0)
+            foreach (var series in _dict.Keys)
             {
-                foreach (var series in _dict.Keys)
-                {
-                    var pen = new Pen() { Brush = series.StrokeBrush };
+                var pen = new Pen() { Brush = series.StrokeBrush };
 
-                    foreach (var item in _dict[series])
-                    {
-                        context.DrawRectangle(series.FillBrush, pen, item);
-                    }
-                }
-            }
-
-            if (_selectedDict.Count != 0)
-            {
-                foreach (var series in _selectedDict.Keys)
+                foreach (var item in _dict[series])
                 {
-                    foreach (var item in _selectedDict[series])
-                    {
-                        context.DrawRectangle(series.FillBrush, _selectedPen, item);
-                    }
+                    context.DrawRectangle(series.FillBrush, pen, item);
                 }
             }
         }
 
-        public void RenderSeries(IEnumerable<Series> series)
+        if (_selectedDict.Count != 0)
         {
-            _dict.Clear();
-            _selectedDict.Clear();
-
-            foreach (var s in series)
+            foreach (var series in _selectedDict.Keys)
             {
-                List<Rect> list1 = new List<Rect>();
-                List<Rect> list2 = new List<Rect>();
-
-                var innserSeries = ((Core.TimelineSeries)s.InternalSeries);
-
-                foreach (var item in innserSeries.MyRectList)
+                foreach (var item in _selectedDict[series])
                 {
-                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list1);
+                    context.DrawRectangle(series.FillBrush, _selectedPen, item);
                 }
+            }
+        }
 
-                _dict.Add((TimelineSeries)s, list1);
+        if (_dict2.Count != 0)
+        {
+            foreach (var series in _dict2.Keys)
+            {
+                var pen = new Pen() { Brush = Brushes.Black };
 
-                foreach (var item in innserSeries.MySelectedRectList)
+                foreach (var item in _dict2[series])
                 {
-                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list2);
+                    context.DrawRectangle(_fillBrush, pen, item);
                 }
-
-                _selectedDict.Add((TimelineSeries)s, list2);
             }
-
-            InvalidateVisual();
         }
 
-        protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect, IList<Rect> list)
+        if (_selectedDict2.Count != 0)
         {
-            if (SetClip(clippingRectangle))
+            foreach (var series in _selectedDict2.Keys)
             {
-                list.Add(rect);
-                ResetClip();
-                return;
+                foreach (var item in _selectedDict2[series])
+                {
+                    context.DrawRectangle(_fillBrush, _selectedPen, item);
+                }
             }
-
-            var clippedRect = ClipRect(rect, clippingRectangle);
-            if (clippedRect == null)
-            {
-                return;
-            }
-
-            list.Add(clippedRect.Value);
         }
+    }
 
-        protected bool SetClip(OxyRect clippingRect)
+    public void RenderSeries(IEnumerable<Series> series)
+    {
+        _dict.Clear();
+        _selectedDict.Clear();
+
+        foreach (var s in series)
         {
-            _clip = ToRect(clippingRect);
-            return false;//true;
+            List<Rect> list1 = new List<Rect>();
+            List<Rect> list2 = new List<Rect>();
+
+            var innserSeries = ((Core.TimelineSeries)s.InternalSeries);
+
+            foreach (var item in innserSeries.MyRectList)
+            {
+                CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list1);
+            }
+
+            _dict.Add((TimelineSeries)s, list1);
+
+            foreach (var item in innserSeries.MySelectedRectList)
+            {
+                CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list2);
+            }
+
+            _selectedDict.Add((TimelineSeries)s, list2);
         }
 
-        protected static Rect? ClipRect(Rect rect, OxyRect clippingRectangle)
+        InvalidateVisual();
+    }
+
+    public void RenderSeries(IEnumerable<TimeDataViewer.Core.Series> series)
+    {
+        _dict2.Clear();
+        _selectedDict2.Clear();
+
+        foreach (Core.TimelineSeries s in series)
         {
-            if (rect.Right < clippingRectangle.Left)
+            List<Rect> list1 = new List<Rect>();
+            List<Rect> list2 = new List<Rect>();
+
+            foreach (var item in s.MyRectList)
             {
-                return null;
+                CreateClippedRectangle(s.MyClippingRect, ToRect(item), list1);
             }
 
-            if (rect.Left > clippingRectangle.Right)
+            _dict2.Add(s, list1);
+
+            foreach (var item in s.MySelectedRectList)
             {
-                return null;
+                CreateClippedRectangle(s.MyClippingRect, ToRect(item), list2);
             }
 
-            if (rect.Top > clippingRectangle.Bottom)
-            {
-                return null;
-            }
-
-            if (rect.Bottom < clippingRectangle.Top)
-            {
-                return null;
-            }
-
-            var width = rect.Width;
-            var left = rect.Left;
-            var top = rect.Top;
-            var height = rect.Height;
-
-            if (left + width > clippingRectangle.Right)
-            {
-                width = clippingRectangle.Right - left;
-            }
-
-            if (left < clippingRectangle.Left)
-            {
-                width = rect.Right - clippingRectangle.Left;
-                left = clippingRectangle.Left;
-            }
-
-            if (top < clippingRectangle.Top)
-            {
-                height = rect.Bottom - clippingRectangle.Top;
-                top = clippingRectangle.Top;
-            }
-
-            if (top + height > clippingRectangle.Bottom)
-            {
-                height = clippingRectangle.Bottom - top;
-            }
-
-            if (rect.Width <= 0 || rect.Height <= 0)
-            {
-                return null;
-            }
-
-            return new Rect(left, top, width, height);
+            _selectedDict2.Add(s, list2);
         }
 
-        protected void ResetClip()
+        InvalidateVisual();
+    }
+
+    protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect, IList<Rect> list)
+    {
+        if (SetClip(clippingRectangle))
         {
-            _clip = null;
+            list.Add(rect);
+            ResetClip();
+            return;
         }
 
-        protected static Rect ToRect(OxyRect r)
+        var clippedRect = ClipRect(rect, clippingRectangle);
+        if (clippedRect == null)
         {
-            return new Rect(r.Left, r.Top, r.Width, r.Height);
+            return;
         }
+
+        list.Add(clippedRect.Value);
+    }
+
+    protected bool SetClip(OxyRect clippingRect)
+    {
+        _clip = ToRect(clippingRect);
+        return false;//true;
+    }
+
+    protected static Rect? ClipRect(Rect rect, OxyRect clippingRectangle)
+    {
+        if (rect.Right < clippingRectangle.Left)
+        {
+            return null;
+        }
+
+        if (rect.Left > clippingRectangle.Right)
+        {
+            return null;
+        }
+
+        if (rect.Top > clippingRectangle.Bottom)
+        {
+            return null;
+        }
+
+        if (rect.Bottom < clippingRectangle.Top)
+        {
+            return null;
+        }
+
+        var width = rect.Width;
+        var left = rect.Left;
+        var top = rect.Top;
+        var height = rect.Height;
+
+        if (left + width > clippingRectangle.Right)
+        {
+            width = clippingRectangle.Right - left;
+        }
+
+        if (left < clippingRectangle.Left)
+        {
+            width = rect.Right - clippingRectangle.Left;
+            left = clippingRectangle.Left;
+        }
+
+        if (top < clippingRectangle.Top)
+        {
+            height = rect.Bottom - clippingRectangle.Top;
+            top = clippingRectangle.Top;
+        }
+
+        if (top + height > clippingRectangle.Bottom)
+        {
+            height = clippingRectangle.Bottom - top;
+        }
+
+        if (rect.Width <= 0 || rect.Height <= 0)
+        {
+            return null;
+        }
+
+        return new Rect(left, top, width, height);
+    }
+
+    protected void ResetClip()
+    {
+        _clip = null;
+    }
+
+    protected static Rect ToRect(OxyRect r)
+    {
+        return new Rect(r.Left, r.Top, r.Width, r.Height);
     }
 }

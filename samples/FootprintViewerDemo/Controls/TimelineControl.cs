@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,7 +15,6 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
-using Avalonia.Metadata;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using DynamicData;
@@ -52,18 +50,15 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private IControl? _currentTracker;
     private readonly PlotModel _plotModel;
     private readonly IPlotController _defaultController;
-    private readonly ObservableCollection<TimeDataViewer.Series> _series;
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+
+    //  private TimeDataViewer.Slider? _slider;
 
     public TimelineControl()
     {
         DisconnectCanvasWhileUpdating = false;// true;
         _trackerDefinitions = new ObservableCollection<TrackerDefinition>();
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
-
-        _series = new ObservableCollection<TimeDataViewer.Series>();
-
-        _series.CollectionChanged += OnSeriesChanged;
 
         _defaultController = new PlotController();
 
@@ -79,9 +74,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
         InitData();
     }
-
-    [Content]
-    public Collection<TimeDataViewer.Series> Series => _series;
 
     private void InitData()
     {
@@ -167,61 +159,80 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         var items4 = footprints.Where(s => Equals(s.SatelliteName, "Satellite4")).Select(s => CreateInterval(s, epoch)).ToList();
         var items5 = footprints.Where(s => Equals(s.SatelliteName, "Satellite5")).Select(s => CreateInterval(s, epoch)).ToList();
 
-        _series.Add(new TimeDataViewer.TimelineSeries()
+        var series1 = new TimeDataViewer.Core.TimelineSeries()
         {
             BarWidth = 0.5,
-            FillBrush = Brushes.LightCoral,
-            Items = items1,
+            // FillBrush = Brushes.LightCoral,        
+            ItemsSource = items1,
             CategoryField = "Category",
             BeginField = "BeginTime",
-            EndField = "EndTime"
-        });
+            EndField = "EndTime",
+            IsVisible = true,
 
-        _series.Add(new TimeDataViewer.TimelineSeries()
+        };
+
+        var series2 = new TimeDataViewer.Core.TimelineSeries()
         {
             BarWidth = 0.5,
-            FillBrush = Brushes.Green,
-            Items = items2,
+            // FillBrush = Brushes.Green,        
+            ItemsSource = items2,
             CategoryField = "Category",
             BeginField = "BeginTime",
-            EndField = "EndTime"
-        });
+            EndField = "EndTime",
+            IsVisible = true,
 
-        _series.Add(new TimeDataViewer.TimelineSeries()
+        };
+
+        var series3 = new TimeDataViewer.Core.TimelineSeries()
         {
             BarWidth = 0.5,
-            FillBrush = Brushes.Blue,
-            Items = items3,
+            // FillBrush = Brushes.Blue,        
+            ItemsSource = items3,
             CategoryField = "Category",
             BeginField = "BeginTime",
-            EndField = "EndTime"
-        });
+            EndField = "EndTime",
+            IsVisible = true,
 
-        _series.Add(new TimeDataViewer.TimelineSeries()
+        };
+
+        var series4 = new TimeDataViewer.Core.TimelineSeries()
         {
             BarWidth = 0.5,
-            FillBrush = Brushes.Red,
-            Items = items4,
+            // FillBrush = Brushes.Red,        
+            ItemsSource = items4,
             CategoryField = "Category",
             BeginField = "BeginTime",
-            EndField = "EndTime"
-        });
+            EndField = "EndTime",
+            IsVisible = true,
 
-        //_series.Add(new TimeDataViewer.TimelineSeries()
-        //{
-        //    BarWidth = 0.5,
-        //    FillBrush = Brushes.Yellow,
-        //    Items = items5,
-        //    CategoryField = "Category",
-        //    BeginField = "BeginTime",
-        //    EndField = "EndTime"
-        //});
+        };
+
+        var series5 = new TimeDataViewer.Core.TimelineSeries()
+        {
+            BarWidth = 0.5,
+            // FillBrush = Brushes.Yellow,        
+            ItemsSource = items5,
+            CategoryField = "Category",
+            BeginField = "BeginTime",
+            EndField = "EndTime",
+            IsVisible = true,
+
+        };
+
+        _plotModel.Series.Add(series1);
+        _plotModel.Series.Add(series2);
+        _plotModel.Series.Add(series3);
+        _plotModel.Series.Add(series4);
+        _plotModel.Series.Add(series5);
 
         Slider = new TimeDataViewer.Slider()
         {
             Begin = begin,
             Duration = duration
         };
+
+        InvalidatePlot(false);
+        InvalidatePlot(true);
     }
 
     public static double ToTotalDays(DateTime value, DateTime timeOrigin)
@@ -433,7 +444,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // The ActualModel.Update will be called (updates all series data).
     protected void UpdateModel(bool updateData = true)
     {
-        SynchronizeSeries();
+        //SynchronizeSeries();
 
         if (ActualModel != null)
         {
@@ -585,7 +596,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private readonly Pen MinorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
     private readonly Pen MajorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
 
-
     private void RenderAxis(TimeDataViewer.Core.Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
     {
         if (internalAxis == null)
@@ -653,7 +663,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     protected void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas)
     {
-        drawCanvas.RenderSeries(Series.Where(s => s.IsVisible).ToList());
+        drawCanvas.RenderSeries(_plotModel.Series.Where(s => s.IsVisible).ToList());
     }
 
     private bool _isPressed = false;
@@ -679,7 +689,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
             foreach (var a in _plotModel.Axises)
             {
-                if (a.IsHorizontal() == true)
+                if (a.IsHorizontal() == true && Slider != null)
                 {
                     var value = a.InverseTransform(point.X);
 
@@ -696,7 +706,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         foreach (var a in _plotModel.Axises)
         {
-            if (a.IsHorizontal() == true)
+            if (a.IsHorizontal() == true && Slider != null)
             {
                 DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
                 Slider.IsTracking = false;
@@ -721,7 +731,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
         foreach (var a in _plotModel.Axises)
         {
-            if (a.IsHorizontal() == true)
+            if (a.IsHorizontal() == true && Slider != null)
             {
                 var value = a.InverseTransform(point.X);
 
@@ -739,7 +749,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         // TODO: Remove update method from render and replace to UpdateModel (present correct not work) 
         UpdateSlider();
-        Slider.Render(contextAxis, contextPlot);
+        Slider?.Render(contextAxis, contextPlot);
     }
 
     // Called when the visual appearance is changed.     
@@ -757,39 +767,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private static void SliderChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
     {
         ((TimelineControl)d).SyncLogicalTree(e);
-    }
-
-    private void OnSeriesChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        SyncLogicalTree(e);
-    }
-
-    private void SyncLogicalTree(NotifyCollectionChangedEventArgs e)
-    {
-        // In order to get DataContext and binding to work with the series, axes and annotations
-        // we add the items to the logical tree
-        if (e.NewItems != null)
-        {
-            foreach (var item in e.NewItems.OfType<ISetLogicalParent>())
-            {
-                item.SetParent(this);
-            }
-            LogicalChildren.AddRange(e.NewItems.OfType<ILogical>());
-            VisualChildren.AddRange(e.NewItems.OfType<IVisual>());
-        }
-
-        if (e.OldItems != null)
-        {
-            foreach (var item in e.OldItems.OfType<ISetLogicalParent>())
-            {
-                item.SetParent(null);
-            }
-            foreach (var item in e.OldItems)
-            {
-                LogicalChildren.Remove((ILogical)item);
-                VisualChildren.Remove((IVisual)item);
-            }
-        }
     }
 
     private void SyncLogicalTree(AvaloniaPropertyChangedEventArgs e)
@@ -810,16 +787,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
             LogicalChildren.Remove((ILogical)e.OldValue);
             VisualChildren.Remove((IVisual)e.OldValue);
-        }
-    }
-
-    // Synchronizes the series in the internal model.       
-    private void SynchronizeSeries()
-    {
-        _plotModel.Series.Clear();
-        foreach (var s in Series)
-        {
-            _plotModel.Series.Add(s.CreateModel());
         }
     }
 

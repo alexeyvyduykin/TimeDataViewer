@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Markup.Xaml.Templates;
 using TimeDataViewer;
 
@@ -11,10 +10,6 @@ public partial class TimelineControl
     {
         PaddingProperty.OverrideDefaultValue<TimelineControl>(new Thickness(8));
         PaddingProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
-        CultureProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
-        DefaultFontProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
-        DefaultFontSizeProperty.Changed.AddClassHandler<TimelineControl>(AppearanceChanged);
-        InvalidateFlagProperty.Changed.AddClassHandler<TimelineControl>((s, e) => s.InvalidateFlagChanged());
 
         SliderProperty.Changed.AddClassHandler<TimelineControl>(SliderChanged);
     }
@@ -82,76 +77,5 @@ public partial class TimelineControl
         {
             SetValue(SliderProperty, value);
         }
-    }
-
-    public static readonly StyledProperty<CultureInfo> CultureProperty =
-        AvaloniaProperty.Register<TimelineControl, CultureInfo>(nameof(Culture));
-
-    public CultureInfo Culture
-    {
-        get
-        {
-            return GetValue(CultureProperty);
-        }
-
-        set
-        {
-            SetValue(CultureProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<string> DefaultFontProperty =
-        AvaloniaProperty.Register<TimelineControl, string>(nameof(DefaultFont), "Segoe UI");
-
-    public string DefaultFont
-    {
-        get
-        {
-            return GetValue(DefaultFontProperty);
-        }
-
-        set
-        {
-            SetValue(DefaultFontProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<double> DefaultFontSizeProperty =
-        AvaloniaProperty.Register<TimelineControl, double>(nameof(DefaultFontSize), 12d);
-
-    public double DefaultFontSize
-    {
-        get
-        {
-            return GetValue(DefaultFontSizeProperty);
-        }
-
-        set
-        {
-            SetValue(DefaultFontSizeProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<int> InvalidateFlagProperty =
-        AvaloniaProperty.Register<TimelineControl, int>(nameof(InvalidateFlag), 0);
-
-    // Gets or sets the refresh flag (an integer value). When the flag is changed, the Plot will be refreshed.
-    public int InvalidateFlag
-    {
-        get
-        {
-            return GetValue(InvalidateFlagProperty);
-        }
-
-        set
-        {
-            SetValue(InvalidateFlagProperty, value);
-        }
-    }
-
-    // Invalidates the Plot control/view when the <see cref="InvalidateFlag" /> property is changed.
-    private void InvalidateFlagChanged()
-    {
-        InvalidatePlot();
     }
 }

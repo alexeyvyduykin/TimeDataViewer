@@ -38,7 +38,7 @@
                 </ListBox.DataTemplates>
             </ListBox>
 
-            <sch:Timeline Grid.Row="1"
+            <!--<sch:Timeline Grid.Row="1"
                           Margin="8">
 
                 <sch:Timeline.Axises>
@@ -101,7 +101,7 @@
                                 Duration="{Binding Duration}"/>
                 </sch:Timeline.Slider>
 
-            </sch:Timeline>
+            </sch:Timeline>-->
 
             <ListBox Grid.Column="1"
                      Grid.RowSpan="3"
@@ -123,20 +123,7 @@
             </ListBox>
 
             <controls:TimelineControl Grid.Row="2"
-                                      Margin="8">
-
-                <controls:TimelineControl.Series>
-
-                    <sch:TimelineSeries BarWidth="0.5"
-                                        FillBrush="Yellow"
-                                        Items="{Binding Intervals5}"
-                                        CategoryField="Category"
-                                        BeginField="BeginTime"
-                                        EndField="EndTime"/>
-
-                </controls:TimelineControl.Series>
-
-            </controls:TimelineControl>
+                                      Margin="8"/>
 
         </Grid>
     </Panel>
