@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using TimeDataViewer.Core;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer;
@@ -71,6 +73,14 @@ public class DrawCanvas : Canvas
         }
     }
 
+    public void RenderSeries(PlotModel? model)
+    {
+        if (model != null)
+        {
+            RenderSeries(model.Series.Where(s => s.IsVisible).ToList());
+        }
+    }
+
     public void RenderSeries(IEnumerable<Series> series)
     {
         _dict.Clear();
@@ -101,7 +111,7 @@ public class DrawCanvas : Canvas
         InvalidateVisual();
     }
 
-    public void RenderSeries(IEnumerable<TimeDataViewer.Core.Series> series)
+    public void RenderSeries(IEnumerable<Core.Series> series)
     {
         _dict2.Clear();
         _selectedDict2.Clear();

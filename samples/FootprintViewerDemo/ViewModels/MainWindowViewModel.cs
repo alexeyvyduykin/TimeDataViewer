@@ -45,9 +45,6 @@ public class MainWindowViewModel : ViewModelBase
         BeginScenario = 0.0;
         EndScenario = 2 * 86400.0;
 
-        Begin = 0.0;
-        Duration = 1;
-
         _satellites
             .Connect()
             .ObserveOn(RxApp.MainThreadScheduler)
@@ -113,7 +110,13 @@ public class MainWindowViewModel : ViewModelBase
         Selected = Satellites.FirstOrDefault();
 
         Observable.StartAsync(UpdateImpl, RxApp.MainThreadScheduler)
-            .Subscribe(s => PlotModel = CreatePlotModel());
+            .Subscribe(s =>
+            {
+                Begin = ToTotalDays(Epoch, _timeOrigin);
+                Duration = 1.0;
+
+                PlotModel = CreatePlotModel();
+            });
     }
 
     public ReactiveCommand<Unit, Unit> Update { get; }
@@ -136,9 +139,6 @@ public class MainWindowViewModel : ViewModelBase
 
         BeginScenario = ToTotalDays(Epoch.Date, _timeOrigin) - 1;
         EndScenario = BeginScenario + 3;
-
-        Begin = ToTotalDays(Epoch, _timeOrigin);
-        Duration = 1.0;
 
         _footprints.Edit(innerList =>
         {
@@ -280,10 +280,10 @@ public class MainWindowViewModel : ViewModelBase
     public double EndScenario { get; set; }
 
     [Reactive]
-    public double Begin { get; set; } = 0.0;
+    public double Begin { get; set; }
 
     [Reactive]
-    public double Duration { get; set; } = 86400.0;
+    public double Duration { get; set; }
 
     [Reactive]
     public string? Selected { get; set; }

@@ -64,6 +64,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public IController? ActualController => _defaultController;
 
+    public TimeDataViewer.Slider? Slider => _slider;
+
     // Gets the coordinates of the client area of the view.
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
