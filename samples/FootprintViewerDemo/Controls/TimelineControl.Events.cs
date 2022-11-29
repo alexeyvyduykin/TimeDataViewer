@@ -15,7 +15,7 @@ public partial class TimelineControl
     {
         base.OnPointerWheelChanged(e);
 
-        if (e.Handled || _basePanel == null)
+        if (e.Handled || _basePanel == null || ActualController == null)
         {
             return;
         }
@@ -37,13 +37,16 @@ public partial class TimelineControl
         // store the mouse down point, check it when mouse button is released to determine if the context menu should be shown
         _mouseDownPoint = e.GetPosition(_basePanel).ToScreenPoint();
 
-        e.Handled = ActualController.HandleMouseDown(this, e.ToMouseDownEventArgs(_basePanel));
+        if (ActualController != null)
+        {
+            e.Handled = ActualController.HandleMouseDown(this, e.ToMouseDownEventArgs(_basePanel));
+        }
     }
 
     private void _panel_PointerMoved(object? sender, PointerEventArgs e)
     {
         base.OnPointerMoved(e);
-        if (e.Handled || _basePanel == null)
+        if (e.Handled || _basePanel == null || ActualController == null)
         {
             return;
         }
@@ -63,7 +66,10 @@ public partial class TimelineControl
 
         e.Pointer.Capture(null);
 
-        e.Handled = ActualController.HandleMouseUp(this, releasedArgs.ToMouseReleasedEventArgs(_basePanel));
+        if (ActualController != null)
+        {
+            e.Handled = ActualController.HandleMouseUp(this, releasedArgs.ToMouseReleasedEventArgs(_basePanel));
+        }
 
         // Open the context menu
         var p = e.GetPosition(_basePanel).ToScreenPoint();
@@ -86,7 +92,7 @@ public partial class TimelineControl
     private void _panel_PointerEnter(object? sender, PointerEventArgs e)
     {
         base.OnPointerEnter(e);
-        if (e.Handled || _basePanel == null)
+        if (e.Handled || _basePanel == null || ActualController == null)
         {
             return;
         }
@@ -97,7 +103,7 @@ public partial class TimelineControl
     private void _panel_PointerLeave(object? sender, PointerEventArgs e)
     {
         base.OnPointerLeave(e);
-        if (e.Handled || _basePanel == null)
+        if (e.Handled || _basePanel == null || ActualController == null)
         {
             return;
         }
@@ -116,23 +122,28 @@ public partial class TimelineControl
         Focus();
         e.Pointer.Capture(_axisXPanel);
 
+        if (ActualModel == null)
+        {
+            return;
+        }
+
         var point = e.GetPosition(_axisXPanel).ToScreenPoint();
 
-        foreach (var a in _plotModel.Axises)
+        foreach (var a in ActualModel.Axises)
         {
             if (a.IsHorizontal() == true && _slider != null)
             {
                 var value = a.InverseTransform(point.X);
 
-                DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
                 _slider.IsTracking = false;
-                _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                _slider.CurrentValue = _timeOrigin.AddDays(value - 1);
                 _slider.IsTracking = true;
 
                 _isPressed = true;
 
                 // TODO: update only slider
-                UpdateVisuals();
+                UpdateSlider();
+                _renderer.Draw();
             }
         }
     }
@@ -154,21 +165,26 @@ public partial class TimelineControl
 
             e.Pointer.Capture(_axisXPanel);
 
+            if (ActualModel == null)
+            {
+                return;
+            }
+
             var point = e.GetPosition(_axisXPanel).ToScreenPoint();
 
-            foreach (var a in _plotModel.Axises)
+            foreach (var axis in ActualModel.Axises)
             {
-                if (a.IsHorizontal() == true && _slider != null)
+                if (axis.IsHorizontal() == true && _slider != null)
                 {
-                    var value = a.InverseTransform(point.X);
+                    var value = axis.InverseTransform(point.X);
 
-                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
                     _slider.IsTracking = false;
-                    _slider.CurrentValue = TimeOrigin.AddDays(value - 1);
+                    _slider.CurrentValue = _timeOrigin.AddDays(value - 1);
                     _slider.IsTracking = true;
 
                     // TODO: update only slider
-                    UpdateVisuals();
+                    UpdateSlider();
+                    _renderer.Draw();
                 }
             }
         }
