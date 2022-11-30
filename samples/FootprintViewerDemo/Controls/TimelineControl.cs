@@ -34,7 +34,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private PlotModel? _plotModel;
-    private readonly IPlotController _defaultController;
     private readonly Renderer _renderer;
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
@@ -42,14 +41,12 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
 
-        _defaultController = new PlotController();
-
         _renderer = new(this);
     }
 
     public PlotModel? ActualModel => _plotModel;
 
-    public IController? ActualController => _defaultController;
+    public IController? ActualController { get; }
 
     public TimeDataViewer.Slider? Slider => _slider;
 
@@ -110,8 +107,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             return;
         }
 
-        _basePanel.PointerEnter += _panel_PointerEnter;
-        _basePanel.PointerLeave += _panel_PointerLeave;
         _basePanel.PointerWheelChanged += _panel_PointerWheelChanged;
         _basePanel.PointerPressed += _panel_PointerPressed;
         _basePanel.PointerMoved += _panel_PointerMoved;
