@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
@@ -34,16 +33,15 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private TimeDataViewer.Slider? _slider;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
-    private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
-    private IControl? _currentTracker;
+    private TrackerControl2? _currentTracker;
     private PlotModel? _plotModel;
     private readonly IPlotController _defaultController;
     private readonly Renderer _renderer;
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+    private DataTemplates? _trackerDataTemplates;
 
     public TimelineControl()
     {
-        _trackerDefinitions = new ObservableCollection<TrackerDefinition>();
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
 
         _defaultController = new PlotController();
@@ -60,16 +58,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Gets the coordinates of the client area of the view.
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
-    public ObservableCollection<TrackerDefinition> TrackerDefinitions => _trackerDefinitions;
-
-    public void HideTracker()
-    {
-        if (_currentTracker != null)
-        {
-            _ovarlayCanvas?.Children.Remove(_currentTracker);
-            _currentTracker = null;
-        }
-    }
+    public DataTemplates TrackerDataTemplates => _trackerDataTemplates ??= new DataTemplates();
 
     protected override void OnDataContextChanged(EventArgs e)
     {
@@ -164,7 +153,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         };
     }
 
-    public void ShowTracker(TrackerHitResult trackerHitResult)
+    public void ShowTracker(TrackerHitResult? trackerHitResult)
     {
         if (trackerHitResult == null)
         {
@@ -172,35 +161,31 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             return;
         }
 
-        var trackerTemplate = DefaultTrackerTemplate;
-        if (trackerHitResult.Series != null && !string.IsNullOrEmpty(trackerHitResult.Series.TrackerKey))
+        var tracker = new TrackerControl2()
         {
-            var match = TrackerDefinitions.FirstOrDefault(t => t.TrackerKey == trackerHitResult.Series.TrackerKey);
-            if (match != null)
-            {
-                trackerTemplate = match.TrackerTemplate;
-            }
-        }
-
-        if (trackerTemplate == null)
-        {
-            HideTracker();
-            return;
-        }
-
-        var tracker = trackerTemplate.Build(new ContentControl());
+            ContentTemplate = TrackerTemplate,
+        };
 
         // ReSharper disable once RedundantNameQualifier
         if (!object.ReferenceEquals(tracker, _currentTracker))
         {
             HideTracker();
-            _ovarlayCanvas?.Children.Add(tracker.Control);
-            _currentTracker = tracker.Control;
+            _ovarlayCanvas?.Children.Add(tracker);
+            _currentTracker = tracker;
         }
 
         if (_currentTracker != null)
         {
             _currentTracker.DataContext = trackerHitResult;
+        }
+    }
+
+    public void HideTracker()
+    {
+        if (_currentTracker != null)
+        {
+            _ovarlayCanvas?.Children.Remove(_currentTracker);
+            _currentTracker = null;
         }
     }
 

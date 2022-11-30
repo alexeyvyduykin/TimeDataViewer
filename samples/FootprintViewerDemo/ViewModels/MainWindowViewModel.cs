@@ -190,7 +190,8 @@ public class MainWindowViewModel : ViewModelBase
             CategoryField = "Category",
             BeginField = "BeginTime",
             EndField = "EndTime",
-            IsVisible = true
+            IsVisible = true,
+            TrackerKey = intervals.FirstOrDefault()?.Category ?? string.Empty,
         };
     }
 

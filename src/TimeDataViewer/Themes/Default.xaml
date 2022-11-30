@@ -48,6 +48,40 @@
     </Setter>
   </Style>
 
+  <Style Selector="local|TrackerControl2">
+    <Setter Property="Distance" Value="8" />
+    <Setter Property="CanCenterHorizontally" Value="true" />
+    <Setter Property="CanCenterVertically" Value="true" />
+    <Setter Property="IsHitTestVisible" Value="false" />  
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Panel HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 ClipToBounds="False">
+            <Panel Name="PART_ContentContainer"
+                   ClipToBounds="False">
+              <Border Name="PART_Border"
+                      BorderBrush="Black"
+                      BorderThickness="1"
+                      CornerRadius="4"
+                      Background="White"
+                      Opacity="0.6"
+                      Margin="{TemplateBinding MarginPointer}"/>
+              <ContentPresenter Name="PART_Content"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalAlignment="Center">
+              </ContentPresenter>
+            </Panel>
+          </Panel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+
   <Style Selector="local|TrackerControl /template/ Border#PART_Border">
     <Setter Property="BorderBrush" Value="Black"></Setter>
     <Setter Property="BorderThickness" Value="1"></Setter>

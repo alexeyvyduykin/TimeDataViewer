@@ -3,6 +3,7 @@
         xmlns:vm="using:FootprintViewerDemo.ViewModels"
         xmlns:models="using:FootprintViewerDemo.Models"
         xmlns:controls="using:FootprintViewerDemo.Controls"
+        xmlns:selectors="using:FootprintViewerDemo.Selectors"
         xmlns:vmd="using:FootprintViewerDemo.Designer"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -21,6 +22,22 @@
     <Design.DataContext>
         <vmd:DesignTimeMainWindowViewModel/>
     </Design.DataContext>
+
+    <Window.Resources>
+        <selectors:TrackerTemplateSelector x:Key="TrackerSelector">
+            <DataTemplate x:Key="Satellite23">
+                <Border Width="120" Height="120" Background="Blue"/>
+            </DataTemplate>
+            <DataTemplate x:Key="Satellite34">
+                <Border Width="70" Height="70" Background="Green"/>
+            </DataTemplate>
+            <DataTemplate x:Key="Default">
+                <TextBlock Text="{Binding Text}"
+                           Foreground="Black"
+                           Margin="7"/>
+            </DataTemplate>
+        </selectors:TrackerTemplateSelector>
+    </Window.Resources>
 
     <Panel>
         <Grid RowDefinitions="Auto,*,400"
@@ -126,7 +143,9 @@
                                       Margin="8"
                                       DataContext="{Binding PlotModel}"
                                       Begin="{Binding $parent[TopLevel].DataContext.Begin}"
-                                      Duration="{Binding $parent[TopLevel].DataContext.Duration}"/>
+                                      Duration="{Binding $parent[TopLevel].DataContext.Duration}"
+                                      TrackerTemplate="{StaticResource TrackerSelector}">
+            </controls:TimelineControl>
 
         </Grid>
     </Panel>

@@ -69,15 +69,15 @@ namespace TimeDataViewer.Core
                         Item = item,
                         Index = i,
                         Text = StringHelper.Format(
-                        System.Globalization.CultureInfo.CurrentCulture,
-                        TrackerFormatString,
-                        item,
-                        "Category",                               // {0}
-                        categoryAxis.FormatValue(categoryIndex),  // {1}
-                        "Begin",                                  // {2}
-                        valueAxis.GetValue(Items[i].Begin),       // {3}
-                        "End",                                    // {4}
-                        valueAxis.GetValue(Items[i].End))         // {5}                        
+                            System.Globalization.CultureInfo.CurrentCulture,
+                            TrackerFormatString,
+                            item,
+                            "Category",                               // {0}
+                            categoryAxis.FormatValue(categoryIndex),  // {1}
+                            "Begin",                                  // {2}
+                            valueAxis.GetValue(Items[i].Begin),       // {3}
+                            "End",                                    // {4}
+                            valueAxis.GetValue(Items[i].End))         // {5}                        
                     };
                 }
             }

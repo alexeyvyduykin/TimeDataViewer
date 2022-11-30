@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Templates;
 
 namespace FootprintViewerDemo.Controls;
@@ -75,19 +76,19 @@ public partial class TimelineControl
         }
     }
 
-    public static readonly StyledProperty<ControlTemplate> DefaultTrackerTemplateProperty =
-        AvaloniaProperty.Register<TimelineControl, ControlTemplate>(nameof(DefaultTrackerTemplate));
+    public static readonly StyledProperty<IDataTemplate> TrackerTemplateProperty =
+        AvaloniaProperty.Register<TimelineControl, IDataTemplate>(nameof(TrackerTemplate));
 
-    public ControlTemplate DefaultTrackerTemplate
+    public IDataTemplate TrackerTemplate
     {
         get
         {
-            return GetValue(DefaultTrackerTemplateProperty);
+            return GetValue(TrackerTemplateProperty);
         }
 
         set
         {
-            SetValue(DefaultTrackerTemplateProperty, value);
+            SetValue(TrackerTemplateProperty, value);
         }
     }
 
