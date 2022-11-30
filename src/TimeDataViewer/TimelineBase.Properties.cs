@@ -1,121 +1,121 @@
 ﻿using Avalonia;
+using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml.Templates;
 
-namespace TimeDataViewer
+namespace TimeDataViewer;
+
+public partial class TimelineBase
 {
-    public partial class TimelineBase
+    public static readonly StyledProperty<IDataTemplate> TrackerTemplateProperty =
+        AvaloniaProperty.Register<TimelineBase, IDataTemplate>(nameof(TrackerTemplate));
+
+    public IDataTemplate TrackerTemplate
     {
-        public static readonly StyledProperty<ControlTemplate> DefaultTrackerTemplateProperty =
-            AvaloniaProperty.Register<TimelineBase, ControlTemplate>(nameof(DefaultTrackerTemplate));
-
-        public ControlTemplate DefaultTrackerTemplate
+        get
         {
-            get
-            {
-                return GetValue(DefaultTrackerTemplateProperty);
-            }
-
-            set
-            {
-                SetValue(DefaultTrackerTemplateProperty, value);
-            }
+            return GetValue(TrackerTemplateProperty);
         }
 
-        public static readonly StyledProperty<ControlTemplate> ZoomRectangleTemplateProperty =
-            AvaloniaProperty.Register<TimelineBase, ControlTemplate>(nameof(ZoomRectangleTemplate));
-
-        public ControlTemplate ZoomRectangleTemplate
+        set
         {
-            get
-            {
-                return GetValue(ZoomRectangleTemplateProperty);
-            }
+            SetValue(TrackerTemplateProperty, value);
+        }
+    }
 
-            set
-            {
-                SetValue(ZoomRectangleTemplateProperty, value);
-            }
+    public static readonly StyledProperty<ControlTemplate> ZoomRectangleTemplateProperty =
+        AvaloniaProperty.Register<TimelineBase, ControlTemplate>(nameof(ZoomRectangleTemplate));
+
+    public ControlTemplate ZoomRectangleTemplate
+    {
+        get
+        {
+            return GetValue(ZoomRectangleTemplateProperty);
         }
 
-        public static readonly StyledProperty<Cursor> PanCursorProperty =
-            AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(PanCursor), new Cursor(StandardCursorType.Hand));
-
-        public Cursor PanCursor
+        set
         {
-            get
-            {
-                return GetValue(PanCursorProperty);
-            }
+            SetValue(ZoomRectangleTemplateProperty, value);
+        }
+    }
 
-            set
-            {
-                SetValue(PanCursorProperty, value);
-            }
+    public static readonly StyledProperty<Cursor> PanCursorProperty =
+        AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(PanCursor), new Cursor(StandardCursorType.Hand));
+
+    public Cursor PanCursor
+    {
+        get
+        {
+            return GetValue(PanCursorProperty);
         }
 
-        public static readonly StyledProperty<Cursor> PanHorizontalCursorProperty =
-            AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(PanHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
-
-        public Cursor PanHorizontalCursor
+        set
         {
-            get
-            {
-                return GetValue(PanHorizontalCursorProperty);
-            }
+            SetValue(PanCursorProperty, value);
+        }
+    }
 
-            set
-            {
-                SetValue(PanHorizontalCursorProperty, value);
-            }
+    public static readonly StyledProperty<Cursor> PanHorizontalCursorProperty =
+        AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(PanHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
+
+    public Cursor PanHorizontalCursor
+    {
+        get
+        {
+            return GetValue(PanHorizontalCursorProperty);
         }
 
-        public static readonly StyledProperty<Cursor> ZoomHorizontalCursorProperty =
-            AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(ZoomHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
-
-        public Cursor ZoomHorizontalCursor
+        set
         {
-            get
-            {
-                return GetValue(ZoomHorizontalCursorProperty);
-            }
+            SetValue(PanHorizontalCursorProperty, value);
+        }
+    }
 
-            set
-            {
-                SetValue(ZoomHorizontalCursorProperty, value);
-            }
+    public static readonly StyledProperty<Cursor> ZoomHorizontalCursorProperty =
+        AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(ZoomHorizontalCursor), new Cursor(StandardCursorType.SizeWestEast));
+
+    public Cursor ZoomHorizontalCursor
+    {
+        get
+        {
+            return GetValue(ZoomHorizontalCursorProperty);
         }
 
-        public static readonly StyledProperty<Cursor> ZoomRectangleCursorProperty =
-            AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(ZoomRectangleCursor), new Cursor(StandardCursorType.SizeAll));
-
-        public Cursor ZoomRectangleCursor
+        set
         {
-            get
-            {
-                return GetValue(ZoomRectangleCursorProperty);
-            }
+            SetValue(ZoomHorizontalCursorProperty, value);
+        }
+    }
 
-            set
-            {
-                SetValue(ZoomRectangleCursorProperty, value);
-            }
+    public static readonly StyledProperty<Cursor> ZoomRectangleCursorProperty =
+        AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(ZoomRectangleCursor), new Cursor(StandardCursorType.SizeAll));
+
+    public Cursor ZoomRectangleCursor
+    {
+        get
+        {
+            return GetValue(ZoomRectangleCursorProperty);
         }
 
-        public static readonly StyledProperty<Cursor> ZoomVerticalCursorProperty =
-            AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(ZoomVerticalCursor), new Cursor(StandardCursorType.SizeNorthSouth));
-
-        public Cursor ZoomVerticalCursor
+        set
         {
-            get
-            {
-                return GetValue(ZoomVerticalCursorProperty);
-            }
+            SetValue(ZoomRectangleCursorProperty, value);
+        }
+    }
 
-            set
-            {
-                SetValue(ZoomVerticalCursorProperty, value);
-            }
+    public static readonly StyledProperty<Cursor> ZoomVerticalCursorProperty =
+        AvaloniaProperty.Register<TimelineBase, Cursor>(nameof(ZoomVerticalCursor), new Cursor(StandardCursorType.SizeNorthSouth));
+
+    public Cursor ZoomVerticalCursor
+    {
+        get
+        {
+            return GetValue(ZoomVerticalCursorProperty);
+        }
+
+        set
+        {
+            SetValue(ZoomVerticalCursorProperty, value);
         }
     }
 }

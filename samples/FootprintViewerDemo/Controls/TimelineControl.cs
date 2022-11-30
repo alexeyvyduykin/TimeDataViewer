@@ -4,7 +4,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
@@ -31,14 +30,13 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private Panel? _axisXPanel;
     private ContentControl? _zoomControl;
     private TimeDataViewer.Slider? _slider;
-    private TrackerControl2? _tracker;
+    private TrackerControl? _tracker;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private PlotModel? _plotModel;
     private readonly IPlotController _defaultController;
     private readonly Renderer _renderer;
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-    private DataTemplates? _trackerDataTemplates;
 
     public TimelineControl()
     {
@@ -55,10 +53,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public TimeDataViewer.Slider? Slider => _slider;
 
-    // Gets the coordinates of the client area of the view.
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
-
-    public DataTemplates TrackerDataTemplates => _trackerDataTemplates ??= new DataTemplates();
 
     protected override void OnDataContextChanged(EventArgs e)
     {
@@ -136,7 +131,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _zoomControl = e.NameScope.Find<ContentControl>(PART_ZoomControl);
 
         _slider = e.NameScope.Find<TimeDataViewer.Slider>(PART_TimelineSlider);
-        _tracker = e.NameScope.Find<TrackerControl2>(PART_Tracker);
+        _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
     }
 
     public void SetCursorType(CursorType cursorType)

@@ -5,7 +5,7 @@ using Avalonia.Data;
 using Avalonia.Metadata;
 using TimeDataViewer.Core;
 
-namespace FootprintViewerDemo.Selectors;
+namespace TimeDataViewer.Selectors;
 
 public class TrackerTemplateSelector : IDataTemplate
 {

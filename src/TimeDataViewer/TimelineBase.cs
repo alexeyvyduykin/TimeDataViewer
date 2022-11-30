@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
@@ -29,14 +27,13 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
     private int _isPlotInvalidated;
     private Canvas? _overlays;
     private ContentControl? _zoomControl;
-    private readonly ObservableCollection<TrackerDefinition> _trackerDefinitions;
     private IControl? _currentTracker;
 
     protected TimelineBase()
     {
         DisconnectCanvasWhileUpdating = true;
-        _trackerDefinitions = new ObservableCollection<TrackerDefinition>();
-        this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
+        this.GetObservable(TransformedBoundsProperty)
+            .Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
     }
 
     // Gets or sets a value indicating whether to disconnect the canvas while updating.
@@ -48,8 +45,6 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
 
     // Gets the coordinates of the client area of the view.
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
-
-    public ObservableCollection<TrackerDefinition> TrackerDefinitions => _trackerDefinitions;
 
     public void HideTracker()
     {
@@ -170,7 +165,7 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
         };
     }
 
-    public void ShowTracker(TrackerHitResult trackerHitResult)
+    public void ShowTracker(TrackerHitResult? trackerHitResult)
     {
         if (trackerHitResult == null)
         {
@@ -178,30 +173,17 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
             return;
         }
 
-        var trackerTemplate = DefaultTrackerTemplate;
-        if (trackerHitResult.Series != null && !string.IsNullOrEmpty(trackerHitResult.Series.TrackerKey))
+        var tracker = new TrackerControl()
         {
-            var match = TrackerDefinitions.FirstOrDefault(t => t.TrackerKey == trackerHitResult.Series.TrackerKey);
-            if (match != null)
-            {
-                trackerTemplate = match.TrackerTemplate;
-            }
-        }
-
-        if (trackerTemplate == null)
-        {
-            HideTracker();
-            return;
-        }
-
-        var tracker = trackerTemplate.Build(new ContentControl());
+            ContentTemplate = TrackerTemplate
+        };
 
         // ReSharper disable once RedundantNameQualifier
         if (!object.ReferenceEquals(tracker, _currentTracker))
         {
             HideTracker();
-            _overlays?.Children.Add(tracker.Control);
-            _currentTracker = tracker.Control;
+            _overlays?.Children.Add(tracker);
+            _currentTracker = tracker;
         }
 
         if (_currentTracker != null)

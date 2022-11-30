@@ -30,11 +30,6 @@
 
     <!-- Add Styles Here -->
 
-    <Style Selector="base|TrackerControl2">
-        <Setter Property="Content" Value="{Binding}"></Setter>
-        <Setter Property="Position" Value="{Binding Position}"></Setter>
-    </Style>
-
     <Style Selector="controls|TimelineControl">
 
         <Setter Property="TrackerTemplate">
@@ -78,9 +73,9 @@
                                         Background="Transparent"/>
                                 <Canvas Name="PART_OverlayCanvas">
                                     <ContentControl Name="PART_ZoomControl"/>
-                                    <base:TrackerControl2 Name="PART_Tracker"
-                                                          ContentTemplate="{TemplateBinding TrackerTemplate}"
-                                                          IsVisible="False"/>
+                                    <base:TrackerControl Name="PART_Tracker"
+                                                         ContentTemplate="{TemplateBinding TrackerTemplate}"
+                                                         IsVisible="False"/>
                                 </Canvas>
                             </Panel>
                             <base:Slider x:Name="PART_TimelineSlider"
