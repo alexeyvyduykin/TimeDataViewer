@@ -78,6 +78,9 @@
                                         Background="Transparent"/>
                                 <Canvas Name="PART_OverlayCanvas">
                                     <ContentControl Name="PART_ZoomControl"/>
+                                    <base:TrackerControl2 Name="PART_Tracker"
+                                                          ContentTemplate="{TemplateBinding TrackerTemplate}"
+                                                          IsVisible="False"/>
                                 </Canvas>
                             </Panel>
                             <base:Slider x:Name="PART_TimelineSlider"

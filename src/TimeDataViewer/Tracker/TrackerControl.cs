@@ -27,6 +27,24 @@ namespace TimeDataViewer
             PositionProperty.Changed.AddClassHandler<TrackerControl2>(PositionChanged);
         }
 
+        public void Show(object? dataContext)
+        {
+            if (dataContext == null)
+            {
+                Hide();
+
+                return;
+            }
+
+            DataContext = dataContext;
+            IsVisible = true;
+        }
+
+        public void Hide()
+        {
+            IsVisible = false;
+        }
+
         public OxyRect LineExtents
         {
             get

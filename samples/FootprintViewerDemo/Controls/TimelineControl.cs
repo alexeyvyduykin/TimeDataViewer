@@ -26,14 +26,14 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_OverlayCanvas = "PART_OverlayCanvas";
     private const string PART_ZoomControl = "PART_ZoomControl";
     private const string PART_TimelineSlider = "PART_TimelineSlider";
+    private const string PART_Tracker = "PART_Tracker";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
-    private Canvas? _ovarlayCanvas;
     private ContentControl? _zoomControl;
     private TimeDataViewer.Slider? _slider;
+    private TrackerControl2? _tracker;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
-    private TrackerControl2? _currentTracker;
     private PlotModel? _plotModel;
     private readonly IPlotController _defaultController;
     private readonly Renderer _renderer;
@@ -131,13 +131,12 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _renderer.FrontCanvas = e.NameScope.Find<Canvas>(PART_FrontCanvas);
 
         _renderer.AxisXCanvas = e.NameScope.Find<Canvas>(PART_AxisXCanvas);
-        _ovarlayCanvas = e.NameScope.Find<Canvas>(PART_OverlayCanvas);
-
-        _renderer.OvarlayCanvas = _ovarlayCanvas;
+        _renderer.OvarlayCanvas = e.NameScope.Find<Canvas>(PART_OverlayCanvas);
 
         _zoomControl = e.NameScope.Find<ContentControl>(PART_ZoomControl);
 
         _slider = e.NameScope.Find<TimeDataViewer.Slider>(PART_TimelineSlider);
+        _tracker = e.NameScope.Find<TrackerControl2>(PART_Tracker);
     }
 
     public void SetCursorType(CursorType cursorType)
@@ -153,41 +152,9 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         };
     }
 
-    public void ShowTracker(TrackerHitResult? trackerHitResult)
-    {
-        if (trackerHitResult == null)
-        {
-            HideTracker();
-            return;
-        }
+    public void ShowTracker(TrackerHitResult? trackerHitResult) => _tracker?.Show(trackerHitResult);
 
-        var tracker = new TrackerControl2()
-        {
-            ContentTemplate = TrackerTemplate,
-        };
-
-        // ReSharper disable once RedundantNameQualifier
-        if (!object.ReferenceEquals(tracker, _currentTracker))
-        {
-            HideTracker();
-            _ovarlayCanvas?.Children.Add(tracker);
-            _currentTracker = tracker;
-        }
-
-        if (_currentTracker != null)
-        {
-            _currentTracker.DataContext = trackerHitResult;
-        }
-    }
-
-    public void HideTracker()
-    {
-        if (_currentTracker != null)
-        {
-            _ovarlayCanvas?.Children.Remove(_currentTracker);
-            _currentTracker = null;
-        }
-    }
+    public void HideTracker() => _tracker?.Hide();
 
     public void ShowZoomRectangle(OxyRect r)
     {
