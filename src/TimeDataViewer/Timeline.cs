@@ -10,7 +10,10 @@ using Avalonia.Input;
 using Avalonia.LogicalTree;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using TimeDataViewer.Controls;
 using TimeDataViewer.Core;
+using TimeDataViewer.Extensions;
+using TimeDataViewer.RenderContext;
 
 namespace TimeDataViewer;
 

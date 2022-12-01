@@ -1,13 +1,11 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="using:FootprintViewerDemo.Controls"
-        xmlns:base="clr-namespace:TimeDataViewer;assembly=TimeDataViewer">
+        xmlns:controls="using:TimeDataViewer.Controls">
+
     <Design.PreviewWith>
         <Border Padding="20" Width="600" Height="400">
             <!-- Add Controls for Previewer Here -->
-
             <controls:TimelineControl/>
-
         </Border>
     </Design.PreviewWith>
 
@@ -67,19 +65,19 @@
                             <Panel Grid.Row="1" Name="PART_BasePanel">
                                 <Canvas Name="PART_BackCanvas"
                                         Background="Transparent"/>
-                                <base:DrawCanvas Name="PART_DrawCanvas"
-                                                 Background="Transparent"/>
+                                <controls:DrawCanvas Name="PART_DrawCanvas"
+                                                     Background="Transparent"/>
                                 <Canvas Name="PART_FrontCanvas"
                                         Background="Transparent"/>
                                 <Canvas Name="PART_OverlayCanvas">
                                     <ContentControl Name="PART_ZoomControl"/>
-                                    <base:TrackerControl Name="PART_Tracker"
-                                                         ContentTemplate="{TemplateBinding TrackerTemplate}"
-                                                         IsVisible="False"/>
+                                    <controls:TrackerControl Name="PART_Tracker"
+                                                             ContentTemplate="{TemplateBinding TrackerTemplate}"
+                                                             IsVisible="False"/>
                                 </Canvas>
                             </Panel>
-                            <base:Slider x:Name="PART_TimelineSlider"
-                                         Grid.RowSpan="2"/>
+                            <controls:ValueSlider x:Name="PART_TimelineSlider"
+                                                  Grid.RowSpan="2"/>
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -106,5 +104,4 @@
     <Style Selector="controls|TimelineControl /template/ Panel#PART_BasePanel">
         <Setter Property="Background" Value="{StaticResource timelineBackgroundBrush}"/>
     </Style>
-
 </Styles>

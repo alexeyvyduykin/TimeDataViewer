@@ -18,8 +18,8 @@
         <StyleInclude Source="avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"/>
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Default.xaml"/>
         <StyleInclude Source="avares://Material.Avalonia/Material.Avalonia.Templates.xaml" />
-        
-        <StyleInclude Source="resm:TimeDataViewer.Themes.Default.xaml?assembly=TimeDataViewer"/>
-        <StyleInclude Source="avares://FootprintViewerDemo/Styles/TimelineControl.axaml"/>
+
+        <StyleInclude Source="avares://TimeDataViewer/Styles/Default.axaml"/>
+        <StyleInclude Source="avares://TimeDataViewer/Styles/TimelineControl.axaml"/>
     </Application.Styles>
 </Application>

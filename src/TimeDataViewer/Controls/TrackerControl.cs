@@ -7,7 +7,7 @@ using Avalonia.VisualTree;
 using TimeDataViewer.Spatial;
 using A = Avalonia.Layout;
 
-namespace TimeDataViewer;
+namespace TimeDataViewer.Controls;
 
 public class TrackerControl : ContentControl
 {
@@ -93,12 +93,12 @@ public class TrackerControl : ContentControl
         var ha = A.HorizontalAlignment.Center;
         if (CanCenterHorizontally)
         {
-            if (Position.X - (contentWidth / 2) < MarginLimit)
+            if (Position.X - contentWidth / 2 < MarginLimit)
             {
                 ha = A.HorizontalAlignment.Left;
             }
 
-            if (Position.X + (contentWidth / 2) > canvasWidth - MarginLimit)
+            if (Position.X + contentWidth / 2 > canvasWidth - MarginLimit)
             {
                 ha = A.HorizontalAlignment.Right;
             }
@@ -111,7 +111,7 @@ public class TrackerControl : ContentControl
         var va = A.VerticalAlignment.Center;
         if (CanCenterVertically)
         {
-            if (Position.Y - (contentHeight / 2) < MarginLimit)
+            if (Position.Y - contentHeight / 2 < MarginLimit)
             {
                 va = A.VerticalAlignment.Top;
             }
@@ -125,7 +125,7 @@ public class TrackerControl : ContentControl
                 }
             }
 
-            if (va == A.VerticalAlignment.Center && Position.Y + (contentHeight / 2) > canvasHeight - MarginLimit)
+            if (va == A.VerticalAlignment.Center && Position.Y + contentHeight / 2 > canvasHeight - MarginLimit)
             {
                 va = A.VerticalAlignment.Bottom;
             }

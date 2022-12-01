@@ -2,7 +2,7 @@
 using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Templates;
 
-namespace FootprintViewerDemo.Controls;
+namespace TimeDataViewer.Controls;
 
 public partial class TimelineControl
 {

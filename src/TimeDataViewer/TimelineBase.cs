@@ -10,7 +10,9 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using TimeDataViewer.Controls;
 using TimeDataViewer.Core;
+using TimeDataViewer.RenderContext;
 using TimeDataViewer.Spatial;
 
 namespace TimeDataViewer;

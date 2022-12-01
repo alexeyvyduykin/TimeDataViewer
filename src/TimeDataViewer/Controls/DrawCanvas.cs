@@ -6,7 +6,7 @@ using Avalonia.Media;
 using TimeDataViewer.Core;
 using TimeDataViewer.Spatial;
 
-namespace TimeDataViewer;
+namespace TimeDataViewer.Controls;
 
 public class DrawCanvas : Canvas
 {
@@ -88,10 +88,10 @@ public class DrawCanvas : Canvas
 
         foreach (var s in series)
         {
-            List<Rect> list1 = new List<Rect>();
-            List<Rect> list2 = new List<Rect>();
+            var list1 = new List<Rect>();
+            var list2 = new List<Rect>();
 
-            var innserSeries = ((Core.TimelineSeries)s.InternalSeries);
+            var innserSeries = (Core.TimelineSeries)s.InternalSeries;
 
             foreach (var item in innserSeries.MyRectList)
             {
@@ -118,8 +118,8 @@ public class DrawCanvas : Canvas
 
         foreach (Core.TimelineSeries s in series)
         {
-            List<Rect> list1 = new List<Rect>();
-            List<Rect> list2 = new List<Rect>();
+            var list1 = new List<Rect>();
+            var list2 = new List<Rect>();
 
             foreach (var item in s.MyRectList)
             {

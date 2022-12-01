@@ -8,11 +8,10 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using TimeDataViewer;
 using TimeDataViewer.Core;
 using TimeDataViewer.Spatial;
 
-namespace FootprintViewerDemo.Controls;
+namespace TimeDataViewer.Controls;
 
 public partial class TimelineControl : TemplatedControl, IPlotView
 {
@@ -22,33 +21,29 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_DrawCanvas = "PART_DrawCanvas";
     private const string PART_FrontCanvas = "PART_FrontCanvas";
     private const string PART_AxisXCanvas = "PART_AxisXCanvas";
-    private const string PART_OverlayCanvas = "PART_OverlayCanvas";
     private const string PART_ZoomControl = "PART_ZoomControl";
     private const string PART_TimelineSlider = "PART_TimelineSlider";
     private const string PART_Tracker = "PART_Tracker";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
     private ContentControl? _zoomControl;
-    private TimeDataViewer.Slider? _slider;
+    private ValueSlider? _slider;
     private TrackerControl? _tracker;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private PlotModel? _plotModel;
-    private readonly Renderer _renderer;
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
     public TimelineControl()
     {
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
-
-        _renderer = new(this);
     }
 
-    public PlotModel? ActualModel => _plotModel;
+    public Core.PlotModel? ActualModel => _plotModel;
 
     public IController? ActualController { get; }
 
-    public TimeDataViewer.Slider? Slider => _slider;
+    public ValueSlider? Slider => _slider;
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
@@ -116,16 +111,14 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _axisXPanel.PointerMoved += _panelX_PointerMoved;
         _axisXPanel.PointerReleased += _panelX_PointerReleased;
 
-        _renderer.BackCanvas = e.NameScope.Find<Canvas>(PART_BackCanvas);
-        _renderer.DrawCanvas = e.NameScope.Find<DrawCanvas>(PART_DrawCanvas);
-        _renderer.FrontCanvas = e.NameScope.Find<Canvas>(PART_FrontCanvas);
-
-        _renderer.AxisXCanvas = e.NameScope.Find<Canvas>(PART_AxisXCanvas);
-        _renderer.OvarlayCanvas = e.NameScope.Find<Canvas>(PART_OverlayCanvas);
+        _backCanvas = e.NameScope.Find<Canvas>(PART_BackCanvas);
+        _drawCanvas = e.NameScope.Find<DrawCanvas>(PART_DrawCanvas);
+        _frontCanvas = e.NameScope.Find<Canvas>(PART_FrontCanvas);
+        _axisXCanvas = e.NameScope.Find<Canvas>(PART_AxisXCanvas);
 
         _zoomControl = e.NameScope.Find<ContentControl>(PART_ZoomControl);
 
-        _slider = e.NameScope.Find<TimeDataViewer.Slider>(PART_TimelineSlider);
+        _slider = e.NameScope.Find<ValueSlider>(PART_TimelineSlider);
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
     }
 
@@ -174,7 +167,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         {
             if (Interlocked.CompareExchange(ref _isPlotInvalidated, 0, 1) == 1)
             {
-                _renderer.Draw();
+                Draw();
             }
         }
 

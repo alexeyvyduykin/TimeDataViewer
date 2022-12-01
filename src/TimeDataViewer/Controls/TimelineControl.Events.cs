@@ -1,25 +1,25 @@
 ﻿using System;
 using Avalonia.Controls;
 using Avalonia.Input;
-using TimeDataViewer;
 using TimeDataViewer.Core;
+using TimeDataViewer.Extensions;
 using TimeDataViewer.Spatial;
 
-namespace FootprintViewerDemo.Controls;
+namespace TimeDataViewer.Controls;
 
 public partial class TimelineControl
 {
     private ScreenPoint _mouseDownPoint;
     private bool _isPressed = false;
-    private TimeDataViewer.Core.Series? _currentSeries;
+    private Core.Series? _currentSeries;
     private ScreenPoint _previousPosition;
     private bool _isPanEnabled;
     private OxyRect _zoomRectangle;
     private bool _isZoomEnabled;
 
-    protected TimeDataViewer.Core.Axis? XAxis { get; set; }
+    protected Core.Axis? XAxis { get; set; }
 
-    protected TimeDataViewer.Core.Axis? YAxis { get; set; }
+    protected Core.Axis? YAxis { get; set; }
 
     protected DataPoint InverseTransform(double x, double y)
     {
@@ -38,8 +38,8 @@ public partial class TimelineControl
 
     protected void AssignAxes()
     {
-        TimeDataViewer.Core.Axis? xAxis = null;
-        TimeDataViewer.Core.Axis? yAxis = null;
+        Core.Axis? xAxis = null;
+        Core.Axis? yAxis = null;
 
         ActualModel?.GetAxesFromPoint(out xAxis, out yAxis);
 
@@ -47,7 +47,7 @@ public partial class TimelineControl
         YAxis = yAxis;
     }
 
-    protected static TrackerHitResult? GetNearestHit(TimeDataViewer.Core.Series? series, ScreenPoint point, bool snap, bool pointsOnly)
+    protected static TrackerHitResult? GetNearestHit(Core.Series? series, ScreenPoint point, bool snap, bool pointsOnly)
     {
         if (series == null)
         {
@@ -77,7 +77,7 @@ public partial class TimelineControl
         return null;
     }
 
-    protected static TrackerHitResult? GetNearestHit(TimeDataViewer.Core.Series? series, ScreenPoint point)
+    protected static TrackerHitResult? GetNearestHit(Core.Series? series, ScreenPoint point)
     {
         if (series == null)
         {
@@ -188,7 +188,7 @@ public partial class TimelineControl
 
         foreach (var item in ActualModel.Series)
         {
-            if (item is TimeDataViewer.Core.TimelineSeries series)
+            if (item is Core.TimelineSeries series)
             {
                 series.ResetSelecIndex();
             }
@@ -205,7 +205,7 @@ public partial class TimelineControl
 
         if (result != null)
         {
-            if (currentSeries is TimeDataViewer.Core.TimelineSeries series)
+            if (currentSeries is Core.TimelineSeries series)
             {
                 series.SelectIndex((int)result.Index);
 
@@ -445,7 +445,7 @@ public partial class TimelineControl
 
                 // TODO: update only slider
                 UpdateSlider();
-                _renderer.Draw();
+                Draw();
             }
         }
     }
@@ -482,7 +482,7 @@ public partial class TimelineControl
 
                     // TODO: update only slider
                     UpdateSlider();
-                    _renderer.Draw();
+                    Draw();
                 }
             }
         }

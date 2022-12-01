@@ -1,69 +1,58 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
-using TimeDataViewer;
 using TimeDataViewer.Core;
+using TimeDataViewer.Extensions;
+using TimeDataViewer.RenderContext;
 
-namespace FootprintViewerDemo.Controls;
+namespace TimeDataViewer.Controls;
 
-internal class Renderer
+public partial class TimelineControl
 {
-    private readonly TimelineControl _control;
     private readonly Pen _minorPen = new() { Brush = Brush.Parse("#2A2A2A") };
     private readonly Pen _majorPen = new() { Brush = Brush.Parse("#2A2A2A") };
     private readonly Pen _minorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
     private readonly Pen _majorTickPen = new() { Brush = Brush.Parse("#2A2A2A") };
-
-    public Renderer(TimelineControl control)
-    {
-        _control = control;
-    }
-
-    public Canvas? BackCanvas { get; set; }
-
-    public DrawCanvas? DrawCanvas { get; set; }
-
-    public Canvas? FrontCanvas { get; set; }
-
-    public Canvas? AxisXCanvas { get; set; }
-
-    public Canvas? OvarlayCanvas { get; set; }
+    private Canvas? _backCanvas;
+    private DrawCanvas? _drawCanvas;
+    private Canvas? _frontCanvas;
+    private Canvas? _axisXCanvas;
 
     public void Draw()
     {
-        if (BackCanvas == null || FrontCanvas == null || AxisXCanvas == null || DrawCanvas == null)
+        if (_backCanvas == null || _frontCanvas == null || _axisXCanvas == null || _drawCanvas == null)
         {
             return;
         }
 
         // Clear the canvas
-        BackCanvas.Children.Clear();
-        AxisXCanvas.Children.Clear();
-        FrontCanvas.Children.Clear();
+        _backCanvas.Children.Clear();
+        _axisXCanvas.Children.Clear();
+        _frontCanvas.Children.Clear();
 
-        RenderBack(BackCanvas);
-        RenderSeries(DrawCanvas);
-        RenderAxisX(AxisXCanvas, BackCanvas);
-        RenderSlider(AxisXCanvas, FrontCanvas);
+        RenderBack(_backCanvas);
+        RenderSeries(_drawCanvas);
+        RenderAxisX(_axisXCanvas, _backCanvas);
+        RenderSlider(_axisXCanvas, _frontCanvas);
     }
 
     private void RenderBack(Canvas backCanvas)
     {
-        ((IPlotModel?)_control.ActualModel)?.Render(backCanvas.Bounds.Width, backCanvas.Bounds.Height);
+        ((IPlotModel?)ActualModel)?.Render(backCanvas.Bounds.Width, backCanvas.Bounds.Height);
     }
 
     private void RenderSeries(DrawCanvas drawCanvas)
     {
-        drawCanvas.RenderSeries(_control.ActualModel);
+        drawCanvas.RenderSeries(ActualModel);
     }
 
     private void RenderAxisX(Canvas axisXCanvas, Canvas backCanvas)
     {
-        if (_control.ActualModel != null)
+        if (ActualModel != null)
         {
             var rcAxis = new CanvasRenderContext(axisXCanvas);
             var rcPlotBack = new CanvasRenderContext(backCanvas);
 
-            foreach (var item in _control.ActualModel.Axises)
+            foreach (var item in ActualModel.Axises)
             {
                 if (item.IsHorizontal() == true)
                 {
@@ -78,15 +67,15 @@ internal class Renderer
         var rcAxis = new CanvasRenderContext(axisXCanvas);
         var rcPlotFront = new CanvasRenderContext(frontCanvas);
 
-        if (_control.ActualModel != null)
+        if (ActualModel != null)
         {
-            _control.Slider?.UpdateMinMax(_control.ActualModel);
+            Slider?.UpdateMinMax(ActualModel);
         }
 
-        _control.Slider?.Render(rcAxis, rcPlotFront);
+        Slider?.Render(rcAxis, rcPlotFront);
     }
 
-    private void RenderAxis(TimeDataViewer.Core.Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
+    private void RenderAxis(Core.Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
     {
         if (internalAxis == null)
         {
@@ -111,7 +100,7 @@ internal class Renderer
 
         foreach (var (pt, text, ha, va) in labels)
         {
-            var label = _control.DefaultLabelTemplate.Build(new ContentControl());
+            var label = DefaultLabelTemplate.Build(new ContentControl());
 
             if (label.Control is TextBlock textBlock)
             {
@@ -148,6 +137,6 @@ internal class Renderer
         //      //  contextPlot.DrawRectangle(rect1, MinMaxBrush, null);
         //      //  contextPlot.DrawLine(rect1.Left, rect1.Top, rect1.Left, rect1.Bottom, BlackPen);
         //    }
-        //}
+        //}        
     }
 }

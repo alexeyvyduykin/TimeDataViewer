@@ -2,6 +2,7 @@
 using System.Globalization;
 using Avalonia;
 using Avalonia.Metadata;
+using TimeDataViewer.Controls;
 
 namespace TimeDataViewer
 {
@@ -28,10 +29,10 @@ namespace TimeDataViewer
         [Content]
         public Collection<Series> Series => _series;
 
-        public static readonly StyledProperty<Slider> SliderProperty =
-            AvaloniaProperty.Register<Timeline, Slider>(nameof(Slider));
+        public static readonly StyledProperty<ValueSlider> SliderProperty =
+            AvaloniaProperty.Register<Timeline, ValueSlider>(nameof(Slider));
 
-        public Slider Slider
+        public ValueSlider Slider
         {
             get
             {
