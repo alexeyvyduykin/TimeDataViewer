@@ -107,6 +107,8 @@ public class MainWindowViewModel : ViewModelBase
 
         Update = ReactiveCommand.CreateFromTask(UpdateImpl, outputScheduler: RxApp.MainThreadScheduler);
 
+        SelectedInterval = ReactiveCommand.Create<object?>(SelectedIntervalImpl, outputScheduler: RxApp.MainThreadScheduler);
+
         Selected = Satellites.FirstOrDefault();
 
         Observable.StartAsync(UpdateImpl, RxApp.MainThreadScheduler)
@@ -120,6 +122,22 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     public ReactiveCommand<Unit, Unit> Update { get; }
+
+    public ReactiveCommand<object?, Unit> SelectedInterval { get; }
+
+    private void SelectedIntervalImpl(object? value)
+    {
+        if (value is TrackerHitResult result)
+        {
+            var name = result.Series.TrackerKey ?? string.Empty;
+
+            var item = (TimelineItem)result.Item;
+            var begin = result.XAxis?.GetValue(item.Begin) ?? string.Empty;
+            var end = result.XAxis?.GetValue(item.End) ?? string.Empty;
+
+            TextInfo = $"Selected interval from {name} category\nBegin: {begin}\nEnd: {end}";
+        }
+    }
 
     private async Task UpdateImpl()
     {
@@ -288,6 +306,9 @@ public class MainWindowViewModel : ViewModelBase
 
     [Reactive]
     public string? Selected { get; set; }
+
+    [Reactive]
+    public string? TextInfo { get; set; }
 
     public ReadOnlyObservableCollection<string> Satellites => _items;
 

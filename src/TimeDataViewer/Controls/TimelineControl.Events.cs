@@ -210,6 +210,8 @@ public partial class TimelineControl
                 series.SelectIndex((int)result.Index);
 
                 InvalidatePlot(false);
+
+                OnSelectedInterval(result);
             }
         }
 

@@ -40,10 +40,13 @@
     </Window.Resources>
 
     <Panel>
-        <Grid RowDefinitions="Auto,*,400"
+        <Grid RowDefinitions="60,Auto,*,400"
               ColumnDefinitions="*,240">
 
-            <ListBox Items="{Binding Satellites}"
+            <TextBlock Text="{Binding TextInfo}"/>
+
+            <ListBox Grid.Row="1"
+                     Items="{Binding Satellites}"
                      SelectedItem="{Binding Selected}"
                      HorizontalAlignment="Left"
                      Width="120"
@@ -55,7 +58,7 @@
                 </ListBox.DataTemplates>
             </ListBox>
 
-            <base:Timeline Grid.Row="1"
+            <base:Timeline Grid.Row="2"
                            Margin="8">
 
                 <base:Timeline.Axises>
@@ -121,7 +124,7 @@
             </base:Timeline>
 
             <ListBox Grid.Column="1"
-                     Grid.RowSpan="3"
+                     Grid.RowSpan="4"
                      Items="{Binding Footprints}"
                      Margin="8">
                 <ListBox.ItemTemplate>
@@ -139,12 +142,13 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <controls:TimelineControl Grid.Row="2"
+            <controls:TimelineControl Grid.Row="3"
                                       Margin="8"
                                       DataContext="{Binding PlotModel}"
                                       Begin="{Binding $parent[TopLevel].DataContext.Begin}"
                                       Duration="{Binding $parent[TopLevel].DataContext.Duration}"
-                                      TrackerTemplate="{StaticResource TrackerSelector}">
+                                      TrackerTemplate="{StaticResource TrackerSelector}"
+                                      SelectedInterval="{Binding $parent[TopLevel].DataContext.SelectedInterval}">
             </controls:TimelineControl>
 
         </Grid>

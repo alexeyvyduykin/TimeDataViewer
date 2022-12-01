@@ -1,11 +1,15 @@
-﻿using Avalonia;
+﻿using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Templates;
+using TimeDataViewer.Core;
 
 namespace TimeDataViewer.Controls;
 
 public partial class TimelineControl
 {
+    private ICommand? _selectedInterval;
+
     static TimelineControl()
     {
         BeginProperty.Changed.AddClassHandler<TimelineControl>(BeginChanged);
@@ -106,5 +110,20 @@ public partial class TimelineControl
         {
             SetValue(ZoomRectangleTemplateProperty, value);
         }
+    }
+
+    public static readonly DirectProperty<TimelineControl, ICommand?> SelectedIntervalProperty =
+        AvaloniaProperty.RegisterDirect<TimelineControl, ICommand?>(nameof(SelectedInterval),
+            timeline => timeline.SelectedInterval, (timeline, command) => timeline.SelectedInterval = command, enableDataValidation: true);
+
+    public ICommand? SelectedInterval
+    {
+        get => _selectedInterval;
+        set => SetAndRaise(SelectedIntervalProperty, ref _selectedInterval, value);
+    }
+
+    private void OnSelectedInterval(TrackerHitResult result)
+    {
+        SelectedInterval?.Execute(result);
     }
 }

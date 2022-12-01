@@ -39,7 +39,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
     }
 
-    public Core.PlotModel? ActualModel => _plotModel;
+    public PlotModel? ActualModel => _plotModel;
 
     public IController? ActualController { get; }
 
