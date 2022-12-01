@@ -118,7 +118,7 @@ public class MainWindowViewModel : ViewModelBase
                 Begin = ToTotalDays(Epoch, _timeOrigin);
                 Duration = 1.0;
 
-                SeriesBrushes = new List<IBrush>();// new[] { Brushes.LightCoral, Brushes.Green, Brushes.Blue, Brushes.Red, Brushes.Yellow };
+                SeriesBrushes = new[] { Brushes.LightCoral, Brushes.Green, Brushes.Blue, Brushes.Red, Brushes.Yellow };
 
                 PlotModel = CreatePlotModel();
             });
