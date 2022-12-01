@@ -2,17 +2,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:SatelliteDemo"
              x:Class="SatelliteDemo.App">
-    
+
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
 
     <Application.Styles>
-       
-        <FluentTheme Mode="Light"/>
-        
-        <StyleInclude Source="resm:TimeDataViewer.Themes.Default.xaml?assembly=TimeDataViewer"/>
-    
+
+        <FluentTheme Mode="Dark"/>
+
+        <StyleInclude Source="avares://TimeDataViewer/Styles/Default.axaml"/>
+
     </Application.Styles>
 
 </Application>
