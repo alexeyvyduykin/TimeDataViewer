@@ -42,7 +42,7 @@ public partial class TimelineControl
 
     private void RenderSeries(DrawCanvas drawCanvas)
     {
-        drawCanvas.RenderSeries(ActualModel);
+        drawCanvas.RenderSeries(ActualModel, SeriesBrushes);
     }
 
     private void RenderAxisX(Canvas axisXCanvas, Canvas backCanvas)

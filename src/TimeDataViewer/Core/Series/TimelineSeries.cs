@@ -10,12 +10,15 @@ namespace TimeDataViewer.Core
     {
         public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}";
         private OxyRect _clippingRect;
-        private readonly List<OxyRect> _rectList = new();
-        private readonly List<OxyRect> _selectedRectList = new();
+        //private readonly List<OxyRect> _rectList = new();
+        //private readonly List<OxyRect> _selectedRectList = new();
+        private readonly List<(OxyRect, bool)> _rectangles = new();
         private int _selectedIndex = -1;
 
         public TimelineSeries()
         {
+            ValidItems = new();
+            ValidItemsIndexInversion = new();
             Items = new List<TimelineItem>();
             TrackerFormatString = DefaultTrackerFormatString;
             BarWidth = 1;
@@ -37,14 +40,14 @@ namespace TimeDataViewer.Core
 
         protected internal IList<OxyRect>? ActualBarRectangles { get; set; }
 
-        protected internal IList<TimelineItem> ValidItems { get; set; }
+        protected internal List<TimelineItem> ValidItems { get; set; }
 
         protected internal Dictionary<int, int> ValidItemsIndexInversion { get; set; }
 
         // Gets the point in the dataset that is nearest the specified point.
         public override TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
         {
-            if(ActualBarRectangles == null)
+            if (ActualBarRectangles == null)
             {
                 return null;
             }
@@ -106,8 +109,7 @@ namespace TimeDataViewer.Core
             var actualBarWidth = GetActualBarWidth();
             var stackIndex = categoryAxis.GetStackIndex(StackGroup);
 
-            _rectList.Clear();
-            _selectedRectList.Clear();
+            _rectangles.Clear();
             _clippingRect = clippingRect;
 
             for (var i = 0; i < ValidItems.Count; i++)
@@ -125,14 +127,7 @@ namespace TimeDataViewer.Core
 
                 ActualBarRectangles.Add(rectangle);
 
-                if (i != _selectedIndex)
-                {
-                    _rectList.Add(rectangle);
-                }
-                else
-                {
-                    _selectedRectList.Add(rectangle);
-                }
+                _rectangles.Add((rectangle, i == _selectedIndex));
 
                 //rc.DrawClippedRectangleAsPolygon(
                 //    clippingRect,
@@ -144,9 +139,7 @@ namespace TimeDataViewer.Core
 
         public OxyRect MyClippingRect => _clippingRect;
 
-        public List<OxyRect> MyRectList => _rectList;
-
-        public List<OxyRect> MySelectedRectList => _selectedRectList;
+        public List<(OxyRect, bool)> Rectangles => _rectangles;
 
         public override void MyOnRender()
         {
@@ -257,8 +250,8 @@ namespace TimeDataViewer.Core
 
         protected internal override void UpdateValidData()
         {
-            ValidItems = new List<TimelineItem>();
-            ValidItemsIndexInversion = new Dictionary<int, int>();
+            ValidItems.Clear();
+            ValidItemsIndexInversion.Clear();
             var valueAxis = GetValueAxis();
 
             for (var i = 0; i < Items.Count; i++)

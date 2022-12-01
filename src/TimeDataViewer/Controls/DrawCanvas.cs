@@ -14,11 +14,11 @@ public class DrawCanvas : Canvas
     private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };
     private readonly Dictionary<TimelineSeries, IList<Rect>> _dict = new();
     private readonly Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new();
+    private readonly Dictionary<Core.TimelineSeries, IList<(Rect, bool)>> _dict2 = new();
 
-    private readonly Dictionary<Core.TimelineSeries, IList<Rect>> _dict2 = new();
-    private readonly Dictionary<Core.TimelineSeries, IList<Rect>> _selectedDict2 = new();
-
-    private readonly IBrush _fillBrush = new SolidColorBrush(Colors.Red);
+    private readonly Pen _defaultPen = new() { Brush = Brushes.Black };
+    private readonly IBrush _defaultBrush = new SolidColorBrush(Colors.Red);
+    private readonly List<IBrush> _brushes = new();
 
     public override void Render(DrawingContext context)
     {
@@ -50,31 +50,33 @@ public class DrawCanvas : Canvas
 
         if (_dict2.Count != 0)
         {
+            int index = 0;
+            int count = _brushes.Count;
+
             foreach (var series in _dict2.Keys)
             {
-                var pen = new Pen() { Brush = Brushes.Black };
+                var brush = (index < count) ? _brushes[index++] : _defaultBrush;
 
-                foreach (var item in _dict2[series])
+                foreach (var (rect, isSelected) in _dict2[series])
                 {
-                    context.DrawRectangle(_fillBrush, pen, item);
-                }
-            }
-        }
-
-        if (_selectedDict2.Count != 0)
-        {
-            foreach (var series in _selectedDict2.Keys)
-            {
-                foreach (var item in _selectedDict2[series])
-                {
-                    context.DrawRectangle(_fillBrush, _selectedPen, item);
+                    if (isSelected == false)
+                    {
+                        context.DrawRectangle(brush, _defaultPen, rect);
+                    }
+                    else
+                    {
+                        context.DrawRectangle(brush, _selectedPen, rect);
+                    }
                 }
             }
         }
     }
 
-    public void RenderSeries(PlotModel? model)
+    public void RenderSeries(PlotModel? model, IList<IBrush> brushes)
     {
+        _brushes.Clear();
+        _brushes.AddRange(brushes);
+
         if (model != null)
         {
             RenderSeries(model.Series.Where(s => s.IsVisible).ToList());
@@ -93,17 +95,19 @@ public class DrawCanvas : Canvas
 
             var innserSeries = (Core.TimelineSeries)s.InternalSeries;
 
-            foreach (var item in innserSeries.MyRectList)
+            foreach (var (rect, isSelected) in innserSeries.Rectangles)
             {
-                CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list1);
+                if (isSelected == false)
+                {
+                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(rect), list1);
+                }
+                else
+                {
+                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(rect), list2);
+                }
             }
 
             _dict.Add((TimelineSeries)s, list1);
-
-            foreach (var item in innserSeries.MySelectedRectList)
-            {
-                CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(item), list2);
-            }
 
             _selectedDict.Add((TimelineSeries)s, list2);
         }
@@ -114,29 +118,42 @@ public class DrawCanvas : Canvas
     public void RenderSeries(IEnumerable<Core.Series> series)
     {
         _dict2.Clear();
-        _selectedDict2.Clear();
 
-        foreach (Core.TimelineSeries s in series)
+        foreach (var s in series.Cast<Core.TimelineSeries>())
         {
-            var list1 = new List<Rect>();
-            var list2 = new List<Rect>();
+            var list = new List<(Rect, bool)>();
 
-            foreach (var item in s.MyRectList)
+            foreach (var (rect, isSelected) in s.Rectangles)
             {
-                CreateClippedRectangle(s.MyClippingRect, ToRect(item), list1);
+                var res = CreateClippedRectangle(s.MyClippingRect, ToRect(rect));
+
+                if (res != null)
+                {
+                    list.Add(((Rect, bool))(res, isSelected));
+                }
             }
 
-            _dict2.Add(s, list1);
-
-            foreach (var item in s.MySelectedRectList)
-            {
-                CreateClippedRectangle(s.MyClippingRect, ToRect(item), list2);
-            }
-
-            _selectedDict2.Add(s, list2);
+            _dict2.Add(s, list);
         }
 
         InvalidateVisual();
+    }
+
+    protected Rect? CreateClippedRectangle(OxyRect clippingRectangle, Rect rect)
+    {
+        if (SetClip(clippingRectangle) == true)
+        {
+            ResetClip();
+            return rect;
+        }
+
+        var clippedRect = ClipRect(rect, clippingRectangle);
+        if (clippedRect == null)
+        {
+            return null;
+        }
+
+        return clippedRect.Value;
     }
 
     protected void CreateClippedRectangle(OxyRect clippingRectangle, Rect rect, IList<Rect> list)

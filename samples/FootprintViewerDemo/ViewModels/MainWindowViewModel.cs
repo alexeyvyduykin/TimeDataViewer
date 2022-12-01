@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Avalonia.Media;
 using DynamicData;
 using FootprintViewerDemo.Models;
 using ReactiveUI;
@@ -116,6 +117,8 @@ public class MainWindowViewModel : ViewModelBase
             {
                 Begin = ToTotalDays(Epoch, _timeOrigin);
                 Duration = 1.0;
+
+                SeriesBrushes = new List<IBrush>();// new[] { Brushes.LightCoral, Brushes.Green, Brushes.Blue, Brushes.Red, Brushes.Yellow };
 
                 PlotModel = CreatePlotModel();
             });
@@ -288,6 +291,9 @@ public class MainWindowViewModel : ViewModelBase
 
     [Reactive]
     public ObservableCollection<ItemViewModel> Labels { get; set; }
+
+    [Reactive]
+    public IList<IBrush>? SeriesBrushes { get; set; }
 
     [Reactive]
     public DateTime Epoch { get; set; }
