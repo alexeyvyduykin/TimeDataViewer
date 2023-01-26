@@ -130,11 +130,11 @@ public partial class Axis
         {
             if (isHorizontal)
             {
-                perpAxises = plot.Axises.Where(x => x.IsXyAxis() && x.IsVertical()).ToList();
+                perpAxises = plot.Axises.Where(x => x.IsVertical()).ToList();
             }
             else
             {
-                perpAxises = plot.Axises.Where(x => x.IsXyAxis() && x.IsHorizontal()).ToList();
+                perpAxises = plot.Axises.Where(x => x.IsHorizontal()).ToList();
             }
         }
 
@@ -290,11 +290,11 @@ public partial class Axis
         {
             if (isHorizontal)
             {
-                perpAxises = plot.Axises.Where(x => x.IsXyAxis() && x.IsVertical()).ToList();
+                perpAxises = plot.Axises.Where(x => x.IsVertical()).ToList();
             }
             else
             {
-                perpAxises = plot.Axises.Where(x => x.IsXyAxis() && x.IsHorizontal()).ToList();
+                perpAxises = plot.Axises.Where(x => x.IsHorizontal()).ToList();
             }
         }
 

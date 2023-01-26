@@ -266,7 +266,7 @@ public class TimelineSeries : CategorizedSeries, IStackableSeries
     public override double GetActualBarWidth()
     {
         var categoryAxis = GetCategoryAxis();
-        return BarWidth / (1 + categoryAxis.GapWidth) / categoryAxis.GetMaxWidth();
+        return BarWidth / (1 + categoryAxis.GapWidth) / categoryAxis.MaxWidth;
     }
 
     public override CategoryAxis GetCategoryAxis()

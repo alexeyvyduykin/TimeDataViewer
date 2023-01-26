@@ -6,14 +6,10 @@ namespace TimeDataViewerLite.Core;
 /// <remarks>The category axis is using the index of the label collection items as coordinates.
 /// If you have 5 categories in the Labels collection, the categories will be placed at coordinates 0 to 4.
 /// The range of the axis will be from -0.5 to 4.5 (excluding padding).</remarks>
-public class CategoryAxis : LinearAxis
+public class CategoryAxis : Axis
 {
     private readonly List<string> _labels = new();
     private readonly List<string> _itemsSourceLabels = new();
-
-    // The current offset of the bars (not used for stacked bar series).
-    // <remarks>These offsets are modified during rendering.</remarks>
-    private double[] _currentBarOffset;
 
     /// <summary>
     /// The current max value per StackIndex and Label.
@@ -55,6 +51,9 @@ public class CategoryAxis : LinearAxis
         MajorStep = 1;
         GapWidth = 1;
     }
+
+    public override object GetValue(double x) => FormatValue(x);
+
 
     /// <summary>
     /// Gets or sets the gap width.
@@ -112,11 +111,8 @@ public class CategoryAxis : LinearAxis
     /// Gets the maximum width of all category labels.
     /// </summary>
     /// <returns>The maximum width.</returns>
-    public double GetMaxWidth()
-    {
-        return _maxWidth;
-    }
-
+    public double MaxWidth => _maxWidth;
+    
     /// <summary>
     /// Gets the category value.
     /// </summary>
@@ -129,16 +125,6 @@ public class CategoryAxis : LinearAxis
         var offsetBegin = StackedBarOffset[stackIndex, categoryIndex];
         var offsetEnd = StackedBarOffset[stackIndex + 1, categoryIndex];
         return categoryIndex - 0.5 + ((offsetEnd + offsetBegin - actualBarWidth) * 0.5);
-    }
-
-    /// <summary>
-    /// Gets the category value.
-    /// </summary>
-    /// <param name="categoryIndex">Index of the category.</param>
-    /// <returns>The get category value.</returns>
-    public double GetCategoryValue(int categoryIndex)
-    {
-        return categoryIndex - 0.5 + BarOffset[categoryIndex];
     }
 
     /// <summary>
@@ -166,111 +152,6 @@ public class CategoryAxis : LinearAxis
 
             majorTickValues = mv;
         }
-    }
-
-    /// <summary>
-    /// Gets the value from an axis coordinate, converts from double to the correct data type if necessary. e.g. DateTimeAxis returns the DateTime and CategoryAxis returns category strings.
-    /// </summary>
-    /// <param name="x">The coordinate.</param>
-    /// <returns>The value.</returns>
-    public override object GetValue(double x)
-    {
-        return FormatValue(x);
-    }
-
-    /// <summary>
-    /// Gets the current bar offset for the specified category index.
-    /// </summary>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <returns>The offset.</returns>
-    public double GetCurrentBarOffset(int categoryIndex)
-    {
-        return _currentBarOffset[categoryIndex];
-    }
-
-    /// <summary>
-    /// Increases the current bar offset for the specified category index.
-    /// </summary>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <param name="delta">The offset increase.</param>
-    public void IncreaseCurrentBarOffset(int categoryIndex, double delta)
-    {
-        _currentBarOffset[categoryIndex] += delta;
-    }
-
-    /// <summary>
-    /// Gets the current base value for the specified stack and category index.
-    /// </summary>
-    /// <param name="stackIndex">The stack index.</param>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <param name="negativeValue">if set to <c>true</c> get the base value for negative values.</param>
-    /// <returns>The current base value.</returns>
-    public double GetCurrentBaseValue(int stackIndex, int categoryIndex, bool negativeValue)
-    {
-        return negativeValue ? _currentNegativeBaseValues[stackIndex, categoryIndex] : _currentPositiveBaseValues[stackIndex, categoryIndex];
-    }
-
-    /// <summary>
-    /// Sets the current base value for the specified stack and category index.
-    /// </summary>
-    /// <param name="stackIndex">Index of the stack.</param>
-    /// <param name="categoryIndex">Index of the category.</param>
-    /// <param name="negativeValue">if set to <c>true</c> set the base value for negative values.</param>
-    /// <param name="newValue">The new value.</param>
-    public void SetCurrentBaseValue(int stackIndex, int categoryIndex, bool negativeValue, double newValue)
-    {
-        if (negativeValue)
-        {
-            _currentNegativeBaseValues[stackIndex, categoryIndex] = newValue;
-        }
-        else
-        {
-            _currentPositiveBaseValues[stackIndex, categoryIndex] = newValue;
-        }
-    }
-
-    /// <summary>
-    /// Gets the current maximum value for the specified stack and category index.
-    /// </summary>
-    /// <param name="stackIndex">The stack index.</param>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <returns>The current value.</returns>
-    public double GetCurrentMaxValue(int stackIndex, int categoryIndex)
-    {
-        return _currentMaxValue[stackIndex, categoryIndex];
-    }
-
-    /// <summary>
-    /// Sets the current maximum value for the specified stack and category index.
-    /// </summary>
-    /// <param name="stackIndex">The stack index.</param>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <param name="newValue">The new value.</param>
-    public void SetCurrentMaxValue(int stackIndex, int categoryIndex, double newValue)
-    {
-        _currentMaxValue[stackIndex, categoryIndex] = newValue;
-    }
-
-    /// <summary>
-    /// Gets the current minimum value for the specified stack and category index.
-    /// </summary>
-    /// <param name="stackIndex">The stack index.</param>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <returns>The current value.</returns>
-    public double GetCurrentMinValue(int stackIndex, int categoryIndex)
-    {
-        return _currentMinValue[stackIndex, categoryIndex];
-    }
-
-    /// <summary>
-    /// Sets the current minimum value for the specified stack and category index.
-    /// </summary>
-    /// <param name="stackIndex">The stack index.</param>
-    /// <param name="categoryIndex">The category index.</param>
-    /// <param name="newValue">The new value.</param>
-    public void SetCurrentMinValue(int stackIndex, int categoryIndex, double newValue)
-    {
-        _currentMinValue[stackIndex, categoryIndex] = newValue;
     }
 
     /// <summary>
@@ -419,7 +300,7 @@ public class CategoryAxis : LinearAxis
     protected internal override void ResetCurrentValues()
     {
         base.ResetCurrentValues();
-        _currentBarOffset = BarOffset != null ? BarOffset.ToArray() : null;
+
         var actualLabels = ActualLabels;
         if (_maxStackIndex > 0)
         {

@@ -282,8 +282,8 @@ public sealed class PlotModel : Model, IPlotModel
     /// </summary>
     private void EnsureDefaultAxes()
     {
-        DefaultXAxis = Axises.FirstOrDefault(a => a.IsHorizontal() && a.IsXyAxis());
-        DefaultYAxis = Axises.FirstOrDefault(a => a.IsVertical() && a.IsXyAxis());
+        DefaultXAxis = Axises.FirstOrDefault(a => a.IsHorizontal());
+        DefaultYAxis = Axises.FirstOrDefault(a => a.IsVertical());
 
         if (DefaultYAxis == null)
         {

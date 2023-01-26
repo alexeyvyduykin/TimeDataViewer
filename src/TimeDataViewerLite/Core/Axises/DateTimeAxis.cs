@@ -17,11 +17,11 @@ public enum DateTimeIntervalType
     Years = 9,
 }
 
-public class DateTimeAxis : LinearAxis
+public class DateTimeAxis : Axis
 {
-    private static readonly DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-    private static readonly double MaxDayValue = (DateTime.MaxValue - TimeOrigin).TotalDays;
-    private static readonly double MinDayValue = (DateTime.MinValue - TimeOrigin).TotalDays;
+    private static readonly DateTime _timeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly double _maxDayValue = (DateTime.MaxValue - _timeOrigin).TotalDays;
+    private static readonly double _minDayValue = (DateTime.MinValue - _timeOrigin).TotalDays;
     private DateTimeIntervalType _actualIntervalType;
     private DateTimeIntervalType _actualMinorIntervalType;
 
@@ -33,6 +33,8 @@ public class DateTimeAxis : LinearAxis
         CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek;
     }
 
+    public override object GetValue(double x) => ToDateTime(x);
+
     public CalendarWeekRule CalendarWeekRule { get; set; }
 
     public DayOfWeek FirstDayOfWeek { get; set; }
@@ -42,76 +44,27 @@ public class DateTimeAxis : LinearAxis
     public DateTimeIntervalType MinorIntervalType { get; set; }
 
     /// <summary>
-    /// Gets or sets the time zone (used when formatting date/time values).
-    /// </summary>
-    /// <value>The time zone info.</value>
-    /// <remarks>No date/time conversion will be performed if this property is <c>null</c>.</remarks>
-    public TimeZoneInfo TimeZone { get; set; }
-
-    public static DataPoint CreateDataPoint(DateTime x, double y)
-    {
-        return new DataPoint(ToDouble(x), y);
-    }
-
-    public static DataPoint CreateDataPoint(DateTime x, DateTime y)
-    {
-        return new DataPoint(ToDouble(x), ToDouble(y));
-    }
-
-    public static DataPoint CreateDataPoint(double x, DateTime y)
-    {
-        return new DataPoint(x, ToDouble(y));
-    }
-
-    /// <summary>
     /// Converts a numeric representation of the date (number of days after the time origin) to a DateTime structure.
     /// </summary>
     /// <param name="value">The number of days after the time origin.</param>
     /// <returns>A <see cref="DateTime" /> structure. Ticks = 0 if the value is invalid.</returns>
     public static DateTime ToDateTime(double value)
     {
-        if (double.IsNaN(value) || value < MinDayValue || value > MaxDayValue)
+        if (double.IsNaN(value) || value < _minDayValue || value > _maxDayValue)
         {
             return new DateTime();
         }
 
-        return TimeOrigin.AddDays(value - 1);
+        return _timeOrigin.AddDays(value - 1);
     }
 
-    /// <summary>
-    /// Converts a DateTime to days after the time origin.
-    /// </summary>
-    /// <param name="value">The date/time structure.</param>
-    /// <returns>The number of days after the time origin.</returns>
-    public static double ToDouble(DateTime value)
-    {
-        var span = value - TimeOrigin;
-        return span.TotalDays + 1;
-    }
-
+    public static double ToDouble(DateTime value) => (value - _timeOrigin).TotalDays + 1;
+    
     public override void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
     {
         minorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMinorStep, _actualMinorIntervalType);
         majorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMajorStep, _actualIntervalType);
         majorLabelValues = majorTickValues;
-    }
-
-    /// <summary>
-    /// Gets the value from an axis coordinate, converts from double to the correct data type if necessary.
-    /// e.g. DateTimeAxis returns the DateTime and CategoryAxis returns category strings.
-    /// </summary>
-    /// <param name="x">The coordinate.</param>
-    /// <returns>The value.</returns>
-    public override object GetValue(double x)
-    {
-        var time = ToDateTime(x);
-
-        if (TimeZone != null)
-        {
-            time = TimeZoneInfo.ConvertTime(time, TimeZone);
-        }
-
-        return time;
     }
 
     internal override void UpdateIntervals(OxyRect plotArea)
@@ -197,21 +150,10 @@ public class DateTimeAxis : LinearAxis
         }
     }
 
-    protected override string GetDefaultStringFormat()
-    {
-        return null;
-    }
-
     protected override string FormatValueOverride(double x)
     {
         // convert the double value to a DateTime
         var time = ToDateTime(x);
-
-        // If a time zone is specified, convert the time
-        if (TimeZone != null)
-        {
-            time = TimeZoneInfo.ConvertTime(time, TimeZone);
-        }
 
         string fmt = ActualStringFormat;
         if (fmt == null)
@@ -431,142 +373,3 @@ public class DateTimeAxis : LinearAxis
         return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(date, CalendarWeekRule, FirstDayOfWeek);
     }
 }
-
-//public class DateTimeAxis : Axis
-//{
-//    private AxisLabelPosition? _dynamicLabel;
-//    private DateTime _epoch0 = DateTime.MinValue;
-
-//    public DateTimeAxis() 
-//    {
-//        Header = "X";
-//        Position = AxisPosition.Bottom;            
-//        IsDynamicLabelEnable = true;
-//        TimePeriodMode = TimePeriod.Month;
-//        LabelFormatPool = new Dictionary<TimePeriod, string>()
-//            {
-//                { TimePeriod.Hour, @"{0:HH:mm}" },
-//                { TimePeriod.Day, @"{0:HH:mm}" },
-//                { TimePeriod.Week, @"{0:dd/MMM}" },
-//                { TimePeriod.Month, @"{0:dd}" },
-//                { TimePeriod.Year, @"{0:dd/MMM}" },
-//            };
-//        LabelDeltaPool = new Dictionary<TimePeriod, double>()
-//            {
-//                { TimePeriod.Hour, 60.0 * 5 },
-//                { TimePeriod.Day, 3600.0 * 2 },
-//                { TimePeriod.Week, 86400.0 },
-//                { TimePeriod.Month, 86400.0 },
-//                { TimePeriod.Year, 86400.0 * 12 },
-//            };
-//    }
-
-//    public IDictionary<TimePeriod, string>? LabelFormatPool { get; init; }
-
-//    public IDictionary<TimePeriod, double>? LabelDeltaPool { get; init; }
-
-//    public DateTime Epoch0 
-//    { 
-//        get => _epoch0; 
-//        set 
-//        {
-//            _epoch0 = value;
-//            Invalidate();
-//        }
-//    }
-
-//    public TimePeriod TimePeriodMode { get; set; }
-
-//    private IList<AxisLabelPosition> CreateLabels()
-//    {
-//        var labs = new List<AxisLabelPosition>();
-
-//        if ((MaxClientValue - MinClientValue) == 0.0)
-//        {
-//            return labs;
-//        }
-
-//        if (LabelDeltaPool == null || LabelDeltaPool.ContainsKey(TimePeriodMode) == false || 
-//            LabelFormatPool == null || LabelFormatPool.ContainsKey(TimePeriodMode) == false)
-//        {
-//            return labs;
-//        }
-
-//        double delta = LabelDeltaPool[TimePeriodMode];
-
-//        int fl = (int)Math.Floor(MinClientValue / delta);
-
-//        double value = fl * delta;
-
-//        if (value < MinClientValue)
-//        {
-//            value += delta;
-//        }
-
-//        while (value <= MaxClientValue)
-//        {
-//            labs.Add(new AxisLabelPosition()
-//            {
-//                Label = string.Format(CultureInfo.InvariantCulture, LabelFormatPool[TimePeriodMode], Epoch0.AddSeconds(value)),
-//                Value = value
-//            });
-
-//            value += delta;
-//        }
-
-//        return labs;
-//    }
-
-//    private string CreateMinMaxLabel(double value)
-//    {
-//        if ((MaxClientValue - MinClientValue) == 0.0)
-//        {
-//            return string.Empty;
-//        }
-
-//        return Epoch0.ToString();//AddSeconds(value).ToString(@"dd/MMM/yyyy", CultureInfo.InvariantCulture);
-//    }
-
-//    public void UpdateDynamicLabelPosition(Point2D point)
-//    {
-//        if (IsVertical() == true)
-//        {
-//            _dynamicLabel = new AxisLabelPosition()
-//            {
-//                Label = string.Format("{0:HH:mm:ss}", Epoch0.AddSeconds(point.Y)),
-//                Value = point.Y
-//            };
-//        }
-//        else
-//        {
-//            _dynamicLabel = new AxisLabelPosition()
-//            {
-//                Label = string.Format("{0:HH:mm:ss}", Epoch0),//.AddSeconds(point.X)),
-//                Value = point.X
-//            };
-//        }
-
-//        Invalidate();
-//    }
-
-//   // public override void UpdateFollowLabelPosition(MarkerViewModel marker) { }
-
-//    public override AxisInfo AxisInfo
-//    {
-//        get
-//        {
-//            var axisInfo = new AxisInfo()
-//            {
-//                Labels = CreateLabels(),
-//                Position = Position,
-//                MinValue = MinClientValue,
-//                MaxValue = MaxClientValue,
-//                MinLabel = CreateMinMaxLabel(MinClientValue),
-//                MaxLabel = CreateMinMaxLabel(MaxClientValue),               
-//                DynamicLabel = (IsDynamicLabelEnable == true) ? _dynamicLabel : null,
-//            };
-
-//            return axisInfo;
-//        }
-//    }
-//}

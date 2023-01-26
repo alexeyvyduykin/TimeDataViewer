@@ -267,6 +267,10 @@ public abstract partial class Axis : PlotElement
     /// </summary>
     public OxySize DesiredSize { get; set; }
 
+    public abstract object GetValue(double x);
+
+
+
     /// <summary>
     /// Converts the value of the specified object to a double precision floating point number. DateTime objects are converted using DateTimeAxis.ToDouble and TimeSpan objects are converted using TimeSpanAxis.ToDouble
     /// </summary>
@@ -283,11 +287,8 @@ public abstract partial class Axis : PlotElement
     }
 
     // Formats the value to be used on the axis.
-    public string FormatValue(double x)
-    {
-        return FormatValueOverride(x);
-    }
-
+    public string FormatValue(double x) => FormatValueOverride(x);
+    
     // Gets the coordinates used to draw ticks and tick labels (numbers or category names).
     public virtual void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
     {
@@ -295,18 +296,7 @@ public abstract partial class Axis : PlotElement
         majorTickValues = CreateTickValues(ActualMinimum, ActualMaximum, ActualMajorStep);
         majorLabelValues = majorTickValues;
     }
-
-    /// <summary>
-    /// Gets the value from an axis coordinate, converts from a coordinate <see cref="double" /> value to the actual data type.
-    /// </summary>
-    /// <param name="x">The coordinate.</param>
-    /// <returns>The converted value.</returns>
-    /// <remarks>Examples: The <see cref="DateTimeAxis" /> returns the <see cref="DateTime" /> and <see cref="CategoryAxis" /> returns category strings.</remarks>
-    public virtual object GetValue(double x)
-    {
-        return x;
-    }
-
+    
     /// <summary>
     /// Inverse transform the specified screen point.
     /// </summary>
@@ -368,12 +358,6 @@ public abstract partial class Axis : PlotElement
     {
         return _position == AxisPosition.Left || _position == AxisPosition.Right;
     }
-
-    /// <summary>
-    /// Determines whether the axis is used for X/Y values.
-    /// </summary>
-    /// <returns><c>true</c> if it is an XY axis; otherwise, <c>false</c> .</returns>
-    public abstract bool IsXyAxis();
 
     /// <summary>
     /// Pans the specified axis.
@@ -711,7 +695,7 @@ public abstract partial class Axis : PlotElement
         ActualMinorStep = Math.Max(ActualMinorStep, MinimumMinorStep);
         ActualMajorStep = Math.Max(ActualMajorStep, MinimumMajorStep);
 
-        ActualStringFormat = StringFormat ?? GetDefaultStringFormat();
+        ActualStringFormat = StringFormat;
     }
 
     /// <summary>
@@ -772,11 +756,6 @@ public abstract partial class Axis : PlotElement
     /// <remarks>The current values may be modified during update of max/min and rendering.</remarks>
     protected internal virtual void ResetCurrentValues()
     {
-    }
-
-    protected virtual string GetDefaultStringFormat()
-    {
-        return "g6";
     }
 
     // Applies a transformation after the inverse transform of the value.
