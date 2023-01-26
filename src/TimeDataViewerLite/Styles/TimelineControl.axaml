@@ -76,8 +76,6 @@
                                                              IsVisible="False"/>
                                 </Canvas>
                             </Panel>
-                            <controls:ValueSlider x:Name="PART_TimelineSlider"
-                                                  Grid.RowSpan="2"/>
                         </Grid>
                     </Border>
                 </ControlTemplate>

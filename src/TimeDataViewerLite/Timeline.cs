@@ -52,107 +52,6 @@ public partial class Timeline : TimelineBase
         drawCanvas.RenderSeries(Series.Where(s => s.IsVisible).ToList());
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-
-        if (_panelX == null)
-        {
-            return;
-        }
-
-        // TODO: replace from Timeline to TimelineBase
-        _panelX.PointerPressed += _panelX_PointerPressed;
-        _panelX.PointerMoved += _panelX_PointerMoved;
-        _panelX.PointerReleased += _panelX_PointerReleased;
-    }
-
-    private bool _isPressed = false;
-
-    private void _panelX_PointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        _isPressed = false;
-    }
-
-    private void _panelX_PointerMoved(object? sender, PointerEventArgs e)
-    {
-        if (_isPressed == true)
-        {
-            base.OnPointerMoved(e);
-            if (e.Handled)
-            {
-                return;
-            }
-
-            e.Pointer.Capture(_panelX);
-
-            var point = e.GetPosition(_panelX).ToScreenPoint();
-
-            foreach (var a in Axises)
-            {
-                if (a.InternalAxis.IsHorizontal() == true && a is DateTimeAxis axis)
-                {
-                    var value = axis.InternalAxis.InverseTransform(point.X);
-
-                    DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                    Slider.IsTracking = false;
-                    Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                    Slider.IsTracking = true;
-                }
-            }
-        }
-    }
-
-    public void SliderTo(double value)
-    {
-        foreach (var a in Axises)
-        {
-            if (a.InternalAxis.IsHorizontal() == true)
-            {
-                DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                Slider.IsTracking = false;
-                Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                Slider.IsTracking = true;
-            }
-        }
-    }
-
-    private void _panelX_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-        if (e.Handled)
-        {
-            return;
-        }
-
-        Focus();
-        e.Pointer.Capture(_panelX);
-
-        var point = e.GetPosition(_panelX).ToScreenPoint();
-
-        foreach (var a in Axises)
-        {
-            if (a.InternalAxis.IsHorizontal() == true && a is DateTimeAxis axis)
-            {
-                var value = axis.InternalAxis.InverseTransform(point.X);
-
-                DateTime TimeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                Slider.IsTracking = false;
-                Slider.CurrentValue = TimeOrigin.AddDays(value - 1);
-                Slider.IsTracking = true;
-
-                _isPressed = true;
-            }
-        }
-    }
-
-    protected override void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
-    {
-        // TODO: Remove update method from render and replace to UpdateModel (present correct not work) 
-        UpdateSlider();
-        Slider.Render(contextAxis, contextPlot);
-    }
-
     // Updates the model. If Model==<c>null</c>, an internal model will be created.
     // The ActualModel.Update will be called (updates all series data).
     protected override void UpdateModel(bool updateData = true)
@@ -162,8 +61,6 @@ public partial class Timeline : TimelineBase
         SynchronizeAxes();
 
         base.UpdateModel(updateData);
-
-        //UpdateSlider();
     }
 
     // Called when the visual appearance is changed.     
@@ -176,11 +73,6 @@ public partial class Timeline : TimelineBase
     private static void AppearanceChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
     {
         ((Timeline)d).OnAppearanceChanged();
-    }
-
-    private static void SliderChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
-    {
-        ((Timeline)d).SyncLogicalTree(e);
     }
 
     private void OnAxesChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -276,14 +168,6 @@ public partial class Timeline : TimelineBase
         foreach (var s in Series)
         {
             _internalModel.Series.Add(s.CreateModel());
-        }
-    }
-
-    private void UpdateSlider()
-    {
-        if (ActualModel != null)
-        {
-            Slider.UpdateMinMax(ActualModel);
         }
     }
 }

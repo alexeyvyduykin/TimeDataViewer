@@ -178,35 +178,4 @@
 
     </Style>
 
-    <Style Selector="controls|ValueSlider">
-
-        <Setter Property="InactiveRangeBrush">
-            <Setter.Value>
-                <SolidColorBrush Color="Black" Opacity="0.2"/>
-            </Setter.Value>
-        </Setter>
-
-        <Setter Property="SliderBrush">
-            <Setter.Value>
-                <SolidColorBrush Color="{StaticResource sliderBackground}"/>
-            </Setter.Value>
-        </Setter>
-
-        <Setter Property="DefaultLabelTemplate">
-            <Setter.Value>
-                <ControlTemplate>
-                    <TextBlock Background="{StaticResource sliderBackground}"
-                               Foreground="{StaticResource sliderForeground}"
-                               FontFamily="Segoe UI"
-                               FontSize="12"
-                               FontWeight="Normal"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Padding="4,2,4,2"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-
-    </Style>
-
 </Styles>

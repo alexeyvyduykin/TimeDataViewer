@@ -321,7 +321,6 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
                 ((IPlotModel)ActualModel).Render(_canvasBack.Bounds.Width, _canvasBack.Bounds.Height);
                 RenderSeries(_canvasBack, _drawCanvas);
                 RenderAxisX(rcAxis, rcPlotBack);
-                RenderSlider(rcAxis, rcPlotFront);
 
                 // reinsert the canvas again
                 if (idx1 != -1)
@@ -339,7 +338,6 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
                 ((IPlotModel)ActualModel).Render(_canvasBack.Bounds.Width, _canvasBack.Bounds.Height);
                 RenderSeries(_canvasBack, _drawCanvas);
                 RenderAxisX(rcAxis, rcPlotBack);
-                RenderSlider(rcAxis, rcPlotFront);
             }
         }
     }
@@ -347,8 +345,6 @@ public abstract partial class TimelineBase : TemplatedControl, IPlotView
     protected abstract void RenderAxisX(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);
 
     protected abstract void RenderSeries(Canvas canvasPlot, DrawCanvas drawCanvas);
-
-    protected abstract void RenderSlider(CanvasRenderContext contextAxis, CanvasRenderContext contextPlot);
 
 
     // Invokes the specified action on the dispatcher, if necessary.

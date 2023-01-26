@@ -32,7 +32,6 @@ public partial class TimelineControl
         RenderBack(_backCanvas);
         RenderSeries(_drawCanvas);
         RenderAxisX(_axisXCanvas, _backCanvas);
-        RenderSlider(_axisXCanvas, _frontCanvas);
     }
 
     private void RenderBack(Canvas backCanvas)
@@ -60,19 +59,6 @@ public partial class TimelineControl
                 }
             }
         }
-    }
-
-    private void RenderSlider(Canvas axisXCanvas, Canvas frontCanvas)
-    {
-        var rcAxis = new CanvasRenderContext(axisXCanvas);
-        var rcPlotFront = new CanvasRenderContext(frontCanvas);
-
-        if (ActualModel != null)
-        {
-            Slider?.UpdateMinMax(ActualModel);
-        }
-
-        Slider?.Render(rcAxis, rcPlotFront);
     }
 
     private void RenderAxis(Core.Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)

@@ -44,11 +44,6 @@ public class SelectManipulator : MouseManipulator
             {
                 series.SelectIndex((int)result.Index);
 
-                if (PlotView is Timeline timeline)
-                {
-                    timeline.SliderTo(((TimelineItem)result.Item).Begin);
-                }
-
                 PlotView.InvalidatePlot(false);
             }
         }

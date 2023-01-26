@@ -20,30 +20,12 @@ public partial class Timeline
         DefaultFontSizeProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
         PlotMarginsProperty.Changed.AddClassHandler<Timeline>(AppearanceChanged);
         InvalidateFlagProperty.Changed.AddClassHandler<Timeline>((s, e) => s.InvalidateFlagChanged());
-
-        SliderProperty.Changed.AddClassHandler<Timeline>(SliderChanged);
     }
 
     public Collection<Axis> Axises => _axises;
 
     [Content]
     public Collection<Series> Series => _series;
-
-    public static readonly StyledProperty<ValueSlider> SliderProperty =
-        AvaloniaProperty.Register<Timeline, ValueSlider>(nameof(Slider));
-
-    public ValueSlider Slider
-    {
-        get
-        {
-            return GetValue(SliderProperty);
-        }
-
-        set
-        {
-            SetValue(SliderProperty, value);
-        }
-    }
 
     public static readonly StyledProperty<CultureInfo> CultureProperty =
         AvaloniaProperty.Register<Timeline, CultureInfo>(nameof(Culture));

@@ -11,28 +11,6 @@ public partial class TimelineControl
 {
     private ICommand? _selectedInterval;
 
-    static TimelineControl()
-    {
-        BeginProperty.Changed.AddClassHandler<TimelineControl>(BeginChanged);
-        DurationProperty.Changed.AddClassHandler<TimelineControl>(DurationChanged);
-    }
-
-    protected static void BeginChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (((TimelineControl)d)._slider != null && e.NewValue is double begin)
-        {
-            ((TimelineControl)d)._slider!.Begin = begin;
-        }
-    }
-
-    protected static void DurationChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (((TimelineControl)d)._slider != null && e.NewValue is double duration)
-        {
-            ((TimelineControl)d)._slider!.Duration = duration;
-        }
-    }
-
     public static readonly StyledProperty<double> BeginProperty =
         AvaloniaProperty.Register<TimelineControl, double>(nameof(Begin));
 

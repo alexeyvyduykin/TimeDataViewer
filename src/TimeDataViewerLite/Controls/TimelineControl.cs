@@ -20,12 +20,10 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_FrontCanvas = "PART_FrontCanvas";
     private const string PART_AxisXCanvas = "PART_AxisXCanvas";
     private const string PART_ZoomControl = "PART_ZoomControl";
-    private const string PART_TimelineSlider = "PART_TimelineSlider";
     private const string PART_Tracker = "PART_Tracker";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
     private ContentControl? _zoomControl;
-    private ValueSlider? _slider;
     private TrackerControl? _tracker;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
@@ -40,8 +38,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     public PlotModel? ActualModel => _plotModel;
 
     public IController? ActualController { get; }
-
-    public ValueSlider? Slider => _slider;
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
@@ -116,7 +112,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
         _zoomControl = e.NameScope.Find<ContentControl>(PART_ZoomControl);
 
-        _slider = e.NameScope.Find<ValueSlider>(PART_TimelineSlider);
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
     }
 
@@ -180,8 +175,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         {
             ((IPlotModel)ActualModel).Update(updateData);
         }
-
-        UpdateSlider();
     }
 
     // Called when the size of the control is changed.
@@ -226,14 +219,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         else
         {
             action?.Invoke();
-        }
-    }
-
-    private void UpdateSlider()
-    {
-        if (ActualModel != null)
-        {
-            _slider?.UpdateMinMax(ActualModel);
         }
     }
 }

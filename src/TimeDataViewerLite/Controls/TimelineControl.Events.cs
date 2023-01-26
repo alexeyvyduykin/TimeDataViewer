@@ -434,18 +434,11 @@ public partial class TimelineControl
 
         foreach (var a in ActualModel.Axises)
         {
-            if (a.IsHorizontal() == true && _slider != null)
+            if (a.IsHorizontal() == true)
             {
-                var value = a.InverseTransform(point.X);
-
-                _slider.IsTracking = false;
-                _slider.CurrentValue = _timeOrigin.AddDays(value - 1);
-                _slider.IsTracking = true;
-
                 _isPressed = true;
 
                 // TODO: update only slider
-                UpdateSlider();
                 Draw();
             }
         }
@@ -473,16 +466,11 @@ public partial class TimelineControl
 
             foreach (var axis in ActualModel.Axises)
             {
-                if (axis.IsHorizontal() == true && _slider != null)
+                if (axis.IsHorizontal() == true)
                 {
                     var value = axis.InverseTransform(point.X);
 
-                    _slider.IsTracking = false;
-                    _slider.CurrentValue = _timeOrigin.AddDays(value - 1);
-                    _slider.IsTracking = true;
-
                     // TODO: update only slider
-                    UpdateSlider();
                     Draw();
                 }
             }
