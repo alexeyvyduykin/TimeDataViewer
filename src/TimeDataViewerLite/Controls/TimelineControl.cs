@@ -37,7 +37,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public PlotModel? ActualModel => _plotModel;
 
-    public IController? ActualController { get; }
+    //public IController? ActualController { get; }
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 

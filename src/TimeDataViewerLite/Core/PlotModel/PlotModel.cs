@@ -2,7 +2,7 @@
 
 namespace TimeDataViewerLite.Core;
 
-public partial class PlotModel : Model, IPlotModel
+public sealed class PlotModel : Model, IPlotModel
 {
     // The plot view that renders this plot.    
     private WeakReference _plotViewReference;
@@ -17,7 +17,7 @@ public partial class PlotModel : Model, IPlotModel
 
     public event EventHandler<TrackerEventArgs> TrackerChanged;
 
-    public IPlotView PlotView => (_plotViewReference != null) ? (IPlotView)_plotViewReference.Target : null;
+    public IPlotView? PlotView => (_plotViewReference != null) ? (IPlotView?)_plotViewReference.Target : null;
 
     public ElementCollection<Axis> Axises { get; private set; }
 
@@ -55,17 +55,6 @@ public partial class PlotModel : Model, IPlotModel
         }
 
         _plotViewReference = (plotView == null) ? null : new WeakReference(plotView);
-    }
-
-    public void InvalidatePlot(bool updateData)
-    {
-        var plotView = PlotView;
-        if (plotView == null)
-        {
-            return;
-        }
-
-        plotView.InvalidatePlot(updateData);
     }
 
     // Gets the first axes that covers the area of the specified point.
@@ -241,7 +230,7 @@ public partial class PlotModel : Model, IPlotModel
         }
     }
 
-    protected internal virtual void OnTrackerChanged(TrackerHitResult result)
+    private void OnTrackerChanged(TrackerHitResult result)
     {
         RaiseTrackerChanged(result);
     }
@@ -356,6 +345,59 @@ public partial class PlotModel : Model, IPlotModel
         foreach (var a in Axises)
         {
             a.UpdateActualMaxMin();
+        }
+    }
+
+    // Renders the plot with the specified rendering context.
+    void IPlotModel.Render(double width, double height)
+    {
+        RenderOverride(width, height);
+    }
+
+    // Renders the plot with the specified rendering context.
+    private void RenderOverride(double width, double height)
+    {
+        lock (SyncRoot)
+        {
+            try
+            {
+                Width = width;
+                Height = height;
+
+                PlotArea = new OxyRect(0, 0, Width, Height);
+
+                UpdateAxisTransforms();
+                UpdateIntervals();
+
+                foreach (var a in Axises)
+                {
+                    a.ResetCurrentValues();
+                }
+
+                RenderSeries();
+                RenderAxises();
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+        }
+    }
+
+    private void RenderAxises()
+    {
+        foreach (var item in Axises)
+        {
+            item.MyOnRender(this);
+        }
+    }
+
+    private void RenderSeries()
+    {
+        foreach (var s in Series.Where(s => s.IsVisible))
+        {
+            s.Render();
+            s.MyOnRender();
         }
     }
 }

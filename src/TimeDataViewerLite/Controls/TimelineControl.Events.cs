@@ -14,20 +14,19 @@ public partial class TimelineControl
     private bool _isPanEnabled;
     private OxyRect _zoomRectangle;
     private bool _isZoomEnabled;
-
-    protected Axis? XAxis { get; set; }
-    protected Axis? YAxis { get; set; }
+    private Axis? _xAxis;
+    private Axis? _yAxis;
 
     protected DataPoint InverseTransform(double x, double y)
     {
-        if (XAxis != null)
+        if (_xAxis != null)
         {
-            return XAxis.InverseTransform(x, y, YAxis!);
+            return _xAxis.InverseTransform(x, y, _yAxis!);
         }
 
-        if (YAxis != null)
+        if (_yAxis != null)
         {
-            return new DataPoint(0, YAxis.InverseTransform(y));
+            return new DataPoint(0, _yAxis.InverseTransform(y));
         }
 
         return new DataPoint();
@@ -35,13 +34,7 @@ public partial class TimelineControl
 
     protected void AssignAxes()
     {
-        Axis? xAxis = null;
-        Axis? yAxis = null;
-
-        ActualModel?.GetAxesFromPoint(out xAxis, out yAxis);
-
-        XAxis = xAxis;
-        YAxis = yAxis;
+        ActualModel?.GetAxesFromPoint(out _xAxis, out _yAxis);
     }
 
     protected static TrackerHitResult? GetNearestHit(Series? series, ScreenPoint point, bool snap, bool pointsOnly)
@@ -95,12 +88,12 @@ public partial class TimelineControl
 
     private CursorType GetZoomCursor()
     {
-        if (XAxis == null)
+        if (_xAxis == null)
         {
             return CursorType.ZoomVertical;
         }
 
-        if (YAxis == null)
+        if (_yAxis == null)
         {
             return CursorType.ZoomHorizontal;
         }
@@ -124,7 +117,7 @@ public partial class TimelineControl
         var factor = 1;
         var step = delta * 0.001 * factor;
 
-        var isZoomEnabled = (XAxis != null && XAxis.IsZoomEnabled) || (YAxis != null && YAxis.IsZoomEnabled);
+        var isZoomEnabled = (_xAxis != null && _xAxis.IsZoomEnabled) || (_yAxis != null && _yAxis.IsZoomEnabled);
 
         if (isZoomEnabled == false)
         {
@@ -141,9 +134,9 @@ public partial class TimelineControl
             scale = 0.1;
         }
 
-        XAxis?.ZoomAt(scale, current.X);
+        _xAxis?.ZoomAt(scale, current.X);
 
-        YAxis?.ZoomAt(scale, current.Y);
+        _yAxis?.ZoomAt(scale, current.Y);
 
         InvalidatePlot(false);
     }
@@ -221,8 +214,8 @@ public partial class TimelineControl
 
         _previousPosition = position;
 
-        _isPanEnabled = (XAxis != null && XAxis.IsPanEnabled)
-                     || (YAxis != null && YAxis.IsPanEnabled);
+        _isPanEnabled = (_xAxis != null && _xAxis.IsPanEnabled)
+                     || (_yAxis != null && _yAxis.IsPanEnabled);
 
         if (_isPanEnabled == true)
         {
@@ -237,8 +230,8 @@ public partial class TimelineControl
     {
         var position = e.GetPosition(_basePanel).ToScreenPoint();
 
-        _isZoomEnabled = (XAxis != null && XAxis.IsZoomEnabled)
-                      || (YAxis != null && YAxis.IsZoomEnabled);
+        _isZoomEnabled = (_xAxis != null && _xAxis.IsZoomEnabled)
+                      || (_yAxis != null && _yAxis.IsZoomEnabled);
 
         if (_isZoomEnabled == true)
         {
@@ -317,13 +310,13 @@ public partial class TimelineControl
         var y = Math.Min(_mouseDownPoint.Y, position.Y);
         var h = Math.Abs(_mouseDownPoint.Y - position.Y);
 
-        if (XAxis == null || XAxis.IsZoomEnabled == false)
+        if (_xAxis == null || _xAxis.IsZoomEnabled == false)
         {
             x = plotArea.Left;
             w = plotArea.Width;
         }
 
-        if (YAxis == null || YAxis.IsZoomEnabled == false)
+        if (_yAxis == null || _yAxis.IsZoomEnabled == false)
         {
             y = plotArea.Top;
             h = plotArea.Height;
@@ -340,8 +333,8 @@ public partial class TimelineControl
     {
         var position = e.GetPosition(_basePanel).ToScreenPoint();
 
-        XAxis?.Pan(_previousPosition, position);
-        YAxis?.Pan(_previousPosition, position);
+        _xAxis?.Pan(_previousPosition, position);
+        _yAxis?.Pan(_previousPosition, position);
 
         InvalidatePlot(false);
 
@@ -407,8 +400,8 @@ public partial class TimelineControl
             var p0 = InverseTransform(_zoomRectangle.Left, _zoomRectangle.Top);
             var p1 = InverseTransform(_zoomRectangle.Right, _zoomRectangle.Bottom);
 
-            XAxis?.Zoom(p0.X, p1.X);
-            YAxis?.Zoom(p0.Y, p1.Y);
+            _xAxis?.Zoom(p0.X, p1.X);
+            _yAxis?.Zoom(p0.Y, p1.Y);
 
             InvalidatePlot();
         }
