@@ -93,22 +93,6 @@ public partial class TimelineControl
         }
     }
 
-    public static readonly StyledProperty<ControlTemplate> ZoomRectangleTemplateProperty =
-        AvaloniaProperty.Register<TimelineControl, ControlTemplate>(nameof(ZoomRectangleTemplate));
-
-    public ControlTemplate ZoomRectangleTemplate
-    {
-        get
-        {
-            return GetValue(ZoomRectangleTemplateProperty);
-        }
-
-        set
-        {
-            SetValue(ZoomRectangleTemplateProperty, value);
-        }
-    }
-
     public static readonly DirectProperty<TimelineControl, ICommand?> SelectedIntervalProperty =
         AvaloniaProperty.RegisterDirect<TimelineControl, ICommand?>(nameof(SelectedInterval),
             timeline => timeline.SelectedInterval, (timeline, command) => timeline.SelectedInterval = command, enableDataValidation: true);

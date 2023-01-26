@@ -10,9 +10,7 @@ public class DrawCanvas : Canvas
 {
     private Rect? _clip;
     private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };
-    private readonly Dictionary<TimelineSeries, IList<Rect>> _dict = new();
-    private readonly Dictionary<TimelineSeries, IList<Rect>> _selectedDict = new();
-    private readonly Dictionary<Core.TimelineSeries, IList<(Rect, bool)>> _dict2 = new();
+    private readonly Dictionary<TimelineSeries, IList<(Rect, bool)>> _dict2 = new();
 
     private readonly Pen _defaultPen = new() { Brush = Brushes.Black };
     private readonly IBrush _defaultBrush = new SolidColorBrush(Colors.Red);
@@ -21,30 +19,6 @@ public class DrawCanvas : Canvas
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-
-        if (_dict.Count != 0)
-        {
-            foreach (var series in _dict.Keys)
-            {
-                var pen = new Pen() { Brush = series.StrokeBrush };
-
-                foreach (var item in _dict[series])
-                {
-                    context.DrawRectangle(series.FillBrush, pen, item);
-                }
-            }
-        }
-
-        if (_selectedDict.Count != 0)
-        {
-            foreach (var series in _selectedDict.Keys)
-            {
-                foreach (var item in _selectedDict[series])
-                {
-                    context.DrawRectangle(series.FillBrush, _selectedPen, item);
-                }
-            }
-        }
 
         if (_dict2.Count != 0)
         {
@@ -83,41 +57,9 @@ public class DrawCanvas : Canvas
 
     public void RenderSeries(IEnumerable<Series> series)
     {
-        _dict.Clear();
-        _selectedDict.Clear();
-
-        foreach (var s in series)
-        {
-            var list1 = new List<Rect>();
-            var list2 = new List<Rect>();
-
-            var innserSeries = (Core.TimelineSeries)s.InternalSeries;
-
-            foreach (var (rect, isSelected) in innserSeries.Rectangles)
-            {
-                if (isSelected == false)
-                {
-                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(rect), list1);
-                }
-                else
-                {
-                    CreateClippedRectangle(innserSeries.MyClippingRect, ToRect(rect), list2);
-                }
-            }
-
-            _dict.Add((TimelineSeries)s, list1);
-
-            _selectedDict.Add((TimelineSeries)s, list2);
-        }
-
-        InvalidateVisual();
-    }
-
-    public void RenderSeries(IEnumerable<Core.Series> series)
-    {
         _dict2.Clear();
 
-        foreach (var s in series.Cast<Core.TimelineSeries>())
+        foreach (var s in series.Cast<TimelineSeries>())
         {
             var list = new List<(Rect, bool)>();
 

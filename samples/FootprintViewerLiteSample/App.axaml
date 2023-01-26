@@ -9,7 +9,6 @@
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
 
-        <StyleInclude Source="avares://TimeDataViewerLite/Styles/Default.axaml"/>
         <StyleInclude Source="avares://TimeDataViewerLite/Styles/TimelineControl.axaml"/>
     </Application.Styles>
 </Application>

@@ -18,39 +18,68 @@
         <Color x:Key="axisBackgound">#292929</Color>
         <!-- (0.161, 0.161, 0.161) -->
         <SolidColorBrush x:Key="axisBackgroundBrush" Color="{StaticResource axisBackgound}"/>
-        <Color x:Key="axisGrid">#2A2A2A</Color>
-        <!-- (0.165, 0.165, 0.165) -->
-        <Color x:Key="sliderBackground">#5680C2</Color>
-        <!-- (0.337, 0.502, 0.761) -->
-        <Color x:Key="sliderForeground">#FFFFFF</Color>
-        <!-- (1.000, 1.000, 1.000) -->
+
+        <ControlTemplate x:Key="ZoomTemplate">
+            <Rectangle Stroke="White" StrokeDashArray="5,5" StrokeThickness="1">
+                <Rectangle.Fill>
+                    <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="LabelTemplate">
+            <TextBlock Foreground="{StaticResource axisLabelForeground}"
+                       FontFamily="Segoe UI"
+                       FontSize="12"
+                       FontWeight="Normal"/>
+        </ControlTemplate>
+
+        <DataTemplate x:Key="TrackerContentTemplate">
+            <TextBlock Text="{Binding Text}" Margin="7" />
+        </DataTemplate>
     </Styles.Resources>
 
     <!-- Add Styles Here -->
 
-    <Style Selector="controls|TimelineControl">
-
-        <Setter Property="TrackerTemplate">
-            <Setter.Value>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Text}"
-                               Margin="7" />
-                </DataTemplate>
-            </Setter.Value>
-        </Setter>
-
-        <Setter Property="ZoomRectangleTemplate">
+    <Style Selector="controls|TrackerControl">
+        <Setter Property="Distance" Value="8" />
+        <Setter Property="CanCenterHorizontally" Value="true" />
+        <Setter Property="CanCenterVertically" Value="true" />
+        <Setter Property="IsHitTestVisible" Value="false" />
+        <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Rectangle Stroke="White" StrokeDashArray="5,5" StrokeThickness="1">
-                        <Rectangle.Fill>
-                            <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
-                        </Rectangle.Fill>
-                    </Rectangle>
+                    <Panel HorizontalAlignment="Stretch"
+                           VerticalAlignment="Stretch"
+                           ClipToBounds="False">
+                        <Panel Name="PART_ContentContainer"
+                               ClipToBounds="False">
+                            <Border Name="PART_Border"
+                                    BorderBrush="Black"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Background="White"
+                                    Opacity="0.6"
+                                    Margin="{TemplateBinding MarginPointer}"/>
+                            <ContentPresenter Name="PART_Content"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              HorizontalAlignment="Center"/>
+                        </Panel>
+                    </Panel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
 
+    <Style Selector="controls|TrackerControl">
+        <Setter Property="Content" Value="{Binding}"></Setter>
+        <Setter Property="Position" Value="{Binding Position}"></Setter>
+    </Style>
+
+    <Style Selector="controls|TimelineControl">
+        <Setter Property="DefaultLabelTemplate" Value="{StaticResource LabelTemplate}"/>
+        <Setter Property="TrackerTemplate" Value="{StaticResource TrackerContentTemplate}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -70,7 +99,8 @@
                                 <Canvas Name="PART_FrontCanvas"
                                         Background="Transparent"/>
                                 <Canvas Name="PART_OverlayCanvas">
-                                    <ContentControl Name="PART_ZoomControl"/>
+                                    <ContentControl Name="PART_ZoomControl"
+                                                    Template="{StaticResource ZoomTemplate}"/>
                                     <controls:TrackerControl Name="PART_Tracker"
                                                              ContentTemplate="{TemplateBinding TrackerTemplate}"
                                                              IsVisible="False"/>
@@ -81,18 +111,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-
-        <Setter Property="DefaultLabelTemplate">
-            <Setter.Value>
-                <ControlTemplate>
-                    <TextBlock Foreground="{StaticResource axisLabelForeground}"
-                               FontFamily="Segoe UI"
-                               FontSize="12"
-                               FontWeight="Normal"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-
     </Style>
 
     <Style Selector="controls|TimelineControl /template/ Panel#PART_AxisXPanel">

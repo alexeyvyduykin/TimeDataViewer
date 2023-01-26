@@ -101,10 +101,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _basePanel.PointerMoved += _panel_PointerMoved;
         _basePanel.PointerReleased += _panel_PointerReleased;
 
-        _axisXPanel.PointerPressed += _panelX_PointerPressed;
-        _axisXPanel.PointerMoved += _panelX_PointerMoved;
-        _axisXPanel.PointerReleased += _panelX_PointerReleased;
-
         _backCanvas = e.NameScope.Find<Canvas>(PART_BackCanvas);
         _drawCanvas = e.NameScope.Find<DrawCanvas>(PART_DrawCanvas);
         _frontCanvas = e.NameScope.Find<Canvas>(PART_FrontCanvas);
@@ -140,7 +136,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             _zoomControl.Height = r.Height;
             Canvas.SetLeft(_zoomControl, r.Left);
             Canvas.SetTop(_zoomControl, r.Top);
-            _zoomControl.Template = ZoomRectangleTemplate;
             _zoomControl.IsVisible = true;
         }
     }

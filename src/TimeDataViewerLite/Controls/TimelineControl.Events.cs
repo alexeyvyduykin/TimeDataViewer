@@ -9,16 +9,14 @@ namespace TimeDataViewerLite.Controls;
 public partial class TimelineControl
 {
     private ScreenPoint _mouseDownPoint;
-    private bool _isPressed = false;
-    private Core.Series? _currentSeries;
+    private Series? _currentSeries;
     private ScreenPoint _previousPosition;
     private bool _isPanEnabled;
     private OxyRect _zoomRectangle;
     private bool _isZoomEnabled;
 
-    protected Core.Axis? XAxis { get; set; }
-
-    protected Core.Axis? YAxis { get; set; }
+    protected Axis? XAxis { get; set; }
+    protected Axis? YAxis { get; set; }
 
     protected DataPoint InverseTransform(double x, double y)
     {
@@ -37,8 +35,8 @@ public partial class TimelineControl
 
     protected void AssignAxes()
     {
-        Core.Axis? xAxis = null;
-        Core.Axis? yAxis = null;
+        Axis? xAxis = null;
+        Axis? yAxis = null;
 
         ActualModel?.GetAxesFromPoint(out xAxis, out yAxis);
 
@@ -46,7 +44,7 @@ public partial class TimelineControl
         YAxis = yAxis;
     }
 
-    protected static TrackerHitResult? GetNearestHit(Core.Series? series, ScreenPoint point, bool snap, bool pointsOnly)
+    protected static TrackerHitResult? GetNearestHit(Series? series, ScreenPoint point, bool snap, bool pointsOnly)
     {
         if (series == null)
         {
@@ -76,7 +74,7 @@ public partial class TimelineControl
         return null;
     }
 
-    protected static TrackerHitResult? GetNearestHit(Core.Series? series, ScreenPoint point)
+    protected static TrackerHitResult? GetNearestHit(Series? series, ScreenPoint point)
     {
         if (series == null)
         {
@@ -187,7 +185,7 @@ public partial class TimelineControl
 
         foreach (var item in ActualModel.Series)
         {
-            if (item is Core.TimelineSeries series)
+            if (item is TimelineSeries series)
             {
                 series.ResetSelecIndex();
             }
@@ -204,7 +202,7 @@ public partial class TimelineControl
 
         if (result != null)
         {
-            if (currentSeries is Core.TimelineSeries series)
+            if (currentSeries is TimelineSeries series)
             {
                 series.SelectIndex((int)result.Index);
 
@@ -416,64 +414,5 @@ public partial class TimelineControl
         }
 
         _isZoomEnabled = false;
-    }
-
-    private void _panelX_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        base.OnPointerPressed(e);
-
-        Focus();
-        e.Pointer.Capture(_axisXPanel);
-
-        if (ActualModel == null)
-        {
-            return;
-        }
-
-        var point = e.GetPosition(_axisXPanel).ToScreenPoint();
-
-        foreach (var a in ActualModel.Axises)
-        {
-            if (a.IsHorizontal() == true)
-            {
-                _isPressed = true;
-
-                // TODO: update only slider
-                Draw();
-            }
-        }
-    }
-
-    private void _panelX_PointerReleased(object? sender, PointerReleasedEventArgs e)
-    {
-        _isPressed = false;
-    }
-
-    private void _panelX_PointerMoved(object? sender, PointerEventArgs e)
-    {
-        if (_isPressed == true)
-        {
-            base.OnPointerMoved(e);
-
-            e.Pointer.Capture(_axisXPanel);
-
-            if (ActualModel == null)
-            {
-                return;
-            }
-
-            var point = e.GetPosition(_axisXPanel).ToScreenPoint();
-
-            foreach (var axis in ActualModel.Axises)
-            {
-                if (axis.IsHorizontal() == true)
-                {
-                    var value = axis.InverseTransform(point.X);
-
-                    // TODO: update only slider
-                    Draw();
-                }
-            }
-        }
     }
 }

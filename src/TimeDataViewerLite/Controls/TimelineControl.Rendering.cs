@@ -61,7 +61,7 @@ public partial class TimelineControl
         }
     }
 
-    private void RenderAxis(Core.Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
+    private void RenderAxis(Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
     {
         if (internalAxis == null)
         {
