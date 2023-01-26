@@ -254,7 +254,7 @@ public class TimelineSeries : CategorizedSeries, IStackableSeries
         for (var i = 0; i < Items.Count; i++)
         {
             var item = Items[i];
-            if (valueAxis != null && valueAxis.IsValidValue(item.Begin) && valueAxis.IsValidValue(item.End))
+            if (valueAxis != null)
             {
                 ValidItemsIndexInversion.Add(ValidItems.Count, i);
                 ValidItems.Add(item);

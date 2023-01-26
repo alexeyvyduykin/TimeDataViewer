@@ -105,14 +105,11 @@ public class MainWindowViewModel : ViewModelBase
             PlotMarginLeft = 0,
             PlotMarginTop = 30,
             PlotMarginRight = 0,
-            PlotMarginBottom = 0
+            PlotMarginBottom = 0,
         };
 
-        plotModel.Axises.AddRange(new[]
-        {
-            TimeDataViewerLite.Factory.CreateAxisY(Labels, s => ((ItemViewModel)s).Label ?? string.Empty),
-            TimeDataViewerLite.Factory.CreateAxisX(Epoch, BeginScenario, EndScenario)
-        });
+        plotModel.AddAxisX(TimeDataViewerLite.Factory.CreateAxisX(Epoch, BeginScenario, EndScenario));
+        plotModel.AddAxisY(TimeDataViewerLite.Factory.CreateAxisY(Labels, s => ((ItemViewModel)s).Label ?? string.Empty));
 
         plotModel.Series.AddRange(new[]
         {

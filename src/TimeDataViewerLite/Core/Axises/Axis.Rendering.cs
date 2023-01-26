@@ -122,19 +122,18 @@ public partial class Axis
         _majorTickSegments = new List<ScreenPoint>();
         GetTickPositions(MajorTickSize, Position, out double a0, out double a1);
 
-        var perpendicularAxis = IsHorizontal() ? plot.DefaultYAxis : plot.DefaultXAxis;
         var dontRenderZero = false;
 
-        List<Axis> perpAxises = null;
+        Axis? perpAxises = null;
         if (cropGridlines)
         {
             if (isHorizontal)
             {
-                perpAxises = plot.Axises.Where(x => x.IsVertical()).ToList();
+                perpAxises = plot.AxisY;
             }
             else
             {
-                perpAxises = plot.Axises.Where(x => x.IsHorizontal()).ToList();
+                perpAxises = plot.AxisX;
             }
         }
 
@@ -280,25 +279,23 @@ public partial class Axis
         bool cropGridlines = CropGridlines;
         bool isHorizontal = IsHorizontal();
 
-        double a0;
-        double a1;
         _minorSegments = new List<ScreenPoint>();
         _minorTickSegments = new List<ScreenPoint>();
 
-        List<Axis> perpAxises = null;
+        Axis? perpAxis = null;
         if (cropGridlines)
         {
             if (isHorizontal)
             {
-                perpAxises = plot.Axises.Where(x => x.IsVertical()).ToList();
+                perpAxis = plot.AxisY;
             }
             else
             {
-                perpAxises = plot.Axises.Where(x => x.IsHorizontal()).ToList();
+                perpAxis = plot.AxisX;
             }
         }
 
-        GetTickPositions(MinorTickSize, Position, out a0, out a1);
+        GetTickPositions(MinorTickSize, Position, out var a0, out var a1);
 
         foreach (double value in _minorTickValues)
         {
@@ -327,7 +324,7 @@ public partial class Axis
 
             // Draw the minor grid line                
             {
-                AddSegments(_minorSegments, perpAxises, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
+                AddSegments(_minorSegments, perpAxis, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
             }
 
             // Draw the minor tick
@@ -347,9 +344,9 @@ public partial class Axis
         }
     }
 
-    private void AddSegments(
+    private static void AddSegments(
         List<ScreenPoint> segments,
-        List<Axis> perpAxises,
+        Axis perpAxis,
         bool isHorizontal,
         bool cropGridlines,
         double transformedValue,
@@ -367,11 +364,8 @@ public partial class Axis
             }
             else
             {
-                foreach (var perpAxis in perpAxises)
-                {
-                    segments.Add(new ScreenPoint(transformedValue, perpAxis.Transform(perpAxis.ActualMinimum)));
-                    segments.Add(new ScreenPoint(transformedValue, perpAxis.Transform(perpAxis.ActualMaximum)));
-                }
+                segments.Add(new ScreenPoint(transformedValue, perpAxis.Transform(perpAxis.ActualMinimum)));
+                segments.Add(new ScreenPoint(transformedValue, perpAxis.Transform(perpAxis.ActualMaximum)));
             }
         }
         else
@@ -383,11 +377,8 @@ public partial class Axis
             }
             else
             {
-                foreach (var perpAxis in perpAxises)
-                {
-                    segments.Add(new ScreenPoint(perpAxis.Transform(perpAxis.ActualMinimum), transformedValue));
-                    segments.Add(new ScreenPoint(perpAxis.Transform(perpAxis.ActualMaximum), transformedValue));
-                }
+                segments.Add(new ScreenPoint(perpAxis.Transform(perpAxis.ActualMinimum), transformedValue));
+                segments.Add(new ScreenPoint(perpAxis.Transform(perpAxis.ActualMaximum), transformedValue));
             }
         }
     }
@@ -407,7 +398,7 @@ public partial class Axis
     /// Because such labels can have different angles, and the axis can have different angles as well,
     /// computing the alignment is not straightforward.
     /// </remarks>       
-    private void GetRotatedAlignments(double axisAngle, out HorizontalAlignment ha, out VerticalAlignment va)
+    private static void GetRotatedAlignments(double axisAngle, out HorizontalAlignment ha, out VerticalAlignment va)
     {
         const double AngleTolerance = 10.0;
 
@@ -447,7 +438,7 @@ public partial class Axis
         }
     }
 
-    private bool IsWithin(double d, double min, double max)
+    private static bool IsWithin(double d, double min, double max)
     {
         if (d < min)
         {
@@ -465,7 +456,7 @@ public partial class Axis
     protected virtual void GetTickPositions(double tickSize, AxisPosition position, out double x0, out double x1)
     {
         x0 = 0;
-        x1 = 0;
+
         bool isTopOrLeft = position == AxisPosition.Top || position == AxisPosition.Left;
         double sign = isTopOrLeft ? -1 : 1;
 

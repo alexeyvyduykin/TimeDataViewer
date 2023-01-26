@@ -1,29 +1,29 @@
 ﻿using System.Globalization;
+using TimeDataViewerLite.Core;
 
 namespace TimeDataViewerLite;
 
 public static class Factory
 {
-    public static Core.Axis CreateAxisX(DateTime epoch, double begin, double end)
+    public static DateTimeAxis CreateAxisX(DateTime epoch, double begin, double end)
     {
-        return new Core.DateTimeAxis()
+        return new DateTimeAxis()
         {
-            Position = Core.AxisPosition.Top,
-            IntervalType = Core.DateTimeIntervalType.Auto,
+            Position = AxisPosition.Top,
+            IntervalType = DateTimeIntervalType.Auto,
             AbsoluteMinimum = begin,
             AbsoluteMaximum = end,
             CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek,
             FirstDayOfWeek = DayOfWeek.Monday,
-            MinorIntervalType = Core.DateTimeIntervalType.Auto,
-            Minimum = Core.DateTimeAxis.ToDouble(epoch),
+            MinorIntervalType = DateTimeIntervalType.Auto,
+            Minimum = DateTimeAxis.ToDouble(epoch),
             AxisDistance = 0.0,
             AxisTickToLabelDistance = 4.0,
             ExtraGridlines = null,
             IntervalLength = 60.0,
             IsPanEnabled = true,
             IsAxisVisible = true,
-            IsZoomEnabled = true,
-            Key = null,
+            IsZoomEnabled = true,         
             MajorStep = double.NaN,
             MajorTickSize = 7.0,
             MinorStep = double.NaN,
@@ -35,11 +35,11 @@ public static class Factory
         };
     }
 
-    public static Core.Axis CreateAxisY(IEnumerable<object> labels, Func<object, string> func)
+    public static CategoryAxis CreateAxisY(IEnumerable<object> labels, Func<object, string> func)
     {
-        var axisY = new Core.CategoryAxis()
+        var axisY = new CategoryAxis()
         {
-            Position = Core.AxisPosition.Left,
+            Position = AxisPosition.Left,
             AbsoluteMinimum = -0.5,
             AbsoluteMaximum = 4.5,
             IsZoomEnabled = false,

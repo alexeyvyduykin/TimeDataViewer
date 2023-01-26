@@ -13,124 +13,62 @@ public enum AxisPosition
 
 public enum AxisChangeTypes { Zoom, Pan, Reset }
 
-public record AxisLabelPosition
-{
-    public string? Label { get; init; }
-    public double Value { get; init; }
-}
-
 public abstract partial class Axis : PlotElement
 {
-    protected static readonly Func<double, double> Exponent = x => Math.Floor(ThresholdRound(Math.Log(Math.Abs(x), 10)));
-    protected static readonly Func<double, double> Mantissa = x => ThresholdRound(x / Math.Pow(10, Exponent(x)));
-    // Rounds a value if the difference between the rounded value and the original value is less than 1e-6.  
-    protected static readonly Func<double, double> ThresholdRound = x => Math.Abs(Math.Round(x) - x) < 1e-6 ? Math.Round(x) : x;
-
     private double _offset;
     private double _scale;
-    private AxisPosition _position;
-
-    protected Axis()
-    {
-        Position = AxisPosition.Left;
-        IsAxisVisible = true;
-
-        ViewMaximum = double.NaN;
-        ViewMinimum = double.NaN;
-
-        AbsoluteMaximum = double.MaxValue;
-        AbsoluteMinimum = double.MinValue;
-
-        Minimum = double.NaN;
-        Maximum = double.NaN;
-        MinorStep = double.NaN;
-        MajorStep = double.NaN;
-        MinimumMinorStep = 0;
-        MinimumMajorStep = 0;
-
-        MinimumRange = 0;
-        MaximumRange = double.PositiveInfinity;
-
-        MinorTickSize = 4;
-        MajorTickSize = 7;
-
-        IsZoomEnabled = true;
-        IsPanEnabled = true;
-
-        IntervalLength = 60;
-
-        AxisDistance = 0;
-        AxisTickToLabelDistance = 4;
-
-        DataMaximum = double.NaN;
-        DataMinimum = double.NaN;
-    }
 
     // Gets or sets the current view's maximum. This value is used when the user zooms or pans.
-    protected double ViewMaximum { get; set; }
+    protected double _viewMaximum = double.NaN;
 
     // Gets or sets the current view's minimum. This value is used when the user zooms or pans.
-    protected double ViewMinimum { get; set; }
+    protected double _viewMinimum = double.NaN;
 
     // Gets or sets the minimum value of the axis. The default value is <c>double.NaN</c>.  
-    public double Minimum { get; set; }
+    public double Minimum { get; set; } = double.NaN;
 
     // Gets or sets the maximum value of the axis. The default value is <c>double.NaN</c>.                                                         
-    public double Maximum { get; set; }
+    public double Maximum { get; set; } = double.NaN;
 
     // Gets or sets the absolute maximum. This is only used for the UI control.
     // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MaxValue</c>.    
-    public double AbsoluteMaximum { get; set; }
+    public double AbsoluteMaximum { get; set; } = double.MaxValue;
 
     // Gets or sets the absolute minimum. This is only used for the UI control.
     // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MinValue</c>.     
-    public double AbsoluteMinimum { get; set; }
+    public double AbsoluteMinimum { get; set; } = double.MinValue;
 
     /// <summary>
     /// Occurs when the axis has been changed (by zooming, panning or resetting).
     /// </summary>
-    public event EventHandler<AxisChangedEventArgs> AxisChanged;
+    public event EventHandler<AxisChangedEventArgs>? AxisChanged;
 
     /// <summary>
     /// Occurs when the transform changed (size or axis range was changed).
     /// </summary>
-    public event EventHandler TransformChanged;
+    public event EventHandler? TransformChanged;
 
-    /// <summary>
-    /// Gets or sets the actual major step.
-    /// </summary>
     public double ActualMajorStep { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the actual maximum value of the axis.
-    /// </summary>
-    /// <remarks>If <see cref="ViewMaximum" /> is not <c>NaN</c>, this value will be defined by <see cref="ViewMaximum" />.
-    /// Otherwise, if <see cref="Maximum" /> is not <c>NaN</c>, this value will be defined by <see cref="Maximum" />.
-    /// Otherwise, this value will be defined by the maximum (+padding) of the data.</remarks>
+    // Gets or sets the actual maximum value of the axis.
     public double ActualMaximum { get; protected set; }
 
     // Gets or sets the actual minimum value of the axis.
     public double ActualMinimum { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the actual minor step.
-    /// </summary>
     public double ActualMinorStep { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the actual string format being used.
-    /// </summary>
-    public string ActualStringFormat { get; protected set; }
+    public string? ActualStringFormat { get; protected set; }
 
     /// <summary>
     /// Gets or sets the distance from the end of the tick lines to the labels. The default value is <c>4</c>.
     /// </summary>
-    public double AxisTickToLabelDistance { get; set; }
+    public double AxisTickToLabelDistance { get; set; } = 4;
 
     /// <summary>
     /// Gets or sets the distance between the plot area and the axis. The default value is <c>0</c>.
     /// </summary>
-    public double AxisDistance { get; set; }
+    public double AxisDistance { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets a value indicating whether to crop gridlines with perpendicular axes Start/EndPositions. The default value is <c>false</c>.
@@ -140,105 +78,69 @@ public abstract partial class Axis : PlotElement
     /// <summary>
     /// Gets or sets the maximum value of the data displayed on this axis.
     /// </summary>
-    public double DataMaximum { get; protected set; }
+    public double DataMaximum { get; protected set; } = double.NaN;
 
     /// <summary>
     /// Gets or sets the minimum value of the data displayed on this axis.
     /// </summary>
-    public double DataMinimum { get; protected set; }
+    public double DataMinimum { get; protected set; } = double.NaN;
 
     /// <summary>
     /// Gets or sets the values for the extra gridlines. The default value is <c>null</c>.
     /// </summary>
-    public double[] ExtraGridlines { get; set; }
+    public double[] ExtraGridlines { get; set; } = Array.Empty<double>();
 
     /// <summary>
     /// Gets or sets the maximum length (screen space) of the intervals. The available length of the axis will be divided by this length to get the approximate number of major intervals on the axis. The default value is <c>60</c>.
     /// </summary>
-    public double IntervalLength { get; set; }
+    public double IntervalLength { get; set; } = 60;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this axis is visible. The default value is <c>true</c>.
-    /// </summary>
-    public bool IsAxisVisible { get; set; }
+    public bool IsAxisVisible { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether panning is enabled. The default value is <c>true</c>.
-    /// </summary>
-    public bool IsPanEnabled { get; set; }
+    public bool IsPanEnabled { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether zooming is enabled. The default value is <c>true</c>.
-    /// </summary>
-    public bool IsZoomEnabled { get; set; }
+    public bool IsZoomEnabled { get; set; } = true;
 
-    /// <summary>
-    /// Gets or sets the key of the axis. This can be used to specify an axis if you have defined multiple axes in a plot. The default value is <c>null</c>.
-    /// </summary>
-    public string Key { get; set; }
+    public double MajorStep { get; set; } = double.NaN;
 
-    /// <summary>
-    /// Gets or sets the interval between major ticks. The default value is <c>double.NaN</c>.
-    /// </summary>
-    public double MajorStep { get; set; }
-
-    /// <summary>
-    /// Gets or sets the size of the major ticks. The default value is <c>7</c>.
-    /// </summary>
-    public double MajorTickSize { get; set; }
+    public double MajorTickSize { get; set; } = 7;
 
     /// <summary>
     /// Gets or sets the maximum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum &lt; MaximumRange</c>. The default value is <c>double.PositiveInfinity</c>.
     /// </summary>
-    public double MaximumRange { get; set; }
-
-
+    public double MaximumRange { get; set; } = double.PositiveInfinity;
 
     /// <summary>
     /// Gets or sets the minimum value for the interval between major ticks. The default value is <c>0</c>.
     /// </summary>
-    public double MinimumMajorStep { get; set; }
+    public double MinimumMajorStep { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the minimum value for the interval between minor ticks. The default value is <c>0</c>.
     /// </summary>
-    public double MinimumMinorStep { get; set; }
+    public double MinimumMinorStep { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the minimum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum > MinimumRange</c>. The default value is <c>0</c>.
     /// </summary>
-    public double MinimumRange { get; set; }
+    public double MinimumRange { get; set; } = 0;
 
     /// <summary>
     /// Gets or sets the interval between minor ticks. The default value is <c>double.NaN</c>.
     /// </summary>
-    public double MinorStep { get; set; }
+    public double MinorStep { get; set; } = double.NaN;
 
     /// <summary>
     /// Gets or sets the size of the minor ticks. The default value is <c>4</c>.
     /// </summary>
-    public double MinorTickSize { get; set; }
+    public double MinorTickSize { get; set; } = 4;
 
     /// <summary>
     /// Gets the offset. This is used to transform between data and screen coordinates.
     /// </summary>
     public double Offset => _offset;
 
-    /// <summary>
-    /// Gets or sets the position of the axis. The default value is <see cref="AxisPosition.Left"/>.
-    /// </summary>
-    public AxisPosition Position
-    {
-        get
-        {
-            return _position;
-        }
-
-        set
-        {
-            _position = value;
-        }
-    }
+    public AxisPosition Position { get; set; } = AxisPosition.Left;
 
     /// <summary>
     /// Gets the scaling factor of the axis. This is used to transform between data and screen coordinates.
@@ -258,18 +160,9 @@ public abstract partial class Axis : PlotElement
     /// <summary>
     /// Gets or sets the string format used for formatting the axis values. The default value is <c>null</c>.
     /// </summary>
-    public string StringFormat { get; set; }
-
-    /// <summary>
-    /// Gets or sets the "desired" size by the renderer such that the axis text &amp; ticks will not be clipped.  This
-    /// size is distinct from the margin settings or the size which is actually rendered, as in: ActualWidth / ActualSize.  
-    /// Actual rendered size may be smaller or larger than the desired size if the margins are set manually.
-    /// </summary>
-    public OxySize DesiredSize { get; set; }
+    public string? StringFormat { get; set; }
 
     public abstract object GetValue(double x);
-
-
 
     /// <summary>
     /// Converts the value of the specified object to a double precision floating point number. DateTime objects are converted using DateTimeAxis.ToDouble and TimeSpan objects are converted using TimeSpanAxis.ToDouble
@@ -278,9 +171,9 @@ public abstract partial class Axis : PlotElement
     /// <returns>The floating point number value.</returns>
     public static double ToDouble(object value)
     {
-        if (value is DateTime)
+        if (value is DateTime dateTime)
         {
-            return DateTimeAxis.ToDouble((DateTime)value);
+            return DateTimeAxis.ToDouble(dateTime);
         }
 
         return Convert.ToDouble(value);
@@ -288,7 +181,7 @@ public abstract partial class Axis : PlotElement
 
     // Formats the value to be used on the axis.
     public string FormatValue(double x) => FormatValueOverride(x);
-    
+
     // Gets the coordinates used to draw ticks and tick labels (numbers or category names).
     public virtual void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
     {
@@ -296,7 +189,7 @@ public abstract partial class Axis : PlotElement
         majorTickValues = CreateTickValues(ActualMinimum, ActualMaximum, ActualMajorStep);
         majorLabelValues = majorTickValues;
     }
-    
+
     /// <summary>
     /// Inverse transform the specified screen point.
     /// </summary>
@@ -314,50 +207,16 @@ public abstract partial class Axis : PlotElement
     /// </summary>
     /// <param name="sx">The screen coordinate.</param>
     /// <returns>The value.</returns>
-    public double InverseTransform(double sx)
-    {
-        return (sx / _scale) + _offset;
-    }
+    public double InverseTransform(double sx) => (sx / _scale) + _offset;
 
     /// <summary>
     /// Transforms the specified coordinate to screen coordinates. This method can only be used with non-polar coordinate systems.
     /// </summary>
     /// <param name="x">The value.</param>
     /// <returns>The transformed value (screen coordinate).</returns>
-    public double Transform(double x)
-    {
-        return (x - _offset) * _scale;
-    }
+    public double Transform(double x) => (x - _offset) * _scale;
 
-    public bool IsHorizontal()
-    {
-        return _position == AxisPosition.Top || _position == AxisPosition.Bottom;
-    }
-
-    /// <summary>
-    /// Determines whether the specified value is valid.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns><c>true</c> if the specified value is valid; otherwise, <c>false</c> .</returns>
-    public bool IsValidValue(double value)
-    {
-#pragma warning disable 1718
-        // ReSharper disable EqualExpressionComparison
-        // ReSharper disable CompareOfFloatsByEqualityOperator
-        return value == value && value != 1.0 / 0.0 && value != -1.0 / 0.0;
-        // ReSharper restore CompareOfFloatsByEqualityOperator
-        // ReSharper restore EqualExpressionComparison
-#pragma warning restore 1718
-    }
-
-    /// <summary>
-    /// Determines whether the axis is vertical.
-    /// </summary>
-    /// <returns><c>true</c> if the axis is vertical; otherwise, <c>false</c> .</returns>
-    public bool IsVertical()
-    {
-        return _position == AxisPosition.Left || _position == AxisPosition.Right;
-    }
+    public bool IsHorizontal() => Position == AxisPosition.Top || Position == AxisPosition.Bottom;
 
     /// <summary>
     /// Pans the specified axis.
@@ -403,8 +262,8 @@ public abstract partial class Axis : PlotElement
             newMinimum = Math.Max(newMaximum - (ActualMaximum - ActualMinimum), AbsoluteMinimum);
         }
 
-        ViewMinimum = newMinimum;
-        ViewMaximum = newMaximum;
+        _viewMinimum = newMinimum;
+        _viewMaximum = newMaximum;
         UpdateActualMaxMin();
 
         var deltaMinimum = ActualMinimum - oldMinimum;
@@ -421,8 +280,8 @@ public abstract partial class Axis : PlotElement
         var oldMinimum = ActualMinimum;
         var oldMaximum = ActualMaximum;
 
-        ViewMinimum = double.NaN;
-        ViewMaximum = double.NaN;
+        _viewMinimum = double.NaN;
+        _viewMaximum = double.NaN;
         UpdateActualMaxMin();
 
         var deltaMinimum = ActualMinimum - oldMinimum;
@@ -507,8 +366,8 @@ public abstract partial class Axis : PlotElement
             }
         }
 
-        ViewMaximum = newMaximum;
-        ViewMinimum = newMinimum;
+        _viewMaximum = newMaximum;
+        _viewMinimum = newMinimum;
         UpdateActualMaxMin();
 
         var deltaMinimum = ActualMinimum - oldMinimum;
@@ -531,8 +390,8 @@ public abstract partial class Axis : PlotElement
         double newMinimum = Math.Max(Math.Min(x0, x1), AbsoluteMinimum);
         double newMaximum = Math.Min(Math.Max(x0, x1), AbsoluteMaximum);
 
-        ViewMinimum = newMinimum;
-        ViewMaximum = newMaximum;
+        _viewMinimum = newMinimum;
+        _viewMaximum = newMaximum;
         UpdateActualMaxMin();
 
         var deltaMinimum = ActualMinimum - oldMinimum;
@@ -575,8 +434,8 @@ public abstract partial class Axis : PlotElement
         newMinimum = Math.Max(newMinimum, AbsoluteMinimum);
         newMaximum = Math.Min(newMaximum, AbsoluteMaximum);
 
-        ViewMinimum = newMinimum;
-        ViewMaximum = newMaximum;
+        _viewMinimum = newMinimum;
+        _viewMaximum = newMaximum;
         UpdateActualMaxMin();
 
         var deltaMinimum = ActualMinimum - oldMinimum;
@@ -602,11 +461,6 @@ public abstract partial class Axis : PlotElement
     /// <param name="value">The value.</param>
     public virtual void Include(double value)
     {
-        if (!IsValidValue(value))
-        {
-            return;
-        }
-
         DataMinimum = double.IsNaN(DataMinimum) ? value : Math.Min(DataMinimum, value);
         DataMaximum = double.IsNaN(DataMaximum) ? value : Math.Max(DataMaximum, value);
     }
@@ -624,10 +478,10 @@ public abstract partial class Axis : PlotElement
     /// of the series will be used, including the 'padding'.</remarks>
     internal virtual void UpdateActualMaxMin()
     {
-        if (!double.IsNaN(ViewMaximum))
+        if (!double.IsNaN(_viewMaximum))
         {
             // The user has zoomed/panned the axis, use the ViewMaximum value.
-            ActualMaximum = ViewMaximum;
+            ActualMaximum = _viewMaximum;
         }
         else if (!double.IsNaN(Maximum))
         {
@@ -640,9 +494,9 @@ public abstract partial class Axis : PlotElement
             ActualMaximum = CalculateActualMaximum();
         }
 
-        if (!double.IsNaN(ViewMinimum))
+        if (!double.IsNaN(_viewMinimum))
         {
-            ActualMinimum = ViewMinimum;
+            ActualMinimum = _viewMinimum;
         }
         else if (!double.IsNaN(Minimum))
         {

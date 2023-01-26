@@ -80,13 +80,8 @@ public abstract class XYAxisSeries : ItemsSeries
     /// </summary>
     protected internal override void EnsureAxes()
     {
-        XAxis = XAxisKey != null ?
-                     PlotModel.GetAxis(XAxisKey) :
-                     PlotModel.DefaultXAxis;
-
-        YAxis = YAxisKey != null ?
-                     PlotModel.GetAxis(YAxisKey) :
-                     PlotModel.DefaultYAxis;
+        XAxis = PlotModel.AxisX;
+        YAxis = PlotModel.AxisY;
     }
 
     /// <summary>

@@ -32,11 +32,6 @@ public partial class TimelineControl
         return new DataPoint();
     }
 
-    protected void AssignAxes()
-    {
-        ActualModel?.GetAxesFromPoint(out _xAxis, out _yAxis);
-    }
-
     protected static TrackerHitResult? GetNearestHit(Series? series, ScreenPoint point, bool snap, bool pointsOnly)
     {
         if (series == null)
@@ -110,8 +105,9 @@ public partial class TimelineControl
             return;
         }
 
-        AssignAxes();
-
+        _xAxis = ActualModel?.AxisX;
+        _yAxis = ActualModel?.AxisY;
+   
         var position = e.GetPosition(_basePanel).ToScreenPoint();
         var delta = (int)(e.Delta.Y + e.Delta.X) * 120;
         var factor = 1;

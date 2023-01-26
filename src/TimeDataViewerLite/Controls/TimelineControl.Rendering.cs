@@ -50,14 +50,8 @@ public partial class TimelineControl
         {
             var rcAxis = new CanvasRenderContext(axisXCanvas);
             var rcPlotBack = new CanvasRenderContext(backCanvas);
-
-            foreach (var item in ActualModel.Axises)
-            {
-                if (item.IsHorizontal() == true)
-                {
-                    RenderAxis(item, rcAxis, rcPlotBack);
-                }
-            }
+                           
+            RenderAxis(ActualModel.AxisX, rcAxis, rcPlotBack);
         }
     }
 
