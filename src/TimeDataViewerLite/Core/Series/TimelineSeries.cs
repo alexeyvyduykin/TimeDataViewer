@@ -21,7 +21,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
     // Gets or sets the minimum y-coordinate of the dataset.
     public double MinY { get; protected set; }
 
-    public TimelineSeries()
+    public TimelineSeries(PlotModel plotModel) : base(plotModel)
     {
         ValidItems = new();
         ValidItemsIndexInversion = new();
@@ -159,7 +159,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
 
     public void SelectIndex(int index) => _selectedIndex = index;
 
-    public void ResetSelecIndex() => _selectedIndex = -1;
+    public void ResetSelectIndex() => _selectedIndex = -1;
 
     // Gets or sets the width/height of the columns/bars (as a fraction of the available space).
     internal double GetBarWidth() => BarWidth;
@@ -261,7 +261,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
     public double GetActualBarWidth() => BarWidth / (1 + PlotModel.AxisY.GapWidth) / PlotModel.AxisY.MaxWidth;
 
     // Gets the item at the specified index.
-    protected override object GetItem(int i)
+    protected override object? GetItem(int i)
     {
         if (ItemsSource != null || Items == null || Items.Count == 0)
         {

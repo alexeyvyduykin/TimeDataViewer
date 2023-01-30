@@ -113,19 +113,19 @@ public class MainWindowViewModel : ViewModelBase
 
         plotModel.Series.AddRange(new[]
         {
-            CreateSeries(Intervals.Where(s => Equals(s.Category, Labels[0].Label))),
-            CreateSeries(Intervals.Where(s => Equals(s.Category, Labels[1].Label))),
-            CreateSeries(Intervals.Where(s => Equals(s.Category, Labels[2].Label))),
-            CreateSeries(Intervals.Where(s => Equals(s.Category, Labels[3].Label))),
-            CreateSeries(Intervals.Where(s => Equals(s.Category, Labels[4].Label)))
+            CreateSeries(plotModel, Intervals.Where(s => Equals(s.Category, Labels[0].Label))),
+            CreateSeries(plotModel, Intervals.Where(s => Equals(s.Category, Labels[1].Label))),
+            CreateSeries(plotModel, Intervals.Where(s => Equals(s.Category, Labels[2].Label))),
+            CreateSeries(plotModel, Intervals.Where(s => Equals(s.Category, Labels[3].Label))),
+            CreateSeries(plotModel, Intervals.Where(s => Equals(s.Category, Labels[4].Label)))
         });
 
         return plotModel;
     }
 
-    private static Series CreateSeries(IEnumerable<Interval> intervals)
+    private static Series CreateSeries(PlotModel parent, IEnumerable<Interval> intervals)
     {
-        return new TimelineSeries()
+        return new TimelineSeries(parent)
         {
             BarWidth = 0.5,
             ItemsSource = intervals,

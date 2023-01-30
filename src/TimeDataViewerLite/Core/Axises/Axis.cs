@@ -2,16 +2,7 @@
 
 namespace TimeDataViewerLite.Core;
 
-public enum AxisPosition
-{
-    None,
-    Left,
-    Right,
-    Top,
-    Bottom
-}
-
-public abstract partial class Axis : PlotElement
+public abstract partial class Axis
 {
     private double _offset;
     private double _scale;
@@ -735,7 +726,7 @@ public abstract partial class Axis : PlotElement
         if (!double.IsNaN(DataMinimum) && !double.IsNaN(actualMaximum))
         {
             double x1 = PreTransform(actualMaximum);
-            double x0 = PreTransform(DataMinimum);
+            //double x0 = PreTransform(DataMinimum);
             //    double dx = MaximumPadding * (x1 - x0);
             return PostInverseTransform(x1 /*+ dx*/);
         }
@@ -760,7 +751,7 @@ public abstract partial class Axis : PlotElement
 
         if (!double.IsNaN(ActualMaximum))
         {
-            double x1 = PreTransform(ActualMaximum);
+            //double x1 = PreTransform(ActualMaximum);
             double x0 = PreTransform(actualMinimum);
             //  double dx = MinimumPadding * (x1 - x0);
             return PostInverseTransform(x0 /*- dx*/);
@@ -793,7 +784,7 @@ public abstract partial class Axis : PlotElement
     /// <param name="maxIntervalSize">The maximum interval size.</param>
     /// <param name="range">The range.</param>
     /// <returns>Actual interval to use to determine which values are displayed in the axis.</returns>
-    protected double CalculateActualInterval(double availableSize, double maxIntervalSize, double range)
+    protected static double CalculateActualInterval(double availableSize, double maxIntervalSize, double range)
     {
         if (availableSize <= 0)
         {
@@ -802,16 +793,16 @@ public abstract partial class Axis : PlotElement
 
         if (Math.Abs(maxIntervalSize) < double.Epsilon)
         {
-            throw new ArgumentException("Maximum interval size cannot be zero.", "maxIntervalSize");
+            throw new ArgumentException("Maximum interval size cannot be zero.", nameof(maxIntervalSize));
         }
 
         if (Math.Abs(range) < double.Epsilon)
         {
-            throw new ArgumentException("Range cannot be zero.", "range");
+            throw new ArgumentException("Range cannot be zero.", nameof(range));
         }
 
-        Func<double, double> exponent = x => Math.Ceiling(Math.Log(x, 10));
-        Func<double, double> mantissa = x => x / Math.Pow(10, exponent(x) - 1);
+        static double exponent(double x) => Math.Ceiling(Math.Log(x, 10));
+        static double mantissa(double x) => x / Math.Pow(10, exponent(x) - 1);
 
         // reduce intervals for horizontal axis.
         // double maxIntervals = Orientation == AxisOrientation.x ? MaximumAxisIntervalsPer200Pixels * 0.8 : MaximumAxisIntervalsPer200Pixels;
@@ -824,7 +815,7 @@ public abstract partial class Axis : PlotElement
 
         // Function to remove 'double precision noise'
         // TODO: can this be improved
-        Func<double, double> removeNoise = x => double.Parse(x.ToString("e14"));
+        static double removeNoise(double x) => double.Parse(x.ToString("e14"));
 
         // decrease interval until interval count becomes less than maxIntervalCount
         while (true)

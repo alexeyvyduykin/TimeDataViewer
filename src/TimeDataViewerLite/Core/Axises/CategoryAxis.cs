@@ -15,25 +15,25 @@ public class CategoryAxis : Axis
     /// The current max value per StackIndex and Label.
     /// </summary>
     /// <remarks>These values are modified during rendering.</remarks>
-    private double[,] _currentMaxValue;
+    private double[,]? _currentMaxValue;
 
     /// <summary>
     /// The current min value per StackIndex and Label.
     /// </summary>
     /// <remarks>These values are modified during rendering.</remarks>
-    private double[,] _currentMinValue;
+    private double[,]? _currentMinValue;
 
     /// <summary>
     /// The base value per StackIndex and Label for positive values of stacked bar series.
     /// </summary>
     /// <remarks>These values are modified during rendering.</remarks>
-    private double[,] _currentPositiveBaseValues;
+    private double[,]? _currentPositiveBaseValues;
 
     /// <summary>
     /// The base value per StackIndex and Label for negative values of stacked bar series.
     /// </summary>
     /// <remarks>These values are modified during rendering.</remarks>
-    private double[,] _currentNegativeBaseValues;
+    private double[,]? _currentNegativeBaseValues;
 
     /// <summary>
     /// The maximum stack index.

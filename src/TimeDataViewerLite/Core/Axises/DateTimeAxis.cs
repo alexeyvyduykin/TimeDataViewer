@@ -19,7 +19,7 @@ public enum DateTimeIntervalType
 
 public class DateTimeAxis : Axis
 {
-    private static readonly DateTime _timeOrigin = new DateTime(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+    private static readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
     private static readonly double _maxDayValue = (DateTime.MaxValue - _timeOrigin).TotalDays;
     private static readonly double _minDayValue = (DateTime.MinValue - _timeOrigin).TotalDays;
     private DateTimeIntervalType _actualIntervalType;
@@ -59,7 +59,7 @@ public class DateTimeAxis : Axis
     }
 
     public static double ToDouble(DateTime value) => (value - _timeOrigin).TotalDays + 1;
-    
+
     public override void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
     {
         minorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMinorStep, _actualMinorIntervalType);
@@ -79,7 +79,6 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "yyyy";
                 }
-
                 break;
             case DateTimeIntervalType.Months:
                 _actualMinorIntervalType = DateTimeIntervalType.Months;
@@ -87,7 +86,6 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "yyyy-MM-dd";
                 }
-
                 break;
             case DateTimeIntervalType.Weeks:
                 _actualMinorIntervalType = DateTimeIntervalType.Days;
@@ -97,7 +95,6 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "yyyy/ww";
                 }
-
                 break;
             case DateTimeIntervalType.Days:
                 ActualMinorStep = ActualMajorStep;
@@ -105,7 +102,6 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "yyyy-MM-dd";
                 }
-
                 break;
             case DateTimeIntervalType.Hours:
                 ActualMinorStep = ActualMajorStep;
@@ -113,7 +109,6 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "HH:mm";
                 }
-
                 break;
             case DateTimeIntervalType.Minutes:
                 ActualMinorStep = ActualMajorStep;
@@ -121,7 +116,6 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "HH:mm";
                 }
-
                 break;
             case DateTimeIntervalType.Seconds:
                 ActualMinorStep = ActualMajorStep;
@@ -129,20 +123,11 @@ public class DateTimeAxis : Axis
                 {
                     ActualStringFormat = "HH:mm:ss";
                 }
-
                 break;
-
-
-
             case DateTimeIntervalType.Milliseconds:
                 ActualMinorStep = ActualMajorStep;
-                if (ActualStringFormat == null)
-                {
-                    ActualStringFormat = "HH:mm:ss.fff";
-                }
-
+                ActualStringFormat ??= "HH:mm:ss.fff";
                 break;
-
             case DateTimeIntervalType.Manual:
                 break;
             case DateTimeIntervalType.Auto:
@@ -155,7 +140,7 @@ public class DateTimeAxis : Axis
         // convert the double value to a DateTime
         var time = ToDateTime(x);
 
-        string fmt = ActualStringFormat;
+        var fmt = ActualStringFormat;
         if (fmt == null)
         {
             return time.ToString(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern);
@@ -165,7 +150,7 @@ public class DateTimeAxis : Axis
         fmt = fmt.Replace("ww", week.ToString("00"));
         fmt = fmt.Replace("w", week.ToString(CultureInfo.InvariantCulture));
         fmt = string.Concat("{0:", fmt, "}");
-        return string.Format(System.Globalization.CultureInfo.CurrentCulture/*ActualCulture*/, fmt, time);
+        return string.Format(CultureInfo.CurrentCulture, fmt, time);
     }
 
     protected override double CalculateActualInterval(double availableSize, double maxIntervalSize)
@@ -277,7 +262,7 @@ public class DateTimeAxis : Axis
 
     private IList<double> CreateDateTickValues(double min, double max, double step, DateTimeIntervalType intervalType)
     {
-        var values = new List/*Collection*/<double>();
+        var values = new List<double>();
         var start = ToDateTime(min);
         if (start.Ticks == 0)
         {
@@ -332,18 +317,12 @@ public class DateTimeAxis : Axis
 
             try
             {
-                switch (intervalType)
+                current = intervalType switch
                 {
-                    case DateTimeIntervalType.Months:
-                        current = current.AddMonths((int)Math.Ceiling(step));
-                        break;
-                    case DateTimeIntervalType.Years:
-                        current = current.AddYears((int)Math.Ceiling(step));
-                        break;
-                    default:
-                        current = current.AddDays(step);
-                        break;
-                }
+                    DateTimeIntervalType.Months => current.AddMonths((int)Math.Ceiling(step)),
+                    DateTimeIntervalType.Years => current.AddYears((int)Math.Ceiling(step)),
+                    _ => current.AddDays(step),
+                };
             }
             catch (ArgumentOutOfRangeException)
             {

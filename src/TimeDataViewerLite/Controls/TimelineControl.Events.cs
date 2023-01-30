@@ -107,7 +107,7 @@ public partial class TimelineControl
 
         _xAxis = ActualModel?.AxisX;
         _yAxis = ActualModel?.AxisY;
-   
+
         var position = e.GetPosition(_basePanel).ToScreenPoint();
         var delta = (int)(e.Delta.Y + e.Delta.X) * 120;
         var factor = 1;
@@ -176,7 +176,7 @@ public partial class TimelineControl
         {
             if (item is TimelineSeries series)
             {
-                series.ResetSelecIndex();
+                series.ResetSelectIndex();
             }
         }
 

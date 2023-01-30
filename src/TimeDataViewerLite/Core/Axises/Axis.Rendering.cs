@@ -18,16 +18,15 @@ public enum VerticalAlignment
 
 public partial class Axis
 {
-    private IList<double> _majorLabelValues;
-    private IList<double> _majorTickValues;
-    private IList<double> _minorTickValues;
-
-    private List<ScreenPoint> _extraSegments;
-    private List<ScreenPoint> _minorSegments;
-    private List<ScreenPoint> _minorTickSegments;
-    private List<ScreenPoint> _majorSegments;
-    private List<ScreenPoint> _majorTickSegments;
-    private List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> _labels;
+    private IList<double> _majorLabelValues = new List<double>();
+    private IList<double> _majorTickValues = new List<double>();
+    private IList<double> _minorTickValues = new List<double>();
+    private List<ScreenPoint> _extraSegments = new();
+    private List<ScreenPoint> _minorSegments = new();
+    private List<ScreenPoint> _minorTickSegments = new();
+    private List<ScreenPoint> _majorSegments = new();
+    private List<ScreenPoint> _majorTickSegments = new();
+    private List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> _labels = new();
 
     public List<ScreenPoint> MyMinorSegments => _minorSegments;
     public List<ScreenPoint> MyMajorSegments => _majorSegments;
@@ -120,16 +119,16 @@ public partial class Axis
 
         var dontRenderZero = false;
 
-        Axis? perpAxises = null;
+        Axis? perpAxis = null;
         if (cropGridlines)
         {
             if (isHorizontal)
             {
-                perpAxises = plot.AxisY;
+                perpAxis = plot.AxisY;
             }
             else
             {
-                perpAxises = plot.AxisX;
+                perpAxis = plot.AxisX;
             }
         }
 
@@ -157,18 +156,7 @@ public partial class Axis
                 SnapTo(plotAreaBottom, ref transformedValue);
             }
 
-            {
-                AddSegments(
-                    _majorSegments,
-                    perpAxises,
-                    isHorizontal,
-                    cropGridlines,
-                    transformedValue,
-                    plotAreaLeft,
-                    plotAreaRight,
-                    plotAreaTop,
-                    plotAreaBottom);
-            }
+            AddSegments(_majorSegments, perpAxis, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
 
             if (MajorTickSize > 0)
             {
@@ -257,7 +245,7 @@ public partial class Axis
                 }
 
                 double transformedValue = Transform(value);
-                AddSegments(_extraSegments, perpAxises, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
+                AddSegments(_extraSegments, perpAxis, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
             }
         }
     }
@@ -318,10 +306,8 @@ public partial class Axis
                 SnapTo(plotAreaBottom, ref transformedValue);
             }
 
-            // Draw the minor grid line                
-            {
-                AddSegments(_minorSegments, perpAxis, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
-            }
+            // Draw the minor grid line                                           
+            AddSegments(_minorSegments, perpAxis, isHorizontal, cropGridlines, transformedValue, plotAreaLeft, plotAreaRight, plotAreaTop, plotAreaBottom);
 
             // Draw the minor tick
             if (MinorTickSize > 0)
@@ -342,7 +328,7 @@ public partial class Axis
 
     private static void AddSegments(
         List<ScreenPoint> segments,
-        Axis perpAxis,
+        Axis? perpAxis,
         bool isHorizontal,
         bool cropGridlines,
         double transformedValue,
@@ -353,26 +339,36 @@ public partial class Axis
     {
         if (isHorizontal)
         {
-            if (!cropGridlines)
+            if (cropGridlines == false)
             {
                 segments.Add(new ScreenPoint(transformedValue, plotAreaTop));
                 segments.Add(new ScreenPoint(transformedValue, plotAreaBottom));
             }
             else
             {
+                if (perpAxis == null)
+                {
+                    throw new Exception();
+                }
+
                 segments.Add(new ScreenPoint(transformedValue, perpAxis.Transform(perpAxis.ActualMinimum)));
                 segments.Add(new ScreenPoint(transformedValue, perpAxis.Transform(perpAxis.ActualMaximum)));
             }
         }
         else
         {
-            if (!cropGridlines)
+            if (cropGridlines == false)
             {
                 segments.Add(new ScreenPoint(plotAreaLeft, transformedValue));
                 segments.Add(new ScreenPoint(plotAreaRight, transformedValue));
             }
             else
             {
+                if (perpAxis == null)
+                {
+                    throw new Exception();
+                }
+
                 segments.Add(new ScreenPoint(perpAxis.Transform(perpAxis.ActualMinimum), transformedValue));
                 segments.Add(new ScreenPoint(perpAxis.Transform(perpAxis.ActualMaximum), transformedValue));
             }

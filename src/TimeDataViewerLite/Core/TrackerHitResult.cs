@@ -13,23 +13,23 @@ public class TrackerHitResult
     /// Gets or sets the source item of the point.
     /// If the current point is from an ItemsSource and is not interpolated, this property will contain the item.
     /// </summary>
-    public object Item { get; set; }
+    public object? Item { get; set; }
 
     /// <summary>
     /// Gets or sets the index for the Item.
     /// </summary>
     public double Index { get; set; }
 
-    public PlotModel PlotModel { get; set; }
+    public PlotModel? PlotModel { get; set; }
 
     /// <summary>
     /// Gets or sets the position in screen coordinates.
     /// </summary>
     public ScreenPoint Position { get; set; }
 
-    public Series Series { get; set; }
+    public Series? Series { get; set; }
 
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     public Axis? XAxis => Series is TimelineSeries xyas ? xyas.PlotModel.AxisX : null;
 

@@ -5,7 +5,7 @@ namespace TimeDataViewerLite.Core;
 public sealed class PlotModel : Model, IPlotModel
 {
     // The plot view that renders this plot.    
-    private WeakReference _plotViewReference;
+    private WeakReference? _plotViewReference;
     // Flags if the data has been updated.  
     private bool _isDataUpdated;
     private DateTimeAxis? _axisX;
@@ -13,7 +13,7 @@ public sealed class PlotModel : Model, IPlotModel
 
     public PlotModel()
     {
-        Series = new ElementCollection<Series>(this);
+        Series = new List<Series>();
     }
 
     public IPlotView? PlotView => (_plotViewReference != null) ? (IPlotView?)_plotViewReference.Target : null;
@@ -22,7 +22,7 @@ public sealed class PlotModel : Model, IPlotModel
 
     public DateTimeAxis AxisX => _axisX!;
 
-    public ElementCollection<Series> Series { get; private set; }
+    public List<Series> Series { get; private set; }
 
     // Gets the total width of the plot (in device units).       
     public double Width { get; private set; }
@@ -44,8 +44,8 @@ public sealed class PlotModel : Model, IPlotModel
     void IPlotModel.AttachPlotView(IPlotView plotView)
     {
         var currentPlotView = PlotView;
-        if (ReferenceEquals(currentPlotView, null) == false
-            && ReferenceEquals(plotView, null) == false
+        if (currentPlotView is null == false
+            && plotView is null == false
             && ReferenceEquals(currentPlotView, plotView) == false)
         {
             throw new InvalidOperationException("This PlotModel is already in use by some other PlotView control.");
@@ -54,11 +54,11 @@ public sealed class PlotModel : Model, IPlotModel
         _plotViewReference = (plotView == null) ? null : new WeakReference(plotView);
     }
 
-    public Series GetSeriesFromPoint(ScreenPoint point, double limit = 100)
+    public Series? GetSeriesFromPoint(ScreenPoint point, double limit = 100)
     {
         double mindist = double.MaxValue;
-        Series nearestSeries = null;
-        foreach (var series in Series.Reverse().Where(s => s.IsVisible))
+        Series? nearestSeries = null;
+        foreach (var series in Series.Reverse<Series>().Where(s => s.IsVisible))
         {
             var thr = series.GetNearestPoint(point, true) ?? series.GetNearestPoint(point, false);
 
@@ -141,25 +141,6 @@ public sealed class PlotModel : Model, IPlotModel
             {
                 throw new Exception();
             }
-        }
-    }
-
-    /// <summary>
-    /// Gets all elements of the model, top-level elements first.
-    /// </summary>
-    /// <returns>
-    /// An enumerator of the elements.
-    /// </returns>
-    public override IEnumerable<UIElement> GetElements()
-    {
-        foreach (var s in Series.Reverse().Where(s => s.IsVisible))
-        {
-            yield return s;
-        }
-
-        foreach (var axis in new Axis[] { AxisX, AxisY }.Reverse().Where(a => a.IsAxisVisible))
-        {
-            yield return axis;
         }
     }
 

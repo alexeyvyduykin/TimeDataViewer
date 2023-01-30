@@ -4,6 +4,8 @@ namespace TimeDataViewerLite.Core;
 
 public abstract class ItemsSeries : Series
 {
+    public ItemsSeries(PlotModel plotModel) : base(plotModel) { }
+
     public IEnumerable? ItemsSource { get; set; }
 
     protected internal override void UpdateValidData() { }
