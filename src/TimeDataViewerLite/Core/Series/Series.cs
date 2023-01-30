@@ -4,18 +4,9 @@ namespace TimeDataViewerLite.Core;
 
 public abstract class Series : PlotElement
 {
-    public EventHandler? MyRender;
+    public bool IsVisible { get; set; } = true;
 
-    public abstract void MyOnRender();
-
-    protected Series()
-    {
-        IsVisible = true;
-    }
-
-    public bool IsVisible { get; set; }
-
-    public string TrackerFormatString { get; set; }
+    public string? TrackerFormatString { get; set; }
 
     // Gets or sets the key for the tracker to use on this series. The default is <c>null</c>.                                                                                                                                                                         
     // This key may be used by the plot view to show a custom tracker for the series.                                                     
@@ -23,18 +14,6 @@ public abstract class Series : PlotElement
 
     // Renders the series on the specified render context.
     public abstract void Render();
-
-    // Checks if this data series requires X/Y axes. (e.g. Pie series do not require axes)
-    protected internal abstract bool AreAxesRequired();
-
-    // Ensures that the axes of the series are defined.   
-    protected internal abstract void EnsureAxes();
-
-    // Checks if the data series is using the specified axis.
-    protected internal abstract bool IsUsing(Axis axis);
-
-    // Sets the default values (colors, line style etc.) from the plot model.     
-    protected internal abstract void SetDefaultValues();
 
     // Updates the maximum and minimum values of the axes used by this series.    
     protected internal abstract void UpdateAxisMaxMin();

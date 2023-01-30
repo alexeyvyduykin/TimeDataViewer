@@ -6,9 +6,7 @@ public abstract class ItemsSeries : Series
 {
     public IEnumerable? ItemsSource { get; set; }
 
-    protected internal override void UpdateValidData()
-    {
-    }
+    protected internal override void UpdateValidData() { }
 
     protected static object? GetItem(IEnumerable? itemsSource, int index)
     {
@@ -17,8 +15,7 @@ public abstract class ItemsSeries : Series
             return null;
         }
 
-        var list = itemsSource as IList;
-        if (list != null)
+        if (itemsSource is IList list)
         {
             if (index < list.Count && index >= 0)
             {

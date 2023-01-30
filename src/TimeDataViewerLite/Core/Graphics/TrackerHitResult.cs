@@ -31,9 +31,9 @@ public class TrackerHitResult
 
     public string Text { get; set; }
 
-    public Axis? XAxis => Series is XYAxisSeries xyas ? xyas.XAxis : null;
+    public Axis? XAxis => Series is TimelineSeries xyas ? xyas.PlotModel.AxisX : null;
 
-    public Axis? YAxis => Series is XYAxisSeries xyas ? xyas.YAxis : null;
+    public Axis? YAxis => Series is TimelineSeries xyas ? xyas.PlotModel.AxisY : null;
 
     public override string ToString()
     {

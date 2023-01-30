@@ -213,10 +213,8 @@ public class CategoryAxis : Axis
 
         TotalWidthPerCategory = new double[actualLabels.Count];
 
-        var usedSeries = series.Where(s => s.IsUsing(this)).ToList();
-
         // Add width of stacked series
-        var categorizedSeries = usedSeries.OfType<CategorizedSeries>().ToList();
+        var categorizedSeries = series.OfType<TimelineSeries>().ToList();
         var stackedSeries = categorizedSeries.OfType<IStackableSeries>().Where(s => s.IsStacked).ToList();
         var stackIndices = stackedSeries.Select(s => s.StackGroup).Distinct().ToList();
         var stackRankBarWidth = new Dictionary<int, double>();
@@ -224,12 +222,12 @@ public class CategoryAxis : Axis
         {
             var maxBarWidth =
                 stackedSeries.Where(s => s.StackGroup == stackIndices[j]).Select(
-                    s => ((CategorizedSeries)s).GetBarWidth()).Concat(new[] { 0.0 }).Max();
+                    s => ((TimelineSeries)s).GetBarWidth()).Concat(new[] { 0.0 }).Max();
             for (var i = 0; i < actualLabels.Count; i++)
             {
                 int k = 0;
                 if (
-                    stackedSeries.SelectMany(s => ((CategorizedSeries)s).GetItems()).Any(
+                    stackedSeries.SelectMany(s => ((TimelineSeries)s).GetItems()).Any(
                         item => item.GetCategoryIndex(k++) == i))
                 {
                     TotalWidthPerCategory[i] += maxBarWidth;
@@ -269,7 +267,7 @@ public class CategoryAxis : Axis
             {
                 int k = 0;
                 if (
-                    stackedSeries.SelectMany(s => ((CategorizedSeries)s).GetItems()).All(
+                    stackedSeries.SelectMany(s => ((TimelineSeries)s).GetItems()).All(
                         item => item.GetCategoryIndex(k++) != i))
                 {
                     continue;
@@ -359,12 +357,7 @@ public class CategoryAxis : Axis
             // TODO: should not modify Labels collection
             foreach (var s in series)
             {
-                if (!s.IsUsing(this))
-                {
-                    continue;
-                }
-
-                if (s is CategorizedSeries bsb)
+                if (s is TimelineSeries bsb)
                 {
                     int max = bsb.GetItems().Count;
                     while (Labels.Count < max)

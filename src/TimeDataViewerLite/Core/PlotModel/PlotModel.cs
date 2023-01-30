@@ -102,9 +102,6 @@ public sealed class PlotModel : Model, IPlotModel
         {
             try
             {
-                // Updates the default axes
-                EnsureDefaultAxes();
-
                 var visibleSeries = Series.Where(s => s.IsVisible).ToArray();
 
                 // Update data of the series
@@ -163,21 +160,6 @@ public sealed class PlotModel : Model, IPlotModel
         foreach (var axis in new Axis[] { AxisX, AxisY }.Reverse().Where(a => a.IsAxisVisible))
         {
             yield return axis;
-        }
-    }
-
-    /// <summary>
-    /// Finds and sets the default horizontal and vertical axes (the first horizontal/vertical axes in the Axes collection).
-    /// </summary>
-    private void EnsureDefaultAxes()
-    {
-        // Update the axes of series without axes defined
-        foreach (var s in Series)
-        {
-            if (s.IsVisible && s.AreAxesRequired())
-            {
-                s.EnsureAxes();
-            }
         }
     }
 
@@ -248,7 +230,6 @@ public sealed class PlotModel : Model, IPlotModel
         foreach (var s in Series.Where(s => s.IsVisible))
         {
             s.Render();
-            s.MyOnRender();
         }
     }
 }
