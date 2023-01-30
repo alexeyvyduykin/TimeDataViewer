@@ -54,7 +54,6 @@ public class CategoryAxis : Axis
 
     public override object GetValue(double x) => FormatValue(x);
 
-
     /// <summary>
     /// Gets or sets the gap width.
     /// </summary>
@@ -79,13 +78,7 @@ public class CategoryAxis : Axis
 
     public List<string> Labels => _labels;
 
-    public List<string> ActualLabels
-    {
-        get
-        {
-            return ItemsSource != null ? _itemsSourceLabels : _labels;
-        }
-    }
+    public List<string> ActualLabels => ItemsSource != null ? _itemsSourceLabels : _labels;
 
     /// <summary>
     /// Gets or sets the original offset of the bars (not used for stacked bar series).
@@ -112,7 +105,7 @@ public class CategoryAxis : Axis
     /// </summary>
     /// <returns>The maximum width.</returns>
     public double MaxWidth => _maxWidth;
-    
+
     /// <summary>
     /// Gets the category value.
     /// </summary>

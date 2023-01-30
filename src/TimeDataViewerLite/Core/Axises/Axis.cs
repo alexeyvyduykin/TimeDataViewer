@@ -11,8 +11,6 @@ public enum AxisPosition
     Bottom
 }
 
-public enum AxisChangeTypes { Zoom, Pan, Reset }
-
 public abstract partial class Axis : PlotElement
 {
     private double _offset;
@@ -37,16 +35,6 @@ public abstract partial class Axis : PlotElement
     // Gets or sets the absolute minimum. This is only used for the UI control.
     // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MinValue</c>.     
     public double AbsoluteMinimum { get; set; } = double.MinValue;
-
-    /// <summary>
-    /// Occurs when the axis has been changed (by zooming, panning or resetting).
-    /// </summary>
-    public event EventHandler<AxisChangedEventArgs>? AxisChanged;
-
-    /// <summary>
-    /// Occurs when the transform changed (size or axis range was changed).
-    /// </summary>
-    public event EventHandler? TransformChanged;
 
     public double ActualMajorStep { get; protected set; }
 
@@ -225,7 +213,7 @@ public abstract partial class Axis : PlotElement
     /// <param name="cpt">The current point (screen coordinates).</param>
     public virtual void Pan(ScreenPoint ppt, ScreenPoint cpt)
     {
-        if (!IsPanEnabled)
+        if (IsPanEnabled == false)
         {
             return;
         }
@@ -238,18 +226,16 @@ public abstract partial class Axis : PlotElement
 
     public virtual void Pan(double delta)
     {
-        if (!IsPanEnabled)
+        if (IsPanEnabled == false)
         {
             return;
         }
-
-        var oldMinimum = ActualMinimum;
-        var oldMaximum = ActualMaximum;
 
         double dx = delta / Scale;
 
         double newMinimum = ActualMinimum - dx;
         double newMaximum = ActualMaximum - dx;
+
         if (newMinimum < AbsoluteMinimum)
         {
             newMinimum = AbsoluteMinimum;
@@ -264,30 +250,16 @@ public abstract partial class Axis : PlotElement
 
         _viewMinimum = newMinimum;
         _viewMaximum = newMaximum;
+
         UpdateActualMaxMin();
-
-        var deltaMinimum = ActualMinimum - oldMinimum;
-        var deltaMaximum = ActualMaximum - oldMaximum;
-
-        OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Pan, deltaMinimum, deltaMaximum));
     }
 
-    /// <summary>
-    /// Resets the user's modification (zooming/panning) to minimum and maximum of this axis.
-    /// </summary>
     public virtual void Reset()
     {
-        var oldMinimum = ActualMinimum;
-        var oldMaximum = ActualMaximum;
-
         _viewMinimum = double.NaN;
         _viewMaximum = double.NaN;
+
         UpdateActualMaxMin();
-
-        var deltaMinimum = ActualMinimum - oldMinimum;
-        var deltaMaximum = ActualMaximum - oldMaximum;
-
-        OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Reset, deltaMinimum, deltaMaximum));
     }
 
     public override string ToString()
@@ -321,9 +293,6 @@ public abstract partial class Axis : PlotElement
 
     public virtual void Zoom(double newScale)
     {
-        var oldMinimum = ActualMinimum;
-        var oldMaximum = ActualMaximum;
-
         double sx1 = Transform(ActualMaximum);
         double sx0 = Transform(ActualMinimum);
 
@@ -332,6 +301,7 @@ public abstract partial class Axis : PlotElement
 
         double dx = (_offset - mid) * _scale;
         var newOffset = (dx / (sgn * newScale)) + mid;
+
         SetTransform(sgn * newScale, newOffset);
 
         double newMaximum = InverseTransform(sx1);
@@ -368,50 +338,37 @@ public abstract partial class Axis : PlotElement
 
         _viewMaximum = newMaximum;
         _viewMinimum = newMinimum;
+
         UpdateActualMaxMin();
-
-        var deltaMinimum = ActualMinimum - oldMinimum;
-        var deltaMaximum = ActualMaximum - oldMaximum;
-
-        OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
     }
 
     // Zooms the axis to the range [x0,x1].
     public virtual void Zoom(double x0, double x1)
     {
-        if (!IsZoomEnabled)
+        if (IsZoomEnabled == false)
         {
             return;
         }
-
-        var oldMinimum = ActualMinimum;
-        var oldMaximum = ActualMaximum;
 
         double newMinimum = Math.Max(Math.Min(x0, x1), AbsoluteMinimum);
         double newMaximum = Math.Min(Math.Max(x0, x1), AbsoluteMaximum);
 
         _viewMinimum = newMinimum;
         _viewMaximum = newMaximum;
+
         UpdateActualMaxMin();
-
-        var deltaMinimum = ActualMinimum - oldMinimum;
-        var deltaMaximum = ActualMaximum - oldMaximum;
-
-        OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
     }
 
     public virtual void ZoomAt(double factor, double x)
     {
-        if (!IsZoomEnabled)
+        if (IsZoomEnabled == false)
         {
             return;
         }
 
-        var oldMinimum = ActualMinimum;
-        var oldMaximum = ActualMaximum;
-
         double dx0 = (ActualMinimum - x) * _scale;
         double dx1 = (ActualMaximum - x) * _scale;
+
         _scale *= factor;
 
         double newMinimum = (dx0 / _scale) + x;
@@ -436,12 +393,8 @@ public abstract partial class Axis : PlotElement
 
         _viewMinimum = newMinimum;
         _viewMaximum = newMaximum;
+
         UpdateActualMaxMin();
-
-        var deltaMinimum = ActualMinimum - oldMinimum;
-        var deltaMaximum = ActualMaximum - oldMaximum;
-
-        OnAxisChanged(new AxisChangedEventArgs(AxisChangeTypes.Zoom, deltaMinimum, deltaMaximum));
     }
 
     /// <summary>
@@ -515,9 +468,7 @@ public abstract partial class Axis : PlotElement
     /// </summary>
     /// <param name="series">The series collection.</param>
     /// <remarks>This is used by the category axis that need to know the number of series using the axis.</remarks>
-    internal virtual void UpdateFromSeries(Series[] series)
-    {
-    }
+    internal virtual void UpdateFromSeries(Series[] series) { }
 
     /// <summary>
     /// Updates the actual minor and major step intervals.
@@ -608,21 +559,13 @@ public abstract partial class Axis : PlotElement
     /// Resets the current values.
     /// </summary>
     /// <remarks>The current values may be modified during update of max/min and rendering.</remarks>
-    protected internal virtual void ResetCurrentValues()
-    {
-    }
+    protected internal virtual void ResetCurrentValues() { }
 
     // Applies a transformation after the inverse transform of the value.
-    protected virtual double PostInverseTransform(double x)
-    {
-        return x;
-    }
+    protected virtual double PostInverseTransform(double x) => x;
 
     // Applies a transformation before the transform the value.
-    protected virtual double PreTransform(double x)
-    {
-        return x;
-    }
+    protected virtual double PreTransform(double x) => x;
 
     protected virtual double CalculateMinorInterval(double majorInterval)
     {
@@ -830,7 +773,6 @@ public abstract partial class Axis : PlotElement
     {
         _scale = newScale;
         _offset = newOffset;
-        OnTransformChanged(new EventArgs());
     }
 
     /// <summary>
@@ -917,17 +859,5 @@ public abstract partial class Axis : PlotElement
         }
 
         return interval;
-    }
-
-    protected virtual void OnAxisChanged(AxisChangedEventArgs args)
-    {
-        UpdateActualMaxMin();
-
-        AxisChanged?.Invoke(this, args);
-    }
-
-    protected virtual void OnTransformChanged(EventArgs args)
-    {
-        TransformChanged?.Invoke(this, args);
     }
 }

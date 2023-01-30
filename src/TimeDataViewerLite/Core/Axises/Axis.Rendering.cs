@@ -36,16 +36,12 @@ public partial class Axis
 
     public List<(ScreenPoint, string, HorizontalAlignment, VerticalAlignment)> MyLabels => _labels;
 
-    public EventHandler MyRender;
-
     public void MyOnRender(PlotModel plot)
     {
         GetTickValues(out _majorLabelValues, out _majorTickValues, out _minorTickValues);
 
         RenderPass(plot, 0);
         RenderPass(plot, 1);
-
-        MyRender?.Invoke(this, EventArgs.Empty);
     }
 
     private void RenderPass(PlotModel plot, int pass)
