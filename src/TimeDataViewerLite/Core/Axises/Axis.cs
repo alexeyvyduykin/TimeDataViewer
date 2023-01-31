@@ -6,6 +6,12 @@ public abstract partial class Axis
 {
     private double _offset;
     private double _scale;
+    // Gets or sets the absolute maximum. This is only used for the UI control.
+    // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MaxValue</c>.    
+    private double _absoluteMaximum = double.MaxValue;
+    // Gets or sets the absolute minimum. This is only used for the UI control.
+    // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MinValue</c>.     
+    private double _absoluteMinimum = double.MinValue;
 
     // Gets or sets the current view's maximum. This value is used when the user zooms or pans.
     protected double _viewMaximum = double.NaN;
@@ -18,14 +24,6 @@ public abstract partial class Axis
 
     // Gets or sets the maximum value of the axis. The default value is <c>double.NaN</c>.                                                         
     public double Maximum { get; set; } = double.NaN;
-
-    // Gets or sets the absolute maximum. This is only used for the UI control.
-    // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MaxValue</c>.    
-    public double AbsoluteMaximum { get; set; } = double.MaxValue;
-
-    // Gets or sets the absolute minimum. This is only used for the UI control.
-    // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MinValue</c>.     
-    public double AbsoluteMinimum { get; set; } = double.MinValue;
 
     public double ActualMajorStep { get; protected set; }
 
@@ -141,6 +139,12 @@ public abstract partial class Axis
     /// </summary>
     public string? StringFormat { get; set; }
 
+    public void SetAvailableRange(double min, double max)
+    {
+        _absoluteMinimum = min;
+        _absoluteMaximum = max;
+    }
+
     public abstract object GetValue(double x);
 
     /// <summary>
@@ -227,16 +231,16 @@ public abstract partial class Axis
         double newMinimum = ActualMinimum - dx;
         double newMaximum = ActualMaximum - dx;
 
-        if (newMinimum < AbsoluteMinimum)
+        if (newMinimum < _absoluteMinimum)
         {
-            newMinimum = AbsoluteMinimum;
-            newMaximum = Math.Min(newMinimum + ActualMaximum - ActualMinimum, AbsoluteMaximum);
+            newMinimum = _absoluteMinimum;
+            newMaximum = Math.Min(newMinimum + ActualMaximum - ActualMinimum, _absoluteMaximum);
         }
 
-        if (newMaximum > AbsoluteMaximum)
+        if (newMaximum > _absoluteMaximum)
         {
-            newMaximum = AbsoluteMaximum;
-            newMinimum = Math.Max(newMaximum - (ActualMaximum - ActualMinimum), AbsoluteMinimum);
+            newMaximum = _absoluteMaximum;
+            newMinimum = Math.Max(newMaximum - (ActualMaximum - ActualMinimum), _absoluteMinimum);
         }
 
         _viewMinimum = newMinimum;
@@ -298,31 +302,32 @@ public abstract partial class Axis
         double newMaximum = InverseTransform(sx1);
         double newMinimum = InverseTransform(sx0);
 
-        if (newMinimum < AbsoluteMinimum && newMaximum > AbsoluteMaximum)
+        if (newMinimum < _absoluteMinimum
+            && newMaximum > _absoluteMaximum)
         {
-            newMinimum = AbsoluteMinimum;
-            newMaximum = AbsoluteMaximum;
+            newMinimum = _absoluteMinimum;
+            newMaximum = _absoluteMaximum;
         }
         else
         {
-            if (newMinimum < AbsoluteMinimum)
+            if (newMinimum < _absoluteMinimum)
             {
                 double d = newMaximum - newMinimum;
-                newMinimum = AbsoluteMinimum;
-                newMaximum = AbsoluteMinimum + d;
-                if (newMaximum > AbsoluteMaximum)
+                newMinimum = _absoluteMinimum;
+                newMaximum = _absoluteMinimum + d;
+                if (newMaximum > _absoluteMaximum)
                 {
-                    newMaximum = AbsoluteMaximum;
+                    newMaximum = _absoluteMaximum;
                 }
             }
-            else if (newMaximum > AbsoluteMaximum)
+            else if (newMaximum > _absoluteMaximum)
             {
                 double d = newMaximum - newMinimum;
-                newMaximum = AbsoluteMaximum;
-                newMinimum = AbsoluteMaximum - d;
-                if (newMinimum < AbsoluteMinimum)
+                newMaximum = _absoluteMaximum;
+                newMinimum = _absoluteMaximum - d;
+                if (newMinimum < _absoluteMaximum)
                 {
-                    newMinimum = AbsoluteMinimum;
+                    newMinimum = _absoluteMinimum;
                 }
             }
         }
@@ -341,11 +346,8 @@ public abstract partial class Axis
             return;
         }
 
-        double newMinimum = Math.Max(Math.Min(x0, x1), AbsoluteMinimum);
-        double newMaximum = Math.Min(Math.Max(x0, x1), AbsoluteMaximum);
-
-        _viewMinimum = newMinimum;
-        _viewMaximum = newMaximum;
+        _viewMinimum = Math.Max(Math.Min(x0, x1), _absoluteMinimum);
+        _viewMaximum = Math.Min(Math.Max(x0, x1), _absoluteMaximum);
 
         UpdateActualMaxMin();
     }
@@ -379,8 +381,8 @@ public abstract partial class Axis
             newMinimum = mid - (MinimumRange * 0.5);
         }
 
-        newMinimum = Math.Max(newMinimum, AbsoluteMinimum);
-        newMaximum = Math.Min(newMaximum, AbsoluteMaximum);
+        newMinimum = Math.Max(newMinimum, _absoluteMinimum);
+        newMaximum = Math.Min(newMaximum, _absoluteMaximum);
 
         _viewMinimum = newMinimum;
         _viewMaximum = newMaximum;
@@ -586,7 +588,7 @@ public abstract partial class Axis
             ActualMaximum = 100;
         }
 
-        if (AbsoluteMaximum - AbsoluteMinimum < MinimumRange)
+        if (_absoluteMaximum - _absoluteMinimum < MinimumRange)
         {
             throw new InvalidOperationException("MinimumRange should be larger than AbsoluteMaximum-AbsoluteMinimum.");
         }
@@ -594,38 +596,38 @@ public abstract partial class Axis
         // Coerce the minimum range
         if (ActualMaximum - ActualMinimum < MinimumRange)
         {
-            if (ActualMinimum + MinimumRange < AbsoluteMaximum)
+            if (ActualMinimum + MinimumRange < _absoluteMaximum)
             {
                 var average = (ActualMaximum + ActualMinimum) * 0.5;
                 var delta = MinimumRange / 2;
                 ActualMinimum = average - delta;
                 ActualMaximum = average + delta;
 
-                if (ActualMinimum < AbsoluteMinimum)
+                if (ActualMinimum < _absoluteMinimum)
                 {
-                    var diff = AbsoluteMinimum - ActualMinimum;
-                    ActualMinimum = AbsoluteMinimum;
+                    var diff = _absoluteMinimum - ActualMinimum;
+                    ActualMinimum = _absoluteMinimum;
                     ActualMaximum += diff;
                 }
 
-                if (ActualMaximum > AbsoluteMaximum)
+                if (ActualMaximum > _absoluteMaximum)
                 {
-                    var diff = AbsoluteMaximum - ActualMaximum;
-                    ActualMaximum = AbsoluteMaximum;
+                    var diff = _absoluteMaximum - ActualMaximum;
+                    ActualMaximum = _absoluteMaximum;
                     ActualMinimum += diff;
                 }
             }
             else
             {
-                if (AbsoluteMaximum - MinimumRange > AbsoluteMinimum)
+                if (_absoluteMaximum - MinimumRange > _absoluteMinimum)
                 {
-                    ActualMinimum = AbsoluteMaximum - MinimumRange;
-                    ActualMaximum = AbsoluteMaximum;
+                    ActualMinimum = _absoluteMaximum - MinimumRange;
+                    ActualMaximum = _absoluteMaximum;
                 }
                 else
                 {
-                    ActualMaximum = AbsoluteMaximum;
-                    ActualMinimum = AbsoluteMinimum;
+                    ActualMaximum = _absoluteMaximum;
+                    ActualMinimum = _absoluteMinimum;
                 }
             }
         }
@@ -633,44 +635,44 @@ public abstract partial class Axis
         // Coerce the maximum range
         if (ActualMaximum - ActualMinimum > MaximumRange)
         {
-            if (ActualMinimum + MaximumRange < AbsoluteMaximum)
+            if (ActualMinimum + MaximumRange < _absoluteMaximum)
             {
                 var average = (ActualMaximum + ActualMinimum) * 0.5;
                 var delta = MaximumRange / 2;
                 ActualMinimum = average - delta;
                 ActualMaximum = average + delta;
 
-                if (ActualMinimum < AbsoluteMinimum)
+                if (ActualMinimum < _absoluteMinimum)
                 {
-                    var diff = AbsoluteMinimum - ActualMinimum;
-                    ActualMinimum = AbsoluteMinimum;
+                    var diff = _absoluteMinimum - ActualMinimum;
+                    ActualMinimum = _absoluteMinimum;
                     ActualMaximum += diff;
                 }
 
-                if (ActualMaximum > AbsoluteMaximum)
+                if (ActualMaximum > _absoluteMaximum)
                 {
-                    var diff = AbsoluteMaximum - ActualMaximum;
-                    ActualMaximum = AbsoluteMaximum;
+                    var diff = _absoluteMaximum - ActualMaximum;
+                    ActualMaximum = _absoluteMaximum;
                     ActualMinimum += diff;
                 }
             }
             else
             {
-                if (AbsoluteMaximum - MaximumRange > AbsoluteMinimum)
+                if (_absoluteMaximum - MaximumRange > _absoluteMinimum)
                 {
-                    ActualMinimum = AbsoluteMaximum - MaximumRange;
-                    ActualMaximum = AbsoluteMaximum;
+                    ActualMinimum = _absoluteMaximum - MaximumRange;
+                    ActualMaximum = _absoluteMaximum;
                 }
                 else
                 {
-                    ActualMaximum = AbsoluteMaximum;
-                    ActualMinimum = AbsoluteMinimum;
+                    ActualMaximum = _absoluteMaximum;
+                    ActualMinimum = _absoluteMinimum;
                 }
             }
         }
 
         // Coerce the absolute maximum/minimum
-        if (AbsoluteMaximum <= AbsoluteMinimum)
+        if (_absoluteMaximum <= _absoluteMinimum)
         {
             throw new InvalidOperationException("AbsoluteMaximum should be larger than AbsoluteMinimum.");
         }
@@ -680,25 +682,16 @@ public abstract partial class Axis
             ActualMaximum = ActualMinimum + 100;
         }
 
-        if (ActualMinimum < AbsoluteMinimum)
-        {
-            ActualMinimum = AbsoluteMinimum;
-        }
+        ActualMinimum = ToRange(ActualMinimum, _absoluteMinimum, _absoluteMaximum);
 
-        if (ActualMinimum > AbsoluteMaximum)
-        {
-            ActualMinimum = AbsoluteMaximum;
-        }
+        ActualMaximum = ToRange(ActualMaximum, _absoluteMinimum, _absoluteMaximum);
+    }
 
-        if (ActualMaximum < AbsoluteMinimum)
-        {
-            ActualMaximum = AbsoluteMinimum;
-        }
+    private static double ToRange(double value, double min, double max)
+    {
+        var res = Math.Max(value, Math.Min(min, max));
 
-        if (ActualMaximum > AbsoluteMaximum)
-        {
-            ActualMaximum = AbsoluteMaximum;
-        }
+        return Math.Min(res, Math.Max(min, max));
     }
 
     // Formats the value to be used on the axis.

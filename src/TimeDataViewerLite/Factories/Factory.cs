@@ -7,12 +7,10 @@ public static class Factory
 {
     public static DateTimeAxis CreateAxisX(DateTime epoch, double begin, double end)
     {
-        return new DateTimeAxis()
+        var axis = new DateTimeAxis()
         {
             Position = AxisPosition.Top,
             IntervalType = DateTimeIntervalType.Auto,
-            AbsoluteMinimum = begin,
-            AbsoluteMaximum = end,
             CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek,
             FirstDayOfWeek = DayOfWeek.Monday,
             MinorIntervalType = DateTimeIntervalType.Auto,
@@ -23,7 +21,7 @@ public static class Factory
             IntervalLength = 60.0,
             IsPanEnabled = true,
             IsAxisVisible = true,
-            IsZoomEnabled = true,         
+            IsZoomEnabled = true,
             MajorStep = double.NaN,
             MajorTickSize = 7.0,
             MinorStep = double.NaN,
@@ -33,25 +31,30 @@ public static class Factory
             MaximumRange = double.PositiveInfinity,
             StringFormat = null
         };
+
+        axis.SetAvailableRange(begin, end);
+
+        return axis;
     }
 
-    public static CategoryAxis CreateAxisY(IEnumerable<object> labels, Func<object, string> func)
+    public static CategoryAxis CreateAxisY(IEnumerable<string> labels)
     {
-        var axisY = new CategoryAxis()
+        var axis = new CategoryAxis()
         {
             Position = AxisPosition.Left,
-            AbsoluteMinimum = -0.5,
-            AbsoluteMaximum = 4.5,
             IsZoomEnabled = false,
-            LabelField = "Label",
+            IsPanEnabled = false,
             IsTickCentered = false,
             GapWidth = 1.0,
-            ItemsSource = labels
+            SourceLabels = new List<string>(labels)
         };
 
-        axisY.Labels.Clear();
-        axisY.Labels.AddRange(labels.Select(func));
+        var count = labels.Count();
+        var min = -0.5;
+        var max = min + count;
 
-        return axisY;
+        axis.SetAvailableRange(min, max);
+
+        return axis;
     }
 }

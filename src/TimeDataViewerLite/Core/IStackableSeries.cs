@@ -4,5 +4,5 @@ public interface IStackableSeries
 {
     bool IsStacked { get; }
 
-    string StackGroup { get; }
+    string StackGroup { get; set; }
 }

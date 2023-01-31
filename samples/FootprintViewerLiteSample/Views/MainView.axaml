@@ -11,8 +11,14 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Panel>
-        <TabControl Margin="4">
+    <Grid ColumnDefinitions="100,*">
+
+        <ItemsControl Items="{Binding Labels}">
+            
+        </ItemsControl>
+
+        <TabControl Grid.Column="1" 
+                    Margin="4">
             <TabItem Header="Header1">
                 <controls:TimelineControl Grid.Row="3"
                                       Margin="8"
@@ -23,6 +29,7 @@
                 </controls:TimelineControl>
             </TabItem>
         </TabControl>
-    </Panel>
     
+    </Grid>
+
 </UserControl>

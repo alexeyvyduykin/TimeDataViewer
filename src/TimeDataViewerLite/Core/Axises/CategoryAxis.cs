@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Globalization;
+﻿using System.Linq;
 
 namespace TimeDataViewerLite.Core;
 
@@ -8,9 +7,6 @@ namespace TimeDataViewerLite.Core;
 /// The range of the axis will be from -0.5 to 4.5 (excluding padding).</remarks>
 public class CategoryAxis : Axis
 {
-    private readonly List<string> _labels = new();
-    private readonly List<string> _itemsSourceLabels = new();
-
     /// <summary>
     /// The current max value per StackIndex and Label.
     /// </summary>
@@ -35,15 +31,23 @@ public class CategoryAxis : Axis
     /// <remarks>These values are modified during rendering.</remarks>
     private double[,]? _currentNegativeBaseValues;
 
-    /// <summary>
-    /// The maximum stack index.
-    /// </summary>
+    // The maximum stack index.
     private int _maxStackIndex;
 
-    /// <summary>
-    /// The maximal width of all labels.
-    /// </summary>
+    // The maximal width of all labels.
     private double _maxWidth;
+
+    // Gets or sets the original offset of the bars (not used for stacked bar series).
+    private double[] _barOffset;
+
+    // Gets or sets the stack index mapping. The mapping indicates to which rank a specific stack index belongs.
+    private Dictionary<string, int> _stackIndexMapping = new();
+
+    // Gets or sets the offset of the bars per StackIndex and Label (only used for stacked bar series).
+    private double[,] _stackedBarOffset;
+
+    // Gets or sets sum of the widths of the single bars per label. This is used to find the bar width of BarSeries
+    private double[] _totalWidthPerCategory;
 
     public CategoryAxis()
     {
@@ -65,40 +69,7 @@ public class CategoryAxis : Axis
     /// </summary>
     public bool IsTickCentered { get; set; }
 
-    /// <summary>
-    /// Gets or sets the items source (used to update the Labels collection).
-    /// </summary>
-    /// <value>The items source.</value>
-    public IEnumerable ItemsSource { get; set; }
-
-    /// <summary>
-    /// Gets or sets the data field for the labels.
-    /// </summary>
-    public string LabelField { get; set; }
-
-    public List<string> Labels => _labels;
-
-    public List<string> ActualLabels => ItemsSource != null ? _itemsSourceLabels : _labels;
-
-    /// <summary>
-    /// Gets or sets the original offset of the bars (not used for stacked bar series).
-    /// </summary>
-    private double[] BarOffset { get; set; }
-
-    /// <summary>
-    /// Gets or sets the stack index mapping. The mapping indicates to which rank a specific stack index belongs.
-    /// </summary>
-    private Dictionary<string, int> StackIndexMapping { get; set; }
-
-    /// <summary>
-    /// Gets or sets the offset of the bars per StackIndex and Label (only used for stacked bar series).
-    /// </summary>
-    private double[,] StackedBarOffset { get; set; }
-
-    /// <summary>
-    /// Gets or sets sum of the widths of the single bars per label. This is used to find the bar width of BarSeries
-    /// </summary>
-    private double[] TotalWidthPerCategory { get; set; }
+    public List<string> SourceLabels { get; set; } = new();
 
     /// <summary>
     /// Gets the maximum width of all category labels.
@@ -115,8 +86,8 @@ public class CategoryAxis : Axis
     /// <returns>The get category value.</returns>
     public double GetCategoryValue(int categoryIndex, int stackIndex, double actualBarWidth)
     {
-        var offsetBegin = StackedBarOffset[stackIndex, categoryIndex];
-        var offsetEnd = StackedBarOffset[stackIndex + 1, categoryIndex];
+        var offsetBegin = _stackedBarOffset[stackIndex, categoryIndex];
+        var offsetEnd = _stackedBarOffset[stackIndex + 1, categoryIndex];
         return categoryIndex - 0.5 + ((offsetEnd + offsetBegin - actualBarWidth) * 0.5);
     }
 
@@ -140,23 +111,15 @@ public class CategoryAxis : Axis
             mv.AddRange(majorLabelValues.Select(v => v - 0.5));
             if (mv.Count > 0)
             {
-                mv.Add(mv[mv.Count - 1] + 1);
+                mv.Add(mv[^1] + 1);
             }
 
             majorTickValues = mv;
         }
     }
 
-    /// <summary>
-    /// Gets the stack index for the specified stack group.
-    /// </summary>
-    /// <param name="stackGroup">The stack group.</param>
-    /// <returns>The stack index.</returns>
-    public int GetStackIndex(string stackGroup)
-    {
-        return StackIndexMapping[stackGroup];
-    }
-
+    public int GetStackIndex(string stackGroup) => _stackIndexMapping[stackGroup];
+    
     /// <summary>
     /// Updates the actual maximum and minimum values. If the user has zoomed/panned the axis, the internal ViewMaximum/ViewMinimum values will be used. If Maximum or Minimum have been set, these values will be used. Otherwise the maximum and minimum values of the series will be used, including the 'padding'.
     /// </summary>
@@ -165,11 +128,9 @@ public class CategoryAxis : Axis
         // Update the DataMinimum/DataMaximum from the number of categories
         Include(-0.5);
 
-        var actualLabels = ActualLabels;
-
-        if (actualLabels.Count > 0)
+        if (SourceLabels.Count > 0)
         {
-            Include((actualLabels.Count - 1) + 0.5);
+            Include((SourceLabels.Count - 1) + 0.5);
         }
         else
         {
@@ -190,21 +151,20 @@ public class CategoryAxis : Axis
     {
         base.UpdateFromSeries(series);
 
-        UpdateLabels(series);
+        _stackIndexMapping.Clear();
 
-        var actualLabels = ActualLabels;
-        if (actualLabels.Count == 0)
+        var len = SourceLabels.Count;
+
+        if (len == 0)
         {
-            TotalWidthPerCategory = null;
+            _totalWidthPerCategory = null;
             _maxWidth = double.NaN;
-            BarOffset = null;
-            StackedBarOffset = null;
-            StackIndexMapping = null;
-
+            _barOffset = null;
+            _stackedBarOffset = null;          
             return;
         }
 
-        TotalWidthPerCategory = new double[actualLabels.Count];
+        _totalWidthPerCategory = new double[len];
 
         // Add width of stacked series
         var categorizedSeries = series.OfType<TimelineSeries>().ToList();
@@ -216,14 +176,14 @@ public class CategoryAxis : Axis
             var maxBarWidth =
                 stackedSeries.Where(s => s.StackGroup == stackIndices[j]).Select(
                     s => ((TimelineSeries)s).GetBarWidth()).Concat(new[] { 0.0 }).Max();
-            for (var i = 0; i < actualLabels.Count; i++)
+            for (var i = 0; i < len; i++)
             {
                 int k = 0;
                 if (
                     stackedSeries.SelectMany(s => ((TimelineSeries)s).GetItems()).Any(
                         item => item.GetCategoryIndex(k++) == i))
                 {
-                    TotalWidthPerCategory[i] += maxBarWidth;
+                    _totalWidthPerCategory[i] += maxBarWidth;
                 }
             }
 
@@ -234,29 +194,29 @@ public class CategoryAxis : Axis
         var unstackedBarSeries = categorizedSeries.Where(s => !(s is IStackableSeries) || !((IStackableSeries)s).IsStacked).ToList();
         foreach (var s in unstackedBarSeries)
         {
-            for (var i = 0; i < actualLabels.Count; i++)
+            for (var i = 0; i < len; i++)
             {
                 int j = 0;
                 var numberOfItems = s.GetItems().Count(item => item.GetCategoryIndex(j++) == i);
-                TotalWidthPerCategory[i] += s.GetBarWidth() * numberOfItems;
+                _totalWidthPerCategory[i] += s.GetBarWidth() * numberOfItems;
             }
         }
 
-        _maxWidth = TotalWidthPerCategory.Max();
+        _maxWidth = _totalWidthPerCategory.Max();
 
         // Calculate BarOffset and StackedBarOffset
-        BarOffset = new double[actualLabels.Count];
-        StackedBarOffset = new double[stackIndices.Count + 1, actualLabels.Count];
+        _barOffset = new double[len];
+        _stackedBarOffset = new double[stackIndices.Count + 1, len];
 
         var factor = 0.5 / (1 + GapWidth) / _maxWidth;
-        for (var i = 0; i < actualLabels.Count; i++)
+        for (var i = 0; i < len; i++)
         {
-            BarOffset[i] = 0.5 - (TotalWidthPerCategory[i] * factor);
+            _barOffset[i] = 0.5 - (_totalWidthPerCategory[i] * factor);
         }
 
         for (var j = 0; j <= stackIndices.Count; j++)
         {
-            for (var i = 0; i < actualLabels.Count; i++)
+            for (var i = 0; i < len; i++)
             {
                 int k = 0;
                 if (
@@ -266,20 +226,18 @@ public class CategoryAxis : Axis
                     continue;
                 }
 
-                StackedBarOffset[j, i] = BarOffset[i];
+                _stackedBarOffset[j, i] = _barOffset[i];
                 if (j < stackIndices.Count)
                 {
-                    BarOffset[i] += stackRankBarWidth[j] / (1 + GapWidth) / _maxWidth;
+                    _barOffset[i] += stackRankBarWidth[j] / (1 + GapWidth) / _maxWidth;
                 }
             }
         }
 
-        stackIndices.Sort();
-        StackIndexMapping = new Dictionary<string, int>();
-        for (var i = 0; i < stackIndices.Count; i++)
-        {
-            StackIndexMapping.Add(stackIndices[i], i);
-        }
+        _stackIndexMapping = stackIndices
+            .OrderBy(s => s)
+            .Select((s, i) => new { Item = s, Index = i })
+            .ToDictionary(x => x.Item, x => x.Index);
 
         _maxStackIndex = stackIndices.Count;
     }
@@ -292,17 +250,18 @@ public class CategoryAxis : Axis
     {
         base.ResetCurrentValues();
 
-        var actualLabels = ActualLabels;
+        var len = SourceLabels.Count;
+
         if (_maxStackIndex > 0)
         {
-            _currentPositiveBaseValues = new double[_maxStackIndex, actualLabels.Count];
+            _currentPositiveBaseValues = new double[_maxStackIndex, len];
             _currentPositiveBaseValues.Fill2D(double.NaN);
-            _currentNegativeBaseValues = new double[_maxStackIndex, actualLabels.Count];
+            _currentNegativeBaseValues = new double[_maxStackIndex, len];
             _currentNegativeBaseValues.Fill2D(double.NaN);
 
-            _currentMaxValue = new double[_maxStackIndex, actualLabels.Count];
+            _currentMaxValue = new double[_maxStackIndex, len];
             _currentMaxValue.Fill2D(double.NaN);
-            _currentMinValue = new double[_maxStackIndex, actualLabels.Count];
+            _currentMinValue = new double[_maxStackIndex, len];
             _currentMinValue.Fill2D(double.NaN);
         }
         else
@@ -322,43 +281,12 @@ public class CategoryAxis : Axis
     protected override string FormatValueOverride(double x)
     {
         var index = (int)x;
-        var actualLabels = ActualLabels;
-        if (index >= 0 && index < actualLabels.Count)
+        
+        if (index >= 0 && index < SourceLabels.Count)
         {
-            return actualLabels[index];
+            return SourceLabels[index];
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// Creates Labels list if no labels were set
-    /// </summary>
-    /// <param name="series">The list of series which are rendered</param>
-    private void UpdateLabels(IEnumerable<Series> series)
-    {
-        if (ItemsSource != null)
-        {
-            _itemsSourceLabels.Clear();
-            _itemsSourceLabels.AddRange(ItemsSource.Format(LabelField, StringFormat, CultureInfo.CurrentCulture));
-            return;
-        }
-
-        if (Labels.Count == 0)
-        {
-            // auto-create labels
-            // TODO: should not modify Labels collection
-            foreach (var s in series)
-            {
-                if (s is TimelineSeries bsb)
-                {
-                    int max = bsb.GetItems().Count;
-                    while (Labels.Count < max)
-                    {
-                        Labels.Add((Labels.Count + 1).ToString(CultureInfo.InvariantCulture));
-                    }
-                }
-            }
-        }
     }
 }

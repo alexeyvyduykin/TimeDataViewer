@@ -4,7 +4,7 @@ namespace TimeDataViewerLite.Core;
 
 public class TimelineSeries : ItemsSeries, IStackableSeries
 {
-    public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}";
+    public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}\n{6}: {7}";
     private OxyRect _clippingRect;
     private readonly List<(OxyRect, bool)> _rectangles = new();
     private int _selectedIndex = -1;
@@ -53,7 +53,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
 
     public bool IsStacked => true;
 
-    public string StackGroup => string.Empty;
+    public string StackGroup { get; set; } = string.Empty;// => string.Empty;
 
     public IList<TimelineItem> Items { get; private set; }
 
@@ -98,12 +98,14 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
                         System.Globalization.CultureInfo.CurrentCulture,
                         TrackerFormatString,
                         item,
-                        "Category",                               // {0}
+                        "Category",                                  // {0}
                         PlotModel.AxisY.FormatValue(categoryIndex),  // {1}
-                        "Begin",                                  // {2}
-                        PlotModel.AxisX.GetValue(Items[i].Begin),       // {3}
-                        "End",                                    // {4}
-                        PlotModel.AxisX.GetValue(Items[i].End))         // {5}                        
+                        "Group",
+                        this.StackGroup,
+                        "Begin",                                     // {2}
+                        PlotModel.AxisX.GetValue(Items[i].Begin),    // {3}
+                        "End",                                       // {4}
+                        PlotModel.AxisX.GetValue(Items[i].End))      // {5}                        
                 };
             }
         }
@@ -209,7 +211,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
                         {
                             Begin = Axis.ToDouble(left),
                             End = Axis.ToDouble(right),
-                            CategoryIndex = PlotModel.AxisY.ActualLabels.IndexOf(category)
+                            CategoryIndex = PlotModel.AxisY.SourceLabels.IndexOf(category)
                         });
                     }
                 }
