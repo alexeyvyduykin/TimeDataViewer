@@ -63,7 +63,7 @@ public class MainWindowViewModel : ViewModelBase
         Observable.Start(UpdateImpl, RxApp.MainThreadScheduler)
             .Subscribe(s =>
             {
-                Epoch = Intervals.Select(s => s.BeginTime).Min().Date;
+                Epoch = Intervals.Select(s => s.Begin).Min().Date;
 
                 BeginScenario = ToTotalDays(Epoch.Date, _timeOrigin) - 1;
                 EndScenario = BeginScenario + 3;
@@ -101,7 +101,7 @@ public class MainWindowViewModel : ViewModelBase
         _labels.Edit(innerList =>
         {
             innerList.Clear();
-            innerList.AddRange(res.Intervals.Select(s => s.Category).Distinct().ToList());
+            innerList.AddRange(res.Intervals.Select(s => s.Category!).Distinct().ToList());
         });
     }
 
@@ -122,15 +122,15 @@ public class MainWindowViewModel : ViewModelBase
         {
             CreateSeries(plotModel, Windows),
             CreateSeries(plotModel, Intervals),
-      //      CreateSeries(plotModel, ivals3),
-      //      CreateSeries(plotModel, ivals4),
+            CreateSeries(plotModel, Windows),
+            CreateSeries(plotModel, Intervals),
       //      CreateSeries(plotModel, ivals5)
         });
 
         ((TimelineSeries)plotModel.Series[0]).StackGroup = "Satellite_1";
         ((TimelineSeries)plotModel.Series[1]).StackGroup = "Satellite_1";
-        //((TimelineSeries)plotModel.Series[2]).StackGroup = "Series3";
-        //   ((TimelineSeries)plotModel.Series[3]).StackGroup = "Stack1";
+        ((TimelineSeries)plotModel.Series[2]).StackGroup = "Satellite_2";
+        ((TimelineSeries)plotModel.Series[3]).StackGroup = "Satellite_2";
         //   ((TimelineSeries)plotModel.Series[4]).StackGroup = "Stack2";
 
         return plotModel;
@@ -138,13 +138,24 @@ public class MainWindowViewModel : ViewModelBase
 
     private static Series CreateSeries(PlotModel parent, IEnumerable<Interval> intervals)
     {
+        var list = new List<TimelineItem>();
+
+        foreach (var item in intervals)
+        {
+            var category = item.Category ?? throw new Exception();
+
+            list.Add(new TimelineItem()
+            {
+                Begin = Axis.ToDouble(item.Begin),
+                End = Axis.ToDouble(item.End),
+                CategoryIndex = parent.AxisY.SourceLabels.IndexOf(category)
+            });
+        }
+
         return new TimelineSeries(parent)
         {
             BarWidth = 0.5,
-            ItemsSource = intervals,
-            CategoryField = "Category",
-            BeginField = "BeginTime",
-            EndField = "EndTime",
+            Items = list,
             IsVisible = true,
             TrackerKey = intervals.FirstOrDefault()?.Category ?? string.Empty,
         };

@@ -2,7 +2,7 @@
 
 namespace TimeDataViewerLite.Core;
 
-public class TimelineSeries : ItemsSeries, IStackableSeries
+public class TimelineSeries : Series, IStackableSeries
 {
     public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}\n{6}: {7}";
     private OxyRect _clippingRect;
@@ -23,8 +23,6 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
 
     public TimelineSeries(PlotModel plotModel) : base(plotModel)
     {
-        ValidItems = new();
-        ValidItemsIndexInversion = new();
         Items = new List<TimelineItem>();
         TrackerFormatString = DefaultTrackerFormatString;
         BarWidth = 1;
@@ -53,21 +51,11 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
 
     public bool IsStacked => true;
 
-    public string StackGroup { get; set; } = string.Empty;// => string.Empty;
+    public string StackGroup { get; set; } = string.Empty;
 
-    public IList<TimelineItem> Items { get; private set; }
-
-    public string? CategoryField { get; set; }
-
-    public string? EndField { get; set; }
-
-    public string? BeginField { get; set; }
+    public IList<TimelineItem> Items { get; set; }
 
     protected internal IList<OxyRect>? ActualBarRectangles { get; set; }
-
-    protected internal List<TimelineItem> ValidItems { get; set; }
-
-    protected internal Dictionary<int, int> ValidItemsIndexInversion { get; set; }
 
     // Gets the point in the dataset that is nearest the specified point.
     public override TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
@@ -82,9 +70,9 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
             var r = ActualBarRectangles[i];
             if (r.Contains(point))
             {
-                var item = Items[i];//GetItem(ValidItemsIndexInversion[i]);                   
+                var item = Items[i];
                 var categoryIndex = item.GetCategoryIndex(i);
-                double value = (ValidItems[i].Begin + ValidItems[i].End) / 2;
+                double value = (item.Begin + item.End) / 2;
                 var dp = new DataPoint(categoryIndex, value);
 
                 return new TrackerHitResult
@@ -102,10 +90,10 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
                         PlotModel.AxisY.FormatValue(categoryIndex),  // {1}
                         "Group",
                         this.StackGroup,
-                        "Begin",                                     // {2}
-                        PlotModel.AxisX.GetValue(Items[i].Begin),    // {3}
-                        "End",                                       // {4}
-                        PlotModel.AxisX.GetValue(Items[i].End))      // {5}                        
+                        "Begin",                                     // {4}
+                        PlotModel.AxisX.GetValue(item.Begin),        // {5}
+                        "End",                                       // {6}
+                        PlotModel.AxisX.GetValue(item.End))          // {7}                        
                 };
             }
         }
@@ -117,7 +105,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
     {
         ActualBarRectangles = new List<OxyRect>();
 
-        if (ValidItems == null || ValidItems.Count == 0)
+        if (Items == null || Items.Count == 0)
         {
             return;
         }
@@ -130,9 +118,9 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
         _rectangles.Clear();
         _clippingRect = clippingRect;
 
-        for (var i = 0; i < ValidItems.Count; i++)
+        for (var i = 0; i < Items.Count; i++)
         {
-            var item = ValidItems[i];
+            var item = Items[i];
 
             var categoryIndex = item.GetCategoryIndex(i);
 
@@ -166,9 +154,6 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
     // Gets or sets the width/height of the columns/bars (as a fraction of the available space).
     internal double GetBarWidth() => BarWidth;
 
-    // Gets the items of this series.
-    public IList<CategorizedItem> GetItems() => Items.Cast<CategorizedItem>().ToList();
-
     // Updates the axis maximum and minimum values.     
     protected internal override void UpdateAxisMaxMin()
     {
@@ -181,52 +166,12 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
         PlotModel.AxisX.Include(MaxX);
     }
 
-    protected internal override void UpdateData()
-    {
-        if (ItemsSource != null)
-        {
-            var list = new List<TimelineItem>();
-
-            Items.Clear();
-
-            if (string.IsNullOrWhiteSpace(BeginField) == false &&
-                string.IsNullOrWhiteSpace(EndField) == false &&
-                string.IsNullOrWhiteSpace(CategoryField) == false)
-            {
-                foreach (var item in ItemsSource)
-                {
-                    var propertyInfoLeft = item.GetType().GetProperty(BeginField);
-                    var propertyInfoRight = item.GetType().GetProperty(EndField);
-                    var propertyInfoCategory = item.GetType().GetProperty(CategoryField);
-
-                    var left = propertyInfoLeft?.GetValue(item, null);
-                    var right = propertyInfoRight?.GetValue(item, null);
-                    var valueCategory = propertyInfoCategory?.GetValue(item, null);
-
-                    if (left is not null &&
-                        right is not null &&
-                        valueCategory is string category)
-                    {
-                        list.Add(new TimelineItem()
-                        {
-                            Begin = Axis.ToDouble(left),
-                            End = Axis.ToDouble(right),
-                            CategoryIndex = PlotModel.AxisY.SourceLabels.IndexOf(category)
-                        });
-                    }
-                }
-            }
-
-            Items = new List<TimelineItem>(list);
-        }
-    }
-
     // Updates the maximum and minimum values of the series.  
     protected internal override void UpdateMaxMin()
     {
         MinX = MinY = MaxX = MaxY = double.NaN;
 
-        if (ValidItems == null || ValidItems.Count == 0)
+        if (Items == null || Items.Count == 0)
         {
             return;
         }
@@ -234,7 +179,7 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
         double minValue = double.MaxValue;
         double maxValue = double.MinValue;
 
-        foreach (var item in ValidItems)
+        foreach (var item in Items)
         {
             minValue = Math.Min(minValue, item.Begin);
             minValue = Math.Min(minValue, item.End);
@@ -246,30 +191,6 @@ public class TimelineSeries : ItemsSeries, IStackableSeries
         MaxX = maxValue;
     }
 
-    protected internal override void UpdateValidData()
-    {
-        ValidItems.Clear();
-        ValidItemsIndexInversion.Clear();
-
-        for (var i = 0; i < Items.Count; i++)
-        {
-            var item = Items[i];
-            ValidItemsIndexInversion.Add(ValidItems.Count, i);
-            ValidItems.Add(item);
-        }
-    }
-
     // Gets the actual width/height of the items of this series.
     public double GetActualBarWidth() => BarWidth / (1 + PlotModel.AxisY.GapWidth) / PlotModel.AxisY.MaxWidth;
-
-    // Gets the item at the specified index.
-    protected override object? GetItem(int i)
-    {
-        if (ItemsSource != null || Items == null || Items.Count == 0)
-        {
-            return base.GetItem(i);
-        }
-
-        return Items[i];
-    }
 }

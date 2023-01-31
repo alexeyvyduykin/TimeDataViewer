@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using TimeDataViewerLite.Core;
 
 namespace FootprintViewerLiteSample.Models;
-
-public class DataResult
-{
-    public List<Interval> Intervals { get; set; } = new();
-
-    public List<Interval> Windows { get; set; } = new();
-}
 
 public static class DataSource
 {
@@ -37,15 +31,15 @@ public static class DataSource
                 intervals.Add(new Interval()
                 {
                     Category = task,
-                    BeginTime = begin.AddSeconds(minInterval),
-                    EndTime = begin.AddSeconds(maxInterval)
+                    Begin = begin.AddSeconds(minInterval),
+                    End = begin.AddSeconds(maxInterval)
                 });
 
                 windows.Add(new Interval()
                 {
                     Category = task,
-                    BeginTime = begin.AddSeconds(minWindow),
-                    EndTime = begin.AddSeconds(maxWindow)
+                    Begin = begin.AddSeconds(minWindow),
+                    End = begin.AddSeconds(maxWindow)
                 });
             }
         }

@@ -27,12 +27,6 @@ public abstract class Series
     // Updates the maximum and minimum values of the axes used by this series.    
     protected internal abstract void UpdateAxisMaxMin();
 
-    // Updates the data of the series.    
-    protected internal abstract void UpdateData();
-
-    // Updates the valid data of the series.      
-    protected internal abstract void UpdateValidData();
-
     // Updates the maximum and minimum values of the series.      
     protected internal abstract void UpdateMaxMin();
 

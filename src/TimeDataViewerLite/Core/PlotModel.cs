@@ -104,17 +104,6 @@ public sealed class PlotModel : Model, IPlotModel
             {
                 var visibleSeries = Series.Where(s => s.IsVisible).ToArray();
 
-                // Update data of the series
-                if (updateData || _isDataUpdated == false)
-                {
-                    foreach (var s in visibleSeries)
-                    {
-                        s.UpdateData();
-                    }
-
-                    _isDataUpdated = true;
-                }
-
                 // Updates axes with information from the series
                 // This is used by the category axis that need to know the number of series using the axis.
                 AxisX.UpdateFromSeries(visibleSeries);
@@ -123,19 +112,8 @@ public sealed class PlotModel : Model, IPlotModel
                 AxisY.UpdateFromSeries(visibleSeries);
                 AxisY.ResetCurrentValues();
 
-                // Update valid data of the series
-                // This must be done after the axes are updated from series!
-                if (updateData)
-                {
-                    foreach (var s in visibleSeries)
-                    {
-                        s.UpdateValidData();
-                    }
-                }
-
                 // Update the max and min of the axes
                 UpdateMaxMin(updateData);
-
             }
             catch (Exception)
             {

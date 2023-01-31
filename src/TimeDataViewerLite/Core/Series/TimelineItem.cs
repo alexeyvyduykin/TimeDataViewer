@@ -1,19 +1,20 @@
 ﻿namespace TimeDataViewerLite.Core;
 
-public class TimelineItem : CategorizedItem
+public class TimelineItem
 {
-    public TimelineItem()
+    public int GetCategoryIndex(int defaultIndex)
     {
+        if (CategoryIndex < 0)
+        {
+            return defaultIndex;
+        }
 
+        return CategoryIndex;
     }
 
-    public TimelineItem(double begin, double end) : this()
-    {
-        Begin = begin;
-        End = end;
-    }
-
-    public double End { get; set; }
+    public int CategoryIndex { get; set; } = -1;
 
     public double Begin { get; set; }
+
+    public double End { get; set; }
 }

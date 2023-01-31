@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace TimeDataViewerLite.Core;
+﻿namespace TimeDataViewerLite.Core;
 
 /// <remarks>The category axis is using the index of the label collection items as coordinates.
 /// If you have 5 categories in the Labels collection, the categories will be placed at coordinates 0 to 4.
@@ -119,7 +117,7 @@ public class CategoryAxis : Axis
     }
 
     public int GetStackIndex(string stackGroup) => _stackIndexMapping[stackGroup];
-    
+
     /// <summary>
     /// Updates the actual maximum and minimum values. If the user has zoomed/panned the axis, the internal ViewMaximum/ViewMinimum values will be used. If Maximum or Minimum have been set, these values will be used. Otherwise the maximum and minimum values of the series will be used, including the 'padding'.
     /// </summary>
@@ -160,7 +158,7 @@ public class CategoryAxis : Axis
             _totalWidthPerCategory = null;
             _maxWidth = double.NaN;
             _barOffset = null;
-            _stackedBarOffset = null;          
+            _stackedBarOffset = null;
             return;
         }
 
@@ -180,7 +178,7 @@ public class CategoryAxis : Axis
             {
                 int k = 0;
                 if (
-                    stackedSeries.SelectMany(s => ((TimelineSeries)s).GetItems()).Any(
+                    stackedSeries.SelectMany(s => ((TimelineSeries)s).Items).Any(
                         item => item.GetCategoryIndex(k++) == i))
                 {
                     _totalWidthPerCategory[i] += maxBarWidth;
@@ -197,7 +195,7 @@ public class CategoryAxis : Axis
             for (var i = 0; i < len; i++)
             {
                 int j = 0;
-                var numberOfItems = s.GetItems().Count(item => item.GetCategoryIndex(j++) == i);
+                var numberOfItems = s.Items.Count(item => item.GetCategoryIndex(j++) == i);
                 _totalWidthPerCategory[i] += s.GetBarWidth() * numberOfItems;
             }
         }
@@ -220,7 +218,7 @@ public class CategoryAxis : Axis
             {
                 int k = 0;
                 if (
-                    stackedSeries.SelectMany(s => ((TimelineSeries)s).GetItems()).All(
+                    stackedSeries.SelectMany(s => ((TimelineSeries)s).Items).All(
                         item => item.GetCategoryIndex(k++) != i))
                 {
                     continue;
@@ -281,7 +279,7 @@ public class CategoryAxis : Axis
     protected override string FormatValueOverride(double x)
     {
         var index = (int)x;
-        
+
         if (index >= 0 && index < SourceLabels.Count)
         {
             return SourceLabels[index];
