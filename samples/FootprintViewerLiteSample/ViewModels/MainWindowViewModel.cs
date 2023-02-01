@@ -146,8 +146,9 @@ public class MainWindowViewModel : ViewModelBase
 
             list.Add(new TimelineItem()
             {
-                Begin = Axis.ToDouble(item.Begin),
-                End = Axis.ToDouble(item.End),
+                Begin = DateTimeAxis.ToDouble(item.Begin),
+                End = DateTimeAxis.ToDouble(item.End),
+                Category = item.Category,
                 CategoryIndex = parent.AxisY.SourceLabels.IndexOf(category)
             });
         }

@@ -12,6 +12,8 @@ public class TimelineItem
         return CategoryIndex;
     }
 
+    public string? Category { get; set; }
+
     public int CategoryIndex { get; set; } = -1;
 
     public double Begin { get; set; }

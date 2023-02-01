@@ -2,7 +2,7 @@
 
 namespace TimeDataViewerLite.Core;
 
-public class TimelineSeries : Series, IStackableSeries
+public sealed class TimelineSeries : Series, IStackableSeries
 {
     public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}\n{6}: {7}";
     private OxyRect _clippingRect;
@@ -10,16 +10,16 @@ public class TimelineSeries : Series, IStackableSeries
     private int _selectedIndex = -1;
 
     // Gets or sets the maximum x-coordinate of the dataset.
-    public double MaxX { get; protected set; }
+    public double MaxX { get; private set; }
 
     // Gets or sets the maximum y-coordinate of the dataset.
-    public double MaxY { get; protected set; }
+    public double MaxY { get; private set; }
 
     // Gets or sets the minimum x-coordinate of the dataset.
-    public double MinX { get; protected set; }
+    public double MinX { get; private set; }
 
     // Gets or sets the minimum y-coordinate of the dataset.
-    public double MinY { get; protected set; }
+    public double MinY { get; private set; }
 
     public TimelineSeries(PlotModel plotModel) : base(plotModel)
     {
@@ -55,7 +55,7 @@ public class TimelineSeries : Series, IStackableSeries
 
     public IList<TimelineItem> Items { get; set; }
 
-    protected internal IList<OxyRect>? ActualBarRectangles { get; set; }
+    private IList<OxyRect>? ActualBarRectangles { get; set; }
 
     // Gets the point in the dataset that is nearest the specified point.
     public override TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
@@ -86,14 +86,14 @@ public class TimelineSeries : Series, IStackableSeries
                         System.Globalization.CultureInfo.CurrentCulture,
                         TrackerFormatString,
                         item,
-                        "Category",                                  // {0}
-                        PlotModel.AxisY.FormatValue(categoryIndex),  // {1}
+                        "Category",                          // {0}
+                        item.Category!,                      // {1}
                         "Group",
-                        this.StackGroup,
-                        "Begin",                                     // {4}
-                        PlotModel.AxisX.GetValue(item.Begin),        // {5}
-                        "End",                                       // {6}
-                        PlotModel.AxisX.GetValue(item.End))          // {7}                        
+                        StackGroup,
+                        "Begin",                             // {4}                  
+                        DateTimeAxis.ToDateTime(item.Begin), // {5}
+                        "End",                               // {6}                                
+                        DateTimeAxis.ToDateTime(item.End))   // {7}                        
                 };
             }
         }

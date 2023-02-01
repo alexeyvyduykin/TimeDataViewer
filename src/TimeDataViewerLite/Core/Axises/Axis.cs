@@ -37,39 +37,25 @@ public abstract partial class Axis
 
     public string? ActualStringFormat { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the distance from the end of the tick lines to the labels. The default value is <c>4</c>.
-    /// </summary>
+    // Gets or sets the distance from the end of the tick lines to the labels. The default value is <c>4</c>.
     public double AxisTickToLabelDistance { get; set; } = 4;
 
-    /// <summary>
-    /// Gets or sets the distance between the plot area and the axis. The default value is <c>0</c>.
-    /// </summary>
+    // Gets or sets the distance between the plot area and the axis. The default value is <c>0</c>.
     public double AxisDistance { get; set; } = 0;
 
-    /// <summary>
-    /// Gets or sets a value indicating whether to crop gridlines with perpendicular axes Start/EndPositions. The default value is <c>false</c>.
-    /// </summary>
+    // Gets or sets a value indicating whether to crop gridlines with perpendicular axes Start/EndPositions. The default value is <c>false</c>.
     public bool CropGridlines { get; set; }
 
-    /// <summary>
-    /// Gets or sets the maximum value of the data displayed on this axis.
-    /// </summary>
+    // Gets or sets the maximum value of the data displayed on this axis.
     public double DataMaximum { get; protected set; } = double.NaN;
 
-    /// <summary>
-    /// Gets or sets the minimum value of the data displayed on this axis.
-    /// </summary>
+    // Gets or sets the minimum value of the data displayed on this axis.
     public double DataMinimum { get; protected set; } = double.NaN;
 
-    /// <summary>
-    /// Gets or sets the values for the extra gridlines. The default value is <c>null</c>.
-    /// </summary>
+    // Gets or sets the values for the extra gridlines. The default value is <c>null</c>.
     public double[] ExtraGridlines { get; set; } = Array.Empty<double>();
 
-    /// <summary>
-    /// Gets or sets the maximum length (screen space) of the intervals. The available length of the axis will be divided by this length to get the approximate number of major intervals on the axis. The default value is <c>60</c>.
-    /// </summary>
+    // Gets or sets the maximum length (screen space) of the intervals. The available length of the axis will be divided by this length to get the approximate number of major intervals on the axis. The default value is <c>60</c>.
     public double IntervalLength { get; set; } = 60;
 
     public bool IsAxisVisible { get; set; } = true;
@@ -82,61 +68,39 @@ public abstract partial class Axis
 
     public double MajorTickSize { get; set; } = 7;
 
-    /// <summary>
-    /// Gets or sets the maximum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum &lt; MaximumRange</c>. The default value is <c>double.PositiveInfinity</c>.
-    /// </summary>
+    // Gets or sets the maximum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum &lt; MaximumRange</c>. The default value is <c>double.PositiveInfinity</c>.
     public double MaximumRange { get; set; } = double.PositiveInfinity;
 
-    /// <summary>
-    /// Gets or sets the minimum value for the interval between major ticks. The default value is <c>0</c>.
-    /// </summary>
+    // Gets or sets the minimum value for the interval between major ticks. The default value is <c>0</c>.
     public double MinimumMajorStep { get; set; } = 0;
 
-    /// <summary>
-    /// Gets or sets the minimum value for the interval between minor ticks. The default value is <c>0</c>.
-    /// </summary>
+    // Gets or sets the minimum value for the interval between minor ticks. The default value is <c>0</c>.
     public double MinimumMinorStep { get; set; } = 0;
 
-    /// <summary>
-    /// Gets or sets the minimum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum > MinimumRange</c>. The default value is <c>0</c>.
-    /// </summary>
+    // Gets or sets the minimum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum > MinimumRange</c>. The default value is <c>0</c>.
     public double MinimumRange { get; set; } = 0;
 
-    /// <summary>
-    /// Gets or sets the interval between minor ticks. The default value is <c>double.NaN</c>.
-    /// </summary>
+    // Gets or sets the interval between minor ticks. The default value is <c>double.NaN</c>.
     public double MinorStep { get; set; } = double.NaN;
 
-    /// <summary>
-    /// Gets or sets the size of the minor ticks. The default value is <c>4</c>.
-    /// </summary>
+    // Gets or sets the size of the minor ticks. The default value is <c>4</c>.
     public double MinorTickSize { get; set; } = 4;
 
-    /// <summary>
-    /// Gets the offset. This is used to transform between data and screen coordinates.
-    /// </summary>
+    // Gets the offset. This is used to transform between data and screen coordinates.
     public double Offset => _offset;
 
     public AxisPosition Position { get; set; } = AxisPosition.Left;
 
-    /// <summary>
-    /// Gets the scaling factor of the axis. This is used to transform between data and screen coordinates.
-    /// </summary>
+    // Gets the scaling factor of the axis. This is used to transform between data and screen coordinates.
     public double Scale => _scale;
 
-    /// <summary>
-    /// Gets or sets the screen coordinate of the maximum end of the axis.
-    /// </summary>
+    // Gets or sets the screen coordinate of the maximum end of the axis.
     public ScreenPoint ScreenMax { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the screen coordinate of the minimum end of the axis.
-    /// </summary>
+    // Gets or sets the screen coordinate of the minimum end of the axis.
     public ScreenPoint ScreenMin { get; protected set; }
 
-    /// <summary>
-    /// Gets or sets the string format used for formatting the axis values. The default value is <c>null</c>.
-    /// </summary>
+    // Gets or sets the string format used for formatting the axis values. The default value is <c>null</c>.
     public string? StringFormat { get; set; }
 
     public void SetAvailableRange(double min, double max)
@@ -145,25 +109,7 @@ public abstract partial class Axis
         _absoluteMaximum = max;
     }
 
-    public abstract object GetValue(double x);
-
-    /// <summary>
-    /// Converts the value of the specified object to a double precision floating point number. DateTime objects are converted using DateTimeAxis.ToDouble and TimeSpan objects are converted using TimeSpanAxis.ToDouble
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The floating point number value.</returns>
-    public static double ToDouble(object value)
-    {
-        if (value is DateTime dateTime)
-        {
-            return DateTimeAxis.ToDouble(dateTime);
-        }
-
-        return Convert.ToDouble(value);
-    }
-
-    // Formats the value to be used on the axis.
-    public string FormatValue(double x) => FormatValueOverride(x);
+    public abstract string ToLabel(double x);
 
     // Gets the coordinates used to draw ticks and tick labels (numbers or category names).
     public virtual void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
@@ -247,26 +193,6 @@ public abstract partial class Axis
         _viewMaximum = newMaximum;
 
         UpdateActualMaxMin();
-    }
-
-    public virtual void Reset()
-    {
-        _viewMinimum = double.NaN;
-        _viewMaximum = double.NaN;
-
-        UpdateActualMaxMin();
-    }
-
-    public override string ToString()
-    {
-        return string.Format(System.Globalization.CultureInfo.CurrentCulture,
-            // ActualCulture,
-            "{0}({1}, {2}, {3}, {4})",
-            GetType().Name,
-            Position,
-            ActualMinimum,
-            ActualMaximum,
-            ActualMajorStep);
     }
 
     /// <summary>
@@ -390,10 +316,7 @@ public abstract partial class Axis
         UpdateActualMaxMin();
     }
 
-    /// <summary>
-    /// Zooms the axis with the specified zoom factor at the center of the axis.
-    /// </summary>
-    /// <param name="factor">The zoom factor.</param>
+    // Zooms the axis with the specified zoom factor at the center of the axis.
     public virtual void ZoomAtCenter(double factor)
     {
         double sx = (Transform(ActualMaximum) + Transform(ActualMinimum)) * 0.5;
@@ -401,10 +324,7 @@ public abstract partial class Axis
         ZoomAt(factor, x);
     }
 
-    /// <summary>
-    /// Modifies the data range of the axis [DataMinimum,DataMaximum] to includes the specified value.
-    /// </summary>
-    /// <param name="value">The value.</param>
+    // Modifies the data range of the axis [DataMinimum,DataMaximum] to includes the specified value.
     public virtual void Include(double value)
     {
         DataMinimum = double.IsNaN(DataMinimum) ? value : Math.Min(DataMinimum, value);
@@ -424,12 +344,12 @@ public abstract partial class Axis
     /// of the series will be used, including the 'padding'.</remarks>
     internal virtual void UpdateActualMaxMin()
     {
-        if (!double.IsNaN(_viewMaximum))
+        if (double.IsNaN(_viewMaximum) == false)
         {
             // The user has zoomed/panned the axis, use the ViewMaximum value.
             ActualMaximum = _viewMaximum;
         }
-        else if (!double.IsNaN(Maximum))
+        else if (double.IsNaN(Maximum) == false)
         {
             // The Maximum value has been set
             ActualMaximum = Maximum;
@@ -437,20 +357,20 @@ public abstract partial class Axis
         else
         {
             // Calculate the actual maximum, including padding
-            ActualMaximum = CalculateActualMaximum();
+            ActualMaximum = DataMaximum;
         }
 
-        if (!double.IsNaN(_viewMinimum))
+        if (double.IsNaN(_viewMinimum) == false)
         {
             ActualMinimum = _viewMinimum;
         }
-        else if (!double.IsNaN(Minimum))
+        else if (double.IsNaN(Minimum) == false)
         {
             ActualMinimum = Minimum;
         }
         else
         {
-            ActualMinimum = CalculateActualMinimum();
+            ActualMinimum = DataMinimum;
         }
 
         CoerceActualMaxMin();
@@ -496,10 +416,7 @@ public abstract partial class Axis
         ActualStringFormat = StringFormat;
     }
 
-    /// <summary>
-    /// Updates the scale and offset properties of the transform from the specified boundary rectangle.
-    /// </summary>
-    /// <param name="bounds">The bounds.</param>
+    // Updates the scale and offset properties of the transform from the specified boundary rectangle.
     internal virtual void UpdateTransform(OxyRect bounds)
     {
         double x0 = bounds.Left;
@@ -521,8 +438,8 @@ public abstract partial class Axis
             ActualMaximum = ActualMinimum + 1;
         }
 
-        double max = PreTransform(ActualMaximum);
-        double min = PreTransform(ActualMinimum);
+        double max = ActualMaximum;
+        double min = ActualMinimum;
 
         double da = a0 - a1;
         double newOffset, newScale;
@@ -554,12 +471,6 @@ public abstract partial class Axis
     /// <remarks>The current values may be modified during update of max/min and rendering.</remarks>
     protected internal virtual void ResetCurrentValues() { }
 
-    // Applies a transformation after the inverse transform of the value.
-    protected virtual double PostInverseTransform(double x) => x;
-
-    // Applies a transformation before the transform the value.
-    protected virtual double PreTransform(double x) => x;
-
     protected virtual double CalculateMinorInterval(double majorInterval)
     {
         return AxisUtilities.CalculateMinorInterval(majorInterval);
@@ -571,9 +482,7 @@ public abstract partial class Axis
         return AxisUtilities.CreateTickValues(from, to, step, maxTicks);
     }
 
-    /// <summary>
-    /// Coerces the actual maximum and minimum values.
-    /// </summary>
+    // Coerces the actual maximum and minimum values.
     protected virtual void CoerceActualMaxMin()
     {
         // Coerce actual minimum
@@ -692,65 +601,6 @@ public abstract partial class Axis
         var res = Math.Max(value, Math.Min(min, max));
 
         return Math.Min(res, Math.Max(min, max));
-    }
-
-    // Formats the value to be used on the axis.
-    protected virtual string FormatValueOverride(double x)
-    {
-        string format = string.Concat("{0:", ActualStringFormat ?? StringFormat ?? string.Empty, "}");
-        return string.Format(System.Globalization.CultureInfo.CurrentCulture, format, x);
-    }
-
-    /// <summary>
-    /// Calculates the actual maximum value of the axis, including the <see cref="MaximumPadding" />.
-    /// </summary>
-    /// <returns>The new actual maximum value of the axis.</returns>
-    protected virtual double CalculateActualMaximum()
-    {
-        var actualMaximum = DataMaximum;
-        double range = DataMaximum - DataMinimum;
-
-        if (range < double.Epsilon)
-        {
-            double zeroRange = DataMaximum > 0 ? DataMaximum : 1;
-            actualMaximum += zeroRange * 0.5;
-        }
-
-        if (!double.IsNaN(DataMinimum) && !double.IsNaN(actualMaximum))
-        {
-            double x1 = PreTransform(actualMaximum);
-            //double x0 = PreTransform(DataMinimum);
-            //    double dx = MaximumPadding * (x1 - x0);
-            return PostInverseTransform(x1 /*+ dx*/);
-        }
-
-        return actualMaximum;
-    }
-
-    /// <summary>
-    /// Calculates the actual minimum value of the axis, including the <see cref="MinimumPadding" />.
-    /// </summary>
-    /// <returns>The new actual minimum value of the axis.</returns>
-    protected virtual double CalculateActualMinimum()
-    {
-        var actualMinimum = DataMinimum;
-        double range = DataMaximum - DataMinimum;
-
-        if (range < double.Epsilon)
-        {
-            double zeroRange = DataMaximum > 0 ? DataMaximum : 1;
-            actualMinimum -= zeroRange * 0.5;
-        }
-
-        if (!double.IsNaN(ActualMaximum))
-        {
-            //double x1 = PreTransform(ActualMaximum);
-            double x0 = PreTransform(actualMinimum);
-            //  double dx = MinimumPadding * (x1 - x0);
-            return PostInverseTransform(x0 /*- dx*/);
-        }
-
-        return actualMinimum;
     }
 
     protected void SetTransform(double newScale, double newOffset)

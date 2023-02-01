@@ -48,12 +48,6 @@ public partial class Axis
         bool drawAxisLine = true;
         double totalShift = AxisDistance;
 
-        // store properties locally for performance
-        //double plotAreaLeft = plot.PlotArea.Left;
-        //double plotAreaRight = plot.PlotArea.Right;
-        //double plotAreaTop = plot.PlotArea.Top;
-        //double plotAreaBottom = plot.PlotArea.Bottom;
-
         // Axis position (x or y screen coordinate)
         double axisPosition = 0;
 
@@ -227,7 +221,7 @@ public partial class Axis
                     break;
             }
 
-            string text = FormatValue(value);
+            string text = ToLabel(value);
 
             _labels.Add((pt, text, ha, va));
         }

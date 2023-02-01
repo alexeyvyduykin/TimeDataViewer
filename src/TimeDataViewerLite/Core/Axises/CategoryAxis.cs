@@ -3,7 +3,7 @@
 /// <remarks>The category axis is using the index of the label collection items as coordinates.
 /// If you have 5 categories in the Labels collection, the categories will be placed at coordinates 0 to 4.
 /// The range of the axis will be from -0.5 to 4.5 (excluding padding).</remarks>
-public class CategoryAxis : Axis
+public sealed class CategoryAxis : Axis
 {
     /// <summary>
     /// The current max value per StackIndex and Label.
@@ -54,7 +54,17 @@ public class CategoryAxis : Axis
         GapWidth = 1;
     }
 
-    public override object GetValue(double x) => FormatValue(x);
+    public override string ToLabel(double x)
+    {
+        var index = (int)x;
+
+        if (index >= 0 && index < SourceLabels.Count)
+        {
+            return SourceLabels[index];
+        }
+
+        return string.Empty;
+    }
 
     /// <summary>
     /// Gets or sets the gap width.
@@ -89,12 +99,7 @@ public class CategoryAxis : Axis
         return categoryIndex - 0.5 + ((offsetEnd + offsetBegin - actualBarWidth) * 0.5);
     }
 
-    /// <summary>
-    /// Gets the coordinates used to draw ticks and tick labels (numbers or category names).
-    /// </summary>
-    /// <param name="majorLabelValues">The major label values.</param>
-    /// <param name="majorTickValues">The major tick values.</param>
-    /// <param name="minorTickValues">The minor tick values.</param>
+    // Gets the coordinates used to draw ticks and tick labels (numbers or category names).
     public override void GetTickValues(
         out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
     {
@@ -123,17 +128,11 @@ public class CategoryAxis : Axis
     /// </summary>
     internal override void UpdateActualMaxMin()
     {
+        var count = SourceLabels.Count;
+
         // Update the DataMinimum/DataMaximum from the number of categories
         Include(-0.5);
-
-        if (SourceLabels.Count > 0)
-        {
-            Include((SourceLabels.Count - 1) + 0.5);
-        }
-        else
-        {
-            Include(0.5);
-        }
+        Include((count > 0) ? (count - 1) + 0.5 : 0.5);
 
         base.UpdateActualMaxMin();
 
@@ -165,8 +164,8 @@ public class CategoryAxis : Axis
         _totalWidthPerCategory = new double[len];
 
         // Add width of stacked series
-        var categorizedSeries = series.OfType<TimelineSeries>().ToList();
-        var stackedSeries = categorizedSeries.OfType<IStackableSeries>().Where(s => s.IsStacked).ToList();
+        var timelines = series.OfType<TimelineSeries>().ToList();
+        var stackedSeries = timelines.OfType<IStackableSeries>().Where(s => s.IsStacked).ToList();
         var stackIndices = stackedSeries.Select(s => s.StackGroup).Distinct().ToList();
         var stackRankBarWidth = new Dictionary<int, double>();
         for (var j = 0; j < stackIndices.Count; j++)
@@ -177,8 +176,7 @@ public class CategoryAxis : Axis
             for (var i = 0; i < len; i++)
             {
                 int k = 0;
-                if (
-                    stackedSeries.SelectMany(s => ((TimelineSeries)s).Items).Any(
+                if (stackedSeries.SelectMany(s => ((TimelineSeries)s).Items).Any(
                         item => item.GetCategoryIndex(k++) == i))
                 {
                     _totalWidthPerCategory[i] += maxBarWidth;
@@ -189,7 +187,7 @@ public class CategoryAxis : Axis
         }
 
         // Add width of unstacked series
-        var unstackedBarSeries = categorizedSeries.Where(s => !(s is IStackableSeries) || !((IStackableSeries)s).IsStacked).ToList();
+        var unstackedBarSeries = timelines.Where(s => !(s is IStackableSeries) || !((IStackableSeries)s).IsStacked).ToList();
         foreach (var s in unstackedBarSeries)
         {
             for (var i = 0; i < len; i++)
@@ -269,22 +267,5 @@ public class CategoryAxis : Axis
             _currentMaxValue = null;
             _currentMinValue = null;
         }
-    }
-
-    /// <summary>
-    /// Formats the value to be used on the axis.
-    /// </summary>
-    /// <param name="x">The value to format.</param>
-    /// <returns>The formatted value.</returns>
-    protected override string FormatValueOverride(double x)
-    {
-        var index = (int)x;
-
-        if (index >= 0 && index < SourceLabels.Count)
-        {
-            return SourceLabels[index];
-        }
-
-        return null;
     }
 }

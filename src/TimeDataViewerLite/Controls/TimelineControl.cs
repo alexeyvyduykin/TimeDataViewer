@@ -28,7 +28,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private PlotModel? _plotModel;
-    private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
     public TimelineControl()
     {
@@ -72,7 +71,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             return;
         }
 
-        UpdateModel(updateData);
+        ActualModel?.Update(updateData);
 
         if (Interlocked.CompareExchange(ref _isPlotInvalidated, 1, 0) == 0)
         {
@@ -160,16 +159,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         }
 
         return actualSize;
-    }
-
-    // Updates the model. If Model==<c>null</c>, an internal model will be created.
-    // The ActualModel.Update will be called (updates all series data).
-    protected void UpdateModel(bool updateData = true)
-    {
-        if (ActualModel != null)
-        {
-            ((IPlotModel)ActualModel).Update(updateData);
-        }
     }
 
     // Called when the size of the control is changed.

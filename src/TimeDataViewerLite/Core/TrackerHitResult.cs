@@ -4,27 +4,19 @@ namespace TimeDataViewerLite.Core;
 
 public class TrackerHitResult
 {
-    /// <summary>
-    /// Gets or sets the nearest or interpolated data point.
-    /// </summary>
+    // Gets or sets the nearest or interpolated data point.
     public DataPoint DataPoint { get; set; }
 
-    /// <summary>
-    /// Gets or sets the source item of the point.
-    /// If the current point is from an ItemsSource and is not interpolated, this property will contain the item.
-    /// </summary>
+    // Gets or sets the source item of the point.
+    // If the current point is from an ItemsSource and is not interpolated, this property will contain the item.
     public object? Item { get; set; }
 
-    /// <summary>
-    /// Gets or sets the index for the Item.
-    /// </summary>
+    // Gets or sets the index for the Item.
     public double Index { get; set; }
 
     public PlotModel? PlotModel { get; set; }
 
-    /// <summary>
-    /// Gets or sets the position in screen coordinates.
-    /// </summary>
+    // Gets or sets the position in screen coordinates.
     public ScreenPoint Position { get; set; }
 
     public Series? Series { get; set; }

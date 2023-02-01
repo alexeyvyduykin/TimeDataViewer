@@ -3,22 +3,9 @@ using TimeDataViewerLite.Spatial;
 
 namespace TimeDataViewerLite.Core;
 
-public enum DateTimeIntervalType
+public sealed class DateTimeAxis : Axis
 {
-    Auto = 0,
-    Manual = 1,
-    Milliseconds = 2,
-    Seconds = 3,
-    Minutes = 4,
-    Hours = 5,
-    Days = 6,
-    Weeks = 7,
-    Months = 8,
-    Years = 9,
-}
-
-public class DateTimeAxis : Axis
-{
+    private static readonly double[] _goodIntervals = BuildGoodIntervals();
     private static readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
     private static readonly double _maxDayValue = (DateTime.MaxValue - _timeOrigin).TotalDays;
     private static readonly double _minDayValue = (DateTime.MinValue - _timeOrigin).TotalDays;
@@ -33,7 +20,26 @@ public class DateTimeAxis : Axis
         CalendarWeekRule = CalendarWeekRule.FirstFourDayWeek;
     }
 
-    public override object GetValue(double x) => ToDateTime(x);
+    private static double[] BuildGoodIntervals()
+    {
+        const double Year = 365.25;
+        const double Month = 30.5;
+        const double Week = 7;
+        const double Day = 1.0;
+        const double Hour = Day / 24;
+        const double Minute = Hour / 60;
+        const double Second = Minute / 60;
+        const double MilliSecond = Second / 1000;
+
+        return new[]
+        {
+            MilliSecond, 2 * MilliSecond, 10 * MilliSecond, 100 * MilliSecond,
+            Second, 2 * Second, 5 * Second, 10 * Second, 30 * Second, Minute, 2 * Minute,
+            5 * Minute, 10 * Minute, 30 * Minute, Hour, 4 * Hour, 8 * Hour, 12 * Hour, Day,
+            2 * Day, 5 * Day, Week, 2 * Week, Month, 2 * Month, 3 * Month, 4 * Month,
+            6 * Month, Year
+        };
+    }
 
     public CalendarWeekRule CalendarWeekRule { get; set; }
 
@@ -135,9 +141,8 @@ public class DateTimeAxis : Axis
         }
     }
 
-    protected override string FormatValueOverride(double x)
+    public override string ToLabel(double x)
     {
-        // convert the double value to a DateTime
         var time = ToDateTime(x);
 
         var fmt = ActualStringFormat;
@@ -155,26 +160,9 @@ public class DateTimeAxis : Axis
 
     protected override double CalculateActualInterval(double availableSize, double maxIntervalSize)
     {
-        const double Year = 365.25;
-        const double Month = 30.5;
-        const double Week = 7;
-        const double Day = 1.0;
-        const double Hour = Day / 24;
-        const double Minute = Hour / 60;
-        const double Second = Minute / 60;
-        const double MilliSecond = Second / 1000;
-
         double range = Math.Abs(ActualMinimum - ActualMaximum);
 
-        var goodIntervals = new[]
-                                {   MilliSecond, 2 * MilliSecond, 10 * MilliSecond, 100 * MilliSecond,
-                                    Second, 2 * Second, 5 * Second, 10 * Second, 30 * Second, Minute, 2 * Minute,
-                                    5 * Minute, 10 * Minute, 30 * Minute, Hour, 4 * Hour, 8 * Hour, 12 * Hour, Day,
-                                    2 * Day, 5 * Day, Week, 2 * Week, Month, 2 * Month, 3 * Month, 4 * Month,
-                                    6 * Month, Year
-                                };
-
-        double interval = goodIntervals[0];
+        double interval = _goodIntervals[0];
 
         int maxNumberOfIntervals = Math.Max((int)(availableSize / maxIntervalSize), 2);
 
@@ -185,7 +173,7 @@ public class DateTimeAxis : Axis
                 break;
             }
 
-            double nextInterval = goodIntervals.FirstOrDefault(i => i > interval);
+            double nextInterval = _goodIntervals.FirstOrDefault(i => i > interval);
             if (Math.Abs(nextInterval) <= double.Epsilon)
             {
                 nextInterval = interval * 2;

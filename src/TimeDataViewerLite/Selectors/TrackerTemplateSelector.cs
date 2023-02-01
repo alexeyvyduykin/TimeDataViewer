@@ -26,7 +26,7 @@ public class TrackerTemplateSelector : IDataTemplate
 
     public IControl Build(object param)
     {
-        var key = ((TrackerHitResult)param).Series.TrackerKey;
+        var key = ((TrackerHitResult)param).Series?.TrackerKey;
 
         if (key != null && Templates.ContainsKey(key))
         {

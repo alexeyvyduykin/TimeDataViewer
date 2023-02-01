@@ -96,7 +96,7 @@ public sealed class PlotModel : Model, IPlotModel
     /// 3. Updates the max and min of the axes.
     /// </summary>
     /// <param name="updateData">if set to <c>true</c> , all data collections will be updated.</param>
-    void IPlotModel.Update(bool updateData)
+    public void Update(bool updateData)
     {
         lock (SyncRoot)
         {
