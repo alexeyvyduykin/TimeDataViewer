@@ -3,6 +3,7 @@ using Avalonia.Media;
 using TimeDataViewerLite.Core;
 using TimeDataViewerLite.Extensions;
 using TimeDataViewerLite.RenderContext;
+using TimeDataViewerLite.Spatial;
 
 namespace TimeDataViewerLite.Controls;
 
@@ -29,19 +30,11 @@ public partial class TimelineControl
         _axisXCanvas.Children.Clear();
         _frontCanvas.Children.Clear();
 
-        RenderBack(_backCanvas);
-        RenderSeries(_drawCanvas);
+        ActualModel?.Render(_backCanvas.Bounds.Width, _backCanvas.Bounds.Height);
+
+        _drawCanvas.RenderSeries(ActualModel, SeriesBrushes);
+
         RenderAxisX(_axisXCanvas, _backCanvas);
-    }
-
-    private void RenderBack(Canvas backCanvas)
-    {
-        ((IPlotModel?)ActualModel)?.Render(backCanvas.Bounds.Width, backCanvas.Bounds.Height);
-    }
-
-    private void RenderSeries(DrawCanvas drawCanvas)
-    {
-        drawCanvas.RenderSeries(ActualModel, SeriesBrushes);
     }
 
     private void RenderAxisX(Canvas axisXCanvas, Canvas backCanvas)
@@ -50,73 +43,52 @@ public partial class TimelineControl
         {
             var rcAxis = new CanvasRenderContext(axisXCanvas);
             var rcPlotBack = new CanvasRenderContext(backCanvas);
-                           
+
             RenderAxis(ActualModel.AxisX, rcAxis, rcPlotBack);
         }
     }
 
-    private void RenderAxis(Axis? internalAxis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
+    private void RenderAxis(DateTimeAxis? axis, CanvasRenderContext contextAxis, CanvasRenderContext contextPlot)
     {
-        if (internalAxis == null)
+        if (axis == null)
         {
             return;
         }
 
-        var labels = internalAxis.MyLabels;
-        var minorSegments = internalAxis.MyMinorSegments;
-        var minorTickSegments = internalAxis.MyMinorTickSegments;
-        var majorSegments = internalAxis.MyMajorSegments;
-        var majorTickSegments = internalAxis.MyMajorTickSegments;
-
-        if (_minorPen != null)
+        if (axis.MinorGridLines is List<ScreenPoint> minorGridLines)
         {
-            contextPlot.DrawLineSegments(minorSegments, _minorPen);
+            contextPlot.DrawLineSegments(minorGridLines, _minorPen);
         }
 
-        if (_minorTickPen != null)
+        if (axis.MinorTicks is List<ScreenPoint> minorTicks)
         {
-            contextAxis.DrawLineSegments(minorTickSegments, _minorTickPen);
+            contextAxis.DrawLineSegments(minorTicks, _minorTickPen);
         }
 
-        foreach (var (pt, text, ha, va) in labels)
+        if (axis.LabelInfos is List<LabelInfo> infos)
         {
-            var label = DefaultLabelTemplate.Build(new ContentControl());
-
-            if (label.Control is TextBlock textBlock)
+            foreach (var item in infos)
             {
-                textBlock.Text = text;
-                textBlock.HorizontalAlignment = ha.ToAvalonia();
-                textBlock.VerticalAlignment = va.ToAvalonia();
-                contextAxis.DrawMathText(pt, textBlock);
+                var label = DefaultLabelTemplate.Build(new ContentControl());
+
+                if (label.Control is TextBlock textBlock)
+                {
+                    textBlock.Text = item.Text;
+                    textBlock.HorizontalAlignment = item.HorizontalAlignment.ToAvalonia();
+                    textBlock.VerticalAlignment = item.VerticalAlignment.ToAvalonia();
+                    contextAxis.DrawMathText(item.Position, textBlock);
+                }
             }
         }
 
-        if (_majorPen != null)
+        if (axis.MajorGridLines is List<ScreenPoint> majorGridLines)
         {
-            contextPlot.DrawLineSegments(majorSegments, _majorPen);
+            contextPlot.DrawLineSegments(majorGridLines, _majorPen);
         }
 
-        if (_majorTickPen != null)
+        if (axis.MajorTicks is List<ScreenPoint> majorTicks)
         {
-            contextAxis.DrawLineSegments(majorTickSegments, _majorTickPen);
+            contextAxis.DrawLineSegments(majorTicks, _majorTickPen);
         }
-
-        //if(MinMaxBrush != null && InternalAxis.IsHorizontal() == true)
-        //{
-        //    var rect0 = InternalAxis.LeftRect;
-        //    var rect1 = InternalAxis.RightRect;
-
-        //    if (rect0.Width != 0)
-        //    {
-        //      //  contextPlot.DrawRectangle(rect0, MinMaxBrush, null);
-        //      //  contextPlot.DrawLine(rect0.Right, rect0.Top, rect0.Right, rect0.Bottom, BlackPen);
-        //    }
-
-        //    if (rect1.Width != 0)
-        //    {
-        //      //  contextPlot.DrawRectangle(rect1, MinMaxBrush, null);
-        //      //  contextPlot.DrawLine(rect1.Left, rect1.Top, rect1.Left, rect1.Bottom, BlackPen);
-        //    }
-        //}        
     }
 }

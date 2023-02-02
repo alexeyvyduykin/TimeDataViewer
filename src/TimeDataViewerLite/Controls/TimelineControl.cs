@@ -50,8 +50,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
             ((IPlotModel)_plotModel).AttachPlotView(this);
 
-            InvalidatePlot(false);
-            InvalidatePlot(true);
+            InvalidatePlot();
         }
     }
 
@@ -64,14 +63,12 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     }
 
     // Invalidate the PlotView (not blocking the UI thread)
-    public void InvalidatePlot(bool updateData = true)
+    public void InvalidatePlot()
     {
         if (Width <= 0 || Height <= 0)
         {
             return;
         }
-
-        ActualModel?.Update(updateData);
 
         if (Interlocked.CompareExchange(ref _isPlotInvalidated, 1, 0) == 0)
         {
@@ -166,7 +163,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         if (size.Height > 0 && size.Width > 0)
         {
-            InvalidatePlot(false);
+            InvalidatePlot();
         }
     }
 

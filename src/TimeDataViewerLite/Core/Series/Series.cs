@@ -21,13 +21,13 @@ public abstract class Series
     // This key may be used by the plot view to show a custom tracker for the series.                                                     
     public string? TrackerKey { get; set; }
 
-    public abstract void Render();
+    public abstract void UpdateRenderInfo();
 
     // Updates the maximum and minimum values of the axes used by this series.    
     protected internal abstract void UpdateAxisMaxMin();
 
     // Updates the maximum and minimum values of the series.      
-    protected internal abstract void UpdateMaxMin();
+    //protected internal abstract void UpdateMaxMin();
 
     public virtual TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate) => null;
 }

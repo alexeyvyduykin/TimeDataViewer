@@ -1,51 +1,26 @@
-﻿namespace TimeDataViewerLite.Core;
+﻿using TimeDataViewerLite.Spatial;
+
+namespace TimeDataViewerLite.Core;
 
 /// <remarks>The category axis is using the index of the label collection items as coordinates.
 /// If you have 5 categories in the Labels collection, the categories will be placed at coordinates 0 to 4.
 /// The range of the axis will be from -0.5 to 4.5 (excluding padding).</remarks>
 public sealed class CategoryAxis : Axis
 {
-    /// <summary>
-    /// The current max value per StackIndex and Label.
-    /// </summary>
-    /// <remarks>These values are modified during rendering.</remarks>
-    private double[,]? _currentMaxValue;
-
-    /// <summary>
-    /// The current min value per StackIndex and Label.
-    /// </summary>
-    /// <remarks>These values are modified during rendering.</remarks>
-    private double[,]? _currentMinValue;
-
-    /// <summary>
-    /// The base value per StackIndex and Label for positive values of stacked bar series.
-    /// </summary>
-    /// <remarks>These values are modified during rendering.</remarks>
-    private double[,]? _currentPositiveBaseValues;
-
-    /// <summary>
-    /// The base value per StackIndex and Label for negative values of stacked bar series.
-    /// </summary>
-    /// <remarks>These values are modified during rendering.</remarks>
-    private double[,]? _currentNegativeBaseValues;
-
-    // The maximum stack index.
-    private int _maxStackIndex;
-
     // The maximal width of all labels.
     private double _maxWidth;
 
     // Gets or sets the original offset of the bars (not used for stacked bar series).
-    private double[] _barOffset;
+    private double[]? _barOffset;
 
     // Gets or sets the stack index mapping. The mapping indicates to which rank a specific stack index belongs.
     private Dictionary<string, int> _stackIndexMapping = new();
 
     // Gets or sets the offset of the bars per StackIndex and Label (only used for stacked bar series).
-    private double[,] _stackedBarOffset;
+    private double[,]? _stackedBarOffset;
 
     // Gets or sets sum of the widths of the single bars per label. This is used to find the bar width of BarSeries
-    private double[] _totalWidthPerCategory;
+    private double[]? _totalWidthPerCategory;
 
     public CategoryAxis()
     {
@@ -53,6 +28,8 @@ public sealed class CategoryAxis : Axis
         MajorStep = 1;
         GapWidth = 1;
     }
+
+    public override void UpdateRenderInfo(PlotModel plot) => throw new Exception("Render info for CategoryAxis not enabled.");
 
     public override string ToLabel(double x)
     {
@@ -72,60 +49,29 @@ public sealed class CategoryAxis : Axis
     /// <remarks>The default value is 1.0 (100%). The gap width is given as a fraction of the total width/height of the items in a category.</remarks>
     public double GapWidth { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether the ticks are centered. If this is <c>false</c>, ticks will be drawn between each category. If this is <c>true</c>, ticks will be drawn in the middle of each category.
-    /// </summary>
+    // Gets or sets a value indicating whether the ticks are centered. If this is <c>false</c>, ticks will be drawn between each category. If this is <c>true</c>, ticks will be drawn in the middle of each category.
     public bool IsTickCentered { get; set; }
 
     public List<string> SourceLabels { get; set; } = new();
 
-    /// <summary>
-    /// Gets the maximum width of all category labels.
-    /// </summary>
-    /// <returns>The maximum width.</returns>
+    // Gets the maximum width of all category labels.
     public double MaxWidth => _maxWidth;
 
-    /// <summary>
-    /// Gets the category value.
-    /// </summary>
-    /// <param name="categoryIndex">Index of the category.</param>
-    /// <param name="stackIndex">Index of the stack.</param>
-    /// <param name="actualBarWidth">Actual width of the bar.</param>
-    /// <returns>The get category value.</returns>
     public double GetCategoryValue(int categoryIndex, int stackIndex, double actualBarWidth)
     {
+        if (_stackedBarOffset == null)
+        {
+            throw new Exception();
+        }
+
         var offsetBegin = _stackedBarOffset[stackIndex, categoryIndex];
         var offsetEnd = _stackedBarOffset[stackIndex + 1, categoryIndex];
         return categoryIndex - 0.5 + ((offsetEnd + offsetBegin - actualBarWidth) * 0.5);
     }
 
-    // Gets the coordinates used to draw ticks and tick labels (numbers or category names).
-    public override void GetTickValues(
-        out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
-    {
-        base.GetTickValues(out majorLabelValues, out majorTickValues, out minorTickValues);
-        minorTickValues.Clear();
-
-        if (!IsTickCentered)
-        {
-            // Subtract 0.5 from the label values to get the tick values.
-            // Add one extra tick at the end.
-            var mv = new List<double>(majorLabelValues.Count);
-            mv.AddRange(majorLabelValues.Select(v => v - 0.5));
-            if (mv.Count > 0)
-            {
-                mv.Add(mv[^1] + 1);
-            }
-
-            majorTickValues = mv;
-        }
-    }
-
     public int GetStackIndex(string stackGroup) => _stackIndexMapping[stackGroup];
 
-    /// <summary>
-    /// Updates the actual maximum and minimum values. If the user has zoomed/panned the axis, the internal ViewMaximum/ViewMinimum values will be used. If Maximum or Minimum have been set, these values will be used. Otherwise the maximum and minimum values of the series will be used, including the 'padding'.
-    /// </summary>
+    // Updates the actual maximum and minimum values. If the user has zoomed/panned the axis, the internal ViewMaximum/ViewMinimum values will be used. If Maximum or Minimum have been set, these values will be used. Otherwise the maximum and minimum values of the series will be used, including the 'padding'.
     internal override void UpdateActualMaxMin()
     {
         var count = SourceLabels.Count;
@@ -146,8 +92,6 @@ public sealed class CategoryAxis : Axis
     /// <remarks>This is used by the category axis that need to know the number of series using the axis.</remarks>
     internal override void UpdateFromSeries(Series[] series)
     {
-        base.UpdateFromSeries(series);
-
         _stackIndexMapping.Clear();
 
         var len = SourceLabels.Count;
@@ -165,19 +109,23 @@ public sealed class CategoryAxis : Axis
 
         // Add width of stacked series
         var timelines = series.OfType<TimelineSeries>().ToList();
-        var stackedSeries = timelines.OfType<IStackableSeries>().Where(s => s.IsStacked).ToList();
+        var stackedSeries = timelines.OfType<TimelineSeries>().Where(s => s.IsStacked).ToList();
         var stackIndices = stackedSeries.Select(s => s.StackGroup).Distinct().ToList();
         var stackRankBarWidth = new Dictionary<int, double>();
+
         for (var j = 0; j < stackIndices.Count; j++)
         {
-            var maxBarWidth =
-                stackedSeries.Where(s => s.StackGroup == stackIndices[j]).Select(
-                    s => ((TimelineSeries)s).GetBarWidth()).Concat(new[] { 0.0 }).Max();
+            var maxBarWidth = stackedSeries
+                .Where(s => s.StackGroup == stackIndices[j])
+                .Select(s => s.BarWidth)
+                .Concat(new[] { 0.0 })
+                .Max();
             for (var i = 0; i < len; i++)
             {
                 int k = 0;
-                if (stackedSeries.SelectMany(s => ((TimelineSeries)s).Items).Any(
-                        item => item.GetCategoryIndex(k++) == i))
+                if (stackedSeries
+                    .SelectMany(s => s.Items)
+                    .Any(item => item.GetCategoryIndex(k++) == i))
                 {
                     _totalWidthPerCategory[i] += maxBarWidth;
                 }
@@ -187,14 +135,14 @@ public sealed class CategoryAxis : Axis
         }
 
         // Add width of unstacked series
-        var unstackedBarSeries = timelines.Where(s => !(s is IStackableSeries) || !((IStackableSeries)s).IsStacked).ToList();
+        var unstackedBarSeries = timelines.Where(s => s is not IStackableSeries || s.IsStacked == false).ToList();
         foreach (var s in unstackedBarSeries)
         {
             for (var i = 0; i < len; i++)
             {
                 int j = 0;
                 var numberOfItems = s.Items.Count(item => item.GetCategoryIndex(j++) == i);
-                _totalWidthPerCategory[i] += s.GetBarWidth() * numberOfItems;
+                _totalWidthPerCategory[i] += s.BarWidth * numberOfItems;
             }
         }
 
@@ -215,9 +163,9 @@ public sealed class CategoryAxis : Axis
             for (var i = 0; i < len; i++)
             {
                 int k = 0;
-                if (
-                    stackedSeries.SelectMany(s => ((TimelineSeries)s).Items).All(
-                        item => item.GetCategoryIndex(k++) != i))
+                if (stackedSeries
+                    .SelectMany(s => s.Items)
+                    .All(item => item.GetCategoryIndex(k++) != i))
                 {
                     continue;
                 }
@@ -234,38 +182,64 @@ public sealed class CategoryAxis : Axis
             .OrderBy(s => s)
             .Select((s, i) => new { Item = s, Index = i })
             .ToDictionary(x => x.Item, x => x.Index);
-
-        _maxStackIndex = stackIndices.Count;
     }
 
-    /// <summary>
-    /// Resets the current values.
-    /// </summary>
-    /// <remarks>The current values may be modified during update of max/min and rendering.</remarks>
-    protected internal override void ResetCurrentValues()
+    public void UpdateAll(PlotModel plot)
     {
-        base.ResetCurrentValues();
+        UpdateTransform(plot.PlotArea);
 
-        var len = SourceLabels.Count;
+        UpdateIntervals(plot.PlotArea);
+    }
 
-        if (_maxStackIndex > 0)
+    // Updates the scale and offset properties of the transform from the specified boundary rectangle.
+    private void UpdateTransform(OxyRect bounds)
+    {
+        ScreenMin = new ScreenPoint(bounds.Left, bounds.Top);
+        ScreenMax = new ScreenPoint(bounds.Right, bounds.Bottom);
+
+        ScreenMin = new ScreenPoint(bounds.Bottom, bounds.Top);
+        ScreenMax = new ScreenPoint(bounds.Top, bounds.Bottom);
+
+        if (ActualMaximum - ActualMinimum < double.Epsilon)
         {
-            _currentPositiveBaseValues = new double[_maxStackIndex, len];
-            _currentPositiveBaseValues.Fill2D(double.NaN);
-            _currentNegativeBaseValues = new double[_maxStackIndex, len];
-            _currentNegativeBaseValues.Fill2D(double.NaN);
+            ActualMaximum = ActualMinimum + 1;
+        }
 
-            _currentMaxValue = new double[_maxStackIndex, len];
-            _currentMaxValue.Fill2D(double.NaN);
-            _currentMinValue = new double[_maxStackIndex, len];
-            _currentMinValue.Fill2D(double.NaN);
+        double max = ActualMaximum;
+        double min = ActualMinimum;
+
+        double da = bounds.Bottom - bounds.Top;
+        double range = max - min;
+
+        if (Math.Abs(da) > double.Epsilon)
+        {
+            _offset = (bounds.Bottom / da * max) - (bounds.Top / da * min);
         }
         else
         {
-            _currentPositiveBaseValues = null;
-            _currentNegativeBaseValues = null;
-            _currentMaxValue = null;
-            _currentMinValue = null;
+            _offset = 0;
         }
+
+        if (Math.Abs(range) > double.Epsilon)
+        {
+            _scale = (bounds.Top - bounds.Bottom) / range;
+        }
+        else
+        {
+            _scale = 1;
+        }
+    }
+
+    // Updates the actual minor and major step intervals.
+    private void UpdateIntervals(OxyRect plotArea)
+    {
+        var actualMajorStep = MajorStep ?? CalculateActualInterval(plotArea.Height, IntervalLength);
+
+        var actualMinorStep = MinorStep ?? CalculateMinorInterval(actualMajorStep);
+
+        ActualMinorStep = Math.Max(actualMinorStep, MinimumMinorStep);
+        ActualMajorStep = Math.Max(actualMajorStep, MinimumMajorStep);
+
+        ActualStringFormat = StringFormat;
     }
 }

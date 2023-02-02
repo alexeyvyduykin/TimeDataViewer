@@ -115,28 +115,23 @@ public class MainWindowViewModel : ViewModelBase
             PlotMarginBottom = 0,
         };
 
+        var series = new[]
+        {
+            CreateSeries(plotModel, Windows, Labels, "Satellite_1"),
+            CreateSeries(plotModel, Intervals, Labels, "Satellite_1"),
+            CreateSeries(plotModel, Windows, Labels, "Satellite_2"),
+            CreateSeries(plotModel, Intervals, Labels, "Satellite_2"),
+      //      CreateSeries(plotModel, ivals5)
+        };
+
         plotModel.AddAxisX(TimeDataViewerLite.Factory.CreateAxisX(Epoch, BeginScenario, EndScenario));
         plotModel.AddAxisY(TimeDataViewerLite.Factory.CreateAxisY(Labels));
-
-        plotModel.Series.AddRange(new[]
-        {
-            CreateSeries(plotModel, Windows),
-            CreateSeries(plotModel, Intervals),
-            CreateSeries(plotModel, Windows),
-            CreateSeries(plotModel, Intervals),
-      //      CreateSeries(plotModel, ivals5)
-        });
-
-        ((TimelineSeries)plotModel.Series[0]).StackGroup = "Satellite_1";
-        ((TimelineSeries)plotModel.Series[1]).StackGroup = "Satellite_1";
-        ((TimelineSeries)plotModel.Series[2]).StackGroup = "Satellite_2";
-        ((TimelineSeries)plotModel.Series[3]).StackGroup = "Satellite_2";
-        //   ((TimelineSeries)plotModel.Series[4]).StackGroup = "Stack2";
+        plotModel.AddSeries(series);
 
         return plotModel;
     }
 
-    private static Series CreateSeries(PlotModel parent, IEnumerable<Interval> intervals)
+    private static Series CreateSeries(PlotModel parent, IList<Interval> intervals, IList<string> labels, string stackGroup = "")
     {
         var list = new List<TimelineItem>();
 
@@ -149,7 +144,7 @@ public class MainWindowViewModel : ViewModelBase
                 Begin = DateTimeAxis.ToDouble(item.Begin),
                 End = DateTimeAxis.ToDouble(item.End),
                 Category = item.Category,
-                CategoryIndex = parent.AxisY.SourceLabels.IndexOf(category)
+                CategoryIndex = labels.IndexOf(category)
             });
         }
 
@@ -158,6 +153,7 @@ public class MainWindowViewModel : ViewModelBase
             BarWidth = 0.5,
             Items = list,
             IsVisible = true,
+            StackGroup = stackGroup,
             TrackerKey = intervals.FirstOrDefault()?.Category ?? string.Empty,
         };
     }

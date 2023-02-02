@@ -5,7 +5,7 @@ public interface IPlotView : IView
     void HideTracker();
 
     // Invalidates the plot (not blocking the UI thread)
-    void InvalidatePlot(bool updateData = true);
+    void InvalidatePlot();
 
     void ShowTracker(TrackerHitResult trackerHitResult);
 

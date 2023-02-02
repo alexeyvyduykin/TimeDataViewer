@@ -6,20 +6,8 @@ public sealed class TimelineSeries : Series, IStackableSeries
 {
     public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}\n{6}: {7}";
     private OxyRect _clippingRect;
-    private readonly List<(OxyRect, bool)> _rectangles = new();
-    private int _selectedIndex = -1;
-
-    // Gets or sets the maximum x-coordinate of the dataset.
-    public double MaxX { get; private set; }
-
-    // Gets or sets the maximum y-coordinate of the dataset.
-    public double MaxY { get; private set; }
-
-    // Gets or sets the minimum x-coordinate of the dataset.
-    public double MinX { get; private set; }
-
-    // Gets or sets the minimum y-coordinate of the dataset.
-    public double MinY { get; private set; }
+    private List<(OxyRect, bool)>? _rectangles;
+    private int? _selectedIndex;
 
     public TimelineSeries(PlotModel plotModel) : base(plotModel)
     {
@@ -28,16 +16,28 @@ public sealed class TimelineSeries : Series, IStackableSeries
         BarWidth = 1;
     }
 
+    public List<(OxyRect, bool)>? Rectangles => _rectangles;
+
+    public double BarWidth { get; set; }
+
+    public bool IsStacked => true;
+
+    public string StackGroup { get; set; } = string.Empty;
+
+    public OxyRect ClippingRect => _clippingRect;
+
+    public IList<TimelineItem> Items { get; set; }
+
     // Transforms the specified coordinates to a screen point by the axes of this series.
     public ScreenPoint Transform(double x, double y)
     {
         return PlotModel.AxisX.Transform(x, y, PlotModel.AxisY);
     }
 
-    public OxyRect GetClippingRect()
+    private static OxyRect GetClippingRect(PlotModel plot)
     {
-        var axisX = PlotModel.AxisX;
-        var axisY = PlotModel.AxisY;
+        var axisX = plot.AxisX;
+        var axisY = plot.AxisY;
 
         var minX = Math.Min(axisX.ScreenMin.X, axisX.ScreenMax.X);
         var minY = Math.Min(axisY.ScreenMin.Y, axisY.ScreenMax.Y);
@@ -47,31 +47,20 @@ public sealed class TimelineSeries : Series, IStackableSeries
         return new OxyRect(minX, minY, maxX - minX, maxY - minY);
     }
 
-    public double BarWidth { get; set; }
-
-    public bool IsStacked => true;
-
-    public string StackGroup { get; set; } = string.Empty;
-
-    public IList<TimelineItem> Items { get; set; }
-
-    private IList<OxyRect>? ActualBarRectangles { get; set; }
-
     // Gets the point in the dataset that is nearest the specified point.
     public override TrackerHitResult? GetNearestPoint(ScreenPoint point, bool interpolate)
     {
-        if (ActualBarRectangles == null)
+        if (Rectangles == null)
         {
             return null;
         }
 
-        for (int i = 0; i < ActualBarRectangles.Count; i++)
+        foreach (var (r, i) in Rectangles.Select((s, index) => (s.Item1, index)))
         {
-            var r = ActualBarRectangles[i];
-            if (r.Contains(point))
+            if (r.Contains(point) == true)
             {
                 var item = Items[i];
-                var categoryIndex = item.GetCategoryIndex(i);
+                var categoryIndex = item.CategoryIndex;
                 double value = (item.Begin + item.End) / 2;
                 var dp = new DataPoint(categoryIndex, value);
 
@@ -101,28 +90,28 @@ public sealed class TimelineSeries : Series, IStackableSeries
         return null;
     }
 
-    public override void Render()
+    public override void UpdateRenderInfo()
     {
-        ActualBarRectangles = new List<OxyRect>();
-
-        if (Items == null || Items.Count == 0)
+        if (IsVisible == false || Items == null || Items.Count == 0)
         {
             return;
         }
 
-        var clippingRect = GetClippingRect();
+        _clippingRect = GetClippingRect(PlotModel);
 
-        var actualBarWidth = GetActualBarWidth();
+        _rectangles = CreateRectangles();
+    }
+
+    private List<(OxyRect, bool)> CreateRectangles()
+    {
+        var list = new List<(OxyRect, bool)>();
+
+        var actualBarWidth = BarWidth / (1 + PlotModel.AxisY.GapWidth) / PlotModel.AxisY.MaxWidth;
         var stackIndex = PlotModel.AxisY.GetStackIndex(StackGroup);
 
-        _rectangles.Clear();
-        _clippingRect = clippingRect;
-
-        for (var i = 0; i < Items.Count; i++)
+        foreach (var (item, i) in Items.Select((s, index) => (s, index)))
         {
-            var item = Items[i];
-
-            var categoryIndex = item.GetCategoryIndex(i);
+            var categoryIndex = item.CategoryIndex;
 
             double categoryValue = PlotModel.AxisY.GetCategoryValue(categoryIndex, stackIndex, actualBarWidth);
 
@@ -131,28 +120,15 @@ public sealed class TimelineSeries : Series, IStackableSeries
 
             var rectangle = OxyRect.Create(p0.X, p0.Y, p1.X, p1.Y);
 
-            ActualBarRectangles.Add(rectangle);
-
-            _rectangles.Add((rectangle, i == _selectedIndex));
-
-            //rc.DrawClippedRectangleAsPolygon(
-            //    clippingRect,
-            //    rectangle,
-            //    item.Color.GetActualColor(ActualFillColor),
-            //    StrokeColor);
+            list.Add((rectangle, Equals(i, _selectedIndex)));
         }
+
+        return list;
     }
-
-    public OxyRect MyClippingRect => _clippingRect;
-
-    public List<(OxyRect, bool)> Rectangles => _rectangles;
 
     public void SelectIndex(int index) => _selectedIndex = index;
 
-    public void ResetSelectIndex() => _selectedIndex = -1;
-
-    // Gets or sets the width/height of the columns/bars (as a fraction of the available space).
-    internal double GetBarWidth() => BarWidth;
+    public void ResetSelectIndex() => _selectedIndex = null;
 
     // Updates the axis maximum and minimum values.     
     protected internal override void UpdateAxisMaxMin()
@@ -162,35 +138,10 @@ public sealed class TimelineSeries : Series, IStackableSeries
         //YAxis.Include(MinY);
         //YAxis.Include(MaxY);
 
-        PlotModel.AxisX.Include(MinX);
-        PlotModel.AxisX.Include(MaxX);
+        var minX = Items.Select(s => Math.Min(s.Begin, s.End)).Min();
+        var maxX = Items.Select(s => Math.Max(s.Begin, s.End)).Max();
+
+        PlotModel.AxisX.Include(minX);
+        PlotModel.AxisX.Include(maxX);
     }
-
-    // Updates the maximum and minimum values of the series.  
-    protected internal override void UpdateMaxMin()
-    {
-        MinX = MinY = MaxX = MaxY = double.NaN;
-
-        if (Items == null || Items.Count == 0)
-        {
-            return;
-        }
-
-        double minValue = double.MaxValue;
-        double maxValue = double.MinValue;
-
-        foreach (var item in Items)
-        {
-            minValue = Math.Min(minValue, item.Begin);
-            minValue = Math.Min(minValue, item.End);
-            maxValue = Math.Max(maxValue, item.Begin);
-            maxValue = Math.Max(maxValue, item.End);
-        }
-
-        MinX = minValue;
-        MaxX = maxValue;
-    }
-
-    // Gets the actual width/height of the items of this series.
-    public double GetActualBarWidth() => BarWidth / (1 + PlotModel.AxisY.GapWidth) / PlotModel.AxisY.MaxWidth;
 }

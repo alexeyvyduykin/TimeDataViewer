@@ -3,7 +3,7 @@ using TimeDataViewerLite.Spatial;
 
 namespace TimeDataViewerLite.Core;
 
-public sealed class DateTimeAxis : Axis
+public sealed partial class DateTimeAxis : Axis
 {
     private static readonly double[] _goodIntervals = BuildGoodIntervals();
     private static readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
@@ -49,6 +49,11 @@ public sealed class DateTimeAxis : Axis
 
     public DateTimeIntervalType MinorIntervalType { get; set; }
 
+    internal override void UpdateFromSeries(Series[] series)
+    {
+
+    }
+
     /// <summary>
     /// Converts a numeric representation of the date (number of days after the time origin) to a DateTime structure.
     /// </summary>
@@ -65,81 +70,6 @@ public sealed class DateTimeAxis : Axis
     }
 
     public static double ToDouble(DateTime value) => (value - _timeOrigin).TotalDays + 1;
-
-    public override void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
-    {
-        minorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMinorStep, _actualMinorIntervalType);
-        majorTickValues = CreateDateTimeTickValues(ActualMinimum, ActualMaximum, ActualMajorStep, _actualIntervalType);
-        majorLabelValues = majorTickValues;
-    }
-
-    internal override void UpdateIntervals(OxyRect plotArea)
-    {
-        base.UpdateIntervals(plotArea);
-        switch (_actualIntervalType)
-        {
-            case DateTimeIntervalType.Years:
-                ActualMinorStep = 31;
-                _actualMinorIntervalType = DateTimeIntervalType.Years;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "yyyy";
-                }
-                break;
-            case DateTimeIntervalType.Months:
-                _actualMinorIntervalType = DateTimeIntervalType.Months;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "yyyy-MM-dd";
-                }
-                break;
-            case DateTimeIntervalType.Weeks:
-                _actualMinorIntervalType = DateTimeIntervalType.Days;
-                ActualMajorStep = 7;
-                ActualMinorStep = 1;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "yyyy/ww";
-                }
-                break;
-            case DateTimeIntervalType.Days:
-                ActualMinorStep = ActualMajorStep;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "yyyy-MM-dd";
-                }
-                break;
-            case DateTimeIntervalType.Hours:
-                ActualMinorStep = ActualMajorStep;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "HH:mm";
-                }
-                break;
-            case DateTimeIntervalType.Minutes:
-                ActualMinorStep = ActualMajorStep;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "HH:mm";
-                }
-                break;
-            case DateTimeIntervalType.Seconds:
-                ActualMinorStep = ActualMajorStep;
-                if (StringFormat == null)
-                {
-                    ActualStringFormat = "HH:mm:ss";
-                }
-                break;
-            case DateTimeIntervalType.Milliseconds:
-                ActualMinorStep = ActualMajorStep;
-                ActualStringFormat ??= "HH:mm:ss.fff";
-                break;
-            case DateTimeIntervalType.Manual:
-                break;
-            case DateTimeIntervalType.Auto:
-                break;
-        }
-    }
 
     public override string ToLabel(double x)
     {
@@ -248,95 +178,102 @@ public sealed class DateTimeAxis : Axis
         return interval;
     }
 
-    private IList<double> CreateDateTickValues(double min, double max, double step, DateTimeIntervalType intervalType)
-    {
-        var values = new List<double>();
-        var start = ToDateTime(min);
-        if (start.Ticks == 0)
-        {
-            // Invalid start time
-            return values;
-        }
-
-        switch (intervalType)
-        {
-            case DateTimeIntervalType.Weeks:
-
-                // make sure the first tick is at the 1st day of a week
-                start = start.AddDays(-(int)start.DayOfWeek + (int)FirstDayOfWeek);
-                break;
-            case DateTimeIntervalType.Months:
-
-                // make sure the first tick is at the 1st of a month
-                start = new DateTime(start.Year, start.Month, 1);
-                break;
-            case DateTimeIntervalType.Years:
-
-                // make sure the first tick is at Jan 1st
-                start = new DateTime(start.Year, 1, 1);
-                break;
-        }
-
-        // Adds a tick to the end time to make sure the end DateTime is included.
-        var end = ToDateTime(max).AddTicks(1);
-        if (end.Ticks == 0)
-        {
-            // Invalid end time
-            return values;
-        }
-
-        var current = start;
-        double eps = step * 1e-3;
-        var minDateTime = ToDateTime(min - eps);
-        var maxDateTime = ToDateTime(max + eps);
-
-        if (minDateTime.Ticks == 0 || maxDateTime.Ticks == 0)
-        {
-            // Invalid min/max time
-            return values;
-        }
-
-        while (current < end)
-        {
-            if (current > minDateTime && current < maxDateTime)
-            {
-                values.Add(ToDouble(current));
-            }
-
-            try
-            {
-                current = intervalType switch
-                {
-                    DateTimeIntervalType.Months => current.AddMonths((int)Math.Ceiling(step)),
-                    DateTimeIntervalType.Years => current.AddYears((int)Math.Ceiling(step)),
-                    _ => current.AddDays(step),
-                };
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // AddMonths/AddYears/AddDays can throw an exception
-                // We could test this by comparing to MaxDayValue/MinDayValue, but it is easier to catch the exception...
-                break;
-            }
-        }
-
-        return values;
-    }
-
-    private IList<double> CreateDateTimeTickValues(double min, double max, double interval, DateTimeIntervalType intervalType)
-    {
-        // If the step size is more than 7 days (e.g. months or years) we use a specialized tick generation method that adds tick values with uneven spacing...
-        if (intervalType > DateTimeIntervalType.Days)
-        {
-            return CreateDateTickValues(min, max, interval, intervalType);
-        }
-
-        // For shorter step sizes we use the method from Axis
-        return CreateTickValues(min, max, interval);
-    }
-
     private int GetWeek(DateTime date)
     {
         return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(date, CalendarWeekRule, FirstDayOfWeek);
+    }
+
+    public void UpdateAll(PlotModel plot)
+    {
+        UpdateTransform(plot.PlotArea);
+
+        UpdateIntervals(plot.PlotArea);
+
+        UpdateRenderInfo(plot);
+    }
+
+    private void UpdateTransform(OxyRect bounds)
+    {
+        ScreenMin = new ScreenPoint(bounds.Left, bounds.Top);
+        ScreenMax = new ScreenPoint(bounds.Right, bounds.Bottom);
+
+        ScreenMin = new ScreenPoint(bounds.Left, bounds.Right);
+        ScreenMax = new ScreenPoint(bounds.Right, bounds.Left);
+
+        if (ActualMaximum - ActualMinimum < double.Epsilon)
+        {
+            ActualMaximum = ActualMinimum + 1;
+        }
+
+        double da = bounds.Left - bounds.Right;
+        double range = ActualMaximum - ActualMinimum;
+
+        if (Math.Abs(da) > double.Epsilon)
+        {
+            _offset = (bounds.Left / da * ActualMaximum) - (bounds.Right / da * ActualMinimum);
+        }
+        else
+        {
+            _offset = 0;
+        }
+
+        if (Math.Abs(range) > double.Epsilon)
+        {
+            _scale = (bounds.Right - bounds.Left) / range;
+        }
+        else
+        {
+            _scale = 1;
+        }
+    }
+
+    private void UpdateIntervals(OxyRect plotArea)
+    {
+        var actualMajorStep = MajorStep ?? CalculateActualInterval(plotArea.Width, IntervalLength);
+        var actualMinorStep = MinorStep ?? CalculateMinorInterval(actualMajorStep);
+
+        ActualMinorStep = Math.Max(actualMinorStep, MinimumMinorStep);
+        ActualMajorStep = Math.Max(actualMajorStep, MinimumMajorStep);
+
+        ActualStringFormat = StringFormat;
+
+        ActualMinorStep = _actualIntervalType switch
+        {
+            DateTimeIntervalType.Years => 31,
+            DateTimeIntervalType.Weeks => 1,
+            DateTimeIntervalType.Days => ActualMajorStep,
+            DateTimeIntervalType.Hours => ActualMajorStep,
+            DateTimeIntervalType.Minutes => ActualMajorStep,
+            DateTimeIntervalType.Seconds => ActualMajorStep,
+            DateTimeIntervalType.Milliseconds => ActualMajorStep,
+            _ => ActualMinorStep
+        };
+
+        ActualMajorStep = _actualIntervalType switch
+        {
+            DateTimeIntervalType.Weeks => 7,
+            _ => ActualMajorStep
+        };
+
+        _actualMinorIntervalType = _actualIntervalType switch
+        {
+            DateTimeIntervalType.Years => DateTimeIntervalType.Years,
+            DateTimeIntervalType.Months => DateTimeIntervalType.Months,
+            DateTimeIntervalType.Weeks => DateTimeIntervalType.Days,
+            _ => _actualMinorIntervalType
+        };
+
+        ActualStringFormat = _actualIntervalType switch
+        {
+            DateTimeIntervalType.Years => "yyyy",
+            DateTimeIntervalType.Months => "yyyy-MM-dd",
+            DateTimeIntervalType.Weeks => "yyyy/ww",
+            DateTimeIntervalType.Days => "yyyy-MM-dd",
+            DateTimeIntervalType.Hours => "HH:mm",
+            DateTimeIntervalType.Minutes => "HH:mm",
+            DateTimeIntervalType.Seconds => "HH:mm:ss",
+            DateTimeIntervalType.Milliseconds => "HH:mm:ss.fff",
+            _ => throw new Exception()
+        };
     }
 }

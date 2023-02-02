@@ -6,15 +6,11 @@ public sealed class PlotModel : Model, IPlotModel
 {
     // The plot view that renders this plot.    
     private WeakReference? _plotViewReference;
-    // Flags if the data has been updated.  
-    private bool _isDataUpdated;
     private DateTimeAxis? _axisX;
     private CategoryAxis? _axisY;
+    private List<Series> _series = new();
 
-    public PlotModel()
-    {
-        Series = new List<Series>();
-    }
+    public PlotModel() { }
 
     public IPlotView? PlotView => (_plotViewReference != null) ? (IPlotView?)_plotViewReference.Target : null;
 
@@ -22,13 +18,7 @@ public sealed class PlotModel : Model, IPlotModel
 
     public DateTimeAxis AxisX => _axisX!;
 
-    public List<Series> Series { get; private set; }
-
-    // Gets the total width of the plot (in device units).       
-    public double Width { get; private set; }
-
-    // Gets the total height of the plot (in device units).      
-    public double Height { get; private set; }
+    public IReadOnlyCollection<Series> Series => _series;
 
     // Gets the plot area. This area is used to draw the series (not including axes or legends).
     public OxyRect PlotArea { get; private set; }
@@ -58,7 +48,7 @@ public sealed class PlotModel : Model, IPlotModel
     {
         double mindist = double.MaxValue;
         Series? nearestSeries = null;
-        foreach (var series in Series.Reverse<Series>().Where(s => s.IsVisible))
+        foreach (var series in _series.Reverse<Series>().Where(s => s.IsVisible))
         {
             var thr = series.GetNearestPoint(point, true) ?? series.GetNearestPoint(point, false);
 
@@ -84,59 +74,47 @@ public sealed class PlotModel : Model, IPlotModel
         return null;
     }
 
-    public void AddAxisX(DateTimeAxis axis) => _axisX = axis;
-
-    public void AddAxisY(CategoryAxis axis) => _axisY = axis;
-
-    /// <summary>
-    /// Updates all axes and series.
-    /// 0. Updates the owner PlotModel of all plot items (axes, series and annotations)
-    /// 1. Updates the data of each Series (only if updateData==<c>true</c>).
-    /// 2. Ensure that all series have axes assigned.
-    /// 3. Updates the max and min of the axes.
-    /// </summary>
-    /// <param name="updateData">if set to <c>true</c> , all data collections will be updated.</param>
-    public void Update(bool updateData)
+    public void AddAxisX(DateTimeAxis axis)
     {
-        lock (SyncRoot)
+        _axisX = axis;
+
+        if (_axisY != null && _series.Count != 0)
         {
-            try
-            {
-                var visibleSeries = Series.Where(s => s.IsVisible).ToArray();
-
-                // Updates axes with information from the series
-                // This is used by the category axis that need to know the number of series using the axis.
-                AxisX.UpdateFromSeries(visibleSeries);
-                AxisX.ResetCurrentValues();
-
-                AxisY.UpdateFromSeries(visibleSeries);
-                AxisY.ResetCurrentValues();
-
-                // Update the max and min of the axes
-                UpdateMaxMin(updateData);
-            }
-            catch (Exception)
-            {
-                throw new Exception();
-            }
+            DataChanged();
         }
     }
 
-    private void UpdateMaxMin(bool isDataUpdated)
+    public void AddAxisY(CategoryAxis axis)
     {
-        if (isDataUpdated)
+        _axisY = axis;
+
+        if (_axisX != null && _series.Count != 0)
         {
-            AxisX.ResetDataMaxMin();
-            AxisY.ResetDataMaxMin();
-
-            // data has been updated, so we need to calculate the max/min of the series again
-            foreach (var s in Series.Where(s => s.IsVisible))
-            {
-                s.UpdateMaxMin();
-            }
+            DataChanged();
         }
+    }
 
-        foreach (var s in Series.Where(s => s.IsVisible))
+    public void AddSeries(IEnumerable<Series> series)
+    {
+        _series = new(series);
+
+        if (_axisX != null && _axisY != null)
+        {
+            DataChanged();
+        }
+    }
+
+    private void DataChanged()
+    {
+        var visibleSeries = _series.Where(s => s.IsVisible).ToArray();
+
+        AxisX.UpdateFromSeries(_series.ToArray());
+        AxisY.UpdateFromSeries(visibleSeries);
+
+        AxisX.ResetDataMaxMin();
+        AxisY.ResetDataMaxMin();
+
+        foreach (var s in visibleSeries)
         {
             s.UpdateAxisMaxMin();
         }
@@ -146,49 +124,23 @@ public sealed class PlotModel : Model, IPlotModel
     }
 
     // Renders the plot with the specified rendering context.
-    void IPlotModel.Render(double width, double height)
-    {
-        RenderOverride(width, height);
-    }
-
-    // Renders the plot with the specified rendering context.
-    private void RenderOverride(double width, double height)
+    public void UpdateRenderInfo(double width, double height)
     {
         lock (SyncRoot)
         {
             try
             {
-                Width = width;
-                Height = height;
+                PlotArea = new OxyRect(0, 0, width, height);
 
-                PlotArea = new OxyRect(0, 0, Width, Height);
+                AxisX.UpdateAll(this);
+                AxisY.UpdateAll(this);
 
-                AxisX.UpdateTransform(PlotArea);
-                AxisY.UpdateTransform(PlotArea);
-
-                AxisX.UpdateIntervals(PlotArea);
-                AxisY.UpdateIntervals(PlotArea);
-
-                AxisX.ResetCurrentValues();
-                AxisY.ResetCurrentValues();
-
-                RenderSeries();
-
-                AxisX.MyOnRender(this);
-                AxisY.MyOnRender(this);
+                _series.ForEach(s => s.UpdateRenderInfo());
             }
             catch (Exception)
             {
                 throw new Exception();
             }
-        }
-    }
-
-    private void RenderSeries()
-    {
-        foreach (var s in Series.Where(s => s.IsVisible))
-        {
-            s.Render();
         }
     }
 }

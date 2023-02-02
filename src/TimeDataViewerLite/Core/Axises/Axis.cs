@@ -4,8 +4,8 @@ namespace TimeDataViewerLite.Core;
 
 public abstract partial class Axis
 {
-    private double _offset;
-    private double _scale;
+    protected double _offset;
+    protected double _scale;
     // Gets or sets the absolute maximum. This is only used for the UI control.
     // It will not be possible to zoom/pan beyond this limit. The default value is <c>double.MaxValue</c>.    
     private double _absoluteMaximum = double.MaxValue;
@@ -14,26 +14,26 @@ public abstract partial class Axis
     private double _absoluteMinimum = double.MinValue;
 
     // Gets or sets the current view's maximum. This value is used when the user zooms or pans.
-    protected double _viewMaximum = double.NaN;
+    protected double? _viewMaximum;
 
     // Gets or sets the current view's minimum. This value is used when the user zooms or pans.
-    protected double _viewMinimum = double.NaN;
+    protected double? _viewMinimum;
 
-    // Gets or sets the minimum value of the axis. The default value is <c>double.NaN</c>.  
-    public double Minimum { get; set; } = double.NaN;
+    // Gets or sets the minimum value of the axis.
+    public double? Minimum { get; set; }
 
-    // Gets or sets the maximum value of the axis. The default value is <c>double.NaN</c>.                                                         
-    public double Maximum { get; set; } = double.NaN;
+    // Gets or sets the maximum value of the axis.                                                        
+    public double? Maximum { get; set; }
 
-    public double ActualMajorStep { get; protected set; }
+    public double? ActualMinorStep { get; protected set; } = null;
+
+    public double? ActualMajorStep { get; protected set; } = null;
 
     // Gets or sets the actual maximum value of the axis.
-    public double ActualMaximum { get; protected set; }
+    public double ActualMaximum { get; protected set; } = 100;
 
     // Gets or sets the actual minimum value of the axis.
-    public double ActualMinimum { get; protected set; }
-
-    public double ActualMinorStep { get; protected set; }
+    public double ActualMinimum { get; protected set; } = 0;
 
     public string? ActualStringFormat { get; protected set; }
 
@@ -43,17 +43,11 @@ public abstract partial class Axis
     // Gets or sets the distance between the plot area and the axis. The default value is <c>0</c>.
     public double AxisDistance { get; set; } = 0;
 
-    // Gets or sets a value indicating whether to crop gridlines with perpendicular axes Start/EndPositions. The default value is <c>false</c>.
-    public bool CropGridlines { get; set; }
-
     // Gets or sets the maximum value of the data displayed on this axis.
-    public double DataMaximum { get; protected set; } = double.NaN;
+    public double? DataMaximum { get; protected set; }
 
     // Gets or sets the minimum value of the data displayed on this axis.
-    public double DataMinimum { get; protected set; } = double.NaN;
-
-    // Gets or sets the values for the extra gridlines. The default value is <c>null</c>.
-    public double[] ExtraGridlines { get; set; } = Array.Empty<double>();
+    public double? DataMinimum { get; protected set; }
 
     // Gets or sets the maximum length (screen space) of the intervals. The available length of the axis will be divided by this length to get the approximate number of major intervals on the axis. The default value is <c>60</c>.
     public double IntervalLength { get; set; } = 60;
@@ -64,7 +58,10 @@ public abstract partial class Axis
 
     public bool IsZoomEnabled { get; set; } = true;
 
-    public double MajorStep { get; set; } = double.NaN;
+    // Gets or sets the interval between minor ticks. The default value is <c>double.NaN</c>.
+    public double? MinorStep { get; set; } = null;
+
+    public double? MajorStep { get; set; } = null;
 
     public double MajorTickSize { get; set; } = 7;
 
@@ -79,9 +76,6 @@ public abstract partial class Axis
 
     // Gets or sets the minimum range of the axis. Setting this property ensures that <c>ActualMaximum-ActualMinimum > MinimumRange</c>. The default value is <c>0</c>.
     public double MinimumRange { get; set; } = 0;
-
-    // Gets or sets the interval between minor ticks. The default value is <c>double.NaN</c>.
-    public double MinorStep { get; set; } = double.NaN;
 
     // Gets or sets the size of the minor ticks. The default value is <c>4</c>.
     public double MinorTickSize { get; set; } = 4;
@@ -109,15 +103,11 @@ public abstract partial class Axis
         _absoluteMaximum = max;
     }
 
+    public abstract void UpdateRenderInfo(PlotModel plot);
+
     public abstract string ToLabel(double x);
 
-    // Gets the coordinates used to draw ticks and tick labels (numbers or category names).
-    public virtual void GetTickValues(out IList<double> majorLabelValues, out IList<double> majorTickValues, out IList<double> minorTickValues)
-    {
-        minorTickValues = CreateTickValues(ActualMinimum, ActualMaximum, ActualMinorStep);
-        majorTickValues = CreateTickValues(ActualMinimum, ActualMaximum, ActualMajorStep);
-        majorLabelValues = majorTickValues;
-    }
+    internal abstract void UpdateFromSeries(Series[] series);
 
     /// <summary>
     /// Inverse transform the specified screen point.
@@ -223,7 +213,8 @@ public abstract partial class Axis
         double dx = (_offset - mid) * _scale;
         var newOffset = (dx / (sgn * newScale)) + mid;
 
-        SetTransform(sgn * newScale, newOffset);
+        _scale = sgn * newScale;
+        _offset = newOffset;
 
         double newMaximum = InverseTransform(sx1);
         double newMinimum = InverseTransform(sx0);
@@ -327,13 +318,14 @@ public abstract partial class Axis
     // Modifies the data range of the axis [DataMinimum,DataMaximum] to includes the specified value.
     public virtual void Include(double value)
     {
-        DataMinimum = double.IsNaN(DataMinimum) ? value : Math.Min(DataMinimum, value);
-        DataMaximum = double.IsNaN(DataMaximum) ? value : Math.Max(DataMaximum, value);
+        DataMinimum = Math.Min(DataMinimum ?? double.MaxValue, value);
+        DataMaximum = Math.Max(DataMaximum ?? double.MinValue, value);
     }
 
     internal virtual void ResetDataMaxMin()
     {
-        DataMaximum = DataMinimum = ActualMaximum = ActualMinimum = double.NaN;
+        DataMaximum = null;
+        DataMinimum = null;
     }
 
     /// <summary>
@@ -344,157 +336,33 @@ public abstract partial class Axis
     /// of the series will be used, including the 'padding'.</remarks>
     internal virtual void UpdateActualMaxMin()
     {
-        if (double.IsNaN(_viewMaximum) == false)
+        if (_viewMaximum != null)
         {
             // The user has zoomed/panned the axis, use the ViewMaximum value.
-            ActualMaximum = _viewMaximum;
+            ActualMaximum = (double)_viewMaximum;
         }
-        else if (double.IsNaN(Maximum) == false)
+        else if (Maximum != null)
         {
             // The Maximum value has been set
-            ActualMaximum = Maximum;
+            ActualMaximum = (double)Maximum;
         }
         else
         {
             // Calculate the actual maximum, including padding
-            ActualMaximum = DataMaximum;
+            ActualMaximum = DataMaximum ?? 100;
         }
 
-        if (double.IsNaN(_viewMinimum) == false)
+        if (_viewMinimum != null)
         {
-            ActualMinimum = _viewMinimum;
+            ActualMinimum = (double)_viewMinimum;
         }
-        else if (double.IsNaN(Minimum) == false)
+        else if (Minimum != null)
         {
-            ActualMinimum = Minimum;
-        }
-        else
-        {
-            ActualMinimum = DataMinimum;
-        }
-
-        CoerceActualMaxMin();
-    }
-
-    /// <summary>
-    /// Updates the axis with information from the plot series.
-    /// </summary>
-    /// <param name="series">The series collection.</param>
-    /// <remarks>This is used by the category axis that need to know the number of series using the axis.</remarks>
-    internal virtual void UpdateFromSeries(Series[] series) { }
-
-    /// <summary>
-    /// Updates the actual minor and major step intervals.
-    /// </summary>
-    /// <param name="plotArea">The plot area rectangle.</param>
-    internal virtual void UpdateIntervals(OxyRect plotArea)
-    {
-        double labelSize = IntervalLength;
-        double length = IsHorizontal() ? plotArea.Width : plotArea.Height;
-
-        ActualMajorStep = !double.IsNaN(MajorStep)
-                                   ? MajorStep
-                                   : CalculateActualInterval(length, labelSize);
-
-        ActualMinorStep = !double.IsNaN(MinorStep)
-                                   ? MinorStep
-                                   : CalculateMinorInterval(ActualMajorStep);
-
-        if (double.IsNaN(ActualMinorStep))
-        {
-            ActualMinorStep = 2;
-        }
-
-        if (double.IsNaN(ActualMajorStep))
-        {
-            ActualMajorStep = 10;
-        }
-
-        ActualMinorStep = Math.Max(ActualMinorStep, MinimumMinorStep);
-        ActualMajorStep = Math.Max(ActualMajorStep, MinimumMajorStep);
-
-        ActualStringFormat = StringFormat;
-    }
-
-    // Updates the scale and offset properties of the transform from the specified boundary rectangle.
-    internal virtual void UpdateTransform(OxyRect bounds)
-    {
-        double x0 = bounds.Left;
-        double x1 = bounds.Right;
-        double y0 = bounds.Bottom;
-        double y1 = bounds.Top;
-
-        ScreenMin = new ScreenPoint(x0, y1);
-        ScreenMax = new ScreenPoint(x1, y0);
-
-        double a0 = IsHorizontal() ? x0 : y0;
-        double a1 = IsHorizontal() ? x1 : y1;
-
-        ScreenMin = new ScreenPoint(a0, a1);
-        ScreenMax = new ScreenPoint(a1, a0);
-
-        if (ActualMaximum - ActualMinimum < double.Epsilon)
-        {
-            ActualMaximum = ActualMinimum + 1;
-        }
-
-        double max = ActualMaximum;
-        double min = ActualMinimum;
-
-        double da = a0 - a1;
-        double newOffset, newScale;
-        if (Math.Abs(da) > double.Epsilon)
-        {
-            newOffset = (a0 / da * max) - (a1 / da * min);
+            ActualMinimum = (double)Minimum;
         }
         else
         {
-            newOffset = 0;
-        }
-
-        double range = max - min;
-        if (Math.Abs(range) > double.Epsilon)
-        {
-            newScale = (a1 - a0) / range;
-        }
-        else
-        {
-            newScale = 1;
-        }
-
-        SetTransform(newScale, newOffset);
-    }
-
-    /// <summary>
-    /// Resets the current values.
-    /// </summary>
-    /// <remarks>The current values may be modified during update of max/min and rendering.</remarks>
-    protected internal virtual void ResetCurrentValues() { }
-
-    protected virtual double CalculateMinorInterval(double majorInterval)
-    {
-        return AxisUtilities.CalculateMinorInterval(majorInterval);
-    }
-
-    // Creates tick values at the specified interval.
-    protected virtual IList<double> CreateTickValues(double from, double to, double step, int maxTicks = 1000)
-    {
-        return AxisUtilities.CreateTickValues(from, to, step, maxTicks);
-    }
-
-    // Coerces the actual maximum and minimum values.
-    protected virtual void CoerceActualMaxMin()
-    {
-        // Coerce actual minimum
-        if (double.IsNaN(ActualMinimum) || double.IsInfinity(ActualMinimum))
-        {
-            ActualMinimum = 0;
-        }
-
-        // Coerce actual maximum
-        if (double.IsNaN(ActualMaximum) || double.IsInfinity(ActualMaximum))
-        {
-            ActualMaximum = 100;
+            ActualMinimum = DataMinimum ?? 0;
         }
 
         if (_absoluteMaximum - _absoluteMinimum < MinimumRange)
@@ -596,17 +464,16 @@ public abstract partial class Axis
         ActualMaximum = ToRange(ActualMaximum, _absoluteMinimum, _absoluteMaximum);
     }
 
+    protected virtual double CalculateMinorInterval(double majorInterval)
+    {
+        return AxisUtilities.CalculateMinorInterval(majorInterval);
+    }
+
     private static double ToRange(double value, double min, double max)
     {
         var res = Math.Max(value, Math.Min(min, max));
 
         return Math.Min(res, Math.Max(min, max));
-    }
-
-    protected void SetTransform(double newScale, double newOffset)
-    {
-        _scale = newScale;
-        _offset = newOffset;
     }
 
     /// <summary>

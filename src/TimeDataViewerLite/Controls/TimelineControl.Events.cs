@@ -134,7 +134,7 @@ public partial class TimelineControl
 
         _yAxis?.ZoomAt(scale, current.Y);
 
-        InvalidatePlot(false);
+        InvalidatePlot();
     }
 
     private void _panel_PointerPressed(object? sender, PointerPressedEventArgs e)
@@ -195,7 +195,7 @@ public partial class TimelineControl
             {
                 series.SelectIndex((int)result.Index);
 
-                InvalidatePlot(false);
+                InvalidatePlot();
 
                 OnSelectedInterval(result);
             }
@@ -332,7 +332,7 @@ public partial class TimelineControl
         _xAxis?.Pan(_previousPosition, position);
         _yAxis?.Pan(_previousPosition, position);
 
-        InvalidatePlot(false);
+        InvalidatePlot();
 
         _previousPosition = position;
     }

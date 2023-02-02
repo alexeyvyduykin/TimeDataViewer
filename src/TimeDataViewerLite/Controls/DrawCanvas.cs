@@ -63,13 +63,16 @@ public class DrawCanvas : Canvas
         {
             var list = new List<(Rect, bool)>();
 
-            foreach (var (rect, isSelected) in s.Rectangles)
+            if (s.Rectangles != null)
             {
-                var res = CreateClippedRectangle(s.MyClippingRect, ToRect(rect));
-
-                if (res != null)
+                foreach (var (rect, isSelected) in s.Rectangles)
                 {
-                    list.Add(((Rect, bool))(res, isSelected));
+                    var res = CreateClippedRectangle(s.ClippingRect, ToRect(rect));
+
+                    if (res != null)
+                    {
+                        list.Add(((Rect, bool))(res, isSelected));
+                    }
                 }
             }
 
