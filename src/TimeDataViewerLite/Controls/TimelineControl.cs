@@ -173,7 +173,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         if (_plotModel != null && _taskList != null)
         {
-            var height = availableSize.Height - 30;
+            var height = availableSize.Height - 30 - 1;
 
             var count = _plotModel.AxisY.SourceLabels.Count;
 

@@ -194,11 +194,18 @@ public sealed class CategoryAxis : Axis
     // Updates the scale and offset properties of the transform from the specified boundary rectangle.
     private void UpdateTransform(OxyRect bounds)
     {
-        ScreenMin = new ScreenPoint(bounds.Left, bounds.Top);
-        ScreenMax = new ScreenPoint(bounds.Right, bounds.Bottom);
+        var endPosition = 0;
+        var startPosition = 1;
 
-        ScreenMin = new ScreenPoint(bounds.Bottom, bounds.Top);
-        ScreenMax = new ScreenPoint(bounds.Top, bounds.Bottom);
+        double a0 = bounds.Bottom;
+        double a1 = bounds.Top;
+
+        double dx = a1 - a0;
+        a1 = a0 + (endPosition * dx);
+        a0 = a0 + (startPosition * dx);
+
+        ScreenMin = new ScreenPoint(a0, a1);
+        ScreenMax = new ScreenPoint(a1, a0);
 
         if (ActualMaximum - ActualMinimum < double.Epsilon)
         {
@@ -208,12 +215,12 @@ public sealed class CategoryAxis : Axis
         double max = ActualMaximum;
         double min = ActualMinimum;
 
-        double da = bounds.Bottom - bounds.Top;
+        double da = a0 - a1;
         double range = max - min;
 
         if (Math.Abs(da) > double.Epsilon)
         {
-            _offset = (bounds.Bottom / da * max) - (bounds.Top / da * min);
+            _offset = (a0 / da * max) - (a1 / da * min);
         }
         else
         {
@@ -222,7 +229,7 @@ public sealed class CategoryAxis : Axis
 
         if (Math.Abs(range) > double.Epsilon)
         {
-            _scale = (bounds.Top - bounds.Bottom) / range;
+            _scale = (a1 - a0) / range;
         }
         else
         {
