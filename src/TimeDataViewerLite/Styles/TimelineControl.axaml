@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:TimeDataViewerLite.Controls">
     <Design.PreviewWith>
-        <Border Padding="20">
+        <Border Padding="20" Width="300" Height="280">
             <!-- Add Controls for Previewer Here -->
             <controls:TimelineControl/>
         </Border>
@@ -37,9 +37,30 @@
         <DataTemplate x:Key="TrackerContentTemplate">
             <TextBlock Text="{Binding Text}" Margin="7" />
         </DataTemplate>
+
+        <DataTemplate x:Key="TaskContentTemplate"
+                      DataType="{x:Type controls:TaskListItem}">
+            <Panel Height="{Binding Height}">
+                <Border Background="Yellow"
+                        Opacity="0.1"/>
+                <Border BorderBrush="Red"
+                        BorderThickness="1"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Text}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding Height}"/>
+                </StackPanel>
+            </Panel>
+        </DataTemplate>
+
     </Styles.Resources>
 
     <!-- Add Styles Here -->
+
+    <Style Selector="ListBoxItem">
+        <Setter Property="Padding" Value="0"/>
+    </Style>
 
     <Style Selector="controls|TrackerControl">
         <Setter Property="Distance" Value="8" />
@@ -83,31 +104,42 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border Background="{TemplateBinding Background}"
+                    <Grid ColumnDefinitions="100,*">
+
+                        <Grid RowDefinitions="30,*">
+                            <ListBox Name="PART_TaskList"
+                                     Grid.Row="1"
+                                     ItemTemplate="{StaticResource TaskContentTemplate}">
+                            </ListBox>
+                        </Grid>
+
+                        <Border Grid.Column="1"
+                            Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        <Grid RowDefinitions="30,*">
-                            <Panel Name="PART_AxisXPanel">
-                                <Canvas Name="PART_AxisXCanvas"
-                                        Background="Transparent"/>
-                            </Panel>
-                            <Panel Grid.Row="1" Name="PART_BasePanel">
-                                <Canvas Name="PART_BackCanvas"
-                                        Background="Transparent"/>
-                                <controls:DrawCanvas Name="PART_DrawCanvas"
-                                                     Background="Transparent"/>
-                                <Canvas Name="PART_FrontCanvas"
-                                        Background="Transparent"/>
-                                <Canvas Name="PART_OverlayCanvas">
-                                    <ContentControl Name="PART_ZoomControl"
-                                                    Template="{StaticResource ZoomTemplate}"/>
-                                    <controls:TrackerControl Name="PART_Tracker"
-                                                             ContentTemplate="{TemplateBinding TrackerTemplate}"
-                                                             IsVisible="False"/>
-                                </Canvas>
-                            </Panel>
-                        </Grid>
-                    </Border>
+                            <Grid RowDefinitions="30,*">
+                                <Panel Name="PART_AxisXPanel">
+                                    <Canvas Name="PART_AxisXCanvas"
+                                            Background="Transparent"/>
+                                </Panel>
+                                <Panel Grid.Row="1" Name="PART_BasePanel">
+                                    <Canvas Name="PART_BackCanvas"
+                                            Background="Transparent"/>
+                                    <controls:DrawCanvas Name="PART_DrawCanvas"
+                                                         Background="Transparent"/>
+                                    <Canvas Name="PART_FrontCanvas"
+                                            Background="Transparent"/>
+                                    <Canvas Name="PART_OverlayCanvas">
+                                        <ContentControl Name="PART_ZoomControl"
+                                                        Template="{StaticResource ZoomTemplate}"/>
+                                        <controls:TrackerControl Name="PART_Tracker"
+                                                                 ContentTemplate="{TemplateBinding TrackerTemplate}"
+                                                                 IsVisible="False"/>
+                                    </Canvas>
+                                </Panel>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

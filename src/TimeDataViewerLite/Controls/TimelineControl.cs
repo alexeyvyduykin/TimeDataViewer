@@ -21,6 +21,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_AxisXCanvas = "PART_AxisXCanvas";
     private const string PART_ZoomControl = "PART_ZoomControl";
     private const string PART_Tracker = "PART_Tracker";
+    private const string PART_TaskList = "PART_TaskList";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
     private ContentControl? _zoomControl;
@@ -28,6 +29,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private PlotModel? _plotModel;
+    private ListBox? _taskList;
 
     public TimelineControl()
     {
@@ -35,8 +37,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     }
 
     public PlotModel? ActualModel => _plotModel;
-
-    //public IController? ActualController { get; }
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
@@ -105,6 +105,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _zoomControl = e.NameScope.Find<ContentControl>(PART_ZoomControl);
 
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
+
+        _taskList = e.NameScope.Find<ListBox>(PART_TaskList);
     }
 
     public void SetCursorType(CursorType cursorType)
@@ -165,6 +167,58 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         {
             InvalidatePlot();
         }
+    }
+
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        if (_plotModel != null && _taskList != null)
+        {
+            var height = availableSize.Height - 30;
+
+            var count = _plotModel.AxisY.SourceLabels.Count;
+
+            var arr = GetDividers((int)height, count).ToArray();
+
+            int i = 0;
+
+            foreach (var item in _taskList.Items)
+            {
+                if (item is TaskListItem task)
+                {
+                    task.Height = arr[i++];
+                }
+            }
+        }
+
+        return availableSize;
+    }
+
+    private static IEnumerable<int> GetDividers(int totalLength, int dividersCount)
+    {
+        if (dividersCount > totalLength)
+        {
+            throw new ArgumentOutOfRangeException();
+        }
+
+        if (dividersCount <= 0)
+        {
+            yield break;
+        }
+
+        var partitionLength = totalLength / (dividersCount);
+        var partitionTotalError = totalLength % (dividersCount);
+        var counter = partitionLength;
+
+        int currentStep = 0;
+
+        while (counter < totalLength)
+        {
+            currentStep = partitionLength + (partitionTotalError-- > 0 ? 1 : 0);
+            counter += currentStep;
+            yield return currentStep;
+        }
+
+        yield return currentStep;
     }
 
     // Gets the relevant parent.

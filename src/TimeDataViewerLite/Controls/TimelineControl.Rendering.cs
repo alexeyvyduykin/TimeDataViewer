@@ -17,6 +17,7 @@ public partial class TimelineControl
     private DrawCanvas? _drawCanvas;
     private Canvas? _frontCanvas;
     private Canvas? _axisXCanvas;
+    private bool _first = true;
 
     public void Draw()
     {
@@ -25,12 +26,18 @@ public partial class TimelineControl
             return;
         }
 
+        if (_first == true && _taskList != null && _plotModel != null)
+        {
+            _taskList.Items = _plotModel.AxisY.SourceLabels.Select(s => new TaskListItem() { Text = s }).ToList();
+            _first = false;
+        }
+
         // Clear the canvas
         _backCanvas.Children.Clear();
         _axisXCanvas.Children.Clear();
         _frontCanvas.Children.Clear();
 
-        ActualModel?.Render(_backCanvas.Bounds.Width, _backCanvas.Bounds.Height);
+        ActualModel?.UpdateRenderInfo(_backCanvas.Bounds.Width, _backCanvas.Bounds.Height);
 
         _drawCanvas.RenderSeries(ActualModel, SeriesBrushes);
 

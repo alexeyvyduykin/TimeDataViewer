@@ -2,8 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:FootprintViewerLiteSample.ViewModels" 
-             xmlns:controls="clr-namespace:TimeDataViewerLite.Controls;assembly=TimeDataViewerLite"        
+             xmlns:vm="using:FootprintViewerLiteSample.ViewModels"
+             xmlns:cs="using:FootprintViewerLiteSample.Controls"
+             xmlns:controls="clr-namespace:TimeDataViewerLite.Controls;assembly=TimeDataViewerLite"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FootprintViewerLiteSample.Views.MainView">
 
@@ -11,25 +12,23 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="100,*">
+    <UserControl.Styles>
 
-        <ItemsControl Items="{Binding Labels}">
-            
-        </ItemsControl>
+    </UserControl.Styles>
 
-        <TabControl Grid.Column="1" 
-                    Margin="4">
+    <Grid>
+        <TabControl Margin="4">
             <TabItem Header="Header1">
-                <controls:TimelineControl Grid.Row="3"
-                                      Margin="8"
-                                      DataContext="{Binding PlotModel}"
-                                      SeriesBrushes="{Binding $parent[TopLevel].DataContext.SeriesBrushes}"
-                                      Begin="{Binding $parent[TopLevel].DataContext.Begin}"
-                                      Duration="{Binding $parent[TopLevel].DataContext.Duration}">
-                </controls:TimelineControl>
+                <Grid>
+                    <controls:TimelineControl x:Name="TimelineControl"
+                                              Margin="8"
+                                              DataContext="{Binding PlotModel}"
+                                              SeriesBrushes="{Binding $parent[TopLevel].DataContext.SeriesBrushes}"
+                                              Begin="{Binding $parent[TopLevel].DataContext.Begin}"
+                                              Duration="{Binding $parent[TopLevel].DataContext.Duration}"/>
+                </Grid>
             </TabItem>
         </TabControl>
-    
     </Grid>
 
 </UserControl>

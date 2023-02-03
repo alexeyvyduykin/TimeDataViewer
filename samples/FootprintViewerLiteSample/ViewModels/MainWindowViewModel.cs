@@ -19,7 +19,7 @@ public class MainWindowViewModel : ViewModelBase
     private readonly SourceList<Interval> _windows = new();
     private readonly ReadOnlyObservableCollection<Interval> _windowItems;
     private readonly SourceList<string> _labels = new();
-    private readonly ReadOnlyObservableCollection<string> _labelItems;
+    private readonly ReadOnlyObservableCollection<ItemViewModel> _labelItems;
 
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
@@ -36,6 +36,7 @@ public class MainWindowViewModel : ViewModelBase
             .Top(7);
 
         observable
+            .Transform(s => new ItemViewModel() { Label = s })
             .Bind(out _labelItems)
             .DisposeMany()
             .Subscribe();
@@ -115,17 +116,24 @@ public class MainWindowViewModel : ViewModelBase
             PlotMarginBottom = 0,
         };
 
+        var labels = Labels.Select(s => s.Label!).ToList();
+
         var series = new[]
         {
-            CreateSeries(plotModel, Windows, Labels, "Satellite_1"),
-            CreateSeries(plotModel, Intervals, Labels, "Satellite_1"),
-            CreateSeries(plotModel, Windows, Labels, "Satellite_2"),
-            CreateSeries(plotModel, Intervals, Labels, "Satellite_2"),
-      //      CreateSeries(plotModel, ivals5)
+            CreateSeries(plotModel, Windows, labels, "Satellite_1"),
+            CreateSeries(plotModel, Intervals, labels, "Satellite_1"),
+            CreateSeries(plotModel, Windows, labels, "Satellite_2"),
+            CreateSeries(plotModel, Intervals, labels, "Satellite_2"),
+            CreateSeries(plotModel, Windows, labels, "Satellite_3"),
+            CreateSeries(plotModel, Intervals, labels, "Satellite_3"),
+            CreateSeries(plotModel, Windows, labels, "Satellite_4"),
+            CreateSeries(plotModel, Intervals, labels, "Satellite_4"),
+            CreateSeries(plotModel, Windows, labels, "Satellite_5"),
+            CreateSeries(plotModel, Intervals, labels, "Satellite_5"),
         };
 
         plotModel.AddAxisX(TimeDataViewerLite.Factory.CreateAxisX(Epoch, BeginScenario, EndScenario));
-        plotModel.AddAxisY(TimeDataViewerLite.Factory.CreateAxisY(Labels));
+        plotModel.AddAxisY(TimeDataViewerLite.Factory.CreateAxisY(labels));
         plotModel.AddSeries(series);
 
         return plotModel;
@@ -188,5 +196,5 @@ public class MainWindowViewModel : ViewModelBase
 
     public ReadOnlyObservableCollection<Interval> Windows => _windowItems;
 
-    public ReadOnlyObservableCollection<string> Labels => _labelItems;
+    public ReadOnlyObservableCollection<ItemViewModel> Labels => _labelItems;
 }
