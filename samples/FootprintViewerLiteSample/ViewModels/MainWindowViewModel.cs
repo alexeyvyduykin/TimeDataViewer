@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using Avalonia.Media;
 using DynamicData;
 using DynamicData.Binding;
 using FootprintViewerLiteSample.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using TimeDataViewerLite.Core;
+using TimeDataViewerLite.Core.Style;
 
 namespace FootprintViewerLiteSample.ViewModels;
 
@@ -25,22 +25,12 @@ public class MainWindowViewModel : ViewModelBase
     private readonly ReadOnlyObservableCollection<SeriesViewModel> _seriesItems;
 
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-    private readonly Dictionary<string, IBrush> _windowBrushes = new()
-    {
-        { "Satellite_1", new SolidColorBrush(){ Color= Colors.LightCoral, Opacity = 0.35 } },
-        { "Satellite_2", new SolidColorBrush(){ Color= Colors.Green, Opacity = 0.35 } },
-        { "Satellite_3", new SolidColorBrush(){ Color= Colors.Blue, Opacity = 0.35 } },
-        { "Satellite_4", new SolidColorBrush(){ Color= Colors.Yellow, Opacity = 0.35 } },
-        { "Satellite_5", new SolidColorBrush(){ Color= Colors.Orange, Opacity = 0.35 } }
-    };
-    private readonly Dictionary<string, IBrush> _intervalBrushes = new()
-    {
-        { "Satellite_1", Brushes.LightCoral },
-        { "Satellite_2", Brushes.Green },
-        { "Satellite_3", Brushes.Blue },
-        { "Satellite_4", Brushes.Yellow },
-        { "Satellite_5", Brushes.Orange }
-    };
+
+    private readonly Dictionary<string, Color> _colors =
+        Colors.Palette
+        .Select((s, i) => (color: s, index: i + 1))
+        .Take(5)
+        .ToDictionary(s => $"Satellite_{s.index}", s => s.color);
 
     private Dictionary<string, (List<Interval>, List<Interval>)> _dict = new();
 
@@ -100,14 +90,12 @@ public class MainWindowViewModel : ViewModelBase
                 Begin = ToTotalDays(Epoch, _timeOrigin);
                 Duration = 1.0;
 
-                SeriesBrushes = _windowBrushes.Values.Concat(_intervalBrushes.Values).ToList();
-
                 var labels = Labels.Select(s => s.Label!).ToList();
 
                 var intervals = Series.Select(s => s.Name!).ToDictionary(s => s, s => _dict[s].Item1);
                 var windows = Series.Select(s => s.Name!).ToDictionary(s => s, s => _dict[s].Item2);
 
-                PlotModel = CreatePlotModel(Epoch, BeginScenario, EndScenario, labels, windows, intervals);
+                PlotModel = CreatePlotModel(Epoch, BeginScenario, EndScenario, labels, _colors, windows, intervals);
             });
 
         _series
@@ -126,17 +114,12 @@ public class MainWindowViewModel : ViewModelBase
                 Begin = ToTotalDays(Epoch, _timeOrigin);
                 Duration = 1.0;
 
-                var res1 = _windowBrushes.Where(s => series.Contains(s.Key)).Select(s => s.Value).ToList();
-                var res2 = _intervalBrushes.Where(s => series.Contains(s.Key)).Select(s => s.Value).ToList();
-
-                SeriesBrushes = res1.Concat(res2).ToList();
-
                 var labels = Labels.Select(s => s.Label!).ToList();
 
                 var intervals = series.ToDictionary(s => s, s => _dict[s].Item1);
                 var windows = series.ToDictionary(s => s, s => _dict[s].Item2);
 
-                PlotModel = CreatePlotModel(Epoch, BeginScenario, EndScenario, labels, windows, intervals);
+                PlotModel = CreatePlotModel(Epoch, BeginScenario, EndScenario, labels, _colors, windows, intervals);
             });
     }
 
@@ -198,6 +181,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private static PlotModel CreatePlotModel(DateTime epoch, double begin, double end,
         IList<string> labels,
+        IDictionary<string, Color> colors,
         Dictionary<string, List<Interval>> windows,
         Dictionary<string, List<Interval>> intervals)
     {
@@ -213,26 +197,17 @@ public class MainWindowViewModel : ViewModelBase
 
         foreach (var key in windows.Keys)
         {
-            var list = new List<Interval>();
+            var list1 = new List<Interval>();
+            var list2 = new List<Interval>();
 
             foreach (var label in labels)
             {
-                list.AddRange(windows[key].Where(s => Equals(s.Category, label)));
+                list1.AddRange(windows[key].Where(s => Equals(s.Category, label)));
+                list2.AddRange(intervals[key].Where(s => Equals(s.Category, label)));
             }
 
-            series.Add(CreateSeries(plotModel, list, labels, key));
-        }
-
-        foreach (var key in intervals.Keys)
-        {
-            var list = new List<Interval>();
-
-            foreach (var label in labels)
-            {
-                list.AddRange(intervals[key].Where(s => Equals(s.Category, label)));
-            }
-
-            series.Add(CreateSeries(plotModel, list, labels, key));
+            series.Add(CreateSeries(plotModel, new Brush(colors[key], 0.35), list1, labels, key));
+            series.Add(CreateSeries(plotModel, new Brush(colors[key]), list2, labels, key));
         }
 
         plotModel.AddAxisX(TimeDataViewerLite.Factory.CreateAxisX(epoch, begin, end));
@@ -242,7 +217,7 @@ public class MainWindowViewModel : ViewModelBase
         return plotModel;
     }
 
-    private static Series CreateSeries(PlotModel parent, IList<Interval> intervals, IList<string> labels, string stackGroup = "")
+    private static Series CreateSeries(PlotModel parent, Brush brush, IList<Interval> intervals, IList<string> labels, string stackGroup = "")
     {
         var list = new List<TimelineItem>();
 
@@ -262,6 +237,7 @@ public class MainWindowViewModel : ViewModelBase
         return new TimelineSeries(parent)
         {
             BarWidth = 0.5,
+            Brush = brush,
             Items = list,
             IsVisible = true,
             StackGroup = stackGroup,
@@ -276,9 +252,6 @@ public class MainWindowViewModel : ViewModelBase
 
     [Reactive]
     public PlotModel? PlotModel { get; set; }
-
-    [Reactive]
-    public IList<IBrush>? SeriesBrushes { get; set; }
 
     [Reactive]
     public DateTime Epoch { get; set; }

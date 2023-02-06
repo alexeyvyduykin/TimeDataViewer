@@ -2,7 +2,6 @@
 using Avalonia;
 using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Media;
 using TimeDataViewerLite.Core;
 
 namespace TimeDataViewerLite.Controls;
@@ -40,24 +39,6 @@ public partial class TimelineControl
         set
         {
             SetValue(DurationProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<IList<IBrush>> SeriesBrushesProperty =
-        AvaloniaProperty.Register<TimelineControl, IList<IBrush>>(nameof(SeriesBrushes),
-            defaultValue: new[] { Brushes.Red },
-            validate: (list) => list?.Count > 0);
-
-    public IList<IBrush> SeriesBrushes
-    {
-        get
-        {
-            return GetValue(SeriesBrushesProperty);
-        }
-
-        set
-        {
-            SetValue(SeriesBrushesProperty, value);
         }
     }
 

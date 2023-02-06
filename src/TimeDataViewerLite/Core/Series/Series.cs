@@ -1,4 +1,5 @@
-﻿using TimeDataViewerLite.Spatial;
+﻿using TimeDataViewerLite.Core.Style;
+using TimeDataViewerLite.Spatial;
 
 namespace TimeDataViewerLite.Core;
 
@@ -12,6 +13,8 @@ public abstract class Series
     }
 
     public PlotModel PlotModel => _plotModel;
+
+    public Brush Brush { get; set; } = new(Colors.Red);
 
     public bool IsVisible { get; set; } = true;
 

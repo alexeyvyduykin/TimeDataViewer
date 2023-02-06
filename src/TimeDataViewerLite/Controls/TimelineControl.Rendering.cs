@@ -39,7 +39,7 @@ public partial class TimelineControl
 
         ActualModel?.UpdateRenderInfo(_backCanvas.Bounds.Width, _backCanvas.Bounds.Height);
 
-        _drawCanvas.RenderSeries(ActualModel, SeriesBrushes);
+        _drawCanvas.RenderSeries(ActualModel);
 
         RenderAxisX(_axisXCanvas, _backCanvas);
     }

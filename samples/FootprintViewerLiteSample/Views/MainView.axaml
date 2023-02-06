@@ -42,7 +42,6 @@
                                               Grid.Column="1"
                                               Margin="8"
                                               DataContext="{Binding PlotModel}"
-                                              SeriesBrushes="{Binding $parent[TopLevel].DataContext.SeriesBrushes}"
                                               Begin="{Binding $parent[TopLevel].DataContext.Begin}"
                                               Duration="{Binding $parent[TopLevel].DataContext.Duration}"/>
                 </Grid>

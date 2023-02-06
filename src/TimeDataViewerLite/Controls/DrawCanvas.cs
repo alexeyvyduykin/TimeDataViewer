@@ -13,8 +13,6 @@ public class DrawCanvas : Canvas
     private readonly Dictionary<TimelineSeries, IList<(Rect, bool)>> _dict2 = new();
 
     private readonly Pen _defaultPen = new() { Brush = Brushes.Black };
-    private readonly IBrush _defaultBrush = new SolidColorBrush(Colors.Red);
-    private readonly List<IBrush> _brushes = new();
 
     public override void Render(DrawingContext context)
     {
@@ -22,12 +20,9 @@ public class DrawCanvas : Canvas
 
         if (_dict2.Count != 0)
         {
-            int index = 0;
-            int count = _brushes.Count;
-
             foreach (var series in _dict2.Keys)
             {
-                var brush = (index < count) ? _brushes[index++] : _defaultBrush;
+                var brush = series.Brush.ToAvaloniaBrush();
 
                 foreach (var (rect, isSelected) in _dict2[series])
                 {
@@ -44,42 +39,36 @@ public class DrawCanvas : Canvas
         }
     }
 
-    public void RenderSeries(PlotModel? model, IList<IBrush> brushes)
+    public void RenderSeries(PlotModel? model)
     {
-        _brushes.Clear();
-        _brushes.AddRange(brushes);
-
         if (model != null)
         {
-            RenderSeries(model.Series.Where(s => s.IsVisible).ToList());
-        }
-    }
+            var series = model.Series.Where(s => s.IsVisible).ToList();
 
-    public void RenderSeries(IEnumerable<Series> series)
-    {
-        _dict2.Clear();
+            _dict2.Clear();
 
-        foreach (var s in series.Cast<TimelineSeries>())
-        {
-            var list = new List<(Rect, bool)>();
-
-            if (s.Rectangles != null)
+            foreach (var s in series.Cast<TimelineSeries>())
             {
-                foreach (var (rect, isSelected) in s.Rectangles)
-                {
-                    var res = CreateClippedRectangle(s.ClippingRect, ToRect(rect));
+                var list = new List<(Rect, bool)>();
 
-                    if (res != null)
+                if (s.Rectangles != null)
+                {
+                    foreach (var (rect, isSelected) in s.Rectangles)
                     {
-                        list.Add(((Rect, bool))(res, isSelected));
+                        var res = CreateClippedRectangle(s.ClippingRect, ToRect(rect));
+
+                        if (res != null)
+                        {
+                            list.Add(((Rect, bool))(res, isSelected));
+                        }
                     }
                 }
+
+                _dict2.Add(s, list);
             }
 
-            _dict2.Add(s, list);
+            InvalidateVisual();
         }
-
-        InvalidateVisual();
     }
 
     protected Rect? CreateClippedRectangle(OxyRect clippingRectangle, Rect rect)
