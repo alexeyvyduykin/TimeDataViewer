@@ -13,14 +13,33 @@
     </Design.DataContext>
 
     <UserControl.Styles>
-
+        <Style Selector="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Styles>
 
     <Grid>
         <TabControl Margin="4">
             <TabItem Header="Header1">
-                <Grid>
+                <Grid ColumnDefinitions="Auto,*">
+
+                    <StackPanel>
+                        <TextBlock Text="Series:"/>
+                        <ItemsControl Items="{Binding Series}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:SeriesViewModel">
+                                    <DockPanel>
+                                        <TextBlock Text="{Binding Name}"/>
+                                        <CheckBox Margin="8,0,0,0"
+                                                  IsChecked="{Binding IsVisible}"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
                     <controls:TimelineControl x:Name="TimelineControl"
+                                              Grid.Column="1"
                                               Margin="8"
                                               DataContext="{Binding PlotModel}"
                                               SeriesBrushes="{Binding $parent[TopLevel].DataContext.SeriesBrushes}"
