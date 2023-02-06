@@ -16,6 +16,10 @@
         <Style Selector="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        </Style>
     </UserControl.Styles>
 
     <Grid>
@@ -36,6 +40,17 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                        <Button Content="PanUp"
+                                Command="{Binding PanUp}"/>
+                        <Button Content="PanDown"
+                                Command="{Binding PanDown}"/>
+                        <NumericUpDown Name="Numeric"
+                                       Minimum="1"
+                                       Maximum="10"
+                                       Value="5"/>
+                        <Button Content="ZoomToCount"
+                                Command="{Binding ZoomToCount}"
+                                CommandParameter="{Binding #Numeric.Value}"/>
                     </StackPanel>
 
                     <controls:TimelineControl x:Name="TimelineControl"

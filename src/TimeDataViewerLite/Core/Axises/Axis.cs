@@ -109,40 +109,21 @@ public abstract partial class Axis
 
     internal abstract void UpdateFromSeries(Series[] series);
 
-    /// <summary>
-    /// Inverse transform the specified screen point.
-    /// </summary>
-    /// <param name="x">The x coordinate.</param>
-    /// <param name="y">The y coordinate.</param>
-    /// <param name="yaxis">The y-axis.</param>
-    /// <returns>The data point.</returns>
+    // Inverse transform the specified screen point.
     public DataPoint InverseTransform(double x, double y, Axis yaxis)
     {
         return new DataPoint(InverseTransform(x), yaxis != null ? yaxis.InverseTransform(y) : 0);
     }
 
-    /// <summary>
-    /// Inverse transforms the specified screen coordinate. This method can only be used with non-polar coordinate systems.
-    /// </summary>
-    /// <param name="sx">The screen coordinate.</param>
-    /// <returns>The value.</returns>
+    // Inverse transforms the specified screen coordinate. This method can only be used with non-polar coordinate systems.
     public double InverseTransform(double sx) => (sx / _scale) + _offset;
 
-    /// <summary>
-    /// Transforms the specified coordinate to screen coordinates. This method can only be used with non-polar coordinate systems.
-    /// </summary>
-    /// <param name="x">The value.</param>
-    /// <returns>The transformed value (screen coordinate).</returns>
+    // Transforms the specified coordinate to screen coordinates. This method can only be used with non-polar coordinate systems.
     public double Transform(double x) => (x - _offset) * _scale;
 
     public bool IsHorizontal() => Position == AxisPosition.Top || Position == AxisPosition.Bottom;
 
-    /// <summary>
-    /// Pans the specified axis.
-    /// </summary>
-    /// <param name="ppt">The previous point (screen coordinates).</param>
-    /// <param name="cpt">The current point (screen coordinates).</param>
-    public virtual void Pan(ScreenPoint ppt, ScreenPoint cpt)
+    public virtual void Pan(ScreenPoint previousPoint, ScreenPoint currentPoint)
     {
         if (IsPanEnabled == false)
         {
@@ -151,7 +132,7 @@ public abstract partial class Axis
 
         bool isHorizontal = IsHorizontal();
 
-        double dsx = isHorizontal ? cpt.X - ppt.X : cpt.Y - ppt.Y;
+        double dsx = isHorizontal ? currentPoint.X - previousPoint.X : currentPoint.Y - previousPoint.Y;
         Pan(dsx);
     }
 
@@ -185,13 +166,7 @@ public abstract partial class Axis
         UpdateActualMaxMin();
     }
 
-    /// <summary>
-    /// Transforms the specified point to screen coordinates.
-    /// </summary>
-    /// <param name="x">The x value (for the current axis).</param>
-    /// <param name="y">The y value.</param>
-    /// <param name="yaxis">The y axis.</param>
-    /// <returns>The transformed point.</returns>
+    // Transforms the specified point to screen coordinates.
     public ScreenPoint Transform(double x, double y, Axis yaxis)
     {
         if (yaxis == null)

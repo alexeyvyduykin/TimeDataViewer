@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using DynamicData;
 using DynamicData.Binding;
@@ -121,6 +122,10 @@ public class MainWindowViewModel : ViewModelBase
 
                 PlotModel = CreatePlotModel(Epoch, BeginScenario, EndScenario, labels, _colors, windows, intervals);
             });
+
+        PanUp = ReactiveCommand.Create(() => PlotModel?.PanUp());
+        PanDown = ReactiveCommand.Create(() => PlotModel?.PanDown());
+        ZoomToCount = ReactiveCommand.Create<double>(s => PlotModel?.ZoomToCount((int)s));
     }
 
     private static Func<Interval, bool> CreateIntervalPredicate(IReadOnlyCollection<string> labels)
@@ -267,6 +272,12 @@ public class MainWindowViewModel : ViewModelBase
 
     [Reactive]
     public double Duration { get; set; }
+
+    public ReactiveCommand<Unit, Unit> PanUp { get; }
+
+    public ReactiveCommand<Unit, Unit> PanDown { get; }
+
+    public ReactiveCommand<double, Unit> ZoomToCount { get; }
 
     public ReadOnlyObservableCollection<Interval> Intervals => _intervalItems;
 

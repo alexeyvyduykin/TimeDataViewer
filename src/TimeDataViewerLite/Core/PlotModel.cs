@@ -143,4 +143,25 @@ public sealed class PlotModel : Model, IPlotModel
             }
         }
     }
+
+    public void PanUp()
+    {
+        AxisY.PanUp();
+
+        PlotView?.InvalidatePlot();
+    }
+
+    public void PanDown()
+    {
+        AxisY.PanDown();
+
+        PlotView?.InvalidatePlot();
+    }
+
+    public void ZoomToCount(int count)
+    {
+        AxisY.ZoomToCategoryCount(count);
+
+        PlotView?.InvalidatePlot();
+    }
 }

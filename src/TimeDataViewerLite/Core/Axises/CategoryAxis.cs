@@ -249,4 +249,22 @@ public sealed class CategoryAxis : Axis
 
         ActualStringFormat = StringFormat;
     }
+
+    public void ZoomToCategoryCount(int count)
+    {
+        var min = -0.5;
+        var max = min + count;
+
+        Zoom(min, max);
+    }
+
+    public void PanUp()
+    {
+        Pan(1.0 * Scale);
+    }
+
+    public void PanDown()
+    {
+        Pan(-1.0 * Scale);
+    }
 }

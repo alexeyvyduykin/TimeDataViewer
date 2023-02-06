@@ -20,9 +20,9 @@ public static class Factory
             IntervalLength = 60.0,
             IsPanEnabled = true,
             IsAxisVisible = true,
-            IsZoomEnabled = true,         
-            MajorTickSize = 7.0,          
-            MinorTickSize = 4.0,           
+            IsZoomEnabled = true,
+            MajorTickSize = 7.0,
+            MinorTickSize = 4.0,
             MinimumRange = 0.0,
             MaximumRange = double.PositiveInfinity,
             StringFormat = null
@@ -38,8 +38,10 @@ public static class Factory
         var axis = new CategoryAxis()
         {
             Position = AxisPosition.Left,
-            IsZoomEnabled = false,
-            IsPanEnabled = false,
+            // IsZoomEnabled = false,
+            IsZoomEnabled = true,
+            // IsPanEnabled = false,
+            IsPanEnabled = true,
             IsTickCentered = false,
             GapWidth = 1.0,
             SourceLabels = new List<string>(labels)
