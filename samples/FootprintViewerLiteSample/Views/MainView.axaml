@@ -5,7 +5,7 @@
              xmlns:vm="using:FootprintViewerLiteSample.ViewModels"
              xmlns:cs="using:FootprintViewerLiteSample.Controls"
              xmlns:controls="clr-namespace:TimeDataViewerLite.Controls;assembly=TimeDataViewerLite"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="450"
              x:Class="FootprintViewerLiteSample.Views.MainView">
 
     <Design.DataContext>
@@ -20,12 +20,16 @@
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
+        <!--<Style Selector="ListBox > ListBoxItem">
+            <Setter Property="Height" Value="30"/>      
+        </Style>-->
+
     </UserControl.Styles>
 
     <Grid>
-        <TabControl Margin="4">
+        <TabControl Margin="4" SelectedIndex="1">
             <TabItem Header="Header1">
-                <Grid ColumnDefinitions="Auto,*">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
 
                     <StackPanel>
                         <TextBlock Text="Series:"/>
@@ -53,13 +57,66 @@
                                 CommandParameter="{Binding #Numeric.Value}"/>
                     </StackPanel>
 
+                    <Slider Name="Slider"
+                            Margin="0,8,0,8"
+                            Grid.Column="4"
+                            Orientation="Vertical"
+                            IsDirectionReversed="True"
+                            IsSnapToTickEnabled="True"
+                            Minimum="1"
+                            Maximum="10"
+                            TickFrequency="1"
+                            Value="5"/>
+
                     <controls:TimelineControl x:Name="TimelineControl"
-                                              Grid.Column="1"
+                                              Grid.Column="5"
                                               Margin="8"
                                               DataContext="{Binding PlotModel}"
+                                              ActiveCategoriesCount="{Binding #Slider.Value}"
                                               Begin="{Binding $parent[TopLevel].DataContext.Begin}"
                                               Duration="{Binding $parent[TopLevel].DataContext.Duration}"/>
                 </Grid>
+            </TabItem>
+
+            <TabItem Header="Header2">
+
+
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                      RowDefinitions="*">
+
+                    <Slider Name="Slider2"
+                            Margin="0,8,0,8"
+                            Orientation="Vertical"
+                            IsDirectionReversed="True"
+                            IsSnapToTickEnabled="True"
+                            Minimum="1"
+                            Maximum="10"
+                            TickFrequency="1"
+                            Value="5"/>
+
+                    <Grid Grid.Column="3"
+                          RowDefinitions="Auto,*">
+                        <TextBlock Text="UniformGrid2"/>
+
+                        <vm:CategoryListBox ItemsSource="{Binding Labels}"
+                                        ActiveCount="{Binding #Slider2.Value}"
+                                        Margin="8"
+                                        VirtualizationMode="Simple"
+                                        Grid.Row="1" Width="150">
+
+                            <vm:CategoryListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderThickness="1"
+                                            BorderBrush="Red">
+                                        <TextBlock Text="{Binding Label}" />
+                                    </Border>
+                                </DataTemplate>
+                            </vm:CategoryListBox.ItemTemplate>
+
+                        </vm:CategoryListBox>
+                    </Grid>
+                </Grid>
+
             </TabItem>
         </TabControl>
     </Grid>

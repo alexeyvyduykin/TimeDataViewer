@@ -34,6 +34,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     public TimelineControl()
     {
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
+
+        AffectsMeasure<TimelineControl>(ActiveCategoriesCountProperty);
     }
 
     public PlotModel? ActualModel => _plotModel;
@@ -175,17 +177,18 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         {
             var height = availableSize.Height - 30 - 1;
 
-            var count = _plotModel.AxisY.SourceLabels.Count;
-
-            var arr = GetDividers((int)height, count).ToArray();
-
+            var arr = GetDividers((int)height, (int)ActiveCategoriesCount).ToArray();
+            var h = height / ActiveCategoriesCount;
             int i = 0;
 
             foreach (var item in _taskList.Items)
             {
                 if (item is TaskListItem task)
                 {
-                    task.Height = arr[i++];
+                    //if (i < ActiveCategoriesCount)
+                    {
+                        task.Height = h;// arr[i++];
+                    }
                 }
             }
         }

@@ -9,6 +9,8 @@
     <Application.Styles>
         <FluentTheme Mode="Dark"/>
 
+        <StyleInclude Source="avares://FootprintViewerLiteSample/Styles/CategoryListBox.axaml"/>
         <StyleInclude Source="avares://TimeDataViewerLite/Styles/TimelineControl.axaml"/>
+
     </Application.Styles>
 </Application>

@@ -78,6 +78,38 @@ public partial class TimelineControl
         AvaloniaProperty.RegisterDirect<TimelineControl, ICommand?>(nameof(SelectedInterval),
             timeline => timeline.SelectedInterval, (timeline, command) => timeline.SelectedInterval = command, enableDataValidation: true);
 
+    public static readonly StyledProperty<double> ActiveCategoriesCountProperty =
+        AvaloniaProperty.Register<TimelineControl, double>(nameof(ActiveCategoriesCount), 5.0);
+
+    public double ActiveCategoriesCount
+    {
+        get
+        {
+            return GetValue(ActiveCategoriesCountProperty);
+        }
+
+        set
+        {
+            SetValue(ActiveCategoriesCountProperty, value);
+        }
+    }
+
+    public static readonly StyledProperty<IList<double>> CategoriesProperty =
+        AvaloniaProperty.Register<TimelineControl, IList<double>>(nameof(Categories));
+
+    public IList<double> Categories
+    {
+        get
+        {
+            return GetValue(CategoriesProperty);
+        }
+
+        set
+        {
+            SetValue(CategoriesProperty, value);
+        }
+    }
+
     public ICommand? SelectedInterval
     {
         get => _selectedInterval;
