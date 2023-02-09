@@ -1,26 +1,47 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:FootprintViewerLiteSample.ViewModels">
+        xmlns:controls="using:TimeDataViewerLite.Controls"
+        xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+
     <Design.PreviewWith>
         <Border Padding="20" Height="220" Width="180">
+
             <!-- Add Controls for Previewer Here -->
 
-            <vm:CategoryListBox ActiveCount="3">
-                <TextBlock Text="Text1"/>
-                <TextBlock Text="Text2"/>
-                <TextBlock Text="Text3"/>
-                <TextBlock Text="Text4"/>
-                <TextBlock Text="Text5"/>
-                <TextBlock Text="Text6"/>
-                <TextBlock Text="Text7"/>
-            </vm:CategoryListBox>
+            <Panel>
+                <Panel.Resources>
+                    <scg:List x:Key="StringList"
+                              x:TypeArguments="sys:String">
+                        <sys:String>Text1</sys:String>
+                        <sys:String>Text2</sys:String>
+                        <sys:String>Text3</sys:String>
+                        <sys:String>Text4</sys:String>
+                        <sys:String>Text5</sys:String>
+                        <sys:String>Text6</sys:String>
+                        <sys:String>Text7</sys:String>
+                    </scg:List>
+                </Panel.Resources>
 
+                <controls:CategoryListBox ItemsSource="{StaticResource StringList}"
+                                          ActiveCount="4">
+                    <controls:CategoryListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderThickness="1"
+                                    BorderBrush="Red">
+                                <TextBlock Text="{Binding}"/>
+                            </Border>
+                        </DataTemplate>
+                    </controls:CategoryListBox.ItemTemplate>
+
+                </controls:CategoryListBox>
+            </Panel>
         </Border>
     </Design.PreviewWith>
 
     <!-- Add Styles Here -->
 
-    <Style Selector="vm|CategoryListBox">
+    <Style Selector="controls|CategoryListBox">
         <Setter Property="ActiveCount" Value="5"/>
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
@@ -49,7 +70,7 @@
         </Setter>
     </Style>
 
-    <Style Selector="vm|CategoryListBox">
+    <Style Selector="controls|CategoryListBox">
         <Setter Property="ItemsPanel">
             <ItemsPanelTemplate>
                 <UniformGrid Columns="1"
@@ -58,8 +79,7 @@
         </Setter>
     </Style>
 
-    <Style Selector="vm|CategoryListBox:disabled /template/ Border#border">
+    <Style Selector="controls|CategoryListBox:disabled /template/ Border#border">
         <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
     </Style>
-
 </Styles>

@@ -39,18 +39,15 @@
         </DataTemplate>
 
         <DataTemplate x:Key="TaskContentTemplate"
-                      DataType="{x:Type controls:TaskListItem}">
-            <Panel Height="{Binding Height}">
+                      DataType="{x:Type controls:CategoryListBoxItem}">
+            <Panel>
                 <Border Background="Yellow"
                         Opacity="0.1"/>
                 <Border BorderBrush="Red"
                         BorderThickness="1"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Text}"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"/>
-                    <TextBlock Text="{Binding Height}"/>
-                </StackPanel>
+                <TextBlock Text="{Binding Text}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"/>
             </Panel>
         </DataTemplate>
 
@@ -99,6 +96,7 @@
     </Style>
 
     <Style Selector="controls|TimelineControl">
+        <Setter Property="ActiveCategoriesCount" Value="5"/>
         <Setter Property="DefaultLabelTemplate" Value="{StaticResource LabelTemplate}"/>
         <Setter Property="TrackerTemplate" Value="{StaticResource TrackerContentTemplate}"/>
         <Setter Property="Template">
@@ -107,10 +105,10 @@
                     <Grid ColumnDefinitions="100,*">
 
                         <Grid RowDefinitions="30,*">
-                            <ListBox Name="PART_TaskList"
-                                     Grid.Row="1"
-                                     ItemTemplate="{StaticResource TaskContentTemplate}">
-                            </ListBox>
+                            <controls:CategoryListBox Name="PART_CategoryListBox"
+                                                      Grid.Row="1"
+                                                      ActiveCount="{TemplateBinding ActiveCategoriesCount}"
+                                                      ItemTemplate="{StaticResource TaskContentTemplate}"/>
                         </Grid>
 
                         <Border Grid.Column="1"

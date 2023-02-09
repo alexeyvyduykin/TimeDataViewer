@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Styling;
 
-namespace FootprintViewerLiteSample.ViewModels;
+namespace TimeDataViewerLite.Controls;
 
 public class CategoryListBox : ListBox, IStyleable
 {
@@ -30,23 +26,33 @@ public class CategoryListBox : ListBox, IStyleable
     {
         if (ItemsSource != null)
         {
-            Items = ItemsSource.Skip(_startIndex).Take(ActiveCount).ToList();
+            var count = ItemsSource.Count();
+
+            if (_startIndex + ActiveCount > count)
+            {
+                _startIndex = count - (int)ActiveCount;
+            }
+
+            Items = ItemsSource
+                .Skip(_startIndex)
+                .Take((int)ActiveCount)
+                .ToList();
         }
     }
 
-    public static readonly StyledProperty<int> ActiveCountProperty =
-        AvaloniaProperty.Register<CategoryListBox, int>(nameof(ActiveCount));
+    public static readonly StyledProperty<double> ActiveCountProperty =
+        AvaloniaProperty.Register<CategoryListBox, double>(nameof(ActiveCount));
 
-    public static readonly StyledProperty<IList<ItemViewModel>> ItemsSourceProperty =
-        AvaloniaProperty.Register<CategoryListBox, IList<ItemViewModel>>(nameof(ItemsSource));
+    public static readonly StyledProperty<IEnumerable<object>> ItemsSourceProperty =
+        AvaloniaProperty.Register<CategoryListBox, IEnumerable<object>>(nameof(ItemsSource));
 
-    public int ActiveCount
+    public double ActiveCount
     {
         get => GetValue(ActiveCountProperty);
         set => SetValue(ActiveCountProperty, value);
     }
 
-    public IList<ItemViewModel> ItemsSource
+    public IEnumerable<object> ItemsSource
     {
         get => GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
@@ -58,18 +64,18 @@ public class CategoryListBox : ListBox, IStyleable
 
         var delta = e.Delta.Y;
         var start = _startIndex;
-        var count = ItemsSource.Count;
+        var count = ItemsSource.Count();
 
         start += (delta > 0) ? -1 : 1;
 
         start = Math.Max(start, 0);
-        start = Math.Min(start, count - ActiveCount);
+        start = Math.Min(start, count - (int)ActiveCount);
 
         _startIndex = start;
 
         Items = ItemsSource
             .Skip(_startIndex)
-            .Take(ActiveCount)
+            .Take((int)ActiveCount)
             .ToList();
     }
 }

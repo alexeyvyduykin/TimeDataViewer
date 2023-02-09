@@ -79,7 +79,7 @@ public partial class TimelineControl
             timeline => timeline.SelectedInterval, (timeline, command) => timeline.SelectedInterval = command, enableDataValidation: true);
 
     public static readonly StyledProperty<double> ActiveCategoriesCountProperty =
-        AvaloniaProperty.Register<TimelineControl, double>(nameof(ActiveCategoriesCount), 5.0);
+        AvaloniaProperty.Register<TimelineControl, double>(nameof(ActiveCategoriesCount));
 
     public double ActiveCategoriesCount
     {

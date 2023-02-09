@@ -27,7 +27,7 @@
     </UserControl.Styles>
 
     <Grid>
-        <TabControl Margin="4" SelectedIndex="1">
+        <TabControl Margin="4" SelectedIndex="0">
             <TabItem Header="Header1">
                 <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
 
@@ -94,26 +94,23 @@
                             TickFrequency="1"
                             Value="5"/>
 
-                    <Grid Grid.Column="3"
-                          RowDefinitions="Auto,*">
-                        <TextBlock Text="UniformGrid2"/>
+                    <Grid Grid.Column="3">
 
-                        <vm:CategoryListBox ItemsSource="{Binding Labels}"
+                        <controls:CategoryListBox ItemsSource="{Binding Labels}"
                                         ActiveCount="{Binding #Slider2.Value}"
-                                        Margin="8"
-                                        VirtualizationMode="Simple"
+                                        Margin="8"                                     
                                         Grid.Row="1" Width="150">
 
-                            <vm:CategoryListBox.ItemTemplate>
+                            <controls:CategoryListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border BorderThickness="1"
                                             BorderBrush="Red">
                                         <TextBlock Text="{Binding Label}" />
                                     </Border>
                                 </DataTemplate>
-                            </vm:CategoryListBox.ItemTemplate>
+                            </controls:CategoryListBox.ItemTemplate>
 
-                        </vm:CategoryListBox>
+                        </controls:CategoryListBox>
                     </Grid>
                 </Grid>
 

@@ -21,7 +21,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_AxisXCanvas = "PART_AxisXCanvas";
     private const string PART_ZoomControl = "PART_ZoomControl";
     private const string PART_Tracker = "PART_Tracker";
-    private const string PART_TaskList = "PART_TaskList";
+    private const string PART_CategoryListBox = "PART_CategoryListBox";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
     private ContentControl? _zoomControl;
@@ -29,7 +29,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private PlotModel? _plotModel;
-    private ListBox? _taskList;
+    private CategoryListBox? _categoryListBox;
 
     public TimelineControl()
     {
@@ -108,7 +108,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
 
-        _taskList = e.NameScope.Find<ListBox>(PART_TaskList);
+        _categoryListBox = e.NameScope.Find<CategoryListBox>(PART_CategoryListBox);
     }
 
     public void SetCursorType(CursorType cursorType)
@@ -169,59 +169,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         {
             InvalidatePlot();
         }
-    }
-
-    protected override Size MeasureOverride(Size availableSize)
-    {
-        if (_plotModel != null && _taskList != null)
-        {
-            var height = availableSize.Height - 30 - 1;
-
-            var arr = GetDividers((int)height, (int)ActiveCategoriesCount).ToArray();
-            var h = height / ActiveCategoriesCount;
-            int i = 0;
-
-            foreach (var item in _taskList.Items)
-            {
-                if (item is TaskListItem task)
-                {
-                    //if (i < ActiveCategoriesCount)
-                    {
-                        task.Height = h;// arr[i++];
-                    }
-                }
-            }
-        }
-
-        return availableSize;
-    }
-
-    private static IEnumerable<int> GetDividers(int totalLength, int dividersCount)
-    {
-        if (dividersCount > totalLength)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-
-        if (dividersCount <= 0)
-        {
-            yield break;
-        }
-
-        var partitionLength = totalLength / (dividersCount);
-        var partitionTotalError = totalLength % (dividersCount);
-        var counter = partitionLength;
-
-        int currentStep = 0;
-
-        while (counter < totalLength)
-        {
-            currentStep = partitionLength + (partitionTotalError-- > 0 ? 1 : 0);
-            counter += currentStep;
-            yield return currentStep;
-        }
-
-        yield return currentStep;
     }
 
     // Gets the relevant parent.

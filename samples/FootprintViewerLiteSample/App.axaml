@@ -2,15 +2,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:FootprintViewerLiteSample"
              x:Class="FootprintViewerLiteSample.App">
+
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
 
     <Application.Styles>
+
         <FluentTheme Mode="Dark"/>
 
-        <StyleInclude Source="avares://FootprintViewerLiteSample/Styles/CategoryListBox.axaml"/>
-        <StyleInclude Source="avares://TimeDataViewerLite/Styles/TimelineControl.axaml"/>
+        <StyleInclude Source="avares://TimeDataViewerLite/Styles/Styles.axaml"/>
 
     </Application.Styles>
+
 </Application>

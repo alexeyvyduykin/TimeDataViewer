@@ -26,9 +26,9 @@ public partial class TimelineControl
             return;
         }
 
-        if (_first == true && _taskList != null && _plotModel != null)
+        if (_first == true && _categoryListBox != null && _plotModel != null)
         {
-            _taskList.Items = _plotModel.AxisY.SourceLabels.Select(s => new TaskListItem() { Text = s }).ToList();
+            _categoryListBox.ItemsSource = _plotModel.AxisY.SourceLabels.Select(s => new CategoryListBoxItem() { Text = s }).ToList();
             _first = false;
         }
 
