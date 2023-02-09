@@ -76,6 +76,8 @@ public sealed class CategoryAxis : Axis
     {
         var count = SourceLabels.Count;
 
+        count = Math.Min(count, 32);
+
         // Update the DataMinimum/DataMaximum from the number of categories
         Include(-0.5);
         Include((count > 0) ? (count - 1) + 0.5 : 0.5);

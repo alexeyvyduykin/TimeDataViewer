@@ -55,6 +55,10 @@
                         <Button Content="ZoomToCount"
                                 Command="{Binding ZoomToCount}"
                                 CommandParameter="{Binding #Numeric.Value}"/>
+                        <CheckBox Content="Observation" 
+                                  IsChecked="{Binding ObservationTaskVisible}"/>
+                        <CheckBox Content="Download" 
+                                  IsChecked="{Binding DownloadTaskVisible}"/>
                     </StackPanel>
 
                     <Slider Name="Slider"
