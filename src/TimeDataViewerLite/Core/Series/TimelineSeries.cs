@@ -106,14 +106,16 @@ public sealed class TimelineSeries : Series, IStackableSeries
     {
         var list = new List<(OxyRect, bool)>();
 
-        var actualBarWidth = BarWidth / (1 + PlotModel.AxisY.GapWidth) / PlotModel.AxisY.MaxWidth;
-        var stackIndex = PlotModel.AxisY.GetStackIndex(StackGroup);
+        var axisY = PlotModel.AxisY;
+
+        var actualBarWidth = BarWidth / (1 + axisY.GapWidth) / axisY.MaxWidth;
+        var stackIndex = axisY.GetStackIndex(StackGroup);
 
         foreach (var (item, i) in Items.Select((s, index) => (s, index)))
         {
             var categoryIndex = item.CategoryIndex;
 
-            double categoryValue = PlotModel.AxisY.GetCategoryValue(categoryIndex, stackIndex, actualBarWidth);
+            double categoryValue = axisY.GetCategoryValue(categoryIndex, stackIndex, actualBarWidth);
 
             var p0 = Transform(item.Begin, categoryValue);
             var p1 = Transform(item.End, categoryValue + actualBarWidth);

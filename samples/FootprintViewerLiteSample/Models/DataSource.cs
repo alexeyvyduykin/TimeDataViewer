@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
+using TimeDataViewerLite;
 using TimeDataViewerLite.Core;
+using TimeDataViewerLite.Core.Style;
 
 namespace FootprintViewerLiteSample.Models;
 
@@ -19,24 +22,50 @@ public static class DataSource
 
         var tasks = BuildTasks(2500);
 
-        var (windows1, intervals1) = Build(begin, 86400.0, tasks, 3);
-        var (windows2, intervals2) = Build(begin, 86400.0, tasks, 3);
-        var (windows3, intervals3) = Build(begin, 86400.0, tasks, 3);
-        var (windows4, intervals4) = Build(begin, 86400.0, tasks, 3);
-        var (windows5, intervals5) = Build(begin, 86400.0, tasks, 3);
+        var seriesInfos = new List<SeriesInfo>();
+
+        for (int i = 0; i < 5; i++)
+        {
+            var (windows, intervals) = Build(begin, 86400.0, tasks, 3);
+
+            var arr = new[]
+            {
+                new SeriesInfo()
+                {
+                    Name = $"Satellite_{i + 1}_winds",
+                    Converter = Converter(windows.ToList()),
+                    Brush = new Brush(Colors.Palette[i], 0.35),
+                    StackGroup = $"Satellite_{i + 1}"
+                },
+                new SeriesInfo()
+                {
+                    Name = $"Satellite_{i + 1}_ivals",
+                    Converter = Converter(intervals.ToList()),
+                    Brush = new Brush(Colors.Palette[i]),
+                    StackGroup = $"Satellite_{i + 1}"
+                }
+            };
+
+            seriesInfos.AddRange(arr);
+        }
 
         return new DataResult()
         {
+            Epoch = begin.Date,
             Tasks = tasks,
-            Series = new List<SeriesResult>()
-            {
-                new SeriesResult("Satellite_1", windows1, intervals1),
-                new SeriesResult("Satellite_2", windows2, intervals2),
-                new SeriesResult("Satellite_3", windows3, intervals3),
-                new SeriesResult("Satellite_4", windows4, intervals4),
-                new SeriesResult("Satellite_5", windows5, intervals5)
-            }
+            Series = seriesInfos
         };
+
+        Func<List<string>, List<TimelineItem>> Converter(IList<Interval> intervals)
+        {
+            return categories => intervals.Select(s => new TimelineItem()
+            {
+                Begin = DateTimeAxis.ToDouble(s.Begin),
+                End = DateTimeAxis.ToDouble(s.End),
+                Category = s.Category,
+                CategoryIndex = categories.IndexOf(s.Category!)
+            }).ToList();
+        }
     }
 
     private static List<TaskModel> BuildTasks(int taskCount)

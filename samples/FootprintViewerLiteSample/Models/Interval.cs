@@ -1,4 +1,6 @@
-﻿namespace TimeDataViewerLite.Core;
+﻿using System;
+
+namespace FootprintViewerLiteSample.Models;
 
 public class Interval
 {

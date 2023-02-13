@@ -12,7 +12,6 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using TimeDataViewerLite;
 using TimeDataViewerLite.Core;
-using TimeDataViewerLite.Core.Style;
 
 namespace FootprintViewerLiteSample.ViewModels;
 
@@ -25,12 +24,6 @@ public class MainWindowViewModel : ViewModelBase
     private readonly ReadOnlyObservableCollection<SeriesViewModel> _seriesItems;
 
     private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-
-    private readonly Dictionary<string, Color> _colors =
-        Colors.Palette
-        .Select((s, i) => (color: s, index: i + 1))
-        .Take(5)
-        .ToDictionary(s => $"Satellite_{s.index}", s => s.color);
 
     public MainWindowViewModel()
     {
@@ -83,10 +76,11 @@ public class MainWindowViewModel : ViewModelBase
 
         var labels = Tasks.Select(s => s.Name).ToList();
 
-        var intervals = series.ToDictionary(s => s.Name, s => _dataResult!.GetIntervals(s.Name));
-        var windows = series.ToDictionary(s => s.Name, s => _dataResult!.GetWindows(s.Name));
+        var seriesInfos = _dataResult.Series
+            .Where(s => series.Select(s => s.Name).Contains(s.StackGroup))
+            .ToList();
 
-        return await Observable.Start(() => Factory.CreatePlotModel(Epoch, BeginScenario, EndScenario, labels, _colors, windows, intervals),
+        return await Observable.Start(() => PlotModelBuilder.Build(Epoch, BeginScenario, EndScenario, labels, seriesInfos),
             RxApp.TaskpoolScheduler);
     }
 
@@ -102,9 +96,11 @@ public class MainWindowViewModel : ViewModelBase
         _dataResult = await DataSource.BuildSampleAsync();
 
         var series = _dataResult.Series
+            .Select(s => s.StackGroup)
+            .Distinct()
             .Select((s, index) => new SeriesViewModel()
             {
-                Name = s.Name,
+                Name = s,
                 IsVisible = (index == 0)
             })
             .ToList();

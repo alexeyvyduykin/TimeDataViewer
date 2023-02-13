@@ -1,22 +1,31 @@
-﻿using TimeDataViewerLite.Spatial;
+﻿using TimeDataViewerLite.Core.Style;
+using TimeDataViewerLite.Factories;
+using TimeDataViewerLite.Spatial;
 
 namespace TimeDataViewerLite.Core;
 
 public sealed class PlotModel : Model, IPlotModel
 {
+    private readonly IFactory _factory;
     // The plot view that renders this plot.    
     private WeakReference? _plotViewReference;
-    private DateTimeAxis? _axisX;
-    private CategoryAxis? _axisY;
-    private List<Series> _series = new();
+    private readonly DateTimeAxis _axisX;
+    private readonly CategoryAxis _axisY;
+    private readonly List<Series> _series = new();
 
-    public PlotModel() { }
+    public PlotModel(IFactory? factory = null)
+    {
+        _factory = factory ?? new DefaultFactory();
+
+        _axisX = _factory.CreateAxisX();
+        _axisY = _factory.CreateAxisY();
+    }
 
     public IPlotView? PlotView => (_plotViewReference != null) ? (IPlotView?)_plotViewReference.Target : null;
 
-    public CategoryAxis AxisY => _axisY!;
+    public CategoryAxis AxisY => _axisY;
 
-    public DateTimeAxis AxisX => _axisX!;
+    public DateTimeAxis AxisX => _axisX;
 
     public IReadOnlyCollection<Series> Series => _series;
 
@@ -74,37 +83,36 @@ public sealed class PlotModel : Model, IPlotModel
         return null;
     }
 
-    public void AddAxisX(DateTimeAxis axis)
+    public void UpdateAxisY(IList<string> categories)
     {
-        _axisX = axis;
+        AxisY.SourceLabels.AddRange(categories);
 
-        if (_axisY != null && _series.Count != 0)
-        {
-            DataChanged();
-        }
+        var count = categories.Count;
+        var min = -0.5;
+        var max = min + count;
+
+        AxisY.SetAvailableRange(min, max);
     }
 
-    public void AddAxisY(CategoryAxis axis)
+    public void UpdateAxisX(DateTime begin0, double begin, double end)
     {
-        _axisY = axis;
+        AxisX.Minimum = DateTimeAxis.ToDouble(begin0);
 
-        if (_axisX != null && _series.Count != 0)
-        {
-            DataChanged();
-        }
+        AxisX.SetAvailableRange(begin, end);
     }
 
-    public void AddSeries(IEnumerable<Series> series)
+    public void AddSeries(List<TimelineItem> intervals, Brush brush, string stackGroup)
     {
-        _series = new(series);
+        var series = _factory.CreateSeries(this);
 
-        if (_axisX != null && _axisY != null)
-        {
-            DataChanged();
-        }
+        series.Items = intervals;
+        series.StackGroup = stackGroup;
+        series.Brush = brush;
+
+        _series.Add(series);
     }
 
-    private void DataChanged()
+    public void InvalidateData()
     {
         var visibleSeries = _series.Where(s => s.IsVisible).ToArray();
 
@@ -114,7 +122,7 @@ public sealed class PlotModel : Model, IPlotModel
         AxisX.ResetDataMaxMin();
         AxisY.ResetDataMaxMin();
 
-        foreach (var s in visibleSeries)
+        foreach (var s in visibleSeries.Cast<TimelineSeries>())
         {
             s.UpdateAxisMaxMin();
         }
