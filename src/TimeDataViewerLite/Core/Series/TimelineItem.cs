@@ -1,5 +1,12 @@
 ﻿namespace TimeDataViewerLite.Core;
 
+public enum BrushMode
+{
+    Solid,
+    UpLine,
+    DownLine
+}
+
 public class TimelineItem
 {
     public int GetCategoryIndex(int defaultIndex)
@@ -19,4 +26,6 @@ public class TimelineItem
     public double Begin { get; set; }
 
     public double End { get; set; }
+
+    public BrushMode BrushMode { get; set; } = BrushMode.Solid;
 }

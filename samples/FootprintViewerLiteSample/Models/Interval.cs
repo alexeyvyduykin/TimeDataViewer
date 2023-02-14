@@ -9,4 +9,6 @@ public class Interval
     public DateTime Begin { get; set; }
 
     public DateTime End { get; set; }
+
+    public int Type { get; set; }
 }

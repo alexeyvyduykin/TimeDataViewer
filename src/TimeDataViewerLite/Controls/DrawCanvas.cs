@@ -10,8 +10,8 @@ public class DrawCanvas : Canvas
 {
     private Rect? _clip;
     private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };
-    private readonly Dictionary<TimelineSeries, IList<(Rect, bool)>> _dict2 = new();
-
+    private readonly IBrush _blackBrush = new SolidColorBrush() { Color = Colors.Black };
+    private readonly Dictionary<TimelineSeries, IList<(Rect, BrushMode, bool)>> _dict2 = new();
     private readonly Pen _defaultPen = new() { Brush = Brushes.Black };
 
     public override void Render(DrawingContext context)
@@ -24,15 +24,39 @@ public class DrawCanvas : Canvas
             {
                 var brush = series.Brush.ToAvaloniaBrush();
 
-                foreach (var (rect, isSelected) in _dict2[series])
+                foreach (var (rect, brushMode, isSelected) in _dict2[series])
                 {
-                    if (isSelected == false)
+                    var pen = (isSelected == true) ? _selectedPen : _defaultPen;
+
+                    if (brushMode == BrushMode.Solid)
                     {
-                        context.DrawRectangle(brush, _defaultPen, rect);
+                        context.DrawRectangle(brush, pen, rect);
                     }
-                    else
+                    else if (brushMode == BrushMode.UpLine)
                     {
-                        context.DrawRectangle(brush, _selectedPen, rect);
+                        var w = rect.Width;
+                        var x0 = rect.Left;
+                        var y0 = rect.Top;
+
+                        var dh = rect.Height / 10.0;
+
+                        var r3 = new Rect(x0, y0 + 2 * dh, w, dh);
+
+                        context.DrawRectangle(brush, pen, rect);
+                        context.DrawRectangle(_blackBrush, _defaultPen, r3);
+                    }
+                    else if (brushMode == BrushMode.DownLine)
+                    {
+                        var w = rect.Width;
+                        var x0 = rect.Left;
+                        var y0 = rect.Top;
+
+                        var dh = rect.Height / 10.0;
+
+                        var r3 = new Rect(x0, y0 + 7.0 * dh, w, dh);
+
+                        context.DrawRectangle(brush, pen, rect);
+                        context.DrawRectangle(_blackBrush, _defaultPen, r3);
                     }
                 }
             }
@@ -49,17 +73,17 @@ public class DrawCanvas : Canvas
 
             foreach (var s in series.Cast<TimelineSeries>())
             {
-                var list = new List<(Rect, bool)>();
+                var list = new List<(Rect, BrushMode, bool)>();
 
                 if (s.Rectangles != null)
                 {
-                    foreach (var (rect, isSelected) in s.Rectangles)
+                    foreach (var (rect, brushMode, isSelected) in s.Rectangles)
                     {
                         var res = CreateClippedRectangle(s.ClippingRect, ToRect(rect));
 
                         if (res != null)
                         {
-                            list.Add(((Rect, bool))(res, isSelected));
+                            list.Add(((Rect, BrushMode, bool))(res, (BrushMode)brushMode, isSelected));
                         }
                     }
                 }

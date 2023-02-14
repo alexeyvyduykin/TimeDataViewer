@@ -166,6 +166,13 @@ public sealed class PlotModel : Model, IPlotModel
         PlotView?.InvalidatePlot();
     }
 
+    public void PanToCategory(int startIndex)
+    {
+        AxisY.PanToCategory(startIndex);
+
+        PlotView?.InvalidatePlot();
+    }
+
     public void ZoomToCount(int count)
     {
         AxisY.ZoomToCategoryCount(count);

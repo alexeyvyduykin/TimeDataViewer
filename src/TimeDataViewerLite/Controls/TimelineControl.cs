@@ -38,7 +38,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         AffectsMeasure<TimelineControl>(ActiveCategoriesCountProperty);
     }
 
-    public PlotModel? ActualModel => _plotModel;
+    public PlotModel? PlotModel => _plotModel;
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
@@ -109,6 +109,16 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
 
         _categoryListBox = e.NameScope.Find<CategoryListBox>(PART_CategoryListBox);
+
+        _categoryListBox.PointerWheelChanged += _categoryListBox_PointerWheelChanged;
+    }
+
+    private void _categoryListBox_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        if (sender is CategoryListBox categoryListBox)
+        {
+            PlotModel?.PanToCategory(categoryListBox.StartIndex);
+        }
     }
 
     public void SetCursorType(CursorType cursorType)

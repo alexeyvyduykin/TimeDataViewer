@@ -34,7 +34,7 @@ public static class DataSource
                 {
                     Name = $"Satellite_{i + 1}_winds",
                     Converter = Converter(windows.ToList()),
-                    Brush = new Brush(Colors.Palette[i], 0.35),
+                    Brush = new Brush(Colors.Palette[i], 0.25),
                     StackGroup = $"Satellite_{i + 1}"
                 },
                 new SeriesInfo()
@@ -63,7 +63,8 @@ public static class DataSource
                 Begin = DateTimeAxis.ToDouble(s.Begin),
                 End = DateTimeAxis.ToDouble(s.End),
                 Category = s.Category,
-                CategoryIndex = categories.IndexOf(s.Category!)
+                CategoryIndex = categories.IndexOf(s.Category!),
+                BrushMode = Enum.Parse<BrushMode>($"{s.Type}")
             }).ToList();
         }
     }
@@ -93,8 +94,15 @@ public static class DataSource
 
         foreach (var task in tasks)
         {
+            var taskType = _random.Next(0, 3);
+
             for (int i = 0; i < nMax; i++)
             {
+                if (taskType != 0)
+                {
+                    taskType = _random.Next(1, 3);
+                }
+
                 var b = i * dt;
                 var e = (i + 1) * dt;
 
@@ -106,7 +114,8 @@ public static class DataSource
                 {
                     Category = task.Name,
                     Begin = begin.AddSeconds(minInterval),
-                    End = begin.AddSeconds(maxInterval)
+                    End = begin.AddSeconds(maxInterval),
+                    Type = taskType
                 });
 
                 windows.Add(new Interval()

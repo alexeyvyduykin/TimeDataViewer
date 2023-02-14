@@ -22,6 +22,8 @@ public class CategoryListBox : ListBox, IStyleable
         ActiveCountProperty.Changed.Subscribe(ItemsSourceChanged);
     }
 
+    public int StartIndex => _startIndex;
+
     private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (ItemsSource != null)

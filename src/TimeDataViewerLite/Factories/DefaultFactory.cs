@@ -36,10 +36,8 @@ internal sealed class DefaultFactory : IFactory
         var axis = new CategoryAxis()
         {
             Position = AxisPosition.Left,
-            // IsZoomEnabled = false,
-            IsZoomEnabled = true,
-            // IsPanEnabled = false,
-            IsPanEnabled = true,
+            IsZoomEnabled = false,
+            IsPanEnabled = false,
             IsTickCentered = false,
             GapWidth = 1.0,
         };

@@ -37,21 +37,21 @@ public partial class TimelineControl
         _axisXCanvas.Children.Clear();
         _frontCanvas.Children.Clear();
 
-        ActualModel?.UpdateRenderInfo(_backCanvas.Bounds.Width, _backCanvas.Bounds.Height);
+        PlotModel?.UpdateRenderInfo(_backCanvas.Bounds.Width, _backCanvas.Bounds.Height);
 
-        _drawCanvas.RenderSeries(ActualModel);
+        _drawCanvas.RenderSeries(PlotModel);
 
         RenderAxisX(_axisXCanvas, _backCanvas);
     }
 
     private void RenderAxisX(Canvas axisXCanvas, Canvas backCanvas)
     {
-        if (ActualModel != null)
+        if (PlotModel != null)
         {
             var rcAxis = new CanvasRenderContext(axisXCanvas);
             var rcPlotBack = new CanvasRenderContext(backCanvas);
 
-            RenderAxis(ActualModel.AxisX, rcAxis, rcPlotBack);
+            RenderAxis(PlotModel.AxisX, rcAxis, rcPlotBack);
         }
     }
 

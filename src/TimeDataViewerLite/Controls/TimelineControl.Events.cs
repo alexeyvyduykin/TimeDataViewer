@@ -105,8 +105,8 @@ public partial class TimelineControl
             return;
         }
 
-        _xAxis = ActualModel?.AxisX;
-        _yAxis = ActualModel?.AxisY;
+        _xAxis = PlotModel?.AxisX;
+        _yAxis = PlotModel?.AxisY;
 
         var position = e.GetPosition(_basePanel).ToScreenPoint();
         var delta = (int)(e.Delta.Y + e.Delta.X) * 120;
@@ -167,12 +167,12 @@ public partial class TimelineControl
     {
         var position = e.GetPosition(_basePanel).ToScreenPoint();
 
-        if (ActualModel == null)
+        if (PlotModel == null)
         {
             return false;
         }
 
-        foreach (var item in ActualModel.Series)
+        foreach (var item in PlotModel.Series)
         {
             if (item is TimelineSeries series)
             {
@@ -180,12 +180,12 @@ public partial class TimelineControl
             }
         }
 
-        if (ActualModel.PlotArea.Contains(position.X, position.Y) == false)
+        if (PlotModel.PlotArea.Contains(position.X, position.Y) == false)
         {
             return false;
         }
 
-        var currentSeries = ActualModel.GetSeriesFromPoint(position);
+        var currentSeries = PlotModel.GetSeriesFromPoint(position);
 
         var result = GetNearestHit(currentSeries, position);
 
@@ -247,7 +247,7 @@ public partial class TimelineControl
     {
         base.OnPointerMoved(e);
 
-        if (_basePanel == null || ActualModel == null)
+        if (_basePanel == null || PlotModel == null)
         {
             return;
         }
@@ -268,7 +268,7 @@ public partial class TimelineControl
         var snap = true;
         var pointsOnly = false;
 
-        _currentSeries = ActualModel.GetSeriesFromPoint(position, 20);
+        _currentSeries = PlotModel.GetSeriesFromPoint(position, 20);
 
         if (_currentSeries == null)
         {
@@ -277,7 +277,7 @@ public partial class TimelineControl
             return;
         }
 
-        if (ActualModel.PlotArea.Contains(position.X, position.Y) == false)
+        if (PlotModel.PlotArea.Contains(position.X, position.Y) == false)
         {
             return;
         }
@@ -285,21 +285,21 @@ public partial class TimelineControl
         var result = GetNearestHit(_currentSeries, position, snap, pointsOnly);
         if (result != null)
         {
-            result.PlotModel = ActualModel;
+            result.PlotModel = PlotModel;
             ShowTracker(result);
         }
     }
 
     private void OnLeftButtonPressedMouseMoved(PointerEventArgs e)
     {
-        if (ActualModel == null)
+        if (PlotModel == null)
         {
             return;
         }
 
         var position = e.GetPosition(_basePanel).ToScreenPoint();
 
-        var plotArea = ActualModel.PlotArea;
+        var plotArea = PlotModel.PlotArea;
 
         var x = Math.Min(_mouseDownPoint.X, position.X);
         var w = Math.Abs(_mouseDownPoint.X - position.X);

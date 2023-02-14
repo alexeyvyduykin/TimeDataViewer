@@ -27,7 +27,7 @@
     </UserControl.Styles>
 
     <Grid>
-        <TabControl Margin="4" SelectedIndex="0">
+        <TabControl Margin="4" SelectedIndex="1">
             <TabItem Header="Header1">
                 <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
 
@@ -55,9 +55,9 @@
                         <Button Content="ZoomToCount"
                                 Command="{Binding ZoomToCount}"
                                 CommandParameter="{Binding #Numeric.Value}"/>
-                        <CheckBox Content="Observation" 
+                        <CheckBox Content="Observation"
                                   IsChecked="{Binding ObservationTaskVisible}"/>
-                        <CheckBox Content="Download" 
+                        <CheckBox Content="Download"
                                   IsChecked="{Binding DownloadTaskVisible}"/>
                     </StackPanel>
 
@@ -84,8 +84,7 @@
 
             <TabItem Header="Header2">
 
-
-                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*"
                       RowDefinitions="*">
 
                     <Slider Name="Slider2"
@@ -102,7 +101,7 @@
 
                         <controls:CategoryListBox ItemsSource="{Binding Labels}"
                                         ActiveCount="{Binding #Slider2.Value}"
-                                        Margin="8"                                     
+                                        Margin="8"
                                         Grid.Row="1" Width="150">
 
                             <controls:CategoryListBox.ItemTemplate>
@@ -115,6 +114,24 @@
                             </controls:CategoryListBox.ItemTemplate>
 
                         </controls:CategoryListBox>
+                    </Grid>
+
+                    <Grid  Grid.Column="4"
+                           ColumnDefinitions="1*,1*"
+                           RowDefinitions="1*,1*">
+                        <Canvas>
+                            <Canvas.Background>
+                                <VisualBrush TileMode="Tile"
+                                             SourceRect="0,0,30,30"
+                                             DestinationRect="0,0,30,30">
+                                    <VisualBrush.Visual>
+                                        <Path Data="M 0 0 L 30 30"
+                                              StrokeThickness="1"
+                                              Stroke="Orange"/>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Canvas.Background>
+                        </Canvas>
                     </Grid>
                 </Grid>
 

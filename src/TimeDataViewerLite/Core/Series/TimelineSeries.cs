@@ -6,7 +6,7 @@ public sealed class TimelineSeries : Series, IStackableSeries
 {
     public const string DefaultTrackerFormatString = "{0}: {1}\n{2}: {3}\n{4}: {5}\n{6}: {7}";
     private OxyRect _clippingRect;
-    private List<(OxyRect, bool)>? _rectangles;
+    private List<(OxyRect, int, bool)>? _rectangles;
     private int? _selectedIndex;
 
     public TimelineSeries(PlotModel plotModel) : base(plotModel)
@@ -16,7 +16,7 @@ public sealed class TimelineSeries : Series, IStackableSeries
         BarWidth = 1;
     }
 
-    public List<(OxyRect, bool)>? Rectangles => _rectangles;
+    public List<(OxyRect, int, bool)>? Rectangles => _rectangles;
 
     public double BarWidth { get; set; }
 
@@ -102,9 +102,9 @@ public sealed class TimelineSeries : Series, IStackableSeries
         _rectangles = CreateRectangles();
     }
 
-    private List<(OxyRect, bool)> CreateRectangles()
+    private List<(OxyRect, int, bool)> CreateRectangles()
     {
-        var list = new List<(OxyRect, bool)>();
+        var list = new List<(OxyRect, int, bool)>();
 
         var axisY = PlotModel.AxisY;
 
@@ -122,7 +122,7 @@ public sealed class TimelineSeries : Series, IStackableSeries
 
             var rectangle = OxyRect.Create(p0.X, p0.Y, p1.X, p1.Y);
 
-            list.Add((rectangle, Equals(i, _selectedIndex)));
+            list.Add((rectangle, (int)item.BrushMode, Equals(i, _selectedIndex)));
         }
 
         return list;

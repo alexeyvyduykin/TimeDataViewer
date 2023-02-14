@@ -257,16 +257,40 @@ public sealed class CategoryAxis : Axis
         var min = -0.5;
         var max = min + count;
 
+        IsZoomEnabled = true;
+
         Zoom(min, max);
+
+        IsZoomEnabled = false;
     }
 
     public void PanUp()
     {
+        IsPanEnabled = true;
+
         Pan(1.0 * Scale);
+
+        IsPanEnabled = false;
     }
 
     public void PanDown()
     {
+        IsPanEnabled = true;
+
         Pan(-1.0 * Scale);
+
+        IsPanEnabled = false;
+    }
+
+    public void PanToCategory(int startIndex)
+    {
+        var first = -0.5 + startIndex;
+
+        var len = Math.Abs((double)_viewMaximum! - (double)_viewMinimum!);
+
+        _viewMinimum = first;
+        _viewMaximum = first + len;
+
+        UpdateActualMaxMin();
     }
 }

@@ -4,8 +4,7 @@ namespace TimeDataViewerLite.Core;
 
 public interface IView
 {
-    // Gets the actual model in the view.
-    PlotModel? ActualModel { get; }
+    PlotModel? PlotModel { get; }
 
     // Gets the coordinates of the client area of the view.
     OxyRect ClientArea { get; }
