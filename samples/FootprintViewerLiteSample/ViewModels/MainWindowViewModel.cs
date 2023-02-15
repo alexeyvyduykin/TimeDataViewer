@@ -21,16 +21,10 @@ public class MainWindowViewModel : ViewModelBase
     private readonly ReadOnlyObservableCollection<string> _taskItems;
     private readonly SourceList<SeriesViewModel> _series = new();
     private readonly ReadOnlyObservableCollection<SeriesViewModel> _seriesItems;
-    private readonly DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
     private readonly ObservableAsPropertyHelper<bool> _isLoading;
 
     public MainWindowViewModel()
     {
-        Epoch = DateTime.Now.Date;
-
-        BeginScenario = 0.0;
-        EndScenario = 2 * 86400.0;
-
         var taskFilter = this.WhenAnyValue(s => s.ObservationTaskVisible, s => s.DownloadTaskVisible)
             .Select(TaskPredicate);
 
@@ -86,19 +80,15 @@ public class MainWindowViewModel : ViewModelBase
         var series = Series.Where(s => s.IsVisible == true);
         var tasks = Tasks.ToList();
 
-        Epoch = _dataResult!.Epoch;
-
-        BeginScenario = ToTotalDays(Epoch.Date, _timeOrigin) - 1;
-        EndScenario = BeginScenario + 3;
-
-        Begin = ToTotalDays(Epoch, _timeOrigin);
-        Duration = 1.0;
+        var epoch = _dataResult!.Epoch;
+        var beginScenario = _dataResult.BeginScenario;
+        var endScenario = _dataResult.EndScenario;
 
         var seriesInfos = _dataResult.Series
             .Where(s => series.Select(s => s.Name).Contains(s.StackGroup))
             .ToList();
 
-        PlotModel = await Observable.Start(() => PlotModelBuilder.Build(Epoch, BeginScenario, EndScenario, tasks, seriesInfos),
+        PlotModel = await Observable.Start(() => PlotModelBuilder.Build(epoch, beginScenario, endScenario, tasks, seriesInfos),
             RxApp.TaskpoolScheduler);
     }
 
@@ -142,28 +132,8 @@ public class MainWindowViewModel : ViewModelBase
         });
     }
 
-    private static double ToTotalDays(DateTime value, DateTime timeOrigin)
-    {
-        return (value - timeOrigin).TotalDays + 1;
-    }
-
     [Reactive]
     public PlotModel? PlotModel { get; set; }
-
-    [Reactive]
-    public DateTime Epoch { get; set; }
-
-    [Reactive]
-    public double BeginScenario { get; set; }
-
-    [Reactive]
-    public double EndScenario { get; set; }
-
-    [Reactive]
-    public double Begin { get; set; }
-
-    [Reactive]
-    public double Duration { get; set; }
 
     public ReactiveCommand<Unit, Unit> PanUp { get; }
 

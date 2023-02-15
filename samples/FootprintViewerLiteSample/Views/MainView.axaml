@@ -76,8 +76,7 @@
                                               Margin="8"
                                               PlotModel="{Binding PlotModel}"
                                               ActiveCategoriesCount="{Binding #Slider.Value}"
-                                              Begin="{Binding Begin}"
-                                              Duration="{Binding Duration}"/>
+                                              />
                 </Grid>
             </TabItem>
 

@@ -11,44 +11,12 @@ public partial class TimelineControl
     private ICommand? _selectedInterval;
 
     public static readonly StyledProperty<PlotModel> PlotModelProperty =
-    AvaloniaProperty.Register<TimelineControl, PlotModel>(nameof(PlotModel));
+        AvaloniaProperty.Register<TimelineControl, PlotModel>(nameof(PlotModel));
 
     public PlotModel PlotModel
     {
         get => GetValue(PlotModelProperty);
         set => SetValue(PlotModelProperty, value);
-    }
-
-    public static readonly StyledProperty<double> BeginProperty =
-        AvaloniaProperty.Register<TimelineControl, double>(nameof(Begin));
-
-    public double Begin
-    {
-        get
-        {
-            return GetValue(BeginProperty);
-        }
-
-        set
-        {
-            SetValue(BeginProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<double> DurationProperty =
-        AvaloniaProperty.Register<TimelineControl, double>(nameof(Duration));
-
-    public double Duration
-    {
-        get
-        {
-            return GetValue(DurationProperty);
-        }
-
-        set
-        {
-            SetValue(DurationProperty, value);
-        }
     }
 
     public static readonly StyledProperty<ControlTemplate> DefaultLabelTemplateProperty =

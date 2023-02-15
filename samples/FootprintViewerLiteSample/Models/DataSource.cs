@@ -12,13 +12,18 @@ namespace FootprintViewerLiteSample.Models;
 
 public static class DataSource
 {
-    public static Random _random = new();
+    private static DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+    private static Random _random = new();
 
     public static async Task<DataResult> BuildSampleAsync() => await Observable.Start(() => BuildSample(), RxApp.TaskpoolScheduler);
 
     public static DataResult BuildSample()
     {
         var begin = DateTime.Now;
+        var begin0 = begin.Date;
+
+        var beginScenario = (begin0 - _timeOrigin).TotalDays + 1 - 1;
+        var endScenario = beginScenario + 3;
 
         var tasks = BuildTasks(2500);
 
@@ -51,7 +56,9 @@ public static class DataSource
 
         return new DataResult()
         {
-            Epoch = begin.Date,
+            Epoch = begin0,
+            BeginScenario = beginScenario,
+            EndScenario = endScenario,
             Tasks = tasks,
             Series = seriesInfos
         };
