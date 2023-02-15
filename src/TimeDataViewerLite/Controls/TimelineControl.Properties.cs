@@ -10,6 +10,15 @@ public partial class TimelineControl
 {
     private ICommand? _selectedInterval;
 
+    public static readonly StyledProperty<PlotModel> PlotModelProperty =
+    AvaloniaProperty.Register<TimelineControl, PlotModel>(nameof(PlotModel));
+
+    public PlotModel PlotModel
+    {
+        get => GetValue(PlotModelProperty);
+        set => SetValue(PlotModelProperty, value);
+    }
+
     public static readonly StyledProperty<double> BeginProperty =
         AvaloniaProperty.Register<TimelineControl, double>(nameof(Begin));
 
@@ -91,22 +100,6 @@ public partial class TimelineControl
         set
         {
             SetValue(ActiveCategoriesCountProperty, value);
-        }
-    }
-
-    public static readonly StyledProperty<IList<double>> CategoriesProperty =
-        AvaloniaProperty.Register<TimelineControl, IList<double>>(nameof(Categories));
-
-    public IList<double> Categories
-    {
-        get
-        {
-            return GetValue(CategoriesProperty);
-        }
-
-        set
-        {
-            SetValue(CategoriesProperty, value);
         }
     }
 

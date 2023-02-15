@@ -58,13 +58,16 @@ public static class DataSource
 
         Func<List<string>, List<TimelineItem>> Converter(IList<Interval> intervals)
         {
-            return categories => intervals.Select(s => new TimelineItem()
+            return categories => intervals
+            .Select(s => (Ival: s, Index: categories.IndexOf(s.Category!)))
+            .Where(s => s.Index != -1)
+            .Select(s => new TimelineItem()
             {
-                Begin = DateTimeAxis.ToDouble(s.Begin),
-                End = DateTimeAxis.ToDouble(s.End),
-                Category = s.Category,
-                CategoryIndex = categories.IndexOf(s.Category!),
-                BrushMode = Enum.Parse<BrushMode>($"{s.Type}")
+                Begin = DateTimeAxis.ToDouble(s.Ival.Begin),
+                End = DateTimeAxis.ToDouble(s.Ival.End),
+                Category = s.Ival.Category,
+                CategoryIndex = s.Index,
+                BrushMode = Enum.Parse<BrushMode>($"{s.Ival.Type}")
             }).ToList();
         }
     }
@@ -94,13 +97,14 @@ public static class DataSource
 
         foreach (var task in tasks)
         {
-            var taskType = _random.Next(0, 3);
+            var taskType = task.Type;
+            int categoryType = 0;
 
             for (int i = 0; i < nMax; i++)
             {
-                if (taskType != 0)
+                if (taskType == TaskType.Download)
                 {
-                    taskType = _random.Next(1, 3);
+                    categoryType = _random.Next(1, 3);
                 }
 
                 var b = i * dt;
@@ -115,7 +119,7 @@ public static class DataSource
                     Category = task.Name,
                     Begin = begin.AddSeconds(minInterval),
                     End = begin.AddSeconds(maxInterval),
-                    Type = taskType
+                    Type = categoryType
                 });
 
                 windows.Add(new Interval()

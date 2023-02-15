@@ -28,7 +28,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private TrackerControl? _tracker;
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
-    private PlotModel? _plotModel;
     private CategoryListBox? _categoryListBox;
 
     public TimelineControl()
@@ -36,24 +35,19 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
 
         AffectsMeasure<TimelineControl>(ActiveCategoriesCountProperty);
-    }
 
-    public PlotModel? PlotModel => _plotModel;
+        PlotModelProperty.Changed.Subscribe(PlotModelChanged);
+    }
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
-    protected override void OnDataContextChanged(EventArgs e)
+    private void PlotModelChanged(AvaloniaPropertyChangedEventArgs e)
     {
-        base.OnDataContextChanged(e);
+        ((IPlotModel)PlotModel).AttachPlotView(this);
 
-        if (DataContext is PlotModel plotModel)
-        {
-            _plotModel = plotModel;
+        _first = true;
 
-            ((IPlotModel)_plotModel).AttachPlotView(this);
-
-            InvalidatePlot();
-        }
+        InvalidatePlot();
     }
 
     public void HideZoomRectangle()

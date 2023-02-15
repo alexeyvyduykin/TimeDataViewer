@@ -27,11 +27,11 @@
     </UserControl.Styles>
 
     <Grid>
-        <TabControl Margin="4" SelectedIndex="1">
+        <TabControl Margin="4" SelectedIndex="0">
             <TabItem Header="Header1">
                 <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
 
-                    <StackPanel>
+                    <StackPanel IsEnabled="{Binding !IsLoading}">
                         <TextBlock Text="Series:"/>
                         <ItemsControl Items="{Binding Series}">
                             <ItemsControl.ItemTemplate>
@@ -72,13 +72,12 @@
                             TickFrequency="1"
                             Value="5"/>
 
-                    <controls:TimelineControl x:Name="TimelineControl"
-                                              Grid.Column="5"
+                    <controls:TimelineControl Grid.Column="5"
                                               Margin="8"
-                                              DataContext="{Binding PlotModel}"
+                                              PlotModel="{Binding PlotModel}"
                                               ActiveCategoriesCount="{Binding #Slider.Value}"
-                                              Begin="{Binding $parent[TopLevel].DataContext.Begin}"
-                                              Duration="{Binding $parent[TopLevel].DataContext.Duration}"/>
+                                              Begin="{Binding Begin}"
+                                              Duration="{Binding Duration}"/>
                 </Grid>
             </TabItem>
 
