@@ -10,14 +10,14 @@
 
     <!-- Add Styles Here -->
     <Styles.Resources>
-        <Color x:Key="timelineBackground">#424242</Color>
+        <Color x:Key="TimelineBackground">#424242</Color>
         <!-- (0.259, 0.259, 0.259) -->
-        <SolidColorBrush x:Key="timelineBackgroundBrush" Color="{StaticResource timelineBackground}"/>
-        <Color x:Key="axisLabelForeground">#C3C3C3</Color>
+        <SolidColorBrush x:Key="TimelineBackgroundBrush" Color="{StaticResource TimelineBackground}"/>
+        <Color x:Key="AxisLabelForeground">#C3C3C3</Color>
         <!-- (0.765, 0.765, 0.765) -->
-        <Color x:Key="axisBackgound">#292929</Color>
+        <Color x:Key="AxisBackgound">#292929</Color>
         <!-- (0.161, 0.161, 0.161) -->
-        <SolidColorBrush x:Key="axisBackgroundBrush" Color="{StaticResource axisBackgound}"/>
+        <SolidColorBrush x:Key="AxisBackgroundBrush" Color="{StaticResource AxisBackgound}"/>
 
         <ControlTemplate x:Key="ZoomTemplate">
             <Rectangle Stroke="White" StrokeDashArray="5,5" StrokeThickness="1">
@@ -28,7 +28,7 @@
         </ControlTemplate>
 
         <ControlTemplate x:Key="LabelTemplate">
-            <TextBlock Foreground="{StaticResource axisLabelForeground}"
+            <TextBlock Foreground="{StaticResource AxisLabelForeground}"
                        FontFamily="Segoe UI"
                        FontSize="12"
                        FontWeight="Normal"/>
@@ -98,6 +98,7 @@
     <Style Selector="controls|TimelineControl">
         <Setter Property="DefaultLabelTemplate" Value="{StaticResource LabelTemplate}"/>
         <Setter Property="TrackerTemplate" Value="{StaticResource TrackerContentTemplate}"/>
+        <Setter Property="CategoryListBoxItemTemplate" Value="{StaticResource TaskContentTemplate}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
@@ -106,7 +107,7 @@
                         <Grid RowDefinitions="30,*">
                             <controls:CategoryListBox Name="PART_CategoryListBox"
                                                       Grid.Row="1"
-                                                      ItemTemplate="{StaticResource TaskContentTemplate}"/>
+                                                      ItemTemplate="{TemplateBinding CategoryListBoxItemTemplate}"/>
                         </Grid>
 
                         <Border Grid.Column="1"
@@ -142,10 +143,14 @@
     </Style>
 
     <Style Selector="controls|TimelineControl /template/ Panel#PART_AxisXPanel">
-        <Setter Property="Background" Value="{StaticResource axisBackgroundBrush}"/>
+        <Setter Property="Background" Value="{StaticResource AxisBackgroundBrush}"/>
     </Style>
 
     <Style Selector="controls|TimelineControl /template/ Panel#PART_BasePanel">
-        <Setter Property="Background" Value="{StaticResource timelineBackgroundBrush}"/>
+        <Setter Property="Background" Value="{StaticResource TimelineBackgroundBrush}"/>
+    </Style>
+
+    <Style Selector="controls|TimelineControl /template/ controls|CategoryListBox#PART_CategoryListBox">
+        <Setter Property="Background" Value="{StaticResource AxisBackgroundBrush}"/>
     </Style>
 </Styles>

@@ -58,6 +58,15 @@ public partial class TimelineControl
     public static readonly StyledProperty<double> ActiveCategoriesCountProperty =
         AvaloniaProperty.Register<TimelineControl, double>(nameof(ActiveCategoriesCount));
 
+    public static readonly StyledProperty<DataTemplate> CategoryListBoxItemTemplateProperty =
+        AvaloniaProperty.Register<TimelineControl, DataTemplate>(nameof(CategoryListBoxItemTemplate));
+
+    public DataTemplate CategoryListBoxItemTemplate
+    {
+        get => GetValue(CategoryListBoxItemTemplateProperty);
+        set => SetValue(CategoryListBoxItemTemplateProperty, value);
+    }
+
     public double ActiveCategoriesCount
     {
         get

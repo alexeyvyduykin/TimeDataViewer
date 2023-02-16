@@ -12,6 +12,21 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
+    <UserControl.Resources>
+        <DataTemplate x:Key="TaskContentTemplate"
+                      DataType="{x:Type controls:CategoryListBoxItem}">
+            <Panel>
+                <TextBlock Text="{Binding Text}"                           
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center">
+                    <TextBlock.Foreground>
+                        <SolidColorBrush Color="#C3C3C3"/>
+                    </TextBlock.Foreground>
+                </TextBlock>
+            </Panel>
+        </DataTemplate>
+    </UserControl.Resources>
+
     <UserControl.Styles>
         <Style Selector="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -52,7 +67,8 @@
                     <controls:TimelineControl Grid.Column="1"
                                               Margin="8"
                                               PlotModel="{Binding PlotModel}"
-                                              />
+                                              CategoryListBoxItemTemplate="{StaticResource TaskContentTemplate}">
+                    </controls:TimelineControl>
                 </Grid>
             </TabItem>
 
