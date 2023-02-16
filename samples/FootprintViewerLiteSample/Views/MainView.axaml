@@ -16,7 +16,7 @@
         <DataTemplate x:Key="TaskContentTemplate"
                       DataType="{x:Type controls:CategoryListBoxItem}">
             <Panel>
-                <TextBlock Text="{Binding Text}"                           
+                <TextBlock Text="{Binding Text}"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center">
                     <TextBlock.Foreground>
@@ -41,7 +41,7 @@
     </UserControl.Styles>
 
     <Grid>
-        <TabControl Margin="4" SelectedIndex="0">
+        <TabControl Margin="4" SelectedIndex="1">
             <TabItem Header="Header1">
                 <Grid ColumnDefinitions="Auto,*">
 
@@ -73,7 +73,13 @@
             </TabItem>
 
             <TabItem Header="Header2">
+                <Grid>
+                    <controls:TimelineControl Margin="8"
+                                              PlotModel="{Binding EmptyPlotModel}"/>
+                </Grid>
+            </TabItem>
 
+            <TabItem Header="Header3">
                 <Grid ColumnDefinitions="Auto,Auto,Auto,*"
                       RowDefinitions="*">
 

@@ -32,4 +32,32 @@ public static class PlotModelBuilder
 
         return plotModel;
     }
+
+    public static PlotModel Build()
+    {
+        var plotModel = new PlotModel()
+        {
+            PlotMarginLeft = 0,
+            PlotMarginTop = 30,
+            PlotMarginRight = 0,
+            PlotMarginBottom = 0,
+        };
+
+        var begin = DateTime.Now;
+        var begin0 = begin.Date;
+
+        var beginScenario = (begin0 - _timeOrigin).TotalDays;
+        var endScenario = beginScenario + 1;
+
+        // TODO: not using yet
+        var begin2 = (begin0 - _timeOrigin).TotalDays + 1;
+        var duration2 = 1.0;
+
+        plotModel.UpdateAxisX(begin0, beginScenario, endScenario);
+        plotModel.UpdateAxisY(new List<string>());
+
+        plotModel.InvalidateData();
+
+        return plotModel;
+    }
 }

@@ -11,7 +11,7 @@ public partial class TimelineControl
     private ICommand? _selectedInterval;
 
     public static readonly StyledProperty<PlotModel> PlotModelProperty =
-        AvaloniaProperty.Register<TimelineControl, PlotModel>(nameof(PlotModel));
+        AvaloniaProperty.Register<TimelineControl, PlotModel>(nameof(PlotModel), PlotModelBuilder.Build());
 
     public PlotModel PlotModel
     {

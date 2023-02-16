@@ -69,6 +69,8 @@ public class MainWindowViewModel : ViewModelBase
             .InvokeCommand(Update);
 
         Observable.StartAsync(UpdateAsyncImpl, RxApp.MainThreadScheduler);
+
+        Observable.StartAsync(EmptyPlotModelCreateImpl, RxApp.MainThreadScheduler);
     }
 
     private async Task UpdateImpl()
@@ -128,8 +130,16 @@ public class MainWindowViewModel : ViewModelBase
         });
     }
 
+    private async Task EmptyPlotModelCreateImpl()
+    {
+        EmptyPlotModel = await Observable.Start(() => PlotModelBuilder.Build(), RxApp.TaskpoolScheduler);
+    }
+
     [Reactive]
     public PlotModel? PlotModel { get; set; }
+
+    [Reactive]
+    public PlotModel? EmptyPlotModel { get; set; }
 
     public ReadOnlyObservableCollection<string> Tasks => _taskItems;
 

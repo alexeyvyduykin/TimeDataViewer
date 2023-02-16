@@ -424,7 +424,7 @@ public abstract partial class Axis
         }
 
         // Coerce the absolute maximum/minimum
-        if (_absoluteMaximum <= _absoluteMinimum)
+        if (_absoluteMaximum < _absoluteMinimum)
         {
             throw new InvalidOperationException("AbsoluteMaximum should be larger than AbsoluteMinimum.");
         }

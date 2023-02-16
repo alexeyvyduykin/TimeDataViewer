@@ -32,33 +32,30 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public TimelineControl()
     {
+        this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
+
         AffectsMeasure<TimelineControl>(ActiveCategoriesCountProperty);
 
-        TransformedBoundsProperty.Changed.Subscribe(SizeChanged);
         PlotModelProperty.Changed.Subscribe(PlotModelChanged);
     }
 
     public OxyRect ClientArea => new(0, 0, Bounds.Width, Bounds.Height);
 
-    private void PlotModelChanged(AvaloniaPropertyChangedEventArgs e)
+    private void OnSizeChanged(object _, Size size)
     {
-        ((IPlotModel)PlotModel).AttachPlotView(this);
-
-        _categoryListBox?.Update(PlotModel);
-
-        InvalidatePlot();
+        if (size.Height > 0 && size.Width > 0)
+        {
+            InvalidatePlot();
+        }
     }
 
-    private void SizeChanged(AvaloniaPropertyChangedEventArgs e)
+    private void PlotModelChanged(AvaloniaPropertyChangedEventArgs e)
     {
-        var value = e.NewValue;
-
-        if (value is TransformedBounds transformedBounds)
+        if (PlotModel != null)
         {
-            if (transformedBounds.Bounds.Height > 0 && transformedBounds.Bounds.Width > 0)
-            {
-                InvalidatePlot();
-            }
+            ((IPlotModel)PlotModel).AttachPlotView(this);
+
+            InvalidatePlot();
         }
     }
 
@@ -115,16 +112,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
 
         _categoryListBox = e.NameScope.Find<CategoryListBox>(PART_CategoryListBox);
-
-        _categoryListBox.PointerWheelChanged += _categoryListBox_PointerWheelChanged;
-    }
-
-    private void _categoryListBox_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
-    {
-        if (sender is CategoryListBox categoryListBox)
-        {
-            PlotModel?.PanToCategory(categoryListBox.StartIndex);
-        }
     }
 
     public void SetCursorType(CursorType cursorType)

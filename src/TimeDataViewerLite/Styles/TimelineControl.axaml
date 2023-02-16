@@ -106,6 +106,7 @@
 
                         <Grid RowDefinitions="30,*">
                             <controls:CategoryListBox Name="PART_CategoryListBox"
+                                                      PlotModel="{TemplateBinding PlotModel}"
                                                       Grid.Row="1"
                                                       ItemTemplate="{TemplateBinding CategoryListBoxItemTemplate}"/>
                         </Grid>

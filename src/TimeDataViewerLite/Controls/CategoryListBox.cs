@@ -20,6 +20,7 @@ public class CategoryListBox : ListBox, IStyleable
     public CategoryListBox()
     {
         ItemsSourceProperty.Changed.Subscribe(ItemsSourceChanged);
+        PlotModelProperty.Changed.Subscribe(PlotModelChanged);
     }
 
     public int StartIndex => _startIndex;
@@ -42,16 +43,36 @@ public class CategoryListBox : ListBox, IStyleable
         }
     }
 
-    public static readonly StyledProperty<double> ActiveCountProperty =
-        AvaloniaProperty.Register<CategoryListBox, double>(nameof(ActiveCount), 10);
+    private void PlotModelChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (PlotModel != null)
+        {
+            _startIndex = 0;
+
+            ActiveCount = 10;
+
+            ItemsSource = PlotModel.AxisY.SourceLabels
+                .Select(s => new CategoryListBoxItem()
+                {
+                    Text = s
+                })
+                .ToList();
+        }
+    }
 
     public static readonly StyledProperty<IEnumerable<object>> ItemsSourceProperty =
         AvaloniaProperty.Register<CategoryListBox, IEnumerable<object>>(nameof(ItemsSource));
 
-    public double ActiveCount
+    public static readonly StyledProperty<PlotModel> PlotModelProperty =
+        AvaloniaProperty.Register<CategoryListBox, PlotModel>(nameof(PlotModel));
+
+    public static readonly StyledProperty<double> ActiveCountProperty =
+        AvaloniaProperty.Register<CategoryListBox, double>(nameof(ActiveCount));
+
+    public PlotModel PlotModel
     {
-        get => GetValue(ActiveCountProperty);
-        set => SetValue(ActiveCountProperty, value);
+        get => GetValue(PlotModelProperty);
+        set => SetValue(PlotModelProperty, value);
     }
 
     public IEnumerable<object> ItemsSource
@@ -60,18 +81,10 @@ public class CategoryListBox : ListBox, IStyleable
         set => SetValue(ItemsSourceProperty, value);
     }
 
-    public void Update(PlotModel plotModel)
+    public double ActiveCount
     {
-        _startIndex = 0;
-
-        ActiveCount = 10;
-
-        ItemsSource = plotModel.AxisY.SourceLabels
-            .Select(s => new CategoryListBoxItem()
-            {
-                Text = s
-            })
-            .ToList();
+        get => GetValue(ActiveCountProperty);
+        set => SetValue(ActiveCountProperty, value);
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -93,5 +106,7 @@ public class CategoryListBox : ListBox, IStyleable
             .Skip(_startIndex)
             .Take((int)ActiveCount)
             .ToList();
+
+        PlotModel?.PanToCategory(_startIndex);
     }
 }
