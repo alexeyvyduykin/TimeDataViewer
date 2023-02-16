@@ -17,19 +17,12 @@ public partial class TimelineControl
     private DrawCanvas? _drawCanvas;
     private Canvas? _frontCanvas;
     private Canvas? _axisXCanvas;
-    private bool _first = true;
 
     public void Draw()
     {
         if (_backCanvas == null || _frontCanvas == null || _axisXCanvas == null || _drawCanvas == null)
         {
             return;
-        }
-
-        if (_first == true && _categoryListBox != null && PlotModel != null)
-        {
-            _categoryListBox.ItemsSource = PlotModel.AxisY.SourceLabels.Select(s => new CategoryListBoxItem() { Text = s }).ToList();
-            _first = false;
         }
 
         // Clear the canvas

@@ -96,7 +96,6 @@
     </Style>
 
     <Style Selector="controls|TimelineControl">
-        <Setter Property="ActiveCategoriesCount" Value="5"/>
         <Setter Property="DefaultLabelTemplate" Value="{StaticResource LabelTemplate}"/>
         <Setter Property="TrackerTemplate" Value="{StaticResource TrackerContentTemplate}"/>
         <Setter Property="Template">
@@ -107,7 +106,6 @@
                         <Grid RowDefinitions="30,*">
                             <controls:CategoryListBox Name="PART_CategoryListBox"
                                                       Grid.Row="1"
-                                                      ActiveCount="{TemplateBinding ActiveCategoriesCount}"
                                                       ItemTemplate="{StaticResource TaskContentTemplate}"/>
                         </Grid>
 

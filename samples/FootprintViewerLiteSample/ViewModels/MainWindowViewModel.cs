@@ -68,10 +68,6 @@ public class MainWindowViewModel : ViewModelBase
             .Select(_ => Unit.Default)
             .InvokeCommand(Update);
 
-        PanUp = ReactiveCommand.Create(() => PlotModel?.PanUp());
-        PanDown = ReactiveCommand.Create(() => PlotModel?.PanDown());
-        ZoomToCount = ReactiveCommand.Create<double>(s => PlotModel?.ZoomToCount((int)s));
-
         Observable.StartAsync(UpdateAsyncImpl, RxApp.MainThreadScheduler);
     }
 
@@ -134,12 +130,6 @@ public class MainWindowViewModel : ViewModelBase
 
     [Reactive]
     public PlotModel? PlotModel { get; set; }
-
-    public ReactiveCommand<Unit, Unit> PanUp { get; }
-
-    public ReactiveCommand<Unit, Unit> PanDown { get; }
-
-    public ReactiveCommand<double, Unit> ZoomToCount { get; }
 
     public ReadOnlyObservableCollection<string> Tasks => _taskItems;
 

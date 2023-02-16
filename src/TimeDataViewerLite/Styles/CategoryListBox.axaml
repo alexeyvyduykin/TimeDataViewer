@@ -23,8 +23,7 @@
                     </scg:List>
                 </Panel.Resources>
 
-                <controls:CategoryListBox ItemsSource="{StaticResource StringList}"
-                                          ActiveCount="4">
+                <controls:CategoryListBox ItemsSource="{StaticResource StringList}">
                     <controls:CategoryListBox.ItemTemplate>
                         <DataTemplate>
                             <Border BorderThickness="1"
@@ -42,7 +41,6 @@
     <!-- Add Styles Here -->
 
     <Style Selector="controls|CategoryListBox">
-        <Setter Property="ActiveCount" Value="5"/>
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}"/>

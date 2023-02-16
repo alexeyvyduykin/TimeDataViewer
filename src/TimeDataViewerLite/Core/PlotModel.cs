@@ -129,6 +129,8 @@ public sealed class PlotModel : Model, IPlotModel
 
         AxisX.UpdateActualMaxMin();
         AxisY.UpdateActualMaxMin();
+
+        AxisY.ZoomToCategoryCount(AxisY.ActiveCategoriesCount);
     }
 
     // Renders the plot with the specified rendering context.
@@ -152,30 +154,9 @@ public sealed class PlotModel : Model, IPlotModel
         }
     }
 
-    public void PanUp()
-    {
-        AxisY.PanUp();
-
-        PlotView?.InvalidatePlot();
-    }
-
-    public void PanDown()
-    {
-        AxisY.PanDown();
-
-        PlotView?.InvalidatePlot();
-    }
-
     public void PanToCategory(int startIndex)
     {
         AxisY.PanToCategory(startIndex);
-
-        PlotView?.InvalidatePlot();
-    }
-
-    public void ZoomToCount(int count)
-    {
-        AxisY.ZoomToCategoryCount(count);
 
         PlotView?.InvalidatePlot();
     }

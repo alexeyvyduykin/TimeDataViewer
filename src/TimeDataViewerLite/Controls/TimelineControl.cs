@@ -32,10 +32,9 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public TimelineControl()
     {
-        this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
-
         AffectsMeasure<TimelineControl>(ActiveCategoriesCountProperty);
 
+        TransformedBoundsProperty.Changed.Subscribe(SizeChanged);
         PlotModelProperty.Changed.Subscribe(PlotModelChanged);
     }
 
@@ -45,9 +44,22 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     {
         ((IPlotModel)PlotModel).AttachPlotView(this);
 
-        _first = true;
+        _categoryListBox?.Update(PlotModel);
 
         InvalidatePlot();
+    }
+
+    private void SizeChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        var value = e.NewValue;
+
+        if (value is TransformedBounds transformedBounds)
+        {
+            if (transformedBounds.Bounds.Height > 0 && transformedBounds.Bounds.Width > 0)
+            {
+                InvalidatePlot();
+            }
+        }
     }
 
     public void HideZoomRectangle()
@@ -164,15 +176,6 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         }
 
         return actualSize;
-    }
-
-    // Called when the size of the control is changed.
-    private void OnSizeChanged(object _, Size size)
-    {
-        if (size.Height > 0 && size.Width > 0)
-        {
-            InvalidatePlot();
-        }
     }
 
     // Gets the relevant parent.

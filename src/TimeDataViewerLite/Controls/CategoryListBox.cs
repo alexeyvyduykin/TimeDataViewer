@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Styling;
+using TimeDataViewerLite.Core;
 
 namespace TimeDataViewerLite.Controls;
 
@@ -19,7 +20,6 @@ public class CategoryListBox : ListBox, IStyleable
     public CategoryListBox()
     {
         ItemsSourceProperty.Changed.Subscribe(ItemsSourceChanged);
-        ActiveCountProperty.Changed.Subscribe(ItemsSourceChanged);
     }
 
     public int StartIndex => _startIndex;
@@ -43,7 +43,7 @@ public class CategoryListBox : ListBox, IStyleable
     }
 
     public static readonly StyledProperty<double> ActiveCountProperty =
-        AvaloniaProperty.Register<CategoryListBox, double>(nameof(ActiveCount));
+        AvaloniaProperty.Register<CategoryListBox, double>(nameof(ActiveCount), 10);
 
     public static readonly StyledProperty<IEnumerable<object>> ItemsSourceProperty =
         AvaloniaProperty.Register<CategoryListBox, IEnumerable<object>>(nameof(ItemsSource));
@@ -58,6 +58,20 @@ public class CategoryListBox : ListBox, IStyleable
     {
         get => GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
+    }
+
+    public void Update(PlotModel plotModel)
+    {
+        _startIndex = 0;
+
+        ActiveCount = 10;
+
+        ItemsSource = plotModel.AxisY.SourceLabels
+            .Select(s => new CategoryListBoxItem()
+            {
+                Text = s
+            })
+            .ToList();
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)

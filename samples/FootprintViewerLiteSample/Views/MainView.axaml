@@ -23,13 +23,12 @@
         <!--<Style Selector="ListBox > ListBoxItem">
             <Setter Property="Height" Value="30"/>      
         </Style>-->
-
     </UserControl.Styles>
 
     <Grid>
         <TabControl Margin="4" SelectedIndex="0">
             <TabItem Header="Header1">
-                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*">
+                <Grid ColumnDefinitions="Auto,*">
 
                     <StackPanel IsEnabled="{Binding !IsLoading}">
                         <TextBlock Text="Series:"/>
@@ -44,38 +43,15 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                        <Button Content="PanUp"
-                                Command="{Binding PanUp}"/>
-                        <Button Content="PanDown"
-                                Command="{Binding PanDown}"/>
-                        <NumericUpDown Name="Numeric"
-                                       Minimum="1"
-                                       Maximum="10"
-                                       Value="5"/>
-                        <Button Content="ZoomToCount"
-                                Command="{Binding ZoomToCount}"
-                                CommandParameter="{Binding #Numeric.Value}"/>
                         <CheckBox Content="Observation"
                                   IsChecked="{Binding ObservationTaskVisible}"/>
                         <CheckBox Content="Download"
                                   IsChecked="{Binding DownloadTaskVisible}"/>
                     </StackPanel>
 
-                    <Slider Name="Slider"
-                            Margin="0,8,0,8"
-                            Grid.Column="4"
-                            Orientation="Vertical"
-                            IsDirectionReversed="True"
-                            IsSnapToTickEnabled="True"
-                            Minimum="1"
-                            Maximum="10"
-                            TickFrequency="1"
-                            Value="5"/>
-
-                    <controls:TimelineControl Grid.Column="5"
+                    <controls:TimelineControl Grid.Column="1"
                                               Margin="8"
                                               PlotModel="{Binding PlotModel}"
-                                              ActiveCategoriesCount="{Binding #Slider.Value}"
                                               />
                 </Grid>
             </TabItem>

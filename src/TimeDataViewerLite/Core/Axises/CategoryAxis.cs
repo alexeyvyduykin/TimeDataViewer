@@ -52,6 +52,10 @@ public sealed class CategoryAxis : Axis
     // Gets or sets a value indicating whether the ticks are centered. If this is <c>false</c>, ticks will be drawn between each category. If this is <c>true</c>, ticks will be drawn in the middle of each category.
     public bool IsTickCentered { get; set; }
 
+    public int MaximumCount { get; private set; } = 10;
+
+    public int ActiveCategoriesCount { get; private set; }
+
     public List<string> SourceLabels { get; set; } = new();
 
     // Gets the maximum width of all category labels.
@@ -76,7 +80,9 @@ public sealed class CategoryAxis : Axis
     {
         var count = SourceLabels.Count;
 
-        count = Math.Min(count, 32);
+        count = Math.Min(count, MaximumCount);
+
+        ActiveCategoriesCount = count;
 
         // Update the DataMinimum/DataMaximum from the number of categories
         Include(-0.5);
@@ -262,24 +268,6 @@ public sealed class CategoryAxis : Axis
         Zoom(min, max);
 
         IsZoomEnabled = false;
-    }
-
-    public void PanUp()
-    {
-        IsPanEnabled = true;
-
-        Pan(1.0 * Scale);
-
-        IsPanEnabled = false;
-    }
-
-    public void PanDown()
-    {
-        IsPanEnabled = true;
-
-        Pan(-1.0 * Scale);
-
-        IsPanEnabled = false;
     }
 
     public void PanToCategory(int startIndex)
