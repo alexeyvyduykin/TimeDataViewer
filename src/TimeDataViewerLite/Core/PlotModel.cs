@@ -112,7 +112,21 @@ public sealed class PlotModel : Model, IPlotModel
         _series.Add(series);
     }
 
-    public void InvalidateData()
+    public PlotModelState GetState()
+    {
+        var activeCategoriesCount = AxisY.ActiveCategoriesCount;
+        var actualMinimum = AxisX.ActualMinimum;
+        var actualMaximum = AxisX.ActualMaximum;
+
+        return new()
+        {
+            ActiveCategoriesCount = activeCategoriesCount,
+            ActualMinimumX = actualMinimum,
+            ActualMaximumX = actualMaximum,
+        };
+    }
+
+    public void InvalidateData(PlotModelState? state = null)
     {
         var visibleSeries = _series.Where(s => s.IsVisible).ToArray();
 
@@ -125,6 +139,15 @@ public sealed class PlotModel : Model, IPlotModel
         foreach (var s in visibleSeries.Cast<TimelineSeries>())
         {
             s.UpdateAxisMaxMin();
+        }
+
+        if (state != null)
+        {
+            AxisX.Zoom(state.ActualMinimumX, state.ActualMaximumX);
+            AxisY.UpdateActualMaxMin();
+
+            AxisY.ZoomToCategoryCount(state.ActiveCategoriesCount);
+            return;
         }
 
         AxisX.UpdateActualMaxMin();

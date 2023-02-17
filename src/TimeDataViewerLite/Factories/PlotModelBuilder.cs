@@ -6,7 +6,7 @@ public static class PlotModelBuilder
 {
     private static DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
-    public static PlotModel Build(DateTime begin0, double begin, double end, List<string> categories, List<SeriesInfo> seriesInfos)
+    public static PlotModel Build(DateTime begin0, double begin, double end, List<string> categories, List<SeriesInfo> seriesInfos, PlotModelState? state = null)
     {
         var plotModel = new PlotModel()
         {
@@ -28,7 +28,7 @@ public static class PlotModelBuilder
         plotModel.UpdateAxisX(begin0, begin, end);
         plotModel.UpdateAxisY(categories);
 
-        plotModel.InvalidateData();
+        plotModel.InvalidateData(state);
 
         return plotModel;
     }

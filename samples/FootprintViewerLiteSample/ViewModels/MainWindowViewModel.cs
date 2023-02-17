@@ -86,7 +86,9 @@ public class MainWindowViewModel : ViewModelBase
             .Where(s => series.Select(s => s.Name).Contains(s.StackGroup))
             .ToList();
 
-        PlotModel = await Observable.Start(() => PlotModelBuilder.Build(epoch, beginScenario, endScenario, tasks, seriesInfos),
+        var state = PlotModel?.GetState();
+
+        PlotModel = await Observable.Start(() => PlotModelBuilder.Build(epoch, beginScenario, endScenario, tasks, seriesInfos, state),
             RxApp.TaskpoolScheduler);
     }
 
