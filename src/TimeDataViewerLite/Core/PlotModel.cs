@@ -160,4 +160,11 @@ public sealed class PlotModel : Model, IPlotModel
 
         PlotView?.InvalidatePlot();
     }
+
+    public void ZoomToCategoryCount(int count)
+    {
+        AxisY.ZoomToCategoryCount(count);
+
+        PlotView?.InvalidatePlot();
+    }
 }

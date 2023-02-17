@@ -1,5 +1,6 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="using:TimeDataViewerLite.Converters"
         xmlns:controls="using:TimeDataViewerLite.Controls">
     <Design.PreviewWith>
         <Border Padding="20" Width="300" Height="280">
@@ -10,6 +11,7 @@
 
     <!-- Add Styles Here -->
     <Styles.Resources>
+        <converters:SizePercentageConverter x:Key="SizePercentageConverter"/>
         <Color x:Key="TimelineBackground">#424242</Color>
         <!-- (0.259, 0.259, 0.259) -->
         <SolidColorBrush x:Key="TimelineBackgroundBrush" Color="{StaticResource TimelineBackground}"/>
@@ -59,6 +61,23 @@
         <Setter Property="Padding" Value="0"/>
     </Style>
 
+    <Style Selector="ButtonSpinner.t1:right">
+        <Setter Property="IsVisible" Value="True"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ButtonSpinner.t1:right /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="ButtonSpinner.t1:right /template/ RepeatButton#PART_IncreaseButton">
+        <Setter Property="Width" Value="{Binding $parent[Border].Bounds.Width, Converter={StaticResource SizePercentageConverter}}"/>
+    </Style>
+
+    <Style Selector="ButtonSpinner.t1:right /template/ RepeatButton#PART_DecreaseButton">
+        <Setter Property="Width" Value="{Binding $parent[Border].Bounds.Width, Converter={StaticResource SizePercentageConverter}}"/>
+    </Style>
+
     <Style Selector="controls|TrackerControl">
         <Setter Property="Distance" Value="8" />
         <Setter Property="CanCenterHorizontally" Value="true" />
@@ -105,6 +124,8 @@
                     <Grid ColumnDefinitions="100,*">
 
                         <Grid RowDefinitions="30,*">
+                            <ButtonSpinner Name="PART_ButtonSpinner"
+                                           Classes="t1"/>
                             <controls:CategoryListBox Name="PART_CategoryListBox"
                                                       PlotModel="{TemplateBinding PlotModel}"
                                                       Grid.Row="1"
@@ -112,12 +133,13 @@
                         </Grid>
 
                         <Border Grid.Column="1"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
                             <Grid RowDefinitions="30,*">
                                 <Panel Name="PART_AxisXPanel">
                                     <Canvas Name="PART_AxisXCanvas"
+                                            ClipToBounds="True"
                                             Background="Transparent"/>
                                 </Panel>
                                 <Panel Grid.Row="1" Name="PART_BasePanel">

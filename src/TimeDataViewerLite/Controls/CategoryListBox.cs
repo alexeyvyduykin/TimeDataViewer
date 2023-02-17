@@ -25,7 +25,7 @@ public class CategoryListBox : ListBox, IStyleable
 
     public int StartIndex => _startIndex;
 
-    private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
+    public void InvalidateData()
     {
         if (ItemsSource != null)
         {
@@ -43,13 +43,18 @@ public class CategoryListBox : ListBox, IStyleable
         }
     }
 
+    private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        InvalidateData();
+    }
+
     private void PlotModelChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (PlotModel != null)
         {
             _startIndex = 0;
 
-            ActiveCount = 10;
+            ActiveCount = PlotModel.AxisY.ActiveCategoriesCount;
 
             ItemsSource = PlotModel.AxisY.SourceLabels
                 .Select(s => new CategoryListBoxItem()

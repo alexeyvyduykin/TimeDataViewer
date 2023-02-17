@@ -22,6 +22,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     private const string PART_ZoomControl = "PART_ZoomControl";
     private const string PART_Tracker = "PART_Tracker";
     private const string PART_CategoryListBox = "PART_CategoryListBox";
+    private const string PART_ButtonSpinner = "PART_ButtonSpinner";
     private Panel? _basePanel;
     private Panel? _axisXPanel;
     private ContentControl? _zoomControl;
@@ -29,6 +30,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Invalidation flag (0: no update, 1: update visual elements).  
     private int _isPlotInvalidated;
     private CategoryListBox? _categoryListBox;
+    private ButtonSpinner? _buttonSpinner;
 
     public TimelineControl()
     {
@@ -56,6 +58,8 @@ public partial class TimelineControl : TemplatedControl, IPlotView
             ((IPlotModel)PlotModel).AttachPlotView(this);
 
             InvalidatePlot();
+
+            SetValidSpinDirection();
         }
     }
 
@@ -112,6 +116,66 @@ public partial class TimelineControl : TemplatedControl, IPlotView
         _tracker = e.NameScope.Find<TrackerControl>(PART_Tracker);
 
         _categoryListBox = e.NameScope.Find<CategoryListBox>(PART_CategoryListBox);
+
+        _buttonSpinner = e.NameScope.Find<ButtonSpinner>(PART_ButtonSpinner);
+
+        if (_buttonSpinner != null)
+        {
+            _buttonSpinner.Spin += OnSpinnerSpin;
+        }
+
+        SetValidSpinDirection();
+    }
+
+    private void SetValidSpinDirection()
+    {
+        var minimum = 1;
+        var maximum = PlotModel?.AxisY.MaximumCategoriesCount ?? double.MaxValue;
+        var activeCategoriesCount = PlotModel?.AxisY.ActiveCategoriesCount ?? maximum;
+
+        var validDirections = ValidSpinDirections.None;
+
+        if (activeCategoriesCount < maximum)
+        {
+            validDirections |= ValidSpinDirections.Increase;
+        }
+
+        if (activeCategoriesCount > minimum)
+        {
+            validDirections |= ValidSpinDirections.Decrease;
+        }
+
+        if (_buttonSpinner != null)
+        {
+            _buttonSpinner.ValidSpinDirection = validDirections;
+        }
+    }
+
+    private void OnSpinnerSpin(object? sender, SpinEventArgs e)
+    {
+        if (sender is ButtonSpinner)
+        {
+            var activeCategoriesCount = PlotModel.AxisY.ActiveCategoriesCount;
+
+            if (e.Direction == SpinDirection.Increase)
+            {
+                activeCategoriesCount++;
+            }
+            else
+            {
+                activeCategoriesCount--;
+            }
+
+            PlotModel.ZoomToCategoryCount(activeCategoriesCount);
+
+            if (_categoryListBox != null)
+            {
+                _categoryListBox.ActiveCount = activeCategoriesCount;
+                _categoryListBox.InvalidateData();
+            }
+
+            SetValidSpinDirection();
+        }
     }
 
     public void SetCursorType(CursorType cursorType)

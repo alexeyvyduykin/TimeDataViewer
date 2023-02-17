@@ -27,6 +27,9 @@ public sealed class CategoryAxis : Axis
         Position = AxisPosition.Bottom;
         MajorStep = 1;
         GapWidth = 1;
+
+        MaximumCategoriesCount = 10;
+        ActiveCategoriesCount = MaximumCategoriesCount;
     }
 
     public override void UpdateRenderInfo(PlotModel plot) => throw new Exception("Render info for CategoryAxis not enabled.");
@@ -52,7 +55,7 @@ public sealed class CategoryAxis : Axis
     // Gets or sets a value indicating whether the ticks are centered. If this is <c>false</c>, ticks will be drawn between each category. If this is <c>true</c>, ticks will be drawn in the middle of each category.
     public bool IsTickCentered { get; set; }
 
-    public int MaximumCount { get; private set; } = 10;
+    public int MaximumCategoriesCount { get; private set; }
 
     public int ActiveCategoriesCount { get; private set; }
 
@@ -78,11 +81,9 @@ public sealed class CategoryAxis : Axis
     // Updates the actual maximum and minimum values. If the user has zoomed/panned the axis, the internal ViewMaximum/ViewMinimum values will be used. If Maximum or Minimum have been set, these values will be used. Otherwise the maximum and minimum values of the series will be used, including the 'padding'.
     internal override void UpdateActualMaxMin()
     {
-        var count = SourceLabels.Count;
+        ActiveCategoriesCount = ValidActiveCategoriesCount(ActiveCategoriesCount);
 
-        count = Math.Min(count, MaximumCount);
-
-        ActiveCategoriesCount = count;
+        var count = ActiveCategoriesCount;
 
         // Update the DataMinimum/DataMaximum from the number of categories
         Include(-0.5);
@@ -91,6 +92,15 @@ public sealed class CategoryAxis : Axis
         base.UpdateActualMaxMin();
 
         MinorStep = 1;
+    }
+
+    private int ValidActiveCategoriesCount(int value)
+    {
+        var availableCount = SourceLabels.Count;
+
+        var count = Math.Min(availableCount, MaximumCategoriesCount);
+
+        return Math.Min(count, value);
     }
 
     /// <summary>
@@ -260,8 +270,10 @@ public sealed class CategoryAxis : Axis
 
     public void ZoomToCategoryCount(int count)
     {
+        ActiveCategoriesCount = ValidActiveCategoriesCount(count);
+
         var min = -0.5;
-        var max = min + count;
+        var max = min + ActiveCategoriesCount;
 
         IsZoomEnabled = true;
 
