@@ -6,7 +6,7 @@ public static class PlotModelBuilder
 {
     private static DateTime _timeOrigin = new(1899, 12, 31, 0, 0, 0, DateTimeKind.Utc);
 
-    public static PlotModel Build(DateTime begin0, double begin, double end, List<string> categories, List<SeriesInfo> seriesInfos, PlotModelState? state = null)
+    public static PlotModel Build(List<string> categories, List<SeriesInfo> seriesInfos, PlotModelState? state = null)
     {
         var plotModel = new PlotModel()
         {
@@ -16,16 +16,20 @@ public static class PlotModelBuilder
             PlotMarginBottom = 0,
         };
 
-        // TODO: not using yet
-        var begin2 = (begin0 - _timeOrigin).TotalDays + 1;
-        var duration2 = 1.0;
+        var min = seriesInfos.SelectMany(s => s.Items).Min(s => s.Begin);
+        var max = seriesInfos.SelectMany(s => s.Items).Max(s => s.End);
+
+        var begin0 = min.Date;
+
+        var beginScenario = (begin0 - _timeOrigin).TotalDays + 1 - 1;
+        var endScenario = beginScenario + 3;
 
         foreach (var series in seriesInfos)
         {
-            plotModel.AddSeries(series.Converter.Invoke(categories), series.Brush, series.StackGroup);
+            plotModel.AddSeries(series.Items.ToTimelineItems(categories), series.Brush, series.StackGroup);
         }
 
-        plotModel.UpdateAxisX(begin0, begin, end);
+        plotModel.UpdateAxisX(begin0, beginScenario, endScenario);
         plotModel.UpdateAxisY(categories);
 
         plotModel.InvalidateData(state);
@@ -59,5 +63,20 @@ public static class PlotModelBuilder
         plotModel.InvalidateData();
 
         return plotModel;
+    }
+
+    private static List<TimelineItem> ToTimelineItems(this IList<Interval> intervals, IList<string> categories)
+    {
+        return intervals
+            .Select(s => (Ival: s, Index: categories.IndexOf(s.Category ?? string.Empty)))
+            .Where(s => s.Index != -1)
+            .Select(s => new TimelineItem()
+            {
+                Begin = DateTimeAxis.ToDouble(s.Ival.Begin),
+                End = DateTimeAxis.ToDouble(s.Ival.End),
+                Category = s.Ival.Category,
+                CategoryIndex = s.Index,
+                BrushMode = s.Ival.BrushMode
+            }).ToList();
     }
 }

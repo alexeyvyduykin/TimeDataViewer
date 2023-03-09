@@ -38,14 +38,14 @@ public static class DataSource
                 new SeriesInfo()
                 {
                     Name = $"Satellite_{i + 1}_winds",
-                    Converter = Converter(windows.ToList()),
+                    Items = windows.ToList(),
                     Brush = new Brush(Colors.Palette[i], 0.25),
                     StackGroup = $"Satellite_{i + 1}"
                 },
                 new SeriesInfo()
                 {
                     Name = $"Satellite_{i + 1}_ivals",
-                    Converter = Converter(intervals.ToList()),
+                    Items = intervals.ToList(),
                     Brush = new Brush(Colors.Palette[i]),
                     StackGroup = $"Satellite_{i + 1}"
                 }
@@ -62,21 +62,6 @@ public static class DataSource
             Tasks = tasks,
             Series = seriesInfos
         };
-
-        Func<List<string>, List<TimelineItem>> Converter(IList<Interval> intervals)
-        {
-            return categories => intervals
-            .Select(s => (Ival: s, Index: categories.IndexOf(s.Category!)))
-            .Where(s => s.Index != -1)
-            .Select(s => new TimelineItem()
-            {
-                Begin = DateTimeAxis.ToDouble(s.Ival.Begin),
-                End = DateTimeAxis.ToDouble(s.Ival.End),
-                Category = s.Ival.Category,
-                CategoryIndex = s.Index,
-                BrushMode = Enum.Parse<BrushMode>($"{s.Ival.Type}")
-            }).ToList();
-        }
     }
 
     private static List<TaskModel> BuildTasks(int taskCount)
@@ -126,14 +111,15 @@ public static class DataSource
                     Category = task.Name,
                     Begin = begin.AddSeconds(minInterval),
                     End = begin.AddSeconds(maxInterval),
-                    Type = categoryType
+                    BrushMode = (BrushMode)categoryType
                 });
 
                 windows.Add(new Interval()
                 {
                     Category = task.Name,
                     Begin = begin.AddSeconds(minWindow),
-                    End = begin.AddSeconds(maxWindow)
+                    End = begin.AddSeconds(maxWindow),
+                    BrushMode = BrushMode.Solid
                 });
             }
         }

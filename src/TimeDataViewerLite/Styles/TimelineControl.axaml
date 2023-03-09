@@ -121,7 +121,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Grid ColumnDefinitions="100,*">
+                    <Grid ColumnDefinitions="130,*">
 
                         <Grid RowDefinitions="30,*">
                             <ButtonSpinner Name="PART_ButtonSpinner"
