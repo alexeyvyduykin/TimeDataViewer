@@ -10,10 +10,10 @@ public partial class TimelineControl
 {
     private ICommand? _selectedInterval;
 
-    public static readonly StyledProperty<PlotModel> PlotModelProperty =
-        AvaloniaProperty.Register<TimelineControl, PlotModel>(nameof(PlotModel), PlotModelBuilder.Build());
+    public static readonly StyledProperty<PlotModel?> PlotModelProperty =
+        AvaloniaProperty.Register<TimelineControl, PlotModel?>(nameof(PlotModel), null);
 
-    public PlotModel PlotModel
+    public PlotModel? PlotModel
     {
         get => GetValue(PlotModelProperty);
         set => SetValue(PlotModelProperty, value);
@@ -24,15 +24,8 @@ public partial class TimelineControl
 
     public ControlTemplate DefaultLabelTemplate
     {
-        get
-        {
-            return GetValue(DefaultLabelTemplateProperty);
-        }
-
-        set
-        {
-            SetValue(DefaultLabelTemplateProperty, value);
-        }
+        get => GetValue(DefaultLabelTemplateProperty);
+        set => SetValue(DefaultLabelTemplateProperty, value);
     }
 
     public static readonly StyledProperty<IDataTemplate> TrackerTemplateProperty =
@@ -40,15 +33,8 @@ public partial class TimelineControl
 
     public IDataTemplate TrackerTemplate
     {
-        get
-        {
-            return GetValue(TrackerTemplateProperty);
-        }
-
-        set
-        {
-            SetValue(TrackerTemplateProperty, value);
-        }
+        get => GetValue(TrackerTemplateProperty);
+        set => SetValue(TrackerTemplateProperty, value);
     }
 
     public static readonly DirectProperty<TimelineControl, ICommand?> SelectedIntervalProperty =
@@ -69,15 +55,8 @@ public partial class TimelineControl
 
     public double ActiveCategoriesCount
     {
-        get
-        {
-            return GetValue(ActiveCategoriesCountProperty);
-        }
-
-        set
-        {
-            SetValue(ActiveCategoriesCountProperty, value);
-        }
+        get => GetValue(ActiveCategoriesCountProperty);
+        set => SetValue(ActiveCategoriesCountProperty, value);
     }
 
     public ICommand? SelectedInterval

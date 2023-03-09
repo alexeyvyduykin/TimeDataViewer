@@ -153,7 +153,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     private void OnSpinnerSpin(object? sender, SpinEventArgs e)
     {
-        if (sender is ButtonSpinner)
+        if (PlotModel != null && sender is ButtonSpinner)
         {
             var activeCategoriesCount = PlotModel.AxisY.ActiveCategoriesCount;
 
