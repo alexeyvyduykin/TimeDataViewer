@@ -8,7 +8,7 @@ public class SeriesInfo
 
     public Brush Brush { get; set; } = new Brush(Colors.Red);
 
-    public List<Interval> Items { get; set; } = new();
+    public List<IntervalInfo> Items { get; set; } = new();
 
     public string StackGroup { get; set; } = string.Empty;
 }

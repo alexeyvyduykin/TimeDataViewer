@@ -80,12 +80,12 @@ public static class DataSource
         return list;
     }
 
-    private static (IList<Interval> Windows, IList<Interval> Intervals) Build(DateTime begin, double duration, IList<TaskModel> tasks, int nMax = 3)
+    private static (IList<IntervalInfo> Windows, IList<IntervalInfo> Intervals) Build(DateTime begin, double duration, IList<TaskModel> tasks, int nMax = 3)
     {
         var dt = duration / nMax;
 
-        var intervals = new List<Interval>();
-        var windows = new List<Interval>();
+        var intervals = new List<IntervalInfo>();
+        var windows = new List<IntervalInfo>();
 
         foreach (var task in tasks)
         {
@@ -106,7 +106,7 @@ public static class DataSource
 
                 var (minInterval, maxInterval) = BuildRange(minWindow, maxWindow, 0.3, 0.5);
 
-                intervals.Add(new Interval()
+                intervals.Add(new IntervalInfo()
                 {
                     Category = task.Name,
                     Begin = begin.AddSeconds(minInterval),
@@ -114,7 +114,7 @@ public static class DataSource
                     BrushMode = (BrushMode)categoryType
                 });
 
-                windows.Add(new Interval()
+                windows.Add(new IntervalInfo()
                 {
                     Category = task.Name,
                     Begin = begin.AddSeconds(minWindow),

@@ -2,7 +2,7 @@
 
 namespace TimeDataViewerLite;
 
-public class Interval
+public class IntervalInfo
 {
     public string Category { get; set; } = null!;
 

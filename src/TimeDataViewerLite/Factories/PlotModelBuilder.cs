@@ -65,7 +65,7 @@ public static class PlotModelBuilder
         return plotModel;
     }
 
-    private static List<TimelineItem> ToTimelineItems(this IList<Interval> intervals, IList<string> categories)
+    private static List<TimelineItem> ToTimelineItems(this IList<IntervalInfo> intervals, IList<string> categories)
     {
         return intervals
             .Select(s => (Ival: s, Index: categories.IndexOf(s.Category ?? string.Empty)))
