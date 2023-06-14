@@ -71,7 +71,7 @@ public partial class TimelineControl
             {
                 var label = DefaultLabelTemplate.Build(new ContentControl());
 
-                if (label.Control is TextBlock textBlock)
+                if (label?.Result is TextBlock textBlock)
                 {
                     textBlock.Text = item.Text;
                     textBlock.HorizontalAlignment = item.HorizontalAlignment.ToAvalonia();

@@ -1,25 +1,24 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Styling;
 using TimeDataViewerLite.Core;
 
 namespace TimeDataViewerLite.Controls;
 
-public class CategoryListBox : ListBox, IStyleable
+public class CategoryListBox : ListBox
 {
     private int _startIndex = 0;
 
-    Type IStyleable.StyleKey => typeof(CategoryListBox);
+    protected override Type StyleKeyOverride => typeof(CategoryListBox);
 
     static CategoryListBox()
     {
-        AffectsMeasure<CategoryListBox>(ItemsProperty);
+        AffectsMeasure<CategoryListBox>(ItemsSourceProperty);
     }
 
     public CategoryListBox()
     {
-        ItemsSourceProperty.Changed.Subscribe(ItemsSourceChanged);
+        ItemsSource2Property.Changed.Subscribe(ItemsSource2Changed);
         PlotModelProperty.Changed.Subscribe(PlotModelChanged);
     }
 
@@ -27,23 +26,23 @@ public class CategoryListBox : ListBox, IStyleable
 
     public void InvalidateData()
     {
-        if (ItemsSource != null)
+        if (ItemsSource2 != null)
         {
-            var count = ItemsSource.Count();
+            var count = ItemsSource2.Count();
 
             if (_startIndex + ActiveCount > count)
             {
                 _startIndex = count - (int)ActiveCount;
             }
 
-            Items = ItemsSource
+            ItemsSource = ItemsSource2
                 .Skip(_startIndex)
                 .Take((int)ActiveCount)
                 .ToList();
         }
     }
 
-    private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
+    private void ItemsSource2Changed(AvaloniaPropertyChangedEventArgs e)
     {
         InvalidateData();
     }
@@ -56,7 +55,7 @@ public class CategoryListBox : ListBox, IStyleable
 
             ActiveCount = PlotModel.AxisY.ActiveCategoriesCount;
 
-            ItemsSource = PlotModel.AxisY.SourceLabels
+            ItemsSource2 = PlotModel.AxisY.SourceLabels
                 .Select(s => new CategoryListBoxItem()
                 {
                     Text = s
@@ -65,8 +64,8 @@ public class CategoryListBox : ListBox, IStyleable
         }
     }
 
-    public static readonly StyledProperty<IEnumerable<object>> ItemsSourceProperty =
-        AvaloniaProperty.Register<CategoryListBox, IEnumerable<object>>(nameof(ItemsSource));
+    public static readonly StyledProperty<IEnumerable<object>> ItemsSource2Property =
+        AvaloniaProperty.Register<CategoryListBox, IEnumerable<object>>(nameof(ItemsSource2));
 
     public static readonly StyledProperty<PlotModel> PlotModelProperty =
         AvaloniaProperty.Register<CategoryListBox, PlotModel>(nameof(PlotModel));
@@ -80,10 +79,10 @@ public class CategoryListBox : ListBox, IStyleable
         set => SetValue(PlotModelProperty, value);
     }
 
-    public IEnumerable<object> ItemsSource
+    public IEnumerable<object> ItemsSource2
     {
-        get => GetValue(ItemsSourceProperty);
-        set => SetValue(ItemsSourceProperty, value);
+        get => GetValue(ItemsSource2Property);
+        set => SetValue(ItemsSource2Property, value);
     }
 
     public double ActiveCount
@@ -98,7 +97,7 @@ public class CategoryListBox : ListBox, IStyleable
 
         var delta = e.Delta.Y;
         var start = _startIndex;
-        var count = ItemsSource.Count();
+        var count = ItemsSource2.Count();
 
         start += (delta > 0) ? -1 : 1;
 
@@ -107,7 +106,7 @@ public class CategoryListBox : ListBox, IStyleable
 
         _startIndex = start;
 
-        Items = ItemsSource
+        ItemsSource = ItemsSource2
             .Skip(_startIndex)
             .Take((int)ActiveCount)
             .ToList();

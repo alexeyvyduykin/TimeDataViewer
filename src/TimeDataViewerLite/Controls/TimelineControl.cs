@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using TimeDataViewerLite.Core;
@@ -34,7 +33,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
 
     public TimelineControl()
     {
-        this.GetObservable(TransformedBoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds?.Bounds.Size ?? new Size()));
+        this.GetObservable(BoundsProperty).Subscribe(bounds => OnSizeChanged(this, bounds.Size));
 
         AffectsMeasure<TimelineControl>(ActiveCategoriesCountProperty);
 
@@ -210,7 +209,7 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     // Stores text on the clipboard.
     public async void SetClipboardText(string text)
     {
-        await AvaloniaLocator.Current.GetService<IClipboard>()!.SetTextAsync(text);
+        await TopLevel.GetTopLevel(this)!.Clipboard!.SetTextAsync(text);
     }
 
     // Provides the behavior for the Arrange pass of Silverlight layout.
@@ -230,9 +229,9 @@ public partial class TimelineControl : TemplatedControl, IPlotView
     }
 
     // Gets the relevant parent.
-    private Control? GetRelevantParent<T>(IVisual obj) where T : Control
+    private Control? GetRelevantParent<T>(Visual obj) where T : Control
     {
-        var container = obj.VisualParent;
+        var container = obj.GetVisualParent();
 
         if (container is ContentPresenter contentPresenter)
         {

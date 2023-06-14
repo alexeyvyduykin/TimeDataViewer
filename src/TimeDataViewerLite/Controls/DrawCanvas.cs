@@ -6,7 +6,7 @@ using TimeDataViewerLite.Spatial;
 
 namespace TimeDataViewerLite.Controls;
 
-public class DrawCanvas : Canvas
+public class DrawCanvas : Decorator
 {
     private Rect? _clip;
     private readonly Pen _selectedPen = new() { Brush = Brushes.Black, Thickness = 4 };

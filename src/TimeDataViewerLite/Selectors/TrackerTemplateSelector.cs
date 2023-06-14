@@ -24,24 +24,29 @@ public class TrackerTemplateSelector : IDataTemplate
     [Content]
     public Dictionary<string, IDataTemplate> Templates { get; } = new Dictionary<string, IDataTemplate>();
 
-    public IControl Build(object param)
+    public Control Build(object? param)
     {
+        if (param is null)
+        {
+            throw new Exception();
+        }
+
         var key = ((TrackerHitResult)param).Series?.TrackerKey;
 
         if (key != null && Templates.ContainsKey(key))
         {
-            return Templates[key].Build(param);
+            return Templates[key].Build(param)!;
         }
 
         if (Templates.ContainsKey(_defaultKey))
         {
-            return Templates[_defaultKey].Build(param);
+            return Templates[_defaultKey].Build(param)!;
         }
 
-        return s_defaultTemplate.Build(param);
+        return s_defaultTemplate.Build(param)!;
     }
 
-    public bool Match(object data)
+    public bool Match(object? data)
     {
         return data is TrackerHitResult;
     }

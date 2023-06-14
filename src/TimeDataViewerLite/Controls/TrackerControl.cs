@@ -66,7 +66,7 @@ public class TrackerControl : ContentControl
 
         Canvas.SetLeft(this, Position.X);
         Canvas.SetTop(this, Position.Y);
-        IControl? parent = this;
+        Control? parent = this;
         while (parent is not Canvas && parent != null)
         {
             parent = parent.GetVisualParent() as Control;

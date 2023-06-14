@@ -47,7 +47,7 @@
 
                     <StackPanel IsEnabled="{Binding !IsLoading}">
                         <TextBlock Text="Series:"/>
-                        <ItemsControl Items="{Binding Series}">
+                        <ItemsControl ItemsSource="{Binding Series}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="vm:SeriesViewModel">
                                     <DockPanel>
@@ -95,7 +95,7 @@
 
                     <Grid Grid.Column="3">
 
-                        <controls:CategoryListBox ItemsSource="{Binding Labels}"
+                        <controls:CategoryListBox ItemsSource2="{Binding Labels}"
                                         ActiveCount="{Binding #Slider2.Value}"
                                         Margin="8"
                                         Grid.Row="1" Width="150">

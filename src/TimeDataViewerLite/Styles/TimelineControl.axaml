@@ -145,8 +145,7 @@
                                 <Panel Grid.Row="1" Name="PART_BasePanel">
                                     <Canvas Name="PART_BackCanvas"
                                             Background="Transparent"/>
-                                    <controls:DrawCanvas Name="PART_DrawCanvas"
-                                                         Background="Transparent"/>
+                                    <controls:DrawCanvas Name="PART_DrawCanvas"/>
                                     <Canvas Name="PART_FrontCanvas"
                                             Background="Transparent"/>
                                     <Canvas Name="PART_OverlayCanvas">
